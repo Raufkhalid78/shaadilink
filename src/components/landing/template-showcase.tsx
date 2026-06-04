@@ -10,6 +10,7 @@ interface Template {
   gradient: string;
   pattern: string;
   accentColor: string;
+  accentGlow: string;
 }
 
 const templates: Template[] = [
@@ -17,43 +18,49 @@ const templates: Template[] = [
     name: "Emerald Noir",
     badge: "Classic",
     gradient: "from-[#0a1f1a] via-[#0f2e24] to-[#071510]",
-    pattern: "radial-gradient(circle at 30% 40%, rgba(15,107,78,0.3) 0%, transparent 50%), radial-gradient(circle at 70% 70%, rgba(180,145,77,0.1) 0%, transparent 40%)",
-    accentColor: "#0f6b4e",
+    pattern: "radial-gradient(circle at 30% 40%, rgba(15,107,78,0.3) 0%, transparent 50%), radial-gradient(circle at 70% 70%, rgba(180,145,77,0.15) 0%, transparent 40%)",
+    accentColor: "#2dd4a8",
+    accentGlow: "rgba(45,212,168,0.15)",
   },
   {
     name: "Crimson Royale",
     badge: "Royal",
     gradient: "from-[#1a0a0a] via-[#2a0f0f] to-[#150808]",
-    pattern: "radial-gradient(circle at 50% 30%, rgba(180,40,40,0.2) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(180,145,77,0.15) 0%, transparent 40%)",
-    accentColor: "#b42828",
+    pattern: "radial-gradient(circle at 50% 30%, rgba(180,40,40,0.25) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(180,145,77,0.2) 0%, transparent 40%)",
+    accentColor: "#ef4444",
+    accentGlow: "rgba(239,68,68,0.15)",
   },
   {
     name: "Rose Gold Blush",
     badge: "Classic",
     gradient: "from-[#1a1215] via-[#2a1a1e] to-[#150e11]",
-    pattern: "radial-gradient(circle at 40% 50%, rgba(212,168,83,0.15) 0%, transparent 50%), radial-gradient(circle at 60% 30%, rgba(200,130,130,0.12) 0%, transparent 40%)",
-    accentColor: "#d4a853",
+    pattern: "radial-gradient(circle at 40% 50%, rgba(212,168,83,0.2) 0%, transparent 50%), radial-gradient(circle at 60% 30%, rgba(200,130,130,0.18) 0%, transparent 40%)",
+    accentColor: "#f0b4a0",
+    accentGlow: "rgba(240,180,160,0.12)",
   },
   {
     name: "Mughal Emerald",
     badge: "Royal",
     gradient: "from-[#071a14] via-[#0d2e22] to-[#0a1f18]",
-    pattern: "radial-gradient(circle at 25% 25%, rgba(180,145,77,0.2) 0%, transparent 40%), radial-gradient(circle at 75% 75%, rgba(15,107,78,0.25) 0%, transparent 45%), repeating-conic-gradient(from 0deg at 50% 50%, rgba(180,145,77,0.03) 0deg 30deg, transparent 30deg 60deg)",
-    accentColor: "#0f6b4e",
+    pattern: "radial-gradient(circle at 25% 25%, rgba(180,145,77,0.25) 0%, transparent 40%), radial-gradient(circle at 75% 75%, rgba(15,107,78,0.3) 0%, transparent 45%), repeating-conic-gradient(from 0deg at 50% 50%, rgba(180,145,77,0.04) 0deg 30deg, transparent 30deg 60deg)",
+    accentColor: "#34d399",
+    accentGlow: "rgba(52,211,153,0.15)",
   },
   {
     name: "Midnight Royal",
     badge: "Royal",
     gradient: "from-[#080a1a] via-[#0f1228] to-[#0a0c18]",
-    pattern: "radial-gradient(circle at 60% 40%, rgba(80,80,180,0.15) 0%, transparent 50%), radial-gradient(circle at 30% 70%, rgba(180,145,77,0.12) 0%, transparent 40%)",
-    accentColor: "#5050b4",
+    pattern: "radial-gradient(circle at 60% 40%, rgba(100,100,200,0.2) 0%, transparent 50%), radial-gradient(circle at 30% 70%, rgba(180,145,77,0.15) 0%, transparent 40%)",
+    accentColor: "#818cf8",
+    accentGlow: "rgba(129,140,248,0.12)",
   },
   {
     name: "Golden Nawab",
     badge: "Royal",
     gradient: "from-[#1a0f08] via-[#281a0e] to-[#150c06]",
-    pattern: "radial-gradient(circle at 50% 50%, rgba(180,145,77,0.2) 0%, transparent 50%), radial-gradient(circle at 20% 30%, rgba(140,30,30,0.15) 0%, transparent 40%)",
-    accentColor: "#b4914d",
+    pattern: "radial-gradient(circle at 50% 50%, rgba(180,145,77,0.25) 0%, transparent 50%), radial-gradient(circle at 20% 30%, rgba(140,30,30,0.2) 0%, transparent 40%)",
+    accentColor: "#fbbf24",
+    accentGlow: "rgba(251,191,36,0.15)",
   },
 ];
 
@@ -65,7 +72,6 @@ export function TemplateShowcase() {
 
   const CARD_WIDTH = 280;
   const CARD_GAP = 20;
-  const VISIBLE_CARDS = typeof window !== "undefined" && window.innerWidth >= 768 ? 3 : 1;
 
   const maxIndex = Math.max(0, templates.length - 3);
 
@@ -102,9 +108,35 @@ export function TemplateShowcase() {
   }, [currentIndex, maxIndex]);
 
   return (
-    <section className="py-20 sm:py-28 bg-background relative overflow-hidden">
+    <section className="py-20 sm:py-28 relative overflow-hidden">
+      {/* Dark premium background with layered gradients */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0a1210] via-[#0f1a16] to-[#0a1210]" />
+      {/* Subtle radial glow */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse at 30% 30%, rgba(15,107,78,0.15) 0%, transparent 60%), radial-gradient(ellipse at 70% 70%, rgba(180,145,77,0.08) 0%, transparent 50%)",
+        }}
+      />
+      {/* Top and bottom gold border lines */}
+      <div
+        className="absolute top-0 inset-x-0 h-px"
+        style={{
+          background:
+            "linear-gradient(90deg, transparent, rgba(180,145,77,0.3) 20%, rgba(212,168,83,0.5) 50%, rgba(180,145,77,0.3) 80%, transparent)",
+        }}
+      />
+      <div
+        className="absolute bottom-0 inset-x-0 h-px"
+        style={{
+          background:
+            "linear-gradient(90deg, transparent, rgba(180,145,77,0.3) 20%, rgba(212,168,83,0.5) 50%, rgba(180,145,77,0.3) 80%, transparent)",
+        }}
+      />
+
       {/* Subtle gold geometric pattern background */}
-      <div className="absolute inset-0 opacity-[0.02]">
+      <div className="absolute inset-0 opacity-[0.03]">
         <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <pattern
@@ -115,10 +147,15 @@ export function TemplateShowcase() {
               height="120"
               patternUnits="userSpaceOnUse"
             >
-              <rect x="10" y="10" width="100" height="100" rx="4" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-gold" />
-              <line x1="60" y1="10" x2="60" y2="110" stroke="currentColor" strokeWidth="0.3" className="text-gold" />
-              <line x1="10" y1="60" x2="110" y2="60" stroke="currentColor" strokeWidth="0.3" className="text-gold" />
+              <path
+                d="M60 5 L115 60 L60 115 L5 60 Z"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="0.5"
+                className="text-gold"
+              />
               <circle cx="60" cy="60" r="25" fill="none" stroke="currentColor" strokeWidth="0.3" className="text-gold" />
+              <circle cx="60" cy="60" r="10" fill="none" stroke="currentColor" strokeWidth="0.3" className="text-gold" />
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#template-pattern)" />
@@ -131,16 +168,16 @@ export function TemplateShowcase() {
           <span className="inline-block font-calligraphy text-gold text-lg mb-3">
             ✦ Our Templates ✦
           </span>
-          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">
+          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-white">
             Beautiful Templates for Every Style
           </h2>
-          <p className="mt-4 text-muted-foreground max-w-xl mx-auto text-base sm:text-lg">
+          <p className="mt-4 text-white/60 max-w-xl mx-auto text-base sm:text-lg">
             From classic elegance to royal luxury — find the perfect design for your celebration.
           </p>
           {/* Gold divider */}
           <div className="mt-6 flex items-center justify-center gap-3">
             <div className="h-px w-16 bg-gradient-to-r from-transparent to-gold/60" />
-            <div className="w-2 h-2 rounded-full bg-gold/60" />
+            <div className="w-2 h-2 rounded-full bg-gold/70" />
             <div className="h-px w-16 bg-gradient-to-l from-transparent to-gold/60" />
           </div>
         </div>
@@ -155,7 +192,7 @@ export function TemplateShowcase() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 10 }}
                 onClick={handlePrev}
-                className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 w-12 h-12 items-center justify-center rounded-full bg-background border border-gold/30 shadow-lg shadow-gold/10 text-gold hover:bg-gold/10 hover:border-gold/50 transition-all duration-300"
+                className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 w-12 h-12 items-center justify-center rounded-full bg-[#0a1210]/90 backdrop-blur-sm border border-gold/30 shadow-lg shadow-black/30 text-gold hover:bg-gold/10 hover:border-gold/50 transition-all duration-300"
                 aria-label="Previous templates"
               >
                 <ChevronLeft className="w-5 h-5" />
@@ -171,7 +208,7 @@ export function TemplateShowcase() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -10 }}
                 onClick={handleNext}
-                className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 w-12 h-12 items-center justify-center rounded-full bg-background border border-gold/30 shadow-lg shadow-gold/10 text-gold hover:bg-gold/10 hover:border-gold/50 transition-all duration-300"
+                className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 w-12 h-12 items-center justify-center rounded-full bg-[#0a1210]/90 backdrop-blur-sm border border-gold/30 shadow-lg shadow-black/30 text-gold hover:bg-gold/10 hover:border-gold/50 transition-all duration-300"
                 aria-label="Next templates"
               >
                 <ChevronRight className="w-5 h-5" />
@@ -195,71 +232,84 @@ export function TemplateShowcase() {
                 transition={{ duration: 0.5, delay: index * 0.08 }}
               >
                 <motion.div
-                  whileHover={{ scale: 1.03 }}
+                  whileHover={{ scale: 1.03, y: -4 }}
                   transition={{ duration: 0.3 }}
-                  className="relative w-[280px] sm:w-[300px] aspect-[3/4] rounded-2xl overflow-hidden border border-gold/20 hover:border-gold/40 hover:shadow-xl hover:shadow-gold/10 transition-all duration-300 cursor-pointer group"
+                  className="relative w-[280px] sm:w-[300px] aspect-[3/4] rounded-2xl overflow-hidden border border-gold/20 hover:border-gold/50 hover:shadow-2xl hover:shadow-gold/10 transition-all duration-300 cursor-pointer group"
                 >
-                  {/* Template Background */}
+                  {/* Template Background - base gradient */}
                   <div
                     className={`absolute inset-0 bg-gradient-to-br ${template.gradient}`}
+                  />
+                  {/* Template Background - pattern overlay */}
+                  <div
+                    className="absolute inset-0"
                     style={{ backgroundImage: template.pattern }}
                   />
 
+                  {/* Subtle accent glow behind content */}
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      background: `radial-gradient(ellipse at 50% 45%, ${template.accentGlow} 0%, transparent 70%)`,
+                    }}
+                  />
+
                   {/* Decorative border pattern */}
-                  <div className="absolute inset-3 rounded-xl border border-white/[0.06] pointer-events-none" />
+                  <div className="absolute inset-3 rounded-xl border border-white/[0.08] pointer-events-none" />
 
                   {/* Gold corner accents */}
-                  <div className="absolute top-4 left-4 w-4 h-4">
-                    <div className="absolute top-0 left-0 w-full h-px bg-gold/40" />
-                    <div className="absolute top-0 left-0 h-full w-px bg-gold/40" />
+                  <div className="absolute top-4 left-4 w-5 h-5">
+                    <div className="absolute top-0 left-0 w-full h-px bg-gold/50" />
+                    <div className="absolute top-0 left-0 h-full w-px bg-gold/50" />
                   </div>
-                  <div className="absolute top-4 right-4 w-4 h-4">
-                    <div className="absolute top-0 right-0 w-full h-px bg-gold/40" />
-                    <div className="absolute top-0 right-0 h-full w-px bg-gold/40" />
+                  <div className="absolute top-4 right-4 w-5 h-5">
+                    <div className="absolute top-0 right-0 w-full h-px bg-gold/50" />
+                    <div className="absolute top-0 right-0 h-full w-px bg-gold/50" />
                   </div>
-                  <div className="absolute bottom-4 left-4 w-4 h-4">
-                    <div className="absolute bottom-0 left-0 w-full h-px bg-gold/40" />
-                    <div className="absolute bottom-0 left-0 h-full w-px bg-gold/40" />
+                  <div className="absolute bottom-4 left-4 w-5 h-5">
+                    <div className="absolute bottom-0 left-0 w-full h-px bg-gold/50" />
+                    <div className="absolute bottom-0 left-0 h-full w-px bg-gold/50" />
                   </div>
-                  <div className="absolute bottom-4 right-4 w-4 h-4">
-                    <div className="absolute bottom-0 right-0 w-full h-px bg-gold/40" />
-                    <div className="absolute bottom-0 right-0 h-full w-px bg-gold/40" />
+                  <div className="absolute bottom-4 right-4 w-5 h-5">
+                    <div className="absolute bottom-0 right-0 w-full h-px bg-gold/50" />
+                    <div className="absolute bottom-0 right-0 h-full w-px bg-gold/50" />
                   </div>
 
                   {/* Template content simulation */}
                   <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
-                    {/* Small decorative element */}
-                    <div className="w-8 h-px mb-4" style={{ backgroundColor: template.accentColor, opacity: 0.5 }} />
+                    {/* Decorative top line */}
+                    <div className="w-10 h-px mb-5" style={{ backgroundColor: template.accentColor, opacity: 0.6 }} />
 
-                    {/* Simulated names */}
-                    <p className="font-calligraphy text-white/90 text-2xl font-bold mb-1">
+                    {/* Simulated names - high contrast */}
+                    <p className="font-calligraphy text-[#f0e6d3] text-2xl font-bold mb-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
                       Aisha
                     </p>
                     <div className="flex items-center gap-2 my-2">
-                      <div className="w-6 h-px bg-gold/30" />
-                      <div className="w-1.5 h-1.5 rotate-45 border border-gold/40" />
-                      <div className="w-6 h-px bg-gold/30" />
+                      <div className="w-8 h-px bg-gradient-to-r from-transparent to-gold/50" />
+                      <div className="w-2 h-2 rotate-45 border border-gold/60" />
+                      <div className="w-8 h-px bg-gradient-to-l from-transparent to-gold/50" />
                     </div>
-                    <p className="font-calligraphy text-white/90 text-2xl font-bold mt-1">
+                    <p className="font-calligraphy text-[#f0e6d3] text-2xl font-bold mt-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
                       Ahmad
                     </p>
 
-                    {/* Simulated date */}
-                    <p className="font-display text-white/40 text-[10px] tracking-[0.25em] uppercase mt-4">
+                    {/* Simulated date - improved contrast */}
+                    <p className="font-display text-white/60 text-[10px] tracking-[0.25em] uppercase mt-5">
                       14 · February · 2026
                     </p>
 
-                    {/* Simulated venue */}
-                    <p className="font-display text-gold/40 text-[9px] tracking-[0.2em] uppercase mt-2">
+                    {/* Simulated venue - improved contrast */}
+                    <p className="font-display text-[#d4a853]/70 text-[9px] tracking-[0.2em] uppercase mt-2">
                       The Grand Palace · Lahore
                     </p>
 
-                    <div className="w-8 h-px mt-4" style={{ backgroundColor: template.accentColor, opacity: 0.5 }} />
+                    {/* Decorative bottom line */}
+                    <div className="w-10 h-px mt-5" style={{ backgroundColor: template.accentColor, opacity: 0.6 }} />
                   </div>
 
                   {/* Template name overlay at bottom */}
-                  <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 to-transparent pt-12 pb-5 px-5">
-                    <p className="font-display text-white text-sm font-semibold text-center">
+                  <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent pt-14 pb-5 px-5">
+                    <p className="font-display text-white text-sm font-semibold text-center drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
                       {template.name}
                     </p>
                   </div>
@@ -267,10 +317,10 @@ export function TemplateShowcase() {
                   {/* Badge */}
                   <div className="absolute top-5 right-5">
                     <span
-                      className={`px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase ${
+                      className={`px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase backdrop-blur-sm ${
                         template.badge === "Royal"
-                          ? "bg-gold/20 text-gold border border-gold/30"
-                          : "bg-white/10 text-white/70 border border-white/20"
+                          ? "bg-[#d4a853]/25 text-[#f0d78c] border border-[#d4a853]/40"
+                          : "bg-white/15 text-white/80 border border-white/25"
                       }`}
                     >
                       {template.badge}
@@ -279,7 +329,7 @@ export function TemplateShowcase() {
 
                   {/* Shimmer effect on hover */}
                   <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gold/[0.04] to-transparent animate-[shimmer_3s_ease-in-out_infinite]" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gold/[0.06] to-transparent animate-[shimmer_3s_ease-in-out_infinite]" />
                   </div>
                 </motion.div>
               </motion.div>

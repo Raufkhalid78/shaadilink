@@ -122,3 +122,33 @@ Stage Summary:
 - Template selection flow verified working: different templates show different color schemes
 - All landing page sections visually polished and consistent
 - Lint passes cleanly, no runtime errors
+
+---
+Task ID: 19
+Agent: Main Agent
+Task: Fix Template Showcase section coloring issues (dark background, text contrast)
+
+Work Log:
+- Analyzed user's screenshot with VLM - identified poor contrast between light section background and template card text
+- Root cause 1: Section used `bg-background` (near-white in light mode) while cards had dark gradients - jarring mismatch
+- Root cause 2: Card text used low opacity values (text-white/40 for date, text-gold/40 for venue) - hard to read
+- Root cause 3: Critical bug - inline `style={{ backgroundImage: template.pattern }}` was overriding Tailwind `bg-gradient-to-br` on the same div, so card gradients weren't rendering at all
+- Fixed section background: changed from `bg-background` to dark gradient `bg-gradient-to-b from-[#0a1210] via-[#0f1a16] to-[#0a1210]` with radial glows
+- Fixed section heading: changed from `text-foreground` to explicit `text-white` for guaranteed contrast
+- Fixed subtitle: changed from `text-muted-foreground` to `text-white/60`
+- Fixed card gradient rendering: split background into two separate absolute divs (base gradient + pattern overlay)
+- Improved card name text: changed from `text-white/90` to `text-[#f0e6d3]` (warm cream) with drop shadows
+- Improved date text: changed from `text-white/40` to `text-white/60`
+- Improved venue text: changed from `text-gold/40` to `text-[#d4a853]/70`
+- Added accent glow behind card content for visual depth
+- Added gold top/bottom border lines to section
+- Updated navigation arrows to match dark background
+- Enhanced badge styling with backdrop-blur
+- Verified with Agent Browser: dark background, white heading, readable text, premium look - all PASS
+
+Stage Summary:
+- Template Showcase section now has dark premium background matching the hero section aesthetic
+- All text properly visible with good contrast on dark background
+- Card gradients render correctly (base gradient + pattern overlay separated)
+- Names, date, venue all clearly readable on template cards
+- Section has cohesive, luxurious feel appropriate for wedding invitation platform
