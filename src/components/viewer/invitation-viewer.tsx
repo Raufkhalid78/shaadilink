@@ -22,6 +22,7 @@ import {
   Music2,
   User,
   MessageCircle,
+  Loader2,
 } from 'lucide-react'
 import type { FlowData } from '@/lib/flow-types'
 
@@ -56,6 +57,10 @@ export interface TemplateTheme {
   // Door style configuration
   doorStyle: {
     type: 'classic-doors' | 'curtains' | 'petals' | 'split-screen' | 'archway' | 'scroll' | 'geometric' | 'lotus' | 'lantern' | 'dome'
+    doorMaterial: 'wood' | 'lacquer' | 'glass' | 'stone' | 'painted'
+    panelLayout: '2-panel' | '4-panel' | 'arched-panel' | 'glass-grid' | 'flat' | 'carved' | 'studded'
+    handleType: 'ring-knocker' | 'lever' | 'pull' | 'iron-ring' | 'crystal' | 'none'
+    frameStyle: 'ornate' | 'simple' | 'arched-stone' | 'painted-rosettes' | 'modern'
     leftText: string
     rightText: string
     leftTextLang: 'ar' | 'en' | 'ur'
@@ -90,6 +95,10 @@ const TEMPLATE_THEMES: Record<string, TemplateTheme> = {
     confettiColors: ['#b4914d', '#d4a853', '#e8c66a', '#22c55e', '#f0d78c', '#fff4d0', '#e8a4b8'],
     doorStyle: {
       type: 'classic-doors',
+      doorMaterial: 'wood',
+      panelLayout: 'carved',
+      handleType: 'ring-knocker',
+      frameStyle: 'ornate',
       leftText: 'بِسْمِ اللَّهِ',
       rightText: 'الرَّحْمَنِ الرَّحِيمِ',
       leftTextLang: 'ar',
@@ -121,14 +130,18 @@ const TEMPLATE_THEMES: Record<string, TemplateTheme> = {
     fireworkColors: ['#dc2626', '#f87171', '#ef4444', '#b91c1c', '#d4a853', '#ffd700', '#fca5a5'],
     confettiColors: ['#dc2626', '#f87171', '#d4a853', '#ffd700', '#ef4444', '#fca5a5', '#e8c66a'],
     doorStyle: {
-      type: 'curtains',
+      type: 'classic-doors',
+      doorMaterial: 'lacquer',
+      panelLayout: '2-panel',
+      handleType: 'ring-knocker',
+      frameStyle: 'ornate',
       leftText: 'نّ',
       rightText: 'و',
       leftTextLang: 'ar',
       rightTextLang: 'ar',
       svgPattern: 'floral',
       centerIcon: '👑',
-      animationClass: 'curtain-open',
+      animationClass: 'door-open',
       buttonStyle: 'shield',
     },
   },
@@ -153,14 +166,18 @@ const TEMPLATE_THEMES: Record<string, TemplateTheme> = {
     fireworkColors: ['#f59e0b', '#fbbf24', '#d97706', '#92400e', '#fff4d0', '#fde68a', '#ffd700'],
     confettiColors: ['#f59e0b', '#fbbf24', '#d97706', '#ffd700', '#fde68a', '#fff4d0', '#e8a4b8'],
     doorStyle: {
-      type: 'scroll',
+      type: 'classic-doors',
+      doorMaterial: 'wood',
+      panelLayout: '2-panel',
+      handleType: 'lever',
+      frameStyle: 'simple',
       leftText: 'ع',
       rightText: 'ش',
       leftTextLang: 'ar',
       rightTextLang: 'ar',
       svgPattern: 'paisley',
       centerIcon: '💫',
-      animationClass: 'scroll-unfurl',
+      animationClass: 'door-open',
       buttonStyle: 'diamond',
     },
   },
@@ -185,14 +202,18 @@ const TEMPLATE_THEMES: Record<string, TemplateTheme> = {
     fireworkColors: ['#ec4899', '#f472b6', '#db2777', '#9d174d', '#ffd700', '#fbbf24', '#fca5a5'],
     confettiColors: ['#ec4899', '#f472b6', '#db2777', '#ffd700', '#fbbf24', '#fca5a5', '#e8c66a'],
     doorStyle: {
-      type: 'petals',
+      type: 'classic-doors',
+      doorMaterial: 'painted',
+      panelLayout: 'glass-grid',
+      handleType: 'crystal',
+      frameStyle: 'painted-rosettes',
       leftText: 'Garden',
       rightText: 'Romance',
       leftTextLang: 'en',
       rightTextLang: 'en',
       svgPattern: 'floral',
       centerIcon: '🌸',
-      animationClass: 'petal-open',
+      animationClass: 'door-open',
       buttonStyle: 'circle',
     },
   },
@@ -217,14 +238,18 @@ const TEMPLATE_THEMES: Record<string, TemplateTheme> = {
     fireworkColors: ['#60a5fa', '#93c5fd', '#3b82f6', '#1d4ed8', '#ffd700', '#d4a853', '#dbeafe'],
     confettiColors: ['#60a5fa', '#93c5fd', '#3b82f6', '#ffd700', '#d4a853', '#dbeafe', '#e8c66a'],
     doorStyle: {
-      type: 'split-screen',
+      type: 'classic-doors',
+      doorMaterial: 'glass',
+      panelLayout: 'flat',
+      handleType: 'none',
+      frameStyle: 'modern',
       leftText: 'Save',
       rightText: 'Date',
       leftTextLang: 'en',
       rightTextLang: 'en',
       svgPattern: 'minimal',
       centerIcon: '▷',
-      animationClass: 'split-open',
+      animationClass: 'door-open',
       buttonStyle: 'hexagon',
     },
   },
@@ -249,14 +274,18 @@ const TEMPLATE_THEMES: Record<string, TemplateTheme> = {
     fireworkColors: ['#2dd4bf', '#5eead4', '#14b8a6', '#0d9488', '#ffd700', '#d4a853', '#a7f3d0'],
     confettiColors: ['#2dd4bf', '#5eead4', '#14b8a6', '#ffd700', '#d4a853', '#a7f3d0', '#e8c66a'],
     doorStyle: {
-      type: 'archway',
+      type: 'classic-doors',
+      doorMaterial: 'stone',
+      panelLayout: 'carved',
+      handleType: 'iron-ring',
+      frameStyle: 'arched-stone',
       leftText: 'مغل',
       rightText: 'شاهی',
       leftTextLang: 'ur',
       rightTextLang: 'ur',
       svgPattern: 'mandala',
       centerIcon: '🕌',
-      animationClass: 'arch-open',
+      animationClass: 'door-open',
       buttonStyle: 'circle',
     },
   },
@@ -281,14 +310,18 @@ const TEMPLATE_THEMES: Record<string, TemplateTheme> = {
     fireworkColors: ['#fb7185', '#fda4af', '#e11d48', '#be123c', '#ffd700', '#d4a853', '#fecdd3'],
     confettiColors: ['#fb7185', '#fda4af', '#e11d48', '#ffd700', '#d4a853', '#fecdd3', '#e8c66a'],
     doorStyle: {
-      type: 'curtains',
+      type: 'classic-doors',
+      doorMaterial: 'painted',
+      panelLayout: '4-panel',
+      handleType: 'crystal',
+      frameStyle: 'painted-rosettes',
       leftText: 'Rose',
       rightText: 'Gold',
       leftTextLang: 'en',
       rightTextLang: 'en',
       svgPattern: 'floral',
       centerIcon: '🌹',
-      animationClass: 'curtain-open',
+      animationClass: 'door-open',
       buttonStyle: 'diamond',
     },
   },
@@ -314,6 +347,10 @@ const TEMPLATE_THEMES: Record<string, TemplateTheme> = {
     confettiColors: ['#a8a29e', '#d6d3d1', '#78716c', '#ffd700', '#d4a853', '#e7e5e4', '#e8c66a'],
     doorStyle: {
       type: 'classic-doors',
+      doorMaterial: 'painted',
+      panelLayout: '4-panel',
+      handleType: 'lever',
+      frameStyle: 'ornate',
       leftText: 'Ivory',
       rightText: 'Dream',
       leftTextLang: 'en',
@@ -345,14 +382,18 @@ const TEMPLATE_THEMES: Record<string, TemplateTheme> = {
     fireworkColors: ['#f59e0b', '#fbbf24', '#d97706', '#92400e', '#ffd700', '#fff4d0', '#fde68a', '#e8c66a'],
     confettiColors: ['#f59e0b', '#fbbf24', '#d97706', '#ffd700', '#fde68a', '#fff4d0', '#e8a4b8', '#ec4899'],
     doorStyle: {
-      type: 'dome',
+      type: 'classic-doors',
+      doorMaterial: 'wood',
+      panelLayout: 'studded',
+      handleType: 'iron-ring',
+      frameStyle: 'ornate',
       leftText: 'سلطنت',
       rightText: 'شاهی',
       leftTextLang: 'ur',
       rightTextLang: 'ur',
       svgPattern: 'dome',
       centerIcon: '🏰',
-      animationClass: 'dome-lift',
+      animationClass: 'door-open',
       buttonStyle: 'shield',
     },
   },
@@ -377,14 +418,18 @@ const TEMPLATE_THEMES: Record<string, TemplateTheme> = {
     fireworkColors: ['#f43f5e', '#fb7185', '#e11d48', '#be123c', '#ffd700', '#d4a853', '#fecdd3', '#e8c66a'],
     confettiColors: ['#f43f5e', '#fb7185', '#e11d48', '#ffd700', '#d4a853', '#fecdd3', '#e8c66a', '#fbbf24'],
     doorStyle: {
-      type: 'lantern',
+      type: 'classic-doors',
+      doorMaterial: 'wood',
+      panelLayout: 'carved',
+      handleType: 'ring-knocker',
+      frameStyle: 'ornate',
       leftText: 'Royal',
       rightText: 'Elegance',
       leftTextLang: 'en',
       rightTextLang: 'en',
       svgPattern: 'star',
       centerIcon: '⭐',
-      animationClass: 'lantern-open',
+      animationClass: 'door-open',
       buttonStyle: 'star',
     },
   },
@@ -1174,7 +1219,7 @@ function ScratchCard({ revealed, onReveal, theme }: { revealed: boolean; onRevea
 /* ─── Countdown Timer ─── */
 const COUNTDOWN_TARGET = new Date('2027-03-15T19:00:00+05:00').getTime()
 
-function CountdownTimer({ theme }: { theme: TemplateTheme }) {
+function CountdownTimer({ theme, translations }: { theme: TemplateTheme; translations?: Record<string, string> }) {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
 
   useEffect(() => {
@@ -1192,11 +1237,13 @@ function CountdownTimer({ theme }: { theme: TemplateTheme }) {
     return () => clearInterval(interval)
   }, [])
 
+  const t = (key: string, fallback: string) => translations?.[key] || fallback
+
   const units = [
-    { value: timeLeft.days, label: 'Days' },
-    { value: timeLeft.hours, label: 'Hours' },
-    { value: timeLeft.minutes, label: 'Minutes' },
-    { value: timeLeft.seconds, label: 'Seconds' },
+    { value: timeLeft.days, label: t('days', 'Days') },
+    { value: timeLeft.hours, label: t('hours', 'Hours') },
+    { value: timeLeft.minutes, label: t('minutes', 'Minutes') },
+    { value: timeLeft.seconds, label: t('seconds', 'Seconds') },
   ]
 
   return (
@@ -1298,209 +1345,195 @@ function MusicToggle({ isPlaying, onToggle, theme }: { isPlaying: boolean; onTog
   )
 }
 
-/* ─── Door SVG Patterns ─── */
-function DoorSvgPattern({ pattern, accent, accentRgb }: { pattern: string; accent: string; accentRgb: string }) {
-  switch (pattern) {
-    case 'arch':
+/* ─── Realistic Door Surface Material ─── */
+function DoorSurface({ theme }: { theme: TemplateTheme }) {
+  const ds = theme.doorStyle
+  const a = theme.accentRgb
+
+  // Material-specific CSS background textures
+  const materialStyles: Record<string, React.CSSProperties> = {
+    wood: {
+      backgroundImage: `
+        repeating-linear-gradient(87deg, transparent 0px, rgba(${a},0.04) 1px, transparent 2px, transparent 8px),
+        repeating-linear-gradient(2deg, rgba(${a},0.02) 0px, transparent 2px, transparent 20px),
+        repeating-linear-gradient(91deg, transparent 0px, rgba(${a},0.03) 1px, transparent 3px, transparent 12px),
+        linear-gradient(180deg, ${theme.bgDoor}, ${theme.bgSecondary})
+      `,
+    },
+    lacquer: {
+      backgroundImage: `
+        linear-gradient(155deg, rgba(255,255,255,0.12) 0%, transparent 30%, transparent 70%, rgba(255,255,255,0.06) 100%),
+        linear-gradient(180deg, ${theme.bgDoor}, ${theme.bgSecondary})
+      `,
+      boxShadow: `inset 0 1px 3px rgba(255,255,255,0.15), inset 0 -1px 2px rgba(0,0,0,0.2)`,
+    },
+    glass: {
+      backgroundImage: `
+        linear-gradient(155deg, rgba(255,255,255,0.08) 0%, transparent 40%, rgba(255,255,255,0.04) 60%, transparent 100%),
+        linear-gradient(180deg, ${theme.bgDoor}, ${theme.bgSecondary})
+      `,
+      backdropFilter: 'blur(2px)',
+    },
+    stone: {
+      backgroundImage: `
+        repeating-linear-gradient(0deg, transparent 0px, rgba(${a},0.015) 15px, transparent 16px, transparent 30px),
+        repeating-linear-gradient(90deg, transparent 0px, rgba(${a},0.01) 20px, transparent 21px, transparent 40px),
+        radial-gradient(ellipse at 30% 20%, rgba(${a},0.04), transparent 50%),
+        radial-gradient(ellipse at 70% 80%, rgba(${a},0.03), transparent 50%),
+        linear-gradient(180deg, ${theme.bgDoor}, ${theme.bgSecondary})
+      `,
+    },
+    painted: {
+      backgroundImage: `
+        repeating-linear-gradient(175deg, transparent 0px, rgba(255,255,255,0.01) 3px, transparent 6px, transparent 30px),
+        linear-gradient(180deg, ${theme.bgDoor}, ${theme.bgSecondary})
+      `,
+    },
+  }
+
+  // Ornamental inlay overlay (carved/studded patterns)
+  const renderInlay = () => {
+    if (ds.panelLayout === 'carved') {
       return (
-        <svg className="absolute inset-0 w-full h-full opacity-10" viewBox="0 0 200 400" fill="none">
-          <path d="M30 80 Q100 10 170 80" stroke={accent} strokeWidth="1.5" />
-          <path d="M40 80 Q100 25 160 80" stroke={accent} strokeWidth="1" />
-          <polygon points="100,130 140,180 100,230 60,180" stroke={accent} strokeWidth="1" fill="none" />
-          <line x1="60" y1="80" x2="60" y2="350" stroke={accent} strokeWidth="0.5" />
-          <line x1="140" y1="80" x2="140" y2="350" stroke={accent} strokeWidth="0.5" />
-          <line x1="30" y1="120" x2="170" y2="120" stroke={accent} strokeWidth="0.5" />
-          <line x1="30" y1="240" x2="170" y2="240" stroke={accent} strokeWidth="0.5" />
-        </svg>
+        <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 2 }}>
+          {/* Central ornamental inlay - Mughal-inspired carved pattern */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[45%] h-[30%]" style={{
+            border: `2px solid rgba(${a},0.3)`,
+            borderRadius: '8px 8px 4px 4px',
+            boxShadow: `inset 0 0 12px rgba(${a},0.1), 0 0 8px rgba(${a},0.08)`,
+          }}>
+            <div className="absolute inset-2" style={{
+              border: `1px solid rgba(${a},0.2)`,
+              borderRadius: '4px',
+            }} />
+            {/* Central motif */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full" style={{
+              border: `2px solid rgba(${a},0.35)`,
+              boxShadow: `inset 0 0 6px rgba(${a},0.15), 0 0 4px rgba(${a},0.1)`,
+            }}>
+              <div className="absolute inset-1.5 rounded-full" style={{ border: `1px solid rgba(${a},0.2)` }} />
+            </div>
+          </div>
+          {/* Top decorative arch carving */}
+          <svg className="absolute top-[8%] left-1/2 -translate-x-1/2 w-[50%] h-[15%] opacity-40" viewBox="0 0 120 50" fill="none">
+            <path d="M10 50 Q10 10 60 5 Q110 10 110 50" stroke={`rgba(${a},0.5)`} strokeWidth="1.2" fill="none" />
+            <path d="M18 50 Q18 18 60 13 Q102 18 102 50" stroke={`rgba(${a},0.3)`} strokeWidth="0.8" fill="none" />
+          </svg>
+          {/* Bottom decorative carving */}
+          <svg className="absolute bottom-[8%] left-1/2 -translate-x-1/2 w-[50%] h-[10%] opacity-30" viewBox="0 0 120 30" fill="none">
+            <path d="M10 0 Q30 25 60 28 Q90 25 110 0" stroke={`rgba(${a},0.5)`} strokeWidth="1" fill="none" />
+          </svg>
+        </div>
       )
-    case 'floral':
+    }
+    if (ds.panelLayout === 'studded') {
+      // Brass stud pattern
       return (
-        <svg className="absolute inset-0 w-full h-full opacity-10" viewBox="0 0 200 400" fill="none">
-          {/* Central flower */}
-          <circle cx="100" cy="180" r="25" stroke={accent} strokeWidth="0.8" />
-          <circle cx="100" cy="180" r="15" stroke={accent} strokeWidth="0.5" />
-          {[0, 60, 120, 180, 240, 300].map(a => (
-            <ellipse key={a} cx="100" cy="145" rx="8" ry="18" stroke={accent} strokeWidth="0.6" fill="none" transform={`rotate(${a} 100 180)`} />
-          ))}
-          {/* Vine stems */}
-          <path d="M40 50 Q60 100 50 160 Q40 220 60 280 Q70 320 55 380" stroke={accent} strokeWidth="0.6" />
-          <path d="M160 50 Q140 100 150 160 Q160 220 140 280 Q130 320 145 380" stroke={accent} strokeWidth="0.6" />
-          {/* Small buds */}
-          <circle cx="50" cy="100" r="4" stroke={accent} strokeWidth="0.4" fill="none" />
-          <circle cx="150" cy="100" r="4" stroke={accent} strokeWidth="0.4" fill="none" />
-          <circle cx="55" cy="240" r="3" stroke={accent} strokeWidth="0.4" fill="none" />
-          <circle cx="145" cy="240" r="3" stroke={accent} strokeWidth="0.4" fill="none" />
-          {/* Leaves */}
-          <path d="M48 140 Q60 130 50 120" stroke={accent} strokeWidth="0.4" fill="none" />
-          <path d="M152 140 Q140 130 150 120" stroke={accent} strokeWidth="0.4" fill="none" />
-          <path d="M58 300 Q70 290 60 280" stroke={accent} strokeWidth="0.4" fill="none" />
-          <path d="M142 300 Q130 290 140 280" stroke={accent} strokeWidth="0.4" fill="none" />
-        </svg>
-      )
-    case 'minimal':
-      return (
-        <svg className="absolute inset-0 w-full h-full opacity-8" viewBox="0 0 200 400" fill="none">
-          <line x1="40" y1="60" x2="160" y2="60" stroke={accent} strokeWidth="0.4" />
-          <line x1="40" y1="340" x2="160" y2="340" stroke={accent} strokeWidth="0.4" />
-          <line x1="70" y1="60" x2="70" y2="340" stroke={accent} strokeWidth="0.3" />
-          <line x1="130" y1="60" x2="130" y2="340" stroke={accent} strokeWidth="0.3" />
-          <circle cx="100" cy="200" r="2" fill={accent} opacity="0.4" />
-          <circle cx="70" cy="60" r="1.5" fill={accent} opacity="0.3" />
-          <circle cx="130" cy="60" r="1.5" fill={accent} opacity="0.3" />
-          <circle cx="70" cy="340" r="1.5" fill={accent} opacity="0.3" />
-          <circle cx="130" cy="340" r="1.5" fill={accent} opacity="0.3" />
-        </svg>
-      )
-    case 'mandala':
-      return (
-        <svg className="absolute inset-0 w-full h-full opacity-10" viewBox="0 0 200 400" fill="none">
-          {/* Central mandala */}
-          <circle cx="100" cy="200" r="60" stroke={accent} strokeWidth="0.6" />
-          <circle cx="100" cy="200" r="45" stroke={accent} strokeWidth="0.5" />
-          <circle cx="100" cy="200" r="30" stroke={accent} strokeWidth="0.4" />
-          <circle cx="100" cy="200" r="15" stroke={accent} strokeWidth="0.3" />
-          {/* Radiating lines */}
-          {Array.from({ length: 16 }).map((_, i) => (
-            <line key={i} x1="100" y1="140" x2="100" y2="55" stroke={accent} strokeWidth="0.3" opacity="0.4" transform={`rotate(${i * 22.5} 100 200)`} />
-          ))}
-          {/* Jali lattice - small diamonds */}
-          {[-30, 0, 30].map(dy =>
-            [-30, 0, 30].map(dx => (
-              <polygon key={`${dx}-${dy}`} points={`100,${200 + dy - 8} ${100 + dx + 8},${200 + dy} 100,${200 + dy + 8} ${100 + dx - 8},${200 + dy}`} stroke={accent} strokeWidth="0.3" fill="none" opacity="0.25" />
+        <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 2 }}>
+          {/* Stud pattern grid */}
+          {Array.from({ length: 5 }).map((_, row) =>
+            Array.from({ length: 3 }).map((_, col) => (
+              <div
+                key={`stud-${row}-${col}`}
+                className="absolute w-3 h-3 rounded-full"
+                style={{
+                  top: `${15 + row * 17}%`,
+                  left: `${20 + col * 25}%`,
+                  background: `radial-gradient(circle at 35% 35%, ${theme.accentLight}, ${theme.accent}, ${theme.accentDark})`,
+                  boxShadow: `0 1px 3px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.3)`,
+                  border: `0.5px solid rgba(${a},0.6)`,
+                }}
+              />
             ))
           )}
-          {/* Top and bottom arches */}
-          <path d="M60 80 Q100 40 140 80" stroke={accent} strokeWidth="0.5" />
-          <path d="M60 320 Q100 360 140 320" stroke={accent} strokeWidth="0.5" />
-        </svg>
-      )
-    case 'paisley':
-      return (
-        <svg className="absolute inset-0 w-full h-full opacity-10" viewBox="0 0 200 400" fill="none">
-          {/* Large paisley shape */}
-          <path d="M100 60 Q140 80 150 130 Q160 190 130 230 Q100 260 80 220 Q60 180 70 130 Q80 80 100 60Z" stroke={accent} strokeWidth="0.8" fill="none" />
-          {/* Inner detail */}
-          <path d="M100 90 Q125 105 130 140 Q135 180 115 205 Q100 220 90 195 Q80 170 85 140 Q90 105 100 90Z" stroke={accent} strokeWidth="0.4" fill="none" />
-          {/* Curl at top */}
-          <path d="M100 60 Q85 50 80 65 Q75 80 95 75" stroke={accent} strokeWidth="0.6" fill="none" />
-          {/* Dots inside */}
-          <circle cx="100" cy="140" r="3" fill={accent} opacity="0.3" />
-          <circle cx="110" cy="170" r="2" fill={accent} opacity="0.25" />
-          <circle cx="95" cy="200" r="2.5" fill={accent} opacity="0.2" />
-          {/* Decorative stem */}
-          <path d="M60 280 Q80 260 100 280 Q120 300 140 280 Q160 260 180 280" stroke={accent} strokeWidth="0.5" fill="none" />
-          <path d="M40 320 Q70 300 100 320 Q130 340 160 320" stroke={accent} strokeWidth="0.4" fill="none" />
-        </svg>
-      )
-    case 'diamond':
-      return (
-        <svg className="absolute inset-0 w-full h-full opacity-10" viewBox="0 0 200 400" fill="none">
-          {/* Diamond lattice grid */}
-          {Array.from({ length: 5 }).map((_, row) =>
-            Array.from({ length: 3 }).map((_, col) => {
-              const cx = 50 + col * 50
-              const cy = 60 + row * 70
-              return (
-                <polygon key={`${row}-${col}`} points={`${cx},${cy - 20} ${cx + 20},${cy} ${cx},${cy + 20} ${cx - 20},${cy}`} stroke={accent} strokeWidth="0.6" fill="none" />
-              )
-            })
-          )}
-          {/* Small dots at intersections */}
-          {Array.from({ length: 5 }).map((_, row) =>
-            Array.from({ length: 3 }).map((_, col) => {
-              const cx = 50 + col * 50
-              const cy = 60 + row * 70
-              return <circle key={`d-${row}-${col}`} cx={cx} cy={cy} r="1.5" fill={accent} opacity="0.3" />
-            })
-          )}
-          {/* Border lines */}
-          <line x1="20" y1="20" x2="180" y2="20" stroke={accent} strokeWidth="0.3" />
-          <line x1="20" y1="380" x2="180" y2="380" stroke={accent} strokeWidth="0.3" />
-        </svg>
-      )
-    case 'dome':
-      return (
-        <svg className="absolute inset-0 w-full h-full opacity-10" viewBox="0 0 200 400" fill="none">
-          {/* Dome shape */}
-          <path d="M30 250 Q30 80 100 50 Q170 80 170 250" stroke={accent} strokeWidth="1" fill="none" />
-          <path d="M40 250 Q40 100 100 70 Q160 100 160 250" stroke={accent} strokeWidth="0.6" fill="none" />
-          {/* Dome finial */}
-          <line x1="100" y1="50" x2="100" y2="30" stroke={accent} strokeWidth="0.8" />
-          <circle cx="100" cy="25" r="5" stroke={accent} strokeWidth="0.6" fill="none" />
-          {/* Minarets */}
-          <rect x="15" y="150" width="12" height="100" stroke={accent} strokeWidth="0.5" fill="none" />
-          <path d="M15 150 Q21 135 27 150" stroke={accent} strokeWidth="0.5" fill="none" />
-          <rect x="173" y="150" width="12" height="100" stroke={accent} strokeWidth="0.5" fill="none" />
-          <path d="M173 150 Q179 135 185 150" stroke={accent} strokeWidth="0.5" fill="none" />
-          {/* Base */}
-          <line x1="15" y1="250" x2="185" y2="250" stroke={accent} strokeWidth="0.8" />
-          <line x1="15" y1="260" x2="185" y2="260" stroke={accent} strokeWidth="0.5" />
-          {/* Arch windows */}
-          <path d="M70 250 Q70 210 100 200 Q130 210 130 250" stroke={accent} strokeWidth="0.5" fill="none" />
-        </svg>
-      )
-    case 'star':
-      return (
-        <svg className="absolute inset-0 w-full h-full opacity-10" viewBox="0 0 200 400" fill="none">
-          {/* 8-pointed star (Rub el Hizb) */}
-          <polygon points="100,120 115,145 145,145 125,165 135,195 100,175 65,195 75,165 55,145 85,145" stroke={accent} strokeWidth="0.8" fill="none" />
-          <polygon points="100,130 112,148 135,148 120,162 128,185 100,170 72,185 80,162 65,148 88,148" stroke={accent} strokeWidth="0.4" fill="none" />
-          {/* Smaller stars */}
-          <polygon points="100,280 108,290 120,290 112,298 115,310 100,302 85,310 88,298 80,290 92,290" stroke={accent} strokeWidth="0.5" fill="none" />
-          <polygon points="50,80 55,88 63,88 57,93 59,101 50,96 41,101 43,93 37,88 45,88" stroke={accent} strokeWidth="0.4" fill="none" />
-          <polygon points="150,80 155,88 163,88 157,93 159,101 150,96 141,101 143,93 137,88 145,88" stroke={accent} strokeWidth="0.4" fill="none" />
-          {/* Radiating lines */}
+          {/* Stud border rows */}
           {Array.from({ length: 8 }).map((_, i) => (
-            <line key={i} x1="100" y1="120" x2="100" y2="50" stroke={accent} strokeWidth="0.2" opacity="0.3" transform={`rotate(${i * 45} 100 160)`} />
+            <div
+              key={`top-stud-${i}`}
+              className="absolute w-2.5 h-2.5 rounded-full"
+              style={{
+                top: '5%',
+                left: `${10 + i * 11}%`,
+                background: `radial-gradient(circle at 35% 35%, ${theme.accentLight}, ${theme.accentDark})`,
+                boxShadow: `0 1px 2px rgba(0,0,0,0.4)`,
+              }}
+            />
           ))}
-        </svg>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div
+              key={`bot-stud-${i}`}
+              className="absolute w-2.5 h-2.5 rounded-full"
+              style={{
+                bottom: '5%',
+                left: `${10 + i * 11}%`,
+                background: `radial-gradient(circle at 35% 35%, ${theme.accentLight}, ${theme.accentDark})`,
+                boxShadow: `0 1px 2px rgba(0,0,0,0.4)`,
+              }}
+            />
+          ))}
+        </div>
       )
-    case 'geometric':
-      return (
-        <svg className="absolute inset-0 w-full h-full opacity-10" viewBox="0 0 200 400" fill="none">
-          {/* Interlocking geometric pattern */}
-          {Array.from({ length: 4 }).map((_, row) =>
-            Array.from({ length: 3 }).map((_, col) => {
-              const x = 40 + col * 55
-              const y = 60 + row * 90
-              return (
-                <g key={`${row}-${col}`}>
-                  <polygon points={`${x},${y - 20} ${x + 18},${y} ${x},${y + 20} ${x - 18},${y}`} stroke={accent} strokeWidth="0.5" fill="none" />
-                  <polygon points={`${x},${y - 12} ${x + 10},${y} ${x},${y + 12} ${x - 10},${y}`} stroke={accent} strokeWidth="0.3" fill="none" />
-                </g>
-              )
-            })
-          )}
-        </svg>
-      )
-    case 'lantern':
-      return (
-        <svg className="absolute inset-0 w-full h-full opacity-10" viewBox="0 0 200 400" fill="none">
-          {/* Lantern silhouette */}
-          <path d="M70 120 Q70 80 100 70 Q130 80 130 120" stroke={accent} strokeWidth="0.8" fill="none" />
-          <rect x="75" y="120" width="50" height="80" stroke={accent} strokeWidth="0.7" fill="none" rx="3" />
-          <path d="M75 200 Q75 220 100 230 Q125 220 130 200" stroke={accent} strokeWidth="0.8" fill="none" />
-          {/* Top hook */}
-          <path d="M95 70 Q95 55 100 50 Q105 55 105 70" stroke={accent} strokeWidth="0.5" fill="none" />
-          {/* Lantern glow lines */}
-          <line x1="85" y1="130" x2="85" y2="190" stroke={accent} strokeWidth="0.3" />
-          <line x1="100" y1="130" x2="100" y2="190" stroke={accent} strokeWidth="0.3" />
-          <line x1="115" y1="130" x2="115" y2="190" stroke={accent} strokeWidth="0.3" />
-          {/* Decorative bottom tassel */}
-          <line x1="100" y1="230" x2="100" y2="260" stroke={accent} strokeWidth="0.5" />
-          <circle cx="100" cy="265" r="4" stroke={accent} strokeWidth="0.4" fill="none" />
-          {/* Second smaller lantern */}
-          <path d="M40 260 Q40 240 55 235 Q70 240 70 260" stroke={accent} strokeWidth="0.5" fill="none" />
-          <rect x="42" y="260" width="26" height="40" stroke={accent} strokeWidth="0.4" fill="none" rx="2" />
-          <path d="M42 300 Q42 315 55 320 Q68 315 68 300" stroke={accent} strokeWidth="0.5" fill="none" />
-          <path d="M140 260 Q140 240 155 235 Q170 240 170 260" stroke={accent} strokeWidth="0.5" fill="none" />
-          <rect x="142" y="260" width="26" height="40" stroke={accent} strokeWidth="0.4" fill="none" rx="2" />
-          <path d="M142 300 Q142 315 155 320 Q168 315 168 300" stroke={accent} strokeWidth="0.5" fill="none" />
-        </svg>
-      )
-    default:
-      return null
+    }
+    return null
   }
+
+  // Glass pane grid for French door style
+  const renderGlassGrid = () => {
+    if (ds.panelLayout !== 'glass-grid') return null
+    const rows = 4
+    const cols = 2
+    return (
+      <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 2, padding: '8%' }}>
+        <div className="w-full h-full grid" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)`, gridTemplateRows: `repeat(${rows}, 1fr)`, gap: '4px' }}>
+          {Array.from({ length: rows * cols }).map((_, i) => (
+            <div key={`glass-${i}`} style={{
+              background: `linear-gradient(155deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 40%, rgba(255,255,255,0.04) 100%)`,
+              border: `2px solid rgba(${a},0.25)`,
+              borderRadius: '2px',
+              boxShadow: `inset 0 0 8px rgba(255,255,255,0.03), 0 1px 2px rgba(0,0,0,0.15)`,
+            }}>
+              {/* Glass reflection highlight */}
+              <div className="w-full h-full" style={{
+                background: `linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 50%)`,
+                borderRadius: '1px',
+              }} />
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1 }}>
+      {/* Material base texture */}
+      <div className="absolute inset-0" style={materialStyles[ds.doorMaterial] || materialStyles.wood} />
+      {/* Glass-specific frosted overlay */}
+      {ds.doorMaterial === 'glass' && (
+        <div className="absolute inset-0" style={{
+          background: `radial-gradient(ellipse at 40% 30%, rgba(255,255,255,0.06), transparent 60%)`,
+        }} />
+      )}
+      {/* Stone marble veining */}
+      {ds.doorMaterial === 'stone' && (
+        <svg className="absolute inset-0 w-full h-full opacity-15" viewBox="0 0 200 400" fill="none">
+          <path d="M30 50 Q80 80 60 150 Q40 220 90 280 Q120 320 80 400" stroke={`rgba(${a},0.4)`} strokeWidth="0.6" fill="none" />
+          <path d="M170 30 Q130 70 150 130 Q170 190 120 250 Q100 290 140 380" stroke={`rgba(${a},0.3)`} strokeWidth="0.4" fill="none" />
+          <path d="M100 0 Q90 60 110 120 Q130 180 100 240" stroke={`rgba(${a},0.2)`} strokeWidth="0.3" fill="none" />
+        </svg>
+      )}
+      {/* Lacquer gloss highlight */}
+      {ds.doorMaterial === 'lacquer' && (
+        <div className="absolute inset-0" style={{
+          background: `linear-gradient(160deg, rgba(255,255,255,0.1) 0%, transparent 25%, transparent 75%, rgba(255,255,255,0.04) 100%)`,
+        }} />
+      )}
+      {/* Panel inlay/carving overlay */}
+      {renderInlay()}
+      {/* Glass grid panes */}
+      {renderGlassGrid()}
+    </div>
+  )
 }
 
 /* ─── Door Panel Content ─── */
@@ -1598,83 +1631,199 @@ function DoorPanelContent({ theme, text, textLang }: { theme: TemplateTheme; tex
   )
 }
 
-/* ─── Door Handle ─── */
+/* ─── Door Handle - Per-type realistic hardware ─── */
 function DoorHandle({ theme, side }: { theme: TemplateTheme; side: 'left' | 'right' }) {
   const ds = theme.doorStyle
+  const a = theme.accentRgb
+  const al = theme.accentLight
+  const ad = theme.accentDark
+  const ac = theme.accent
   const posClass = side === 'left' ? 'right-5' : 'left-5'
-  // Different handle styles based on door type
-  if (ds.type === 'curtains') {
-    return (
-      <div className={`absolute ${side === 'left' ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2`}>
-        <div className="w-1 h-16 rounded-full opacity-20" style={{ backgroundColor: `rgba(${theme.accentRgb},0.5)` }} />
-      </div>
-    )
-  }
-  if (ds.type === 'split-screen') {
-    return null
-  }
-  if (ds.type === 'petals') {
-    return null
-  }
-  if (ds.type === 'dome') {
-    return null
-  }
-  if (ds.type === 'scroll') {
-    return (
-      <div className={`absolute ${side === 'left' ? 'right-2' : 'left-2'} top-1/2 -translate-y-1/2`}>
-        <div className="w-3 h-3 rounded-full border" style={{ borderColor: `rgba(${theme.accentRgb},0.4)` }} />
-      </div>
-    )
-  }
-  // Realistic 3D door handle/knocker for classic, archway, lantern types - LARGER & MORE VISIBLE
-  return (
-    <div className={`absolute ${posClass} top-1/2 -translate-y-1/2 flex flex-col items-center gap-3 z-10`}>
-      {/* Door knocker ring - scaled up */}
-      <div className="relative">
-        {/* Knocker plate / backplate - larger */}
-        <div className="w-10 h-12 rounded" style={{
-          background: `linear-gradient(145deg, ${theme.accentLight}, ${theme.accent}, ${theme.accentDark})`,
-          boxShadow: `0 3px 8px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.3), inset 0 -1px 2px rgba(0,0,0,0.2)`,
-          border: `1px solid rgba(${theme.accentRgb},0.6)`,
-        }}>
-          {/* Plate screw holes */}
-          <div className="absolute top-1.5 left-1.5 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'rgba(0,0,0,0.25)', boxShadow: 'inset 0 0.5px 1px rgba(255,255,255,0.15)' }} />
-          <div className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'rgba(0,0,0,0.25)', boxShadow: 'inset 0 0.5px 1px rgba(255,255,255,0.15)' }} />
-          <div className="absolute bottom-1.5 left-1.5 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'rgba(0,0,0,0.25)', boxShadow: 'inset 0 0.5px 1px rgba(255,255,255,0.15)' }} />
-          <div className="absolute bottom-1.5 right-1.5 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'rgba(0,0,0,0.25)', boxShadow: 'inset 0 0.5px 1px rgba(255,255,255,0.15)' }} />
+
+  switch (ds.handleType) {
+    case 'none':
+      return null
+
+    case 'ring-knocker':
+      return (
+        <div className={`absolute ${posClass} top-1/2 -translate-y-1/2 flex flex-col items-center gap-3 z-10`}>
+          {/* Door knocker ring */}
+          <div className="relative">
+            {/* Knocker plate / backplate */}
+            <div className="w-10 h-12 rounded" style={{
+              background: `linear-gradient(145deg, ${al}, ${ac}, ${ad})`,
+              boxShadow: `0 3px 8px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.3), inset 0 -1px 2px rgba(0,0,0,0.2)`,
+              border: `1px solid rgba(${a},0.6)`,
+            }}>
+              {/* Plate screw holes */}
+              <div className="absolute top-1.5 left-1.5 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'rgba(0,0,0,0.25)', boxShadow: 'inset 0 0.5px 1px rgba(255,255,255,0.15)' }} />
+              <div className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'rgba(0,0,0,0.25)', boxShadow: 'inset 0 0.5px 1px rgba(255,255,255,0.15)' }} />
+              <div className="absolute bottom-1.5 left-1.5 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'rgba(0,0,0,0.25)', boxShadow: 'inset 0 0.5px 1px rgba(255,255,255,0.15)' }} />
+              <div className="absolute bottom-1.5 right-1.5 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'rgba(0,0,0,0.25)', boxShadow: 'inset 0 0.5px 1px rgba(255,255,255,0.15)' }} />
+            </div>
+            {/* Knocker ring */}
+            <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-7 h-9 rounded-full border-[3px]" style={{
+              borderColor: ac,
+              boxShadow: `0 2px 6px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.25), 0 0 8px rgba(${a},0.3)`,
+              background: `radial-gradient(circle at 35% 30%, rgba(255,255,255,0.12), transparent)`,
+            }} />
+            {/* Attachment point */}
+            <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full" style={{
+              background: `linear-gradient(145deg, ${al}, ${ad})`,
+              boxShadow: `0 1px 2px rgba(0,0,0,0.3)`,
+            }} />
+          </div>
+          {/* Keyhole plate */}
+          <div className="w-6 h-10 rounded relative" style={{
+            background: `linear-gradient(145deg, ${ad}, ${ac}, ${ad})`,
+            boxShadow: `0 2px 5px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.2)`,
+            border: `1px solid rgba(${a},0.4)`,
+          }}>
+            <div className="absolute top-2 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full" style={{ backgroundColor: 'rgba(0,0,0,0.7)', boxShadow: 'inset 0 0.5px 1px rgba(255,255,255,0.1)' }} />
+            <div className="absolute top-3.5 left-1/2 -translate-x-1/2 w-0.5 h-3" style={{ backgroundColor: 'rgba(0,0,0,0.7)' }} />
+            <div className="absolute inset-1 rounded-sm border" style={{ borderColor: `rgba(${a},0.25)` }} />
+          </div>
         </div>
-        {/* Knocker ring - larger with metallic sheen */}
-        <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-7 h-9 rounded-full border-[3px]" style={{
-          borderColor: theme.accent,
-          boxShadow: `0 2px 6px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.25), 0 0 8px rgba(${theme.accentRgb},0.3)`,
-          background: `radial-gradient(circle at 35% 30%, rgba(255,255,255,0.12), transparent)`,
-        }} />
-        {/* Knocker ring hanging attachment point */}
-        <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full" style={{
-          background: `linear-gradient(145deg, ${theme.accentLight}, ${theme.accentDark})`,
-          boxShadow: `0 1px 2px rgba(0,0,0,0.3)`,
-        }} />
-      </div>
-      {/* Keyhole plate - larger and more detailed */}
-      <div className="w-6 h-10 rounded relative" style={{
-        background: `linear-gradient(145deg, ${theme.accentDark}, ${theme.accent}, ${theme.accentDark})`,
-        boxShadow: `0 2px 5px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.2)`,
-        border: `1px solid rgba(${theme.accentRgb},0.4)`,
-      }}>
-        {/* Keyhole circle */}
-        <div className="absolute top-2 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full" style={{
-          backgroundColor: 'rgba(0,0,0,0.7)',
-          boxShadow: 'inset 0 0.5px 1px rgba(255,255,255,0.1)',
-        }} />
-        {/* Keyhole slot */}
-        <div className="absolute top-3.5 left-1/2 -translate-x-1/2 w-0.5 h-3" style={{
-          backgroundColor: 'rgba(0,0,0,0.7)',
-        }} />
-        {/* Plate decorative border */}
-        <div className="absolute inset-1 rounded-sm border" style={{ borderColor: `rgba(${theme.accentRgb},0.25)` }} />
-      </div>
-    </div>
-  )
+      )
+
+    case 'lever':
+      return (
+        <div className={`absolute ${posClass} top-1/2 -translate-y-1/2 flex flex-col items-center gap-2 z-10`}>
+          {/* Lever handle - horizontal bar */}
+          <div className="relative">
+            {/* Backplate */}
+            <div className="w-8 h-20 rounded-lg" style={{
+              background: `linear-gradient(145deg, ${al}, ${ac}, ${ad})`,
+              boxShadow: `0 2px 6px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.2)`,
+              border: `1px solid rgba(${a},0.5)`,
+            }}>
+              {/* Screw holes */}
+              <div className="absolute top-2 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'rgba(0,0,0,0.3)', boxShadow: 'inset 0 0.5px 1px rgba(255,255,255,0.15)' }} />
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'rgba(0,0,0,0.3)', boxShadow: 'inset 0 0.5px 1px rgba(255,255,255,0.15)' }} />
+            </div>
+            {/* Lever arm */}
+            <div className="absolute top-1/2 -translate-y-1/2" style={{
+              [side === 'left' ? 'right' : 'left']: '100%',
+              width: '28px',
+              height: '6px',
+              background: `linear-gradient(180deg, ${al}, ${ac}, ${ad})`,
+              borderRadius: '0 3px 3px 0',
+              boxShadow: `0 2px 4px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.15)`,
+            }} />
+            {/* Lever tip */}
+            <div className="absolute top-1/2 -translate-y-1/2" style={{
+              [side === 'left' ? 'right' : 'left']: 'calc(100% + 24px)',
+              width: '8px',
+              height: '10px',
+              background: `linear-gradient(145deg, ${al}, ${ad})`,
+              borderRadius: '0 4px 4px 0',
+              boxShadow: `0 1px 3px rgba(0,0,0,0.3)`,
+            }} />
+          </div>
+          {/* Keyhole */}
+          <div className="w-4 h-6 rounded relative" style={{
+            background: `linear-gradient(145deg, ${ad}, ${ac})`,
+            boxShadow: `0 1px 3px rgba(0,0,0,0.3)`,
+            border: `1px solid rgba(${a},0.3)`,
+          }}>
+            <div className="absolute top-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }} />
+            <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-0.5 h-2" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }} />
+          </div>
+        </div>
+      )
+
+    case 'iron-ring':
+      return (
+        <div className={`absolute ${posClass} top-1/2 -translate-y-1/2 flex flex-col items-center gap-4 z-10`}>
+          {/* Heavy iron ring handle */}
+          <div className="relative">
+            {/* Mounting plate */}
+            <div className="w-10 h-14 rounded-sm" style={{
+              background: `linear-gradient(145deg, #555, #333, #222)`,
+              boxShadow: `0 3px 8px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.08)`,
+              border: `1px solid rgba(${a},0.3)`,
+            }}>
+              {/* Rivets */}
+              <div className="absolute top-1.5 left-1.5 w-2 h-2 rounded-full" style={{ background: 'radial-gradient(circle at 40% 35%, #666, #222)', boxShadow: '0 1px 1px rgba(0,0,0,0.3)' }} />
+              <div className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full" style={{ background: 'radial-gradient(circle at 40% 35%, #666, #222)', boxShadow: '0 1px 1px rgba(0,0,0,0.3)' }} />
+              <div className="absolute bottom-1.5 left-1.5 w-2 h-2 rounded-full" style={{ background: 'radial-gradient(circle at 40% 35%, #666, #222)', boxShadow: '0 1px 1px rgba(0,0,0,0.3)' }} />
+              <div className="absolute bottom-1.5 right-1.5 w-2 h-2 rounded-full" style={{ background: 'radial-gradient(circle at 40% 35%, #666, #222)', boxShadow: '0 1px 1px rgba(0,0,0,0.3)' }} />
+            </div>
+            {/* Iron ring */}
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-10 rounded-full border-[4px]" style={{
+              borderColor: '#444',
+              boxShadow: `0 2px 6px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.08), 0 0 6px rgba(${a},0.15)`,
+              background: `radial-gradient(circle at 40% 35%, rgba(255,255,255,0.06), transparent)`,
+            }} />
+            {/* Ring attachment */}
+            <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full" style={{
+              background: `linear-gradient(145deg, #555, #222)`,
+              boxShadow: `0 1px 2px rgba(0,0,0,0.4)`,
+            }} />
+          </div>
+        </div>
+      )
+
+    case 'crystal':
+      return (
+        <div className={`absolute ${posClass} top-1/2 -translate-y-1/2 flex flex-col items-center gap-2 z-10`}>
+          {/* Crystal/delicate knob */}
+          <div className="relative">
+            {/* Small backplate */}
+            <div className="w-6 h-6 rounded-full" style={{
+              background: `linear-gradient(145deg, ${al}, ${ac})`,
+              boxShadow: `0 2px 5px rgba(0,0,0,0.3), inset 0 1px 2px rgba(255,255,255,0.3)`,
+              border: `1px solid rgba(${a},0.5)`,
+            }} />
+            {/* Crystal knob - clear/frosted look */}
+            <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-7 h-7 rounded-full" style={{
+              background: `radial-gradient(circle at 35% 30%, rgba(255,255,255,0.35), rgba(255,255,255,0.15) 40%, rgba(${a},0.2) 70%, rgba(${a},0.1))`,
+              boxShadow: `0 2px 8px rgba(0,0,0,0.3), 0 0 12px rgba(${a},0.2), inset 0 1px 3px rgba(255,255,255,0.3)`,
+              border: `1.5px solid rgba(${a},0.35)`,
+            }}>
+              {/* Internal refraction highlight */}
+              <div className="absolute top-1 left-1.5 w-2 h-2 rounded-full" style={{
+                background: `radial-gradient(circle, rgba(255,255,255,0.6), transparent)`,
+              }} />
+            </div>
+            {/* Knob stem */}
+            <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-1.5 h-3" style={{
+              background: `linear-gradient(180deg, ${al}, ${ac})`,
+              borderRadius: '1px',
+            }} />
+          </div>
+        </div>
+      )
+
+    case 'pull':
+      return (
+        <div className={`absolute ${posClass} top-1/2 -translate-y-1/2 z-10`}>
+          {/* Modern pull handle - horizontal bar */}
+          <div className="w-2 h-16 rounded-full" style={{
+            background: `linear-gradient(180deg, #888, #555, #888)`,
+            boxShadow: `0 2px 6px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.15)`,
+          }}>
+            {/* Top mount */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-3 rounded-sm" style={{
+              background: `linear-gradient(145deg, #777, #444)`,
+              boxShadow: `0 1px 2px rgba(0,0,0,0.3)`,
+            }}>
+              <div className="absolute top-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full" style={{ backgroundColor: 'rgba(0,0,0,0.3)' }} />
+            </div>
+            {/* Bottom mount */}
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-3 rounded-sm" style={{
+              background: `linear-gradient(145deg, #777, #444)`,
+              boxShadow: `0 1px 2px rgba(0,0,0,0.3)`,
+            }}>
+              <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full" style={{ backgroundColor: 'rgba(0,0,0,0.3)' }} />
+            </div>
+          </div>
+        </div>
+      )
+
+    default:
+      return null
+  }
 }
 
 /* ─── Center Button Styles ─── */
@@ -1853,31 +2002,118 @@ function ScrollCap({ side, accent, accentRgb }: { side: 'top' | 'bottom'; accent
   )
 }
 
-/* ─── 3D Door Panel Inset (Raised Panel) ─── */
-function DoorPanelInset({ x, y, w, h, accent, accentRgb }: { x: string; y: string; w: string; h: string; accent: string; accentRgb: string }) {
+/* ─── 3D Door Panel Inset (Raised Panel) - Multi-Layout ─── */
+function DoorPanelInset({ x, y, w, h, accent, accentRgb, arched }: { x: string; y: string; w: string; h: string; accent: string; accentRgb: string; arched?: boolean }) {
   return (
     <div className="absolute" style={{
       left: x, top: y, width: w, height: h,
       background: `linear-gradient(145deg, rgba(${accentRgb},0.08), rgba(${accentRgb},0.16))`,
       border: `1.5px solid rgba(${accentRgb},0.25)`,
-      borderRadius: '3px',
+      borderRadius: arched ? '8px 8px 3px 3px' : '3px',
       boxShadow: `inset 2px 2px 6px rgba(0,0,0,0.25), inset -2px -2px 4px rgba(${accentRgb},0.1), 0 1px 3px rgba(${accentRgb},0.15)`,
     }}>
       {/* Inner recess border - gives raised panel effect */}
       <div className="absolute" style={{
         left: '5px', top: '5px', right: '5px', bottom: '5px',
         border: `1px solid rgba(${accentRgb},0.12)`,
-        borderRadius: '2px',
-      boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.12), 0 0.5px 1px rgba(${accentRgb},0.08)',
+        borderRadius: arched ? '6px 6px 2px 2px' : '2px',
+        boxShadow: `inset 0 1px 2px rgba(0,0,0,0.12), 0 0.5px 1px rgba(${accentRgb},0.08)`,
       }} />
       {/* Subtle inner highlight - simulates light catching the panel edge */}
       <div className="absolute" style={{
         left: '1px', top: '1px', right: '60%', bottom: '85%',
-      background: `linear-gradient(135deg, rgba(${accentRgb},0.12), transparent)`,
-      borderRadius: '2px 0 0 0',
+        background: `linear-gradient(135deg, rgba(${accentRgb},0.12), transparent)`,
+        borderRadius: arched ? '6px 0 0 0' : '2px 0 0 0',
       }} />
+      {/* Arched top detail */}
+      {arched && (
+        <svg className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-[30%] opacity-30" viewBox="0 0 100 30" fill="none">
+          <path d="M5 30 Q5 5 50 2 Q95 5 95 30" stroke={`rgba(${accentRgb},0.5)`} strokeWidth="0.8" fill="none" />
+        </svg>
+      )}
     </div>
   )
+}
+
+/* ─── Door Panel Layout Renderer ─── */
+function DoorPanelLayout({ theme, side }: { theme: TemplateTheme; side: 'left' | 'right' }) {
+  const ds = theme.doorStyle
+  const a = theme.accentRgb
+  const ac = theme.accent
+  // Panel inset position depends on handle side - offset panels away from handle
+  const panelLeft = side === 'left' ? '12%' : '8%'
+  const panelW = '55%'
+
+  switch (ds.panelLayout) {
+    case '2-panel':
+      return (
+        <>
+          <DoorPanelInset x={panelLeft} y="10%" w={panelW} h="32%" accent={ac} accentRgb={a} />
+          <DoorPanelInset x={panelLeft} y="56%" w={panelW} h="32%" accent={ac} accentRgb={a} />
+        </>
+      )
+    case '4-panel':
+      return (
+        <>
+          <DoorPanelInset x={panelLeft} y="6%" w={panelW} h="20%" accent={ac} accentRgb={a} />
+          <DoorPanelInset x={panelLeft} y="30%" w={panelW} h="20%" accent={ac} accentRgb={a} />
+          <DoorPanelInset x={panelLeft} y="56%" w={panelW} h="18%" accent={ac} accentRgb={a} />
+          <DoorPanelInset x={panelLeft} y="78%" w={panelW} h="16%" accent={ac} accentRgb={a} />
+        </>
+      )
+    case 'arched-panel':
+      return (
+        <>
+          <DoorPanelInset x={panelLeft} y="8%" w={panelW} h="38%" accent={ac} accentRgb={a} arched />
+          <DoorPanelInset x={panelLeft} y="56%" w={panelW} h="32%" accent={ac} accentRgb={a} />
+        </>
+      )
+    case 'carved':
+      // Carved doors have subtle recessed outlines instead of raised panels
+      return (
+        <>
+          <div className="absolute" style={{
+            left: panelLeft, top: '10%', width: panelW, height: '80%',
+            border: `1px solid rgba(${a},0.15)`,
+            borderRadius: '4px',
+            boxShadow: `inset 0 0 10px rgba(0,0,0,0.15)`,
+          }}>
+            <div className="absolute" style={{
+              left: '6px', top: '6px', right: '6px', bottom: '6px',
+              border: `1px solid rgba(${a},0.1)`,
+              borderRadius: '2px',
+            }} />
+          </div>
+        </>
+      )
+    case 'studded':
+      // Studded doors have a border outline but no raised panels
+      return (
+        <>
+          <div className="absolute" style={{
+            left: '10%', top: '10%', width: '70%', height: '80%',
+            border: `2px solid rgba(${a},0.2)`,
+            borderRadius: '3px',
+            boxShadow: `inset 0 0 8px rgba(0,0,0,0.1)`,
+          }} />
+        </>
+      )
+    case 'glass-grid':
+      // French door - glass grid is handled by DoorSurface, just add a subtle outer border
+      return (
+        <>
+          <div className="absolute" style={{
+            left: '6%', top: '6%', width: '88%', height: '88%',
+            border: `2px solid rgba(${a},0.2)`,
+            borderRadius: '3px',
+          }} />
+        </>
+      )
+    case 'flat':
+    default:
+      // Flat / modern - no panels, just a subtle border
+      return null
+  }
 }
 
 /* ─── Door Hinges ─── */
@@ -1916,86 +2152,253 @@ function DoorHinges({ side, accent, accentRgb }: { side: 'left' | 'right'; accen
   )
 }
 
-/* ─── Door Frame ─── */
-function DoorFrame({ theme, type }: { theme: TemplateTheme; type: string }) {
-  const frameColor = theme.bgDoor
-  const frameAccent = theme.accent
-  const frameAccentRgb = theme.accentRgb
-  return (
-    <div className="absolute inset-0 pointer-events-none z-[1]">
-      {/* Top frame bar - wider and more prominent */}
-      <div className="absolute top-0 left-0 right-0 h-8" style={{
-        background: `linear-gradient(180deg, ${frameColor}, ${frameColor}cc)`,
-        borderBottom: `2px solid rgba(${frameAccentRgb},0.3)`,
-        boxShadow: `0 4px 12px rgba(0,0,0,0.4), inset 0 -2px 4px rgba(${frameAccentRgb},0.12)`,
-      }}>
-        {/* Top frame decorative line */}
-        <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1/3 h-px" style={{ backgroundColor: `rgba(${frameAccentRgb},0.25)` }} />
-        {/* Top frame inner bevel */}
-        <div className="absolute bottom-0 left-0 right-0 h-1" style={{
-          background: `linear-gradient(180deg, rgba(${frameAccentRgb},0.08), transparent)`,
-        }} />
-      </div>
-      {/* Bottom threshold - wider */}
-      <div className="absolute bottom-0 left-0 right-0 h-7" style={{
-        background: `linear-gradient(0deg, ${frameColor}, ${frameColor}bb)`,
-        borderTop: `2px solid rgba(${frameAccentRgb},0.3)`,
-        boxShadow: `0 -3px 10px rgba(0,0,0,0.3), inset 0 2px 4px rgba(${frameAccentRgb},0.1)`,
-      }}>
-        {/* Threshold step line */}
-        <div className="absolute top-1 left-1/2 -translate-x-1/2 w-1/4 h-px" style={{ backgroundColor: `rgba(${frameAccentRgb},0.2)` }} />
-      </div>
-      {/* Left frame pillar - wider with carvings */}
-      <div className="absolute top-8 left-0 w-7 bottom-7" style={{
-        background: `linear-gradient(90deg, ${frameColor}, ${frameColor}99)`,
-        borderRight: `2px solid rgba(${frameAccentRgb},0.25)`,
-        boxShadow: `4px 0 12px rgba(0,0,0,0.3), inset -2px 0 4px rgba(${frameAccentRgb},0.08)`,
-      }}>
-        {/* Decorative carving on frame - more visible */}
-        <div className="absolute top-[15%] left-1/2 -translate-x-1/2 w-2 h-[70%]" style={{
-          borderLeft: `1.5px solid rgba(${frameAccentRgb},0.25)`,
-          borderRight: `1.5px solid rgba(${frameAccentRgb},0.25)`,
-        }} />
-        {/* Frame groove lines */}
-        <div className="absolute top-[20%] left-1 w-5 h-px" style={{ backgroundColor: `rgba(${frameAccentRgb},0.15)` }} />
-        <div className="absolute top-[50%] left-1 w-5 h-px" style={{ backgroundColor: `rgba(${frameAccentRgb},0.15)` }} />
-        <div className="absolute top-[80%] left-1 w-5 h-px" style={{ backgroundColor: `rgba(${frameAccentRgb},0.15)` }} />
-      </div>
-      {/* Right frame pillar - wider with carvings */}
-      <div className="absolute top-8 right-0 w-7 bottom-7" style={{
-        background: `linear-gradient(270deg, ${frameColor}, ${frameColor}99)`,
-        borderLeft: `2px solid rgba(${frameAccentRgb},0.25)`,
-        boxShadow: `-4px 0 12px rgba(0,0,0,0.3), inset 2px 0 4px rgba(${frameAccentRgb},0.08)`,
-      }}>
-        {/* Decorative carving on frame - more visible */}
-        <div className="absolute top-[15%] left-1/2 -translate-x-1/2 w-2 h-[70%]" style={{
-          borderLeft: `1.5px solid rgba(${frameAccentRgb},0.25)`,
-          borderRight: `1.5px solid rgba(${frameAccentRgb},0.25)`,
-        }} />
-        {/* Frame groove lines */}
-        <div className="absolute top-[20%] right-1 w-5 h-px" style={{ backgroundColor: `rgba(${frameAccentRgb},0.15)` }} />
-        <div className="absolute top-[50%] right-1 w-5 h-px" style={{ backgroundColor: `rgba(${frameAccentRgb},0.15)` }} />
-        <div className="absolute top-[80%] right-1 w-5 h-px" style={{ backgroundColor: `rgba(${frameAccentRgb},0.15)` }} />
-      </div>
-      {/* Corner accents - larger and more visible */}
+/* ─── Door Frame - Per-style frame rendering ─── */
+function DoorFrame({ theme }: { theme: TemplateTheme }) {
+  const ds = theme.doorStyle
+  const fc = theme.bgDoor
+  const a = theme.accentRgb
+  const ac = theme.accent
+
+  const renderCornerAccents = () => (
+    <>
       {[
         { top: '0', left: '0' },
         { top: '0', right: '0' },
         { bottom: '0', left: '0' },
         { bottom: '0', right: '0' },
       ].map((pos, i) => (
-        <div key={i} className="absolute w-8 h-8" style={{ ...pos, background: `radial-gradient(circle at center, rgba(${frameAccentRgb},0.25), transparent)` }} />
+        <div key={i} className="absolute w-8 h-8" style={{ ...pos, background: `radial-gradient(circle at center, rgba(${a},0.25), transparent)` }} />
       ))}
-      {/* Keystone at top center */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-8" style={{
-        background: `linear-gradient(180deg, ${frameColor}, ${frameColor}aa)`,
-        borderBottom: `2px solid rgba(${frameAccentRgb},0.3)`,
-        clipPath: 'polygon(10% 0%, 90% 0%, 100% 100%, 0% 100%)',
-      }}>
-        <div className="absolute inset-x-2 top-2 bottom-2 border" style={{ borderColor: `rgba(${frameAccentRgb},0.2)`, borderRadius: '1px' }} />
-      </div>
-    </div>
+    </>
   )
+
+  switch (ds.frameStyle) {
+    case 'modern':
+      // Sleek minimal steel frame
+      return (
+        <div className="absolute inset-0 pointer-events-none z-[1]">
+          {/* Top - thin steel bar */}
+          <div className="absolute top-0 left-0 right-0 h-4" style={{
+            background: `linear-gradient(180deg, #444, #333)`,
+            borderBottom: `1px solid rgba(255,255,255,0.1)`,
+          }} />
+          {/* Bottom threshold - thin */}
+          <div className="absolute bottom-0 left-0 right-0 h-3" style={{
+            background: `linear-gradient(0deg, #444, #333)`,
+            borderTop: `1px solid rgba(255,255,255,0.08)`,
+          }} />
+          {/* Left pillar - thin steel */}
+          <div className="absolute top-4 left-0 w-3 bottom-3" style={{
+            background: `linear-gradient(90deg, #444, #3a3a3a)`,
+            borderRight: `1px solid rgba(255,255,255,0.08)`,
+          }} />
+          {/* Right pillar */}
+          <div className="absolute top-4 right-0 w-3 bottom-3" style={{
+            background: `linear-gradient(270deg, #444, #3a3a3a)`,
+            borderLeft: `1px solid rgba(255,255,255,0.08)`,
+          }} />
+        </div>
+      )
+
+    case 'simple':
+      // Clean simple molding
+      return (
+        <div className="absolute inset-0 pointer-events-none z-[1]">
+          <div className="absolute top-0 left-0 right-0 h-5" style={{
+            background: `linear-gradient(180deg, ${fc}, ${fc}cc)`,
+            borderBottom: `1px solid rgba(${a},0.2)`,
+          }} />
+          <div className="absolute bottom-0 left-0 right-0 h-4" style={{
+            background: `linear-gradient(0deg, ${fc}, ${fc}bb)`,
+            borderTop: `1px solid rgba(${a},0.2)`,
+          }} />
+          <div className="absolute top-5 left-0 w-5 bottom-4" style={{
+            background: `linear-gradient(90deg, ${fc}, ${fc}99)`,
+            borderRight: `1px solid rgba(${a},0.15)`,
+          }} />
+          <div className="absolute top-5 right-0 w-5 bottom-4" style={{
+            background: `linear-gradient(270deg, ${fc}, ${fc}99)`,
+            borderLeft: `1px solid rgba(${a},0.15)`,
+          }} />
+        </div>
+      )
+
+    case 'arched-stone':
+      // Grand stone/marble Mughal archway frame
+      return (
+        <div className="absolute inset-0 pointer-events-none z-[1]">
+          {/* Arch shape at top */}
+          <svg className="absolute top-0 left-0 w-full h-[35%]" viewBox="0 0 400 150" preserveAspectRatio="none" fill="none">
+            {/* Outer arch */}
+            <path d="M0 150 L0 80 Q0 0 200 0 Q400 0 400 80 L400 150" fill={fc} stroke={`rgba(${a},0.4)`} strokeWidth="2" />
+            {/* Inner arch */}
+            <path d="M15 150 L15 85 Q15 15 200 15 Q385 15 385 85 L385 150" fill="none" stroke={`rgba(${a},0.25)`} strokeWidth="1.5" />
+            {/* Keystone */}
+            <path d="M190 0 L200 -10 L210 0" stroke={`rgba(${a},0.5)`} strokeWidth="1.5" fill="none" />
+            {/* Voussoirs (arch segment lines) */}
+            {[40, 80, 120, 160, 200, 240, 280, 320, 360].map(x => (
+              <line key={x} x1={x} y1="0" x2={x} y2="40" stroke={`rgba(${a},0.15)`} strokeWidth="0.5" />
+            ))}
+            {/* Decorative jali pattern in arch spandrels */}
+            <circle cx="60" cy="70" r="12" stroke={`rgba(${a},0.2)`} strokeWidth="0.5" fill="none" />
+            <circle cx="340" cy="70" r="12" stroke={`rgba(${a},0.2)`} strokeWidth="0.5" fill="none" />
+          </svg>
+          {/* Left pillar - thick stone */}
+          <div className="absolute top-[30%] left-0 w-8 bottom-0" style={{
+            background: `linear-gradient(90deg, ${fc}, ${fc}88)`,
+            borderRight: `3px solid rgba(${a},0.2)`,
+            boxShadow: `6px 0 16px rgba(0,0,0,0.3)`,
+          }}>
+            {/* Stone carving lines */}
+            <div className="absolute top-[10%] left-1/2 -translate-x-1/2 w-3 h-[80%]" style={{ borderLeft: `1.5px solid rgba(${a},0.2)`, borderRight: `1.5px solid rgba(${a},0.2)` }} />
+            {/* Jali lattice pattern */}
+            <svg className="absolute top-[25%] left-0 w-full h-[50%] opacity-20" viewBox="0 0 30 100" fill="none">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <polygon key={i} points={`15,${15 + i * 30} 25,${25 + i * 30} 15,${35 + i * 30} 5,${25 + i * 30}`} stroke={`rgba(${a},0.5)`} strokeWidth="0.5" fill="none" />
+              ))}
+            </svg>
+          </div>
+          {/* Right pillar */}
+          <div className="absolute top-[30%] right-0 w-8 bottom-0" style={{
+            background: `linear-gradient(270deg, ${fc}, ${fc}88)`,
+            borderLeft: `3px solid rgba(${a},0.2)`,
+            boxShadow: `-6px 0 16px rgba(0,0,0,0.3)`,
+          }}>
+            <div className="absolute top-[10%] left-1/2 -translate-x-1/2 w-3 h-[80%]" style={{ borderLeft: `1.5px solid rgba(${a},0.2)`, borderRight: `1.5px solid rgba(${a},0.2)` }} />
+            <svg className="absolute top-[25%] left-0 w-full h-[50%] opacity-20" viewBox="0 0 30 100" fill="none">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <polygon key={i} points={`15,${15 + i * 30} 25,${25 + i * 30} 15,${35 + i * 30} 5,${25 + i * 30}`} stroke={`rgba(${a},0.5)`} strokeWidth="0.5" fill="none" />
+              ))}
+            </svg>
+          </div>
+          {/* Bottom step */}
+          <div className="absolute bottom-0 left-0 right-0 h-5" style={{
+            background: `linear-gradient(0deg, ${fc}, ${fc}aa)`,
+            borderTop: `2px solid rgba(${a},0.25)`,
+          }} />
+          {renderCornerAccents()}
+        </div>
+      )
+
+    case 'painted-rosettes':
+      // Painted frame with rosette corner blocks
+      return (
+        <div className="absolute inset-0 pointer-events-none z-[1]">
+          <div className="absolute top-0 left-0 right-0 h-6" style={{
+            background: `linear-gradient(180deg, ${fc}, ${fc}cc)`,
+            borderBottom: `2px solid rgba(${a},0.3)`,
+            boxShadow: `0 3px 10px rgba(0,0,0,0.3), inset 0 -1px 3px rgba(${a},0.1)`,
+          }}>
+            {/* Top molding profile */}
+            <div className="absolute bottom-0 left-0 right-0 h-2" style={{
+              background: `linear-gradient(180deg, rgba(${a},0.08), transparent)`,
+            }} />
+          </div>
+          <div className="absolute bottom-0 left-0 right-0 h-5" style={{
+            background: `linear-gradient(0deg, ${fc}, ${fc}bb)`,
+            borderTop: `2px solid rgba(${a},0.3)`,
+          }} />
+          <div className="absolute top-6 left-0 w-6 bottom-5" style={{
+            background: `linear-gradient(90deg, ${fc}, ${fc}99)`,
+            borderRight: `2px solid rgba(${a},0.2)`,
+            boxShadow: `3px 0 10px rgba(0,0,0,0.25)`,
+          }}>
+            {/* Simple molding */}
+            <div className="absolute top-[20%] left-1 right-1 h-px" style={{ backgroundColor: `rgba(${a},0.15)` }} />
+            <div className="absolute top-[50%] left-1 right-1 h-px" style={{ backgroundColor: `rgba(${a},0.15)` }} />
+            <div className="absolute top-[80%] left-1 right-1 h-px" style={{ backgroundColor: `rgba(${a},0.15)` }} />
+          </div>
+          <div className="absolute top-6 right-0 w-6 bottom-5" style={{
+            background: `linear-gradient(270deg, ${fc}, ${fc}99)`,
+            borderLeft: `2px solid rgba(${a},0.2)`,
+            boxShadow: `-3px 0 10px rgba(0,0,0,0.25)`,
+          }}>
+            <div className="absolute top-[20%] left-1 right-1 h-px" style={{ backgroundColor: `rgba(${a},0.15)` }} />
+            <div className="absolute top-[50%] left-1 right-1 h-px" style={{ backgroundColor: `rgba(${a},0.15)` }} />
+            <div className="absolute top-[80%] left-1 right-1 h-px" style={{ backgroundColor: `rgba(${a},0.15)` }} />
+          </div>
+          {/* Rosette corner blocks */}
+          {[
+            { top: '0', left: '0' },
+            { top: '0', right: '0' },
+            { bottom: '0', left: '0' },
+            { bottom: '0', right: '0' },
+          ].map((pos, i) => (
+            <div key={i} className="absolute w-8 h-8 flex items-center justify-center" style={{ ...pos }}>
+              {/* Rosette flower */}
+              <div className="w-5 h-5 rounded-full" style={{
+                border: `1.5px solid rgba(${a},0.35)`,
+                boxShadow: `inset 0 0 4px rgba(${a},0.15)`,
+              }}>
+                <div className="w-full h-full rounded-full" style={{
+                  background: `radial-gradient(circle, rgba(${a},0.2), transparent 60%)`,
+                }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      )
+
+    case 'ornate':
+    default:
+      // Ornate carved frame (original enhanced)
+      return (
+        <div className="absolute inset-0 pointer-events-none z-[1]">
+          <div className="absolute top-0 left-0 right-0 h-8" style={{
+            background: `linear-gradient(180deg, ${fc}, ${fc}cc)`,
+            borderBottom: `2px solid rgba(${a},0.3)`,
+            boxShadow: `0 4px 12px rgba(0,0,0,0.4), inset 0 -2px 4px rgba(${a},0.12)`,
+          }}>
+            <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1/3 h-px" style={{ backgroundColor: `rgba(${a},0.25)` }} />
+            <div className="absolute bottom-0 left-0 right-0 h-1" style={{
+              background: `linear-gradient(180deg, rgba(${a},0.08), transparent)`,
+            }} />
+          </div>
+          <div className="absolute bottom-0 left-0 right-0 h-7" style={{
+            background: `linear-gradient(0deg, ${fc}, ${fc}bb)`,
+            borderTop: `2px solid rgba(${a},0.3)`,
+            boxShadow: `0 -3px 10px rgba(0,0,0,0.3), inset 0 2px 4px rgba(${a},0.1)`,
+          }}>
+            <div className="absolute top-1 left-1/2 -translate-x-1/2 w-1/4 h-px" style={{ backgroundColor: `rgba(${a},0.2)` }} />
+          </div>
+          <div className="absolute top-8 left-0 w-7 bottom-7" style={{
+            background: `linear-gradient(90deg, ${fc}, ${fc}99)`,
+            borderRight: `2px solid rgba(${a},0.25)`,
+            boxShadow: `4px 0 12px rgba(0,0,0,0.3), inset -2px 0 4px rgba(${a},0.08)`,
+          }}>
+            <div className="absolute top-[15%] left-1/2 -translate-x-1/2 w-2 h-[70%]" style={{
+              borderLeft: `1.5px solid rgba(${a},0.25)`,
+              borderRight: `1.5px solid rgba(${a},0.25)`,
+            }} />
+            <div className="absolute top-[20%] left-1 w-5 h-px" style={{ backgroundColor: `rgba(${a},0.15)` }} />
+            <div className="absolute top-[50%] left-1 w-5 h-px" style={{ backgroundColor: `rgba(${a},0.15)` }} />
+            <div className="absolute top-[80%] left-1 w-5 h-px" style={{ backgroundColor: `rgba(${a},0.15)` }} />
+          </div>
+          <div className="absolute top-8 right-0 w-7 bottom-7" style={{
+            background: `linear-gradient(270deg, ${fc}, ${fc}99)`,
+            borderLeft: `2px solid rgba(${a},0.25)`,
+            boxShadow: `-4px 0 12px rgba(0,0,0,0.3), inset 2px 0 4px rgba(${a},0.08)`,
+          }}>
+            <div className="absolute top-[15%] left-1/2 -translate-x-1/2 w-2 h-[70%]" style={{
+              borderLeft: `1.5px solid rgba(${a},0.25)`,
+              borderRight: `1.5px solid rgba(${a},0.25)`,
+            }} />
+            <div className="absolute top-[20%] right-1 w-5 h-px" style={{ backgroundColor: `rgba(${a},0.15)` }} />
+            <div className="absolute top-[50%] right-1 w-5 h-px" style={{ backgroundColor: `rgba(${a},0.15)` }} />
+            <div className="absolute top-[80%] right-1 w-5 h-px" style={{ backgroundColor: `rgba(${a},0.15)` }} />
+          </div>
+          {renderCornerAccents()}
+          {/* Keystone at top center */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-8" style={{
+            background: `linear-gradient(180deg, ${fc}, ${fc}aa)`,
+            borderBottom: `2px solid rgba(${a},0.3)`,
+            clipPath: 'polygon(10% 0%, 90% 0%, 100% 100%, 0% 100%)',
+          }}>
+            <div className="absolute inset-x-2 top-2 bottom-2 border" style={{ borderColor: `rgba(${a},0.2)`, borderRadius: '1px' }} />
+          </div>
+        </div>
+      )
+  }
 }
 
 /* ─── Light Leak Effect ─── */
@@ -2043,165 +2446,143 @@ function LightLeak({ accentRgb, doorsOpened }: { accentRgb: string; doorsOpened:
   )
 }
 
+/* ─── Door SVG Pattern Component ─── */
+function DoorSvgPattern({ pattern, accent, accentRgb }: { pattern: string; accent: string; accentRgb: string }) {
+  const color = accent
+  const faintColor = `rgba(${accentRgb}, 0.12)`
+  const midColor = `rgba(${accentRgb}, 0.2)`
+
+  if (pattern === 'arch') {
+    return (
+      <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-30" viewBox="0 0 200 400" fill="none" preserveAspectRatio="none">
+        <path d="M100 40 Q160 40 160 120 L160 360 M100 40 Q40 40 40 120 L40 360" stroke={color} strokeWidth="0.5" fill="none" />
+        <path d="M100 60 Q140 60 140 120 L140 340 M100 60 Q60 60 60 120 L60 340" stroke={color} strokeWidth="0.3" fill="none" opacity="0.5" />
+        <circle cx="100" cy="80" r="20" stroke={color} strokeWidth="0.5" fill="none" opacity="0.3" />
+      </svg>
+    )
+  }
+
+  if (pattern === 'floral') {
+    return (
+      <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-25" viewBox="0 0 200 400" fill="none" preserveAspectRatio="none">
+        <circle cx="100" cy="100" r="30" stroke={color} strokeWidth="0.5" fill="none" />
+        <circle cx="100" cy="100" r="15" stroke={color} strokeWidth="0.3" fill={faintColor} />
+        {[0, 60, 120, 180, 240, 300].map((angle) => (
+          <ellipse key={angle} cx="100" cy="60" rx="8" ry="20" stroke={color} strokeWidth="0.4" fill="none" transform={`rotate(${angle} 100 100)`} />
+        ))}
+        <circle cx="100" cy="300" r="25" stroke={color} strokeWidth="0.5" fill="none" />
+        {[0, 72, 144, 216, 288].map((angle) => (
+          <ellipse key={angle} cx="100" cy="270" rx="6" ry="16" stroke={color} strokeWidth="0.3" fill="none" transform={`rotate(${angle} 100 300)`} />
+        ))}
+      </svg>
+    )
+  }
+
+  if (pattern === 'mandala') {
+    return (
+      <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-25" viewBox="0 0 200 400" fill="none" preserveAspectRatio="none">
+        {[20, 40, 60].map((r) => (
+          <circle key={r} cx="100" cy="150" r={r} stroke={color} strokeWidth="0.4" fill="none" />
+        ))}
+        {[0, 30, 60, 90, 120, 150].map((angle) => (
+          <line key={angle} x1="100" y1="150" x2={100 + 60 * Math.cos((angle * Math.PI) / 180)} y2={150 + 60 * Math.sin((angle * Math.PI) / 180)} stroke={color} strokeWidth="0.3" />
+        ))}
+        {[20, 40, 60].map((r) => (
+          <circle key={`b${r}`} cx="100" cy="280" r={r} stroke={color} strokeWidth="0.4" fill="none" />
+        ))}
+      </svg>
+    )
+  }
+
+  if (pattern === 'paisley') {
+    return (
+      <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-25" viewBox="0 0 200 400" fill="none" preserveAspectRatio="none">
+        <path d="M80 80 Q60 140 80 200 Q100 260 80 320" stroke={color} strokeWidth="0.5" fill="none" />
+        <path d="M120 80 Q140 140 120 200 Q100 260 120 320" stroke={color} strokeWidth="0.5" fill="none" />
+        <circle cx="80" cy="80" r="15" stroke={color} strokeWidth="0.4" fill={faintColor} />
+        <circle cx="120" cy="80" r="15" stroke={color} strokeWidth="0.4" fill={faintColor} />
+      </svg>
+    )
+  }
+
+  if (pattern === 'minimal') {
+    return (
+      <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-15" viewBox="0 0 200 400" fill="none" preserveAspectRatio="none">
+        <line x1="60" y1="80" x2="140" y2="80" stroke={color} strokeWidth="0.5" />
+        <line x1="60" y1="320" x2="140" y2="320" stroke={color} strokeWidth="0.5" />
+        <rect x="80" y="160" width="40" height="80" rx="2" stroke={color} strokeWidth="0.4" fill="none" />
+      </svg>
+    )
+  }
+
+  if (pattern === 'diamond') {
+    return (
+      <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-25" viewBox="0 0 200 400" fill="none" preserveAspectRatio="none">
+        <rect x="70" y="100" width="60" height="60" transform="rotate(45 100 130)" stroke={color} strokeWidth="0.5" fill="none" />
+        <rect x="80" y="230" width="40" height="40" transform="rotate(45 100 250)" stroke={color} strokeWidth="0.4" fill={faintColor} />
+        <line x1="100" y1="70" x2="100" y2="330" stroke={color} strokeWidth="0.2" opacity="0.5" />
+      </svg>
+    )
+  }
+
+  if (pattern === 'star') {
+    return (
+      <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-25" viewBox="0 0 200 400" fill="none" preserveAspectRatio="none">
+        <polygon points="100,70 115,120 170,120 125,150 140,200 100,170 60,200 75,150 30,120 85,120" stroke={color} strokeWidth="0.5" fill="none" />
+        <polygon points="100,230 112,265 150,265 120,285 132,320 100,298 68,320 80,285 50,265 88,265" stroke={color} strokeWidth="0.4" fill={faintColor} />
+      </svg>
+    )
+  }
+
+  if (pattern === 'dome') {
+    return (
+      <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-25" viewBox="0 0 200 400" fill="none" preserveAspectRatio="none">
+        <path d="M40 200 Q100 60 160 200" stroke={color} strokeWidth="0.6" fill="none" />
+        <path d="M50 200 Q100 80 150 200" stroke={color} strokeWidth="0.3" fill={faintColor} />
+        <line x1="100" y1="60" x2="100" y2="30" stroke={color} strokeWidth="0.5" />
+        <circle cx="100" cy="25" r="5" stroke={color} strokeWidth="0.5" fill={midColor} />
+      </svg>
+    )
+  }
+
+  // Default: geometric/lantern
+  return (
+    <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-25" viewBox="0 0 200 400" fill="none" preserveAspectRatio="none">
+      <polygon points="100,80 130,120 130,180 100,200 70,180 70,120" stroke={color} strokeWidth="0.5" fill="none" />
+      <polygon points="100,220 120,250 120,300 100,320 80,300 80,250" stroke={color} strokeWidth="0.4" fill={faintColor} />
+    </svg>
+  )
+}
+
 /* ─── Door Overlay Component ─── */
 function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doorsOpened: boolean; onOpen: () => void }) {
   const ds = theme.doorStyle
-  const is3DType = ['classic-doors', 'archway', 'lantern'].includes(ds.type)
 
-  // Get animation class names for left and right panels
-  const getAnimClasses = (): { left: string; right: string } => {
-    if (!doorsOpened) return { left: '', right: '' }
-    switch (ds.type) {
-      case 'classic-doors': return { left: 'door-open-left', right: 'door-open-right' }
-      case 'curtains': return { left: 'curtain-open-left', right: 'curtain-open-right' }
-      case 'petals': return { left: 'petal-open-left', right: 'petal-open-right' }
-      case 'split-screen': return { left: 'split-open-left', right: 'split-open-right' }
-      case 'archway': return { left: 'arch-open-left', right: 'arch-open-right' }
-      case 'scroll': return { left: 'scroll-unfurl-left', right: 'scroll-unfurl-right' }
-      case 'dome': return { left: 'dome-lift-up', right: 'dome-lift-up' }
-      case 'lantern': return { left: 'lantern-open-left', right: 'lantern-open-right' }
-      default: return { left: 'door-open-left', right: 'door-open-right' }
-    }
-  }
+  const anim = doorsOpened
+    ? { left: 'door-open-left', right: 'door-open-right' }
+    : { left: '', right: '' }
 
-  // Get idle animation class for the panel
-  const getIdleClass = (): string => {
-    switch (ds.type) {
-      case 'classic-doors': return 'door-breathe-idle'
-      case 'archway': return 'arch-breathe-idle'
-      case 'curtains': return 'curtain-drape-idle'
-      case 'petals': return 'petal-sway-idle'
-      case 'scroll': return 'scroll-shimmer-idle'
-      case 'dome': return 'dome-float-idle'
-      case 'lantern': return 'lantern-glow-idle'
-      case 'split-screen': return 'split-shimmer-idle'
-      default: return 'door-breathe-idle'
-    }
-  }
+  const idleClass = 'door-breathe-idle'
 
-  // Get the panel wrapper styles based on type
-  const getLeftPanelStyle = (): React.CSSProperties => {
-    switch (ds.type) {
-      case 'classic-doors':
-      case 'archway':
-      case 'lantern':
-        return { transformOrigin: 'left center', transformStyle: 'preserve-3d' }
-      case 'curtains':
-        return { transformOrigin: 'left center' }
-      case 'split-screen':
-        return {}
-      case 'petals':
-        return { transformOrigin: 'right center' }
-      case 'scroll':
-        return { transformOrigin: 'right center' }
-      case 'dome':
-        return {}
-      default:
-        return { transformOrigin: 'left center', transformStyle: 'preserve-3d' }
-    }
-  }
-
-  const getRightPanelStyle = (): React.CSSProperties => {
-    switch (ds.type) {
-      case 'classic-doors':
-      case 'archway':
-      case 'lantern':
-        return { transformOrigin: 'right center', transformStyle: 'preserve-3d' }
-      case 'curtains':
-        return { transformOrigin: 'right center' }
-      case 'split-screen':
-        return {}
-      case 'petals':
-        return { transformOrigin: 'left center' }
-      case 'scroll':
-        return { transformOrigin: 'left center' }
-      case 'dome':
-        return {}
-      default:
-        return { transformOrigin: 'right center', transformStyle: 'preserve-3d' }
-    }
-  }
-
-  const anim = getAnimClasses()
-  const idleClass = getIdleClass()
-
-  // Get gradient direction modifiers for curtain-style panels
+  // Get panel gradient based on material
   const getPanelGradient = (isLeft: boolean): string => {
-    if (ds.type === 'curtains') {
-      return isLeft
-        ? `linear-gradient(135deg, ${theme.bgDoor} 0%, ${theme.bgSecondary} 60%, ${theme.bgDoor} 100%)`
-        : `linear-gradient(225deg, ${theme.bgDoor} 0%, ${theme.bgSecondary} 60%, ${theme.bgDoor} 100%)`
-    }
-    if (ds.type === 'petals') {
-      return isLeft
-        ? `linear-gradient(150deg, ${theme.bgDoor} 0%, ${theme.bgSecondary} 50%, ${theme.bgDoor} 100%)`
-        : `linear-gradient(210deg, ${theme.bgDoor} 0%, ${theme.bgSecondary} 50%, ${theme.bgDoor} 100%)`
-    }
-    if (ds.type === 'split-screen') {
+    if (ds.doorMaterial === 'glass') {
       return isLeft
         ? `linear-gradient(90deg, ${theme.bgDoor} 0%, ${theme.bgSecondary} 100%)`
         : `linear-gradient(270deg, ${theme.bgDoor} 0%, ${theme.bgSecondary} 100%)`
     }
-    if (ds.type === 'dome') {
+    if (ds.doorMaterial === 'stone') {
       return `linear-gradient(180deg, ${theme.bgDoor} 0%, ${theme.bgSecondary} 60%, ${theme.bgDoor} 100%)`
-    }
-    if (ds.type === 'scroll') {
-      return isLeft
-        ? `linear-gradient(90deg, ${theme.bgSecondary} 0%, ${theme.bgDoor} 50%, ${theme.bgSecondary} 100%)`
-        : `linear-gradient(270deg, ${theme.bgSecondary} 0%, ${theme.bgDoor} 50%, ${theme.bgSecondary} 100%)`
     }
     return isLeft ? theme.bgDoorGradient : theme.bgDoorGradient.replace('135deg', '225deg')
   }
 
-  // Wood grain texture overlay for 3D doors - more visible
-  const getWoodGrainOverlay = (): React.CSSProperties => {
-    if (!is3DType) return {}
-    return {
-      backgroundImage: `
-        repeating-linear-gradient(
-          90deg,
-          transparent,
-          transparent 6px,
-          rgba(${theme.accentRgb},0.04) 6px,
-          rgba(${theme.accentRgb},0.04) 7px
-        ),
-        repeating-linear-gradient(
-          0deg,
-          transparent,
-          transparent 30px,
-          rgba(${theme.accentRgb},0.03) 30px,
-          rgba(${theme.accentRgb},0.03) 31px
-        )
-      `,
-    }
-  }
-
   // Edge color for 3D door thickness
-  const edgeColor = theme.accentDark
-  const edgeWidth = 18 // px - thickness of the door (visible when swinging open)
-
-  // Render raised panel insets for 3D door types
-  const renderDoorPanels = (side: 'left' | 'right') => {
-    if (!is3DType) return null
-    return (
-      <>
-        {/* Upper panel */}
-        <DoorPanelInset
-          x="12%" y="10%" w={side === 'left' ? '55%' : '55%'} h="30%"
-          accent={theme.accent} accentRgb={theme.accentRgb}
-        />
-        {/* Lower panel */}
-        <DoorPanelInset
-          x="12%" y="56%" w={side === 'left' ? '55%' : '55%'} h="30%"
-          accent={theme.accent} accentRgb={theme.accentRgb}
-        />
-      </>
-    )
-  }
+  const edgeColor = ds.doorMaterial === 'stone' ? theme.bgSecondary : theme.accentDark
+  const edgeWidth = 18
 
   // Render 3D edge face (door thickness)
   const renderEdgeFace = (side: 'left' | 'right') => {
-    if (!is3DType) return null
     const edgeStyle: React.CSSProperties = side === 'left'
       ? {
           position: 'absolute',
@@ -2231,7 +2612,7 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
         }
     return (
       <div style={edgeStyle}>
-        {/* Edge grain lines - more visible */}
+        {/* Edge grain lines */}
         <div className="absolute inset-0" style={{
           backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 12px, rgba(${theme.accentRgb},0.08) 12px, rgba(${theme.accentRgb},0.08) 13px)`,
         }} />
@@ -2260,160 +2641,64 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
       {/* Light leak effect - between doors */}
       <LightLeak accentRgb={theme.accentRgb} doorsOpened={doorsOpened} />
 
-      {/* Door Frame - visible behind the doors, fades during opening */}
-      {is3DType && (
-        <div className={doorsOpened ? 'door-frame-shadow' : ''} style={doorsOpened ? { transition: 'opacity 2s ease-out' } : {}}>
-          <DoorFrame theme={theme} type={ds.type} />
+      {/* Door Frame - visible behind the doors */}
+      <div className={doorsOpened ? 'door-frame-shadow' : ''} style={doorsOpened ? { transition: 'opacity 2s ease-out' } : {}}>
+        <DoorFrame theme={theme} />
+      </div>
+
+      {/* Left Panel */}
+      <div
+        className={`absolute top-0 left-0 w-1/2 h-full ${anim.left} ${!doorsOpened ? idleClass : ''}`}
+        style={{ transformOrigin: 'left center', transformStyle: 'preserve-3d' }}
+      >
+        {/* Front face of door */}
+        <div className="relative w-full h-full border-r overflow-hidden"
+          style={{
+            background: getPanelGradient(true),
+            borderColor: theme.borderSubtle,
+            backfaceVisibility: 'hidden',
+          }}
+        >
+          <DoorSurface theme={theme} />
+          <div className="absolute inset-0 door-shimmer" />
+          <div className="absolute inset-0" style={{ background: `linear-gradient(to right, transparent, rgba(${theme.accentRgb},0.05))` }} />
+          {/* Panel layout */}
+          <DoorPanelLayout theme={theme} side="left" />
+          <DoorPanelContent theme={theme} text={ds.leftText} textLang={ds.leftTextLang} />
+          <DoorHandle theme={theme} side="left" />
+          {/* Hinges on hinge side (left) */}
+          <DoorHinges side="left" accent={theme.accent} accentRgb={theme.accentRgb} />
         </div>
-      )}
+        {/* 3D Edge face (door thickness) */}
+        {renderEdgeFace('left')}
+      </div>
 
-      {/* ─── Dome type: single full-screen panel ─── */}
-      {ds.type === 'dome' && (
-        <div className={`absolute inset-0 ${anim.left} ${!doorsOpened ? idleClass : ''}`}>
-          <div className="relative w-full h-full overflow-hidden" style={{ background: getPanelGradient(true) }}>
-            <DoorSvgPattern pattern={ds.svgPattern} accent={theme.accent} accentRgb={theme.accentRgb} />
-            <DomeCap accent={theme.accent} />
-            <div className="absolute inset-0 door-shimmer" />
-            {/* Stone/marble texture */}
-            <div className="absolute inset-0" style={{
-              backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(${theme.accentRgb},0.015) 20px, rgba(${theme.accentRgb},0.015) 21px),
-                repeating-linear-gradient(90deg, transparent, transparent 30px, rgba(${theme.accentRgb},0.01) 30px, rgba(${theme.accentRgb},0.01) 31px)`,
-            }} />
-            <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse at center, rgba(${theme.accentRgb},0.05), transparent)` }} />
-            {/* Dome text - horizontal layout */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="flex items-center gap-6">
-                <div className="flex flex-col items-center gap-2">
-                  <span className="font-calligraphy text-3xl sm:text-4xl leading-relaxed" dir={ds.leftTextLang === 'ar' || ds.leftTextLang === 'ur' ? 'rtl' : 'ltr'} style={{ color: `rgba(${theme.accentRgb},0.8)` }}>{ds.leftText}</span>
-                  <div className="w-12 h-px" style={{ backgroundColor: `rgba(${theme.accentRgb},0.3)` }} />
-                </div>
-                <div className="w-px h-16 opacity-30" style={{ backgroundColor: `rgba(${theme.accentRgb},0.5)` }} />
-                <div className="flex flex-col items-center gap-2">
-                  <span className="font-calligraphy text-3xl sm:text-4xl leading-relaxed" dir={ds.rightTextLang === 'ar' || ds.rightTextLang === 'ur' ? 'rtl' : 'ltr'} style={{ color: `rgba(${theme.accentRgb},0.8)` }}>{ds.rightText}</span>
-                  <div className="w-12 h-px" style={{ backgroundColor: `rgba(${theme.accentRgb},0.3)` }} />
-                </div>
-              </div>
-            </div>
-          </div>
+      {/* Right Panel */}
+      <div
+        className={`absolute top-0 right-0 w-1/2 h-full ${anim.right} ${!doorsOpened ? idleClass : ''}`}
+        style={{ transformOrigin: 'right center', transformStyle: 'preserve-3d' }}
+      >
+        {/* Front face of door */}
+        <div className="relative w-full h-full border-l overflow-hidden"
+          style={{
+            background: getPanelGradient(false),
+            borderColor: theme.borderSubtle,
+            backfaceVisibility: 'hidden',
+          }}
+        >
+          <DoorSurface theme={theme} />
+          <div className="absolute inset-0 door-shimmer" />
+          <div className="absolute inset-0" style={{ background: `linear-gradient(to left, transparent, rgba(${theme.accentRgb},0.05))` }} />
+          {/* Panel layout */}
+          <DoorPanelLayout theme={theme} side="right" />
+          <DoorPanelContent theme={theme} text={ds.rightText} textLang={ds.rightTextLang} />
+          <DoorHandle theme={theme} side="right" />
+          {/* Hinges on hinge side (right) */}
+          <DoorHinges side="right" accent={theme.accent} accentRgb={theme.accentRgb} />
         </div>
-      )}
-
-      {/* ─── Left/Right panel types ─── */}
-      {ds.type !== 'dome' && (
-        <>
-          {/* Left Panel */}
-          <div
-            className={`absolute top-0 left-0 w-1/2 h-full ${anim.left} ${!doorsOpened ? idleClass : ''}`}
-            style={getLeftPanelStyle()}
-          >
-            {/* Front face of door */}
-            <div className={`relative w-full h-full ${ds.type === 'curtains' ? '' : 'border-r'} overflow-hidden`}
-              style={{
-                background: getPanelGradient(true),
-                borderColor: theme.borderSubtle,
-                backfaceVisibility: 'hidden',
-                ...getWoodGrainOverlay(),
-              }}
-            >
-              <DoorSvgPattern pattern={ds.svgPattern} accent={theme.accent} accentRgb={theme.accentRgb} />
-              {ds.type === 'archway' && <ArchwayCap accent={theme.accent} />}
-              {ds.type === 'scroll' && <ScrollCap side="top" accent={theme.accent} accentRgb={theme.accentRgb} />}
-              {ds.type === 'curtains' && <CurtainEdge side="left" accentRgb={theme.accentRgb} />}
-              <div className="absolute inset-0 door-shimmer" />
-              <div className="absolute inset-0" style={{ background: `linear-gradient(to right, transparent, rgba(${theme.accentRgb},0.05))` }} />
-              {/* Raised panel insets for 3D doors */}
-              {renderDoorPanels('left')}
-              <DoorPanelContent theme={theme} text={ds.leftText} textLang={ds.leftTextLang} />
-              <DoorHandle theme={theme} side="left" />
-              {/* Hinges on hinge side (left) */}
-              {is3DType && <DoorHinges side="left" accent={theme.accent} accentRgb={theme.accentRgb} />}
-              {/* Split-screen frosted glass effect */}
-              {ds.type === 'split-screen' && (
-                <div className="absolute inset-0" style={{
-                  background: 'linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.02) 100%)',
-                  backdropFilter: 'blur(0.5px)',
-                }} />
-              )}
-              {/* Curtain fabric folds */}
-              {ds.type === 'curtains' && (
-                <div className="absolute inset-0 pointer-events-none" style={{
-                  backgroundImage: `repeating-linear-gradient(90deg,
-                    transparent 0px,
-                    rgba(${theme.accentRgb},0.04) 20px,
-                    transparent 25px,
-                    rgba(${theme.accentRgb},0.03) 45px,
-                    transparent 50px
-                  )`,
-                }} />
-              )}
-              {/* Petal soft gradient overlay */}
-              {ds.type === 'petals' && (
-                <div className="absolute inset-0 pointer-events-none" style={{
-                  background: `radial-gradient(ellipse at ${ds.type === 'petals' ? '30% 50%' : '70% 50%'}, rgba(${theme.accentRgb},0.06), transparent 60%)`,
-                }} />
-              )}
-            </div>
-            {/* 3D Edge face (door thickness) - visible when door swings */}
-            {renderEdgeFace('left')}
-          </div>
-
-          {/* Right Panel */}
-          <div
-            className={`absolute top-0 right-0 w-1/2 h-full ${anim.right} ${!doorsOpened ? idleClass : ''}`}
-            style={getRightPanelStyle()}
-          >
-            {/* Front face of door */}
-            <div className={`relative w-full h-full ${ds.type === 'curtains' ? '' : 'border-l'} overflow-hidden`}
-              style={{
-                background: getPanelGradient(false),
-                borderColor: theme.borderSubtle,
-                backfaceVisibility: 'hidden',
-                ...getWoodGrainOverlay(),
-              }}
-            >
-              <DoorSvgPattern pattern={ds.svgPattern} accent={theme.accent} accentRgb={theme.accentRgb} />
-              {ds.type === 'archway' && <ArchwayCap accent={theme.accent} />}
-              {ds.type === 'scroll' && <ScrollCap side="bottom" accent={theme.accent} accentRgb={theme.accentRgb} />}
-              {ds.type === 'curtains' && <CurtainEdge side="right" accentRgb={theme.accentRgb} />}
-              <div className="absolute inset-0 door-shimmer" />
-              <div className="absolute inset-0" style={{ background: `linear-gradient(to left, transparent, rgba(${theme.accentRgb},0.05))` }} />
-              {/* Raised panel insets for 3D doors */}
-              {renderDoorPanels('right')}
-              <DoorPanelContent theme={theme} text={ds.rightText} textLang={ds.rightTextLang} />
-              <DoorHandle theme={theme} side="right" />
-              {/* Hinges on hinge side (right) */}
-              {is3DType && <DoorHinges side="right" accent={theme.accent} accentRgb={theme.accentRgb} />}
-              {/* Split-screen frosted glass effect */}
-              {ds.type === 'split-screen' && (
-                <div className="absolute inset-0" style={{
-                  background: 'linear-gradient(225deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.02) 100%)',
-                  backdropFilter: 'blur(0.5px)',
-                }} />
-              )}
-              {/* Curtain fabric folds */}
-              {ds.type === 'curtains' && (
-                <div className="absolute inset-0 pointer-events-none" style={{
-                  backgroundImage: `repeating-linear-gradient(270deg,
-                    transparent 0px,
-                    rgba(${theme.accentRgb},0.04) 20px,
-                    transparent 25px,
-                    rgba(${theme.accentRgb},0.03) 45px,
-                    transparent 50px
-                  )`,
-                }} />
-              )}
-              {/* Petal soft gradient overlay */}
-              {ds.type === 'petals' && (
-                <div className="absolute inset-0 pointer-events-none" style={{
-                  background: `radial-gradient(ellipse at 70% 50%, rgba(${theme.accentRgb},0.06), transparent 60%)`,
-                }} />
-              )}
-            </div>
-            {/* 3D Edge face (door thickness) - visible when door swings */}
-            {renderEdgeFace('right')}
-          </div>
-        </>
-      )}
+        {/* 3D Edge face (door thickness) */}
+        {renderEdgeFace('right')}
+      </div>
 
       {/* Center tap-to-open button */}
       {!doorsOpened && (
@@ -2471,6 +2756,8 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
   const [wishMessage, setWishMessage] = useState('')
   const [musicPlaying, setMusicPlaying] = useState(false)
   const [language, setLanguage] = useState<'en' | 'ur'>('en')
+  const [translations, setTranslations] = useState<Record<string, string>>({})
+  const [isTranslating, setIsTranslating] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
   const [rsvpHearts, setRsvpHearts] = useState<number[]>([])
   const [heroVisible, setHeroVisible] = useState(false)
@@ -2523,8 +2810,97 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
 
   const events = dynamicEvents
 
+  // Static Urdu translations for known strings (instant, reliable)
+  const URDU_DICT: Record<string, string> = {
+    gettingMarried: 'ہم شادی کر رہے ہیں',
+    requestHonour: 'آپ کی موجودگی کی عزت کی درخواست ہے',
+    scratchReveal: 'دعوت نامہ دیکھنے کے لیے',
+    scratchHere: 'ظاہر کرنے کے لیے کھرچیں',
+    youreInvited: 'آپ مدعو ہیں!',
+    sunday: 'اتوار',
+    pkt: 'پاکستانی وقت',
+    ourMoments: 'ہماری یادگاریں',
+    countingDown: 'ہمیشہ کی طرف گنتی',
+    days: 'دن',
+    hours: 'گھنٹے',
+    minutes: 'منٹ',
+    seconds: 'سیکنڈ',
+    programTimeline: 'پروگرام کی ٹائم لائن',
+    venue: 'مقام',
+    viewOnMaps: 'گوگل میپ پر دیکھیں',
+    willYouAttend: 'کیا آپ تشریف لائیں گے؟',
+    yourName: 'آپ کا نام',
+    enterName: 'اپنا پورا نام لکھیں',
+    email: 'ای میل',
+    emailOptional: '(اختیاری)',
+    willYouBeAttending: 'کیا آپ شرکت کریں گے؟',
+    selectOption: 'منتخب کریں...',
+    acceptYes: 'جی ہاں، میں آ رہا ہوں! 🎉',
+    declineSorry: 'معذرت، میں نہیں آ سکتا 💌',
+    joyfullyAccept: 'خوشی سے قبول',
+    respectfullyDecline: 'باادب معذرت',
+    joyfullyAccepted: 'خوشی سے قبول کر لیا!',
+    thankYou: 'شکریہ!',
+    blessingsWishes: 'دعائیں اور آرزوئیں',
+    writeBlessing: 'اپنی دعا یا آرزو لکھیں...',
+    yourNameSender: 'آپ کا نام (تاکہ وہ جان سکیں کہ کس نے بھیجا)',
+    madeWithLove: 'شادی لنک کی طرف سے محبت سے بنایا گیا',
+    scroll: 'سکرول',
+    tapToOpen: 'کھولنے کے لیے ٹچ کریں',
+    mehndiDesc: 'رنگوں، مہندی اور روایتی موسیقی و رقص کی شام',
+    baraatDesc: 'شادی کا شان دار جلوس — ڈھول کی تھاپ، رقص اور خوش آمدید',
+    nikkahDesc: 'مقدس اسلامی شادی کی تقریب — نکاح نامہ کی دستخط',
+    walimaDesc: 'دولہا کی طرف سے ولیمہ — ضیافت، دعائیں اور خوشیاں',
+    welcomeMsg: 'محبت اور خوشی سے بھرے دلوں کے ساتھ، ہم آپ کو اپنے اتحاد کی تقریب میں شریک ہونے کی دعوت دیتے ہیں۔ ہماری اس خوبصورت سفری شروعات میں آپ کی موجودگی ہمارے لیے سب کچھ ہوگی۔',
+    at: 'پر',
+    joinUs: 'میں شامل ہوں',
+    celebration: 'تقریب',
+  }
+
+  // Translation function - uses static dictionary first, then AI for dynamic content
+  const translateToUrdu = useCallback(async () => {
+    if (language !== 'ur' || Object.keys(translations).length > 0) return
+
+    // Immediately set static translations (instant)
+    setTranslations(URDU_DICT)
+
+    // For any dynamic content that needs AI translation, add it here
+    // For now, static dictionary covers all known strings
+    setIsTranslating(false)
+  }, [language, translations])
+
+  // Trigger translation when language switches to Urdu
+  useEffect(() => {
+    if (language === 'ur' && Object.keys(translations).length === 0) {
+      translateToUrdu()
+    }
+  }, [language, translations, translateToUrdu])
+
+  // Helper to get translated text
+  const t = useCallback((key: string, fallback: string): string => {
+    if (language === 'en') return fallback
+    return translations[key] || fallback
+  }, [language, translations])
+
+  // Get translated event description
+  const getEventDescription = useCallback((eventName: string, originalDesc: string): string => {
+    if (language === 'en') return originalDesc
+    const keyMap: Record<string, string> = {
+      'Mehndi': 'mehndiDesc',
+      'Baraat': 'baraatDesc',
+      'Nikkah': 'nikkahDesc',
+      'Walima': 'walimaDesc',
+    }
+    const key = keyMap[eventName]
+    if (key && translations[key]) return translations[key]
+    return originalDesc
+  }, [language, translations])
+
+  // Get translated welcome message
+  const translatedWelcomeMsg = language === 'ur' && translations.welcomeMsg ? translations.welcomeMsg : welcomeMsg
+
   return (
-    <div className="relative min-h-screen overflow-x-hidden" style={{ backgroundColor: theme.bgPrimary, color: theme.textPrimary }}>
+    <div className="relative min-h-screen overflow-x-hidden" dir={language === 'ur' ? 'rtl' : 'ltr'} style={{ backgroundColor: theme.bgPrimary, color: theme.textPrimary }}>
       <BackgroundParticles accentColor={theme.accent} />
 
       {/* ═══ Door Opening Overlay ═══ */}
@@ -2553,11 +2929,16 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
             const newLang = language === 'en' ? 'ur' : 'en'
             setLanguage(newLang)
           }}
-          className="w-10 h-10 rounded-full border backdrop-blur-sm flex items-center justify-center transition-all duration-300 text-xs font-bold"
+          className="w-10 h-10 rounded-full border backdrop-blur-sm flex items-center justify-center transition-all duration-300 text-xs font-bold relative"
           style={{ backgroundColor: theme.bgPrimary + 'cc', borderColor: theme.borderSubtle, color: `rgba(${theme.accentRgb},0.7)` }}
           aria-label="Toggle language"
+          disabled={isTranslating}
         >
-          {language === 'en' ? 'اردو' : 'EN'}
+          {isTranslating ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            language === 'en' ? 'اردو' : 'EN'
+          )}
         </button>
         <MusicToggle isPlaying={musicPlaying} onToggle={() => setMusicPlaying(!musicPlaying)} theme={theme} />
       </div>
@@ -2589,7 +2970,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
               className="font-calligraphy text-sm sm:text-base tracking-[0.4em] uppercase mb-8"
               style={{ color: theme.textSecondary }}
             >
-              We&apos;re getting married
+              {t('gettingMarried', "We're getting married")}
             </motion.p>
 
             <motion.h1
@@ -2641,7 +3022,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
               className="font-calligraphy text-base sm:text-lg tracking-[0.15em]"
               style={{ color: theme.textSecondary }}
             >
-              Request the honour of your presence
+              {t('requestHonour', 'Request the honour of your presence')}
             </motion.p>
           </div>
 
@@ -2652,7 +3033,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
 
           {/* Scroll indicator */}
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.5 }} className="absolute bottom-8 flex flex-col items-center gap-2">
-            <span className="text-[10px] uppercase tracking-[0.2em]" style={{ color: theme.textMuted }}>Scroll</span>
+            <span className="text-[10px] uppercase tracking-[0.2em]" style={{ color: theme.textMuted }}>{t('scroll', 'Scroll')}</span>
             <motion.div animate={{ y: [0, 8, 0] }} transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}>
               <ChevronDown className="w-4 h-4" style={{ color: theme.textMuted }} />
             </motion.div>
@@ -2665,7 +3046,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
             <div className="max-w-lg mx-auto text-center">
               <WaveDivider accentColor={theme.accent} />
               <p className="font-calligraphy text-xl md:text-2xl leading-relaxed italic whitespace-pre-wrap break-words my-8" style={{ color: theme.accentLight, textShadow: `0 0 15px rgba(${theme.accentRgb},0.2)` }}>
-                {welcomeMsg}
+                {translatedWelcomeMsg}
               </p>
               <WaveDivider accentColor={theme.accent} />
             </div>
@@ -2683,7 +3064,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
         <RevealSection>
           <section className="py-16 md:py-20 px-6">
             <div className="flex flex-col items-center gap-6">
-              <h2 className="font-calligraphy text-3xl sm:text-4xl text-center" style={{ color: theme.accent }}>Our Moments</h2>
+              <h2 className="font-calligraphy text-3xl sm:text-4xl text-center" style={{ color: theme.accent }}>{t('ourMoments', 'Our Moments')}</h2>
               <HeartDivider accentColor={theme.accent} />
               <PhotoGallery theme={theme} />
             </div>
@@ -2694,9 +3075,9 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
         <RevealSection>
           <section className="py-16 md:py-20 px-6">
             <div className="flex flex-col items-center gap-8">
-              <h2 className="font-calligraphy text-3xl sm:text-4xl text-center" style={{ color: theme.accent }}>Counting Down to Forever</h2>
+              <h2 className="font-calligraphy text-3xl sm:text-4xl text-center" style={{ color: theme.accent }}>{t('countingDown', 'Counting Down to Forever')}</h2>
               <HeartDivider accentColor={theme.accent} />
-              <CountdownTimer theme={theme} />
+              <CountdownTimer theme={theme} translations={language === 'ur' ? translations : undefined} />
             </div>
           </section>
         </RevealSection>
@@ -2705,7 +3086,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
         <RevealSection>
           <section className="py-16 md:py-20 px-6">
             <div className="flex flex-col items-center gap-8 max-w-md mx-auto">
-              <h2 className="font-calligraphy text-3xl sm:text-4xl text-center" style={{ color: theme.accent }}>Program Timeline</h2>
+              <h2 className="font-calligraphy text-3xl sm:text-4xl text-center" style={{ color: theme.accent }}>{t('programTimeline', 'Program Timeline')}</h2>
               <HeartDivider accentColor={theme.accent} />
 
               <div className="relative w-full">
@@ -2725,7 +3106,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                             <span className="text-xs" style={{ color: `rgba(${theme.accentRgb},0.5)` }}>{event.time}</span>
                           </div>
                           <h3 className="font-display text-xl font-semibold mb-1" style={{ color: theme.accent }}>{event.name}</h3>
-                          <p className="text-sm leading-relaxed" style={{ color: `rgba(${theme.accentRgb},0.5)` }}>{event.description}</p>
+                          <p className="text-sm leading-relaxed" style={{ color: `rgba(${theme.accentRgb},0.5)` }}>{getEventDescription(event.name, event.description)}</p>
                         </div>
                       </div>
                     </RevealSection>
@@ -2742,7 +3123,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
             <div className="flex flex-col items-center gap-6 max-w-md mx-auto">
               <h2 className="font-calligraphy text-3xl sm:text-4xl text-center flex items-center gap-3" style={{ color: theme.accent }}>
                 <MapPin className="w-7 h-7" style={{ color: `rgba(${theme.accentRgb},0.7)` }} />
-                Venue
+                {t('venue', 'Venue')}
               </h2>
               <HeartDivider accentColor={theme.accent} />
 
@@ -2771,7 +3152,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
               >
                 <a href={`https://maps.google.com/?q=${encodeURIComponent(venueAddress)}`} target="_blank" rel="noopener noreferrer">
                   <MapPin className="w-4 h-4 mr-2" />
-                  View on Google Maps
+                  {t('viewOnMaps', 'View on Google Maps')}
                 </a>
               </Button>
             </div>
@@ -2782,7 +3163,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
         <RevealSection>
           <section className="py-16 md:py-20 px-6">
             <div className="flex flex-col items-center gap-8 max-w-md mx-auto">
-              <h2 className="font-calligraphy text-3xl sm:text-4xl text-center" style={{ color: theme.accent }}>Will You Attend?</h2>
+              <h2 className="font-calligraphy text-3xl sm:text-4xl text-center" style={{ color: theme.accent }}>{t('willYouAttend', 'Will You Attend?')}</h2>
               <HeartDivider accentColor={theme.accent} />
 
               <div className="relative w-full">
@@ -2803,17 +3184,17 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                   <Card className="w-full backdrop-blur-sm" style={{ backgroundColor: theme.bgPrimary + 'cc', borderColor: theme.borderSubtle }}>
                     <CardContent className="flex flex-col gap-5 pt-6">
                       <div className="space-y-2">
-                        <label className="text-sm font-display" style={{ color: `rgba(${theme.accentRgb},0.7)` }}>Your Name</label>
+                        <label className="text-sm font-display" style={{ color: `rgba(${theme.accentRgb},0.7)` }}>{t('yourName', 'Your Name')}</label>
                         <Input
                           value={rsvpName}
                           onChange={(e) => setRsvpName(e.target.value)}
-                          placeholder="Enter your full name"
+                          placeholder={t('enterName', 'Enter your full name')}
                           className="border transition-all duration-300"
                           style={{ backgroundColor: theme.bgSecondary, borderColor: theme.borderSubtle, color: theme.textPrimary }}
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-sm font-display" style={{ color: `rgba(${theme.accentRgb},0.7)` }}>Email <span style={{ color: `rgba(${theme.accentRgb},0.3)` }}>(optional)</span></label>
+                        <label className="text-sm font-display" style={{ color: `rgba(${theme.accentRgb},0.7)` }}>{t('email', 'Email')} <span style={{ color: `rgba(${theme.accentRgb},0.3)` }}>{t('emailOptional', '(optional)')}</span></label>
                         <Input
                           type="email"
                           value={rsvpEmail}
@@ -2824,16 +3205,16 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-sm font-display" style={{ color: `rgba(${theme.accentRgb},0.7)` }}>Will you be attending?</label>
+                        <label className="text-sm font-display" style={{ color: `rgba(${theme.accentRgb},0.7)` }}>{t('willYouBeAttending', 'Will you be attending?')}</label>
                         <select
                           value={rsvpStatus || ''}
                           onChange={(e) => setRsvpStatus(e.target.value as 'accept' | 'decline' | null || null)}
                           className="w-full h-11 rounded-lg border text-sm px-3 focus:outline-none transition-all duration-300 appearance-none cursor-pointer"
                           style={{ backgroundColor: theme.bgSecondary, borderColor: theme.borderSubtle, color: theme.textPrimary, backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='${encodeURIComponent(theme.accentDark)}' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em' }}
                         >
-                          <option value="" style={{ backgroundColor: theme.bgSecondary }}>Select...</option>
-                          <option value="accept" style={{ backgroundColor: theme.bgSecondary, color: theme.textPrimary }}>Yes, I'll be there! 🎉</option>
-                          <option value="decline" style={{ backgroundColor: theme.bgSecondary, color: theme.textPrimary }}>Sorry, I can't make it 💌</option>
+                          <option value="" style={{ backgroundColor: theme.bgSecondary }}>{t('selectOption', 'Select...')}</option>
+                          <option value="accept" style={{ backgroundColor: theme.bgSecondary, color: theme.textPrimary }}>{t('acceptYes', "Yes, I'll be there! 🎉")}</option>
+                          <option value="decline" style={{ backgroundColor: theme.bgSecondary, color: theme.textPrimary }}>{t('declineSorry', "Sorry, I can't make it 💌")}</option>
                         </select>
                       </div>
                       <div className="flex gap-3 pt-2">
@@ -2843,7 +3224,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                           style={{ backgroundColor: `rgba(${theme.accentRgb},0.8)`, borderColor: theme.borderSubtle }}
                         >
                           <Check className="w-4 h-4 mr-1.5" />
-                          Joyfully Accept
+                          {t('joyfullyAccept', 'Joyfully Accept')}
                         </Button>
                         <Button 
                           onClick={() => handleRSVP('decline')} 
@@ -2852,7 +3233,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                           variant="outline"
                         >
                           <X className="w-4 h-4 mr-1.5" />
-                          Respectfully Decline
+                          {t('respectfullyDecline', 'Respectfully Decline')}
                         </Button>
                       </div>
                     </CardContent>
@@ -2871,7 +3252,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                       )}
                     </motion.div>
                     <h3 className="font-display text-xl mb-2" style={{ color: theme.accent }}>
-                      {rsvpStatus === 'accept' ? 'Joyfully Accepted!' : 'Thank You!'}
+                      {rsvpStatus === 'accept' ? t('joyfullyAccepted', 'Joyfully Accepted!') : t('thankYou', 'Thank You!')}
                     </h3>
                     <p className="text-sm" style={{ color: `rgba(${theme.accentRgb},0.6)` }}>
                       {rsvpStatus === 'accept'
@@ -2889,7 +3270,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
         <RevealSection>
           <section className="py-16 md:py-20 px-6">
             <div className="flex flex-col items-center gap-8 max-w-md mx-auto">
-              <h2 className="font-calligraphy text-3xl sm:text-4xl text-center" style={{ color: theme.accent }}>Blessings &amp; Wishes</h2>
+              <h2 className="font-calligraphy text-3xl sm:text-4xl text-center" style={{ color: theme.accent }}>{t('blessingsWishes', 'Blessings & Wishes')}</h2>
               <HeartDivider accentColor={theme.accent} />
 
               <div className="w-full space-y-3 max-h-72 overflow-y-auto pr-2 custom-scrollbar">
@@ -2923,7 +3304,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                   <Input
                     value={wishName}
                     onChange={(e) => setWishName(e.target.value)}
-                    placeholder="Your name (so they know who sent this)"
+                    placeholder={t('yourNameSender', 'Your name (so they know who sent this)')}
                     className="border h-10 transition-all duration-300 flex-1"
                     style={{ backgroundColor: theme.bgSecondary, borderColor: theme.borderSubtle, color: theme.textPrimary }}
                   />
@@ -2933,7 +3314,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                     <Textarea
                       value={wishMessage}
                       onChange={(e) => setWishMessage(e.target.value)}
-                      placeholder="Write your blessing or wish..."
+                      placeholder={t('writeBlessing', 'Write your blessing or wish...')}
                       className="border min-h-[44px] resize-none transition-all duration-300 w-full"
                       style={{ backgroundColor: theme.bgSecondary, borderColor: theme.borderSubtle, color: theme.textPrimary }}
                       rows={2}
@@ -2955,7 +3336,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
             <Heart className="w-3 h-3" style={{ color: `rgba(${theme.accentRgb},0.3)` }} />
             <div className="w-8 h-px" style={{ backgroundColor: `rgba(${theme.accentRgb},0.2)` }} />
           </div>
-          <p className="text-xs tracking-wider" style={{ color: `rgba(${theme.accentRgb},0.3)` }}>Made with love by ShaadiLink</p>
+          <p className="text-xs tracking-wider" style={{ color: `rgba(${theme.accentRgb},0.3)` }}>{t('madeWithLove', 'Made with love by ShaadiLink')}</p>
         </div>
       </motion.div>
     </div>
