@@ -1,7 +1,20 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { X, Check, ScrollText, Sparkles } from "lucide-react";
+import {
+  X,
+  Check,
+  Sparkles,
+  Banknote,
+  Palette,
+  MessageSquare,
+  RefreshCw,
+  Leaf,
+  Music,
+  MapPin,
+  MessageCircleHeart,
+  ScrollText,
+} from "lucide-react";
 
 interface Comparison {
   feature: string;
@@ -13,49 +26,49 @@ interface Comparison {
 const comparisons: Comparison[] = [
   {
     feature: "Cost",
-    icon: ScrollText,
+    icon: Banknote,
     paper: "Rs. 50,000+",
     digital: "Rs. 2,499",
   },
   {
     feature: "Design",
-    icon: Sparkles,
+    icon: Palette,
     paper: "Static & Limited",
     digital: "Animated & Interactive",
   },
   {
     feature: "RSVP",
-    icon: ScrollText,
+    icon: MessageSquare,
     paper: "Manual Tracking",
     digital: "Real-time Responses",
   },
   {
     feature: "Updates",
-    icon: ScrollText,
+    icon: RefreshCw,
     paper: "Impossible",
     digital: "Instant",
   },
   {
     feature: "Eco-friendly",
-    icon: ScrollText,
+    icon: Leaf,
     paper: "No",
     digital: "Yes",
   },
   {
     feature: "Music & Video",
-    icon: ScrollText,
+    icon: Music,
     paper: "No",
     digital: "Yes",
   },
   {
     feature: "Map Integration",
-    icon: ScrollText,
+    icon: MapPin,
     paper: "No",
     digital: "Yes",
   },
   {
     feature: "Guest Wishes",
-    icon: ScrollText,
+    icon: MessageCircleHeart,
     paper: "No",
     digital: "Yes",
   },

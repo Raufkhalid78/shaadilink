@@ -87,3 +87,38 @@ Stage Summary:
 - Sub-components (dividers, particles, fireworks, countdown, music toggle) all respect theme colors
 - Back button is theme-aware and navigates correctly
 - Lint passes cleanly, no runtime errors
+
+---
+Task ID: 18
+Agent: Main Agent
+Task: Change "Aisha and Rohan" to "Aisha and Ahmad" and enhance landing page visual design
+
+Work Log:
+- Changed "Rohan" to "Ahmad" in how-it-works.tsx (InvitationPreview component) and template-showcase.tsx
+- Note: Testimonials had "Aisha & Omar" (a different couple) which was kept as-is
+- Enhanced Hero section with floating InvitationCardMockup component on desktop (right side)
+  - Card shows Aisha & Ahmad names, Mehndi/Baraat/Walima events, date, venue
+  - Floating animation with secondary card behind for depth
+  - Shimmer border effect and sparkle decorations
+  - Two-column layout: text left, card right on desktop; stacked on mobile
+- Enhanced StatsBar with icons (Heart, Users, Star, Sparkles) for each stat
+- Enhanced Features section with decorative SVG background pattern
+- Enhanced Comparison section with proper icons (Banknote, Palette, MessageSquare, RefreshCw, Leaf, Music, MapPin, MessageCircleHeart)
+- Enhanced CTASection with star rating badge, benefits list with checkmarks, cleaner copy
+- Enhanced Live Demo section on landing page with template quick-select thumbnails
+  - 6 clickable template thumbnails (Emerald Noir, Crimson Royale, Garden Romance, Royal Imperial, Mughal Emerald, Royal Elegance)
+  - Each thumbnail shows the template's color scheme with hover tooltip showing name
+  - "View Live Demo" button (default emerald-noir) + "Browse All Templates" button
+- Fixed handleViewInvitation to properly set previewTemplateId from flowData.selectedTemplateId
+- Verified with Agent Browser: Hero shows floating card with "Aisha and Ahmad", template thumbnails work
+- Verified template selection: Crimson Royale shows red theme, Royal Imperial shows gold/amber theme
+- Footer properly sticks to bottom, all sections render correctly
+
+Stage Summary:
+- "Aisha and Rohan" → "Aisha and Ahmad" in 2 files
+- Hero section now has floating invitation card mockup on desktop
+- StatsBar enhanced with relevant icons
+- Live Demo section now has 6 clickable template thumbnails for quick preview
+- Template selection flow verified working: different templates show different color schemes
+- All landing page sections visually polished and consistent
+- Lint passes cleanly, no runtime errors

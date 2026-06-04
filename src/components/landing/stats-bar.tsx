@@ -8,6 +8,7 @@ import {
   useTransform,
   animate,
 } from "framer-motion";
+import { Heart, Users, Star, Sparkles } from "lucide-react";
 
 /* ─── Stat Data ─── */
 
@@ -15,13 +16,14 @@ interface StatItem {
   value: number;
   suffix: string;
   label: string;
+  icon: React.ComponentType<{ className?: string }>;
 }
 
 const stats: StatItem[] = [
-  { value: 5000, suffix: "+", label: "Happy Families" },
-  { value: 50000, suffix: "+", label: "Guests Reached" },
-  { value: 99, suffix: "%", label: "Satisfaction Rate" },
-  { value: 15, suffix: "+", label: "Premium Templates" },
+  { value: 5000, suffix: "+", label: "Happy Families", icon: Heart },
+  { value: 50000, suffix: "+", label: "Guests Reached", icon: Users },
+  { value: 99, suffix: "%", label: "Satisfaction", icon: Star },
+  { value: 15, suffix: "+", label: "Premium Templates", icon: Sparkles },
 ];
 
 /* ─── Animated Counter ─── */
@@ -85,6 +87,7 @@ function StatCard({
   index: number;
   inView: boolean;
 }) {
+  const Icon = stat.icon;
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -94,14 +97,18 @@ function StatCard({
         delay: index * 0.1,
         ease: "easeOut",
       }}
-      className="flex flex-col items-center px-4 py-5 sm:py-6"
+      className="flex flex-col items-center px-6 py-6 sm:py-8 relative group"
     >
+      {/* Icon */}
+      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gold/10 mb-3 group-hover:bg-gold/20 transition-colors duration-300">
+        <Icon className="w-4 h-4 text-gold" />
+      </div>
       <AnimatedCounter
         value={stat.value}
         suffix={stat.suffix}
         inView={inView}
       />
-      <span className="mt-2 text-white/60 text-xs sm:text-sm uppercase tracking-wider text-center">
+      <span className="mt-2 text-white/50 text-xs sm:text-sm uppercase tracking-wider text-center">
         {stat.label}
       </span>
     </motion.div>
@@ -136,9 +143,9 @@ export function StatsBar() {
           {stats.map((stat, i) => (
             <div key={stat.label} className="relative">
               <StatCard stat={stat} index={i} inView={isInView} />
-              {/* Vertical divider between items (hidden on mobile, hidden after last) */}
+              {/* Vertical divider between items */}
               {i < stats.length - 1 && (
-                <div className="hidden md:block absolute right-0 top-1/2 -translate-y-1/2 h-10 w-px bg-gold/20" />
+                <div className="hidden md:block absolute right-0 top-1/2 -translate-y-1/2 h-10 w-px bg-gold/15" />
               )}
             </div>
           ))}

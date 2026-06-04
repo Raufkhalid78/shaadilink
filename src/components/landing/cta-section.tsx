@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Sparkles, Heart, ArrowRight } from "lucide-react";
+import { Sparkles, Heart, ArrowRight, Check, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface CTASectionProps {
@@ -9,6 +9,12 @@ interface CTASectionProps {
 }
 
 export function CTASection({ onGetStarted }: CTASectionProps) {
+  const benefits = [
+    "One-time payment — no subscription",
+    "Unlimited guests — no per-guest charge",
+    "Unlimited edits until wedding date",
+  ];
+
   return (
     <section className="py-20 sm:py-28 relative overflow-hidden">
       {/* Background */}
@@ -40,18 +46,6 @@ export function CTASection({ onGetStarted }: CTASectionProps) {
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="0.5"
-              />
-              <path
-                d="M20 0 L40 20 L20 40 L0 20 Z"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="0.3"
-              />
-              <path
-                d="M60 0 L80 20 L60 40 L40 20 Z"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="0.3"
               />
             </pattern>
           </defs>
@@ -88,20 +82,6 @@ export function CTASection({ onGetStarted }: CTASectionProps) {
           ease: "easeInOut",
         }}
       />
-      <motion.div
-        className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full bg-gold/5 blur-3xl"
-        style={{ top: "50%", right: "30%" }}
-        animate={{
-          scale: [1, 1.15, 1],
-          y: [0, -15, 0],
-        }}
-        transition={{
-          duration: 7,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 2,
-        }}
-      />
 
       {/* Decorative gold corner accents */}
       <div className="absolute top-0 left-0 w-12 h-12 sm:w-20 sm:h-20 border-l-2 border-t-2 border-gold/20" />
@@ -123,6 +103,23 @@ export function CTASection({ onGetStarted }: CTASectionProps) {
             <div className="h-px w-12 sm:w-16 bg-gradient-to-l from-transparent to-gold/50" />
           </div>
 
+          {/* Rating badge */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gold/20 bg-gold/5 mb-6"
+          >
+            <div className="flex items-center gap-0.5">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Star key={i} className="w-3.5 h-3.5 text-gold fill-gold" />
+              ))}
+            </div>
+            <span className="text-sm text-gold font-semibold">4.9/5</span>
+            <span className="text-xs text-white/40">from 5,000+ families</span>
+          </motion.div>
+
           <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight">
             Ready to Create Your{" "}
             <span className="gold-shimmer-strong">Perfect Invitation?</span>
@@ -133,12 +130,28 @@ export function CTASection({ onGetStarted }: CTASectionProps) {
             wedding celebrations unforgettable with ShaadiLink.
           </p>
 
+          {/* Benefits list */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+            className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6"
+          >
+            {benefits.map((benefit) => (
+              <div key={benefit} className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-gold shrink-0" />
+                <span className="text-sm text-white/60">{benefit}</span>
+              </div>
+            ))}
+          </motion.div>
+
           <motion.div
             className="mt-8 flex flex-col items-center justify-center gap-4"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.3 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
           >
             <motion.div
               animate={{ scale: [1, 1.02, 1] }}
@@ -158,18 +171,10 @@ export function CTASection({ onGetStarted }: CTASectionProps) {
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </motion.div>
-
-            {/* Secondary link */}
-            <a
-              href="#templates"
-              className="text-gold/70 hover:text-gold text-sm transition-colors underline underline-offset-4 decoration-gold/30"
-            >
-              Or view our templates →
-            </a>
           </motion.div>
 
           <p className="mt-6 text-sm text-white/30">
-            No subscription · One-time payment · Unlimited guests
+            Starting from Rs. 2,499 · One-time payment
           </p>
         </motion.div>
       </div>

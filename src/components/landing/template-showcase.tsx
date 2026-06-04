@@ -241,7 +241,7 @@ export function TemplateShowcase() {
                       <div className="w-6 h-px bg-gold/30" />
                     </div>
                     <p className="font-calligraphy text-white/90 text-2xl font-bold mt-1">
-                      Rohan
+                      Ahmad
                     </p>
 
                     {/* Simulated date */}

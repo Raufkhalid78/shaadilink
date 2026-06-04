@@ -146,7 +146,20 @@ export function Features() {
       id="features"
       className="py-20 sm:py-28 bg-gradient-to-b from-muted/20 via-background to-muted/20 relative overflow-hidden"
     >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      {/* Decorative background */}
+      <div className="absolute inset-0 opacity-[0.02]">
+        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="feat-bg" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+              <circle cx="30" cy="30" r="20" fill="none" stroke="currentColor" strokeWidth="0.4" className="text-gold" />
+              <path d="M30 10 L30 50 M10 30 L50 30" stroke="currentColor" strokeWidth="0.2" className="text-gold" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#feat-bg)" />
+        </svg>
+      </div>
+
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
         <div className="text-center mb-10 sm:mb-14 reveal-on-scroll">
           <span className="inline-block font-calligraphy text-gold text-lg mb-3">
@@ -174,7 +187,7 @@ export function Features() {
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+              className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
                 activeTab === tab.key
                   ? "bg-emerald text-primary-foreground shadow-md shadow-emerald/20"
                   : "bg-emerald/10 text-foreground hover:bg-emerald/20"

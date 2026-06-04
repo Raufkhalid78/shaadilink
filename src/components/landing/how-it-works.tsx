@@ -291,7 +291,7 @@ function InvitationPreview() {
               <div className="w-8 h-px bg-gold/40" />
             </div>
             <p className="font-calligraphy text-white text-3xl font-bold">
-              Rohan
+              Ahmad
             </p>
           </div>
 

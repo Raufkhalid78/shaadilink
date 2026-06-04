@@ -89,6 +89,7 @@ export default function Home() {
   };
 
   const handleViewInvitation = () => {
+    setPreviewTemplateId(flowData.selectedTemplateId);
     setCurrentStep("demo");
   };
 
@@ -299,7 +300,7 @@ export default function Home() {
               <Pricing onSelectPlan={handleGetStarted} />
               <FAQ />
 
-              {/* Live Demo CTA Section */}
+              {/* Live Demo CTA Section with Template Preview */}
               <section id="live-demo" className="py-24 px-6 bg-gradient-to-b from-background to-emerald-dark/10 relative overflow-hidden">
                 <div className="absolute inset-0 opacity-[0.04]">
                   <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
@@ -312,7 +313,7 @@ export default function Home() {
                     <rect width="100%" height="100%" fill="url(#demo-pattern)" />
                   </svg>
                 </div>
-                <div className="max-w-3xl mx-auto text-center space-y-6 relative z-10">
+                <div className="max-w-4xl mx-auto text-center space-y-6 relative z-10">
                   <div className="flex items-center justify-center gap-4 mb-2">
                     <div className="h-px w-12 bg-gradient-to-r from-transparent to-gold/50" />
                     <Sparkles className="w-5 h-5 text-gold" />
@@ -322,18 +323,61 @@ export default function Home() {
                     See It <span className="gold-shimmer">Live</span>
                   </h2>
                   <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-                    Experience the magic of our premium invitation viewer — from
-                    the grand door-opening to the interactive scratch card,
-                    countdown, and fireworks.
+                    Experience the magic — from the grand door-opening to the
+                    interactive scratch card, countdown, and fireworks.
+                    Choose a template to preview:
                   </p>
-                  <Button
-                    onClick={goToDemo}
-                    size="lg"
-                    className="bg-emerald hover:bg-emerald-dark text-primary-foreground border border-gold/40 px-8 py-6 text-lg font-display pulse-glow gap-2"
-                  >
-                    <Eye className="w-5 h-5" />
-                    View Live Demo
-                  </Button>
+
+                  {/* Template Quick-Select Thumbnails */}
+                  <div className="flex flex-wrap items-center justify-center gap-3 mt-4">
+                    {[
+                      { id: "emerald-noir", name: "Emerald Noir", bg: "from-[#0f1a16] to-[#0a1210]", accent: "#d4a853" },
+                      { id: "crimson-royale", name: "Crimson Royale", bg: "from-[#1a0a0e] to-[#120810]", accent: "#dc2626" },
+                      { id: "garden-romance", name: "Garden Romance", bg: "from-[#1a0a14] to-[#120810]", accent: "#ec4899" },
+                      { id: "royal-imperial", name: "Royal Imperial", bg: "from-[#1a100a] to-[#120c08]", accent: "#f59e0b" },
+                      { id: "mughal-emerald", name: "Mughal Emerald", bg: "from-[#0a1a18] to-[#081412]", accent: "#2dd4bf" },
+                      { id: "royal-elegance", name: "Royal Elegance", bg: "from-[#1a080e] to-[#12060a]", accent: "#f43f5e" },
+                    ].map((tpl) => (
+                      <button
+                        key={tpl.id}
+                        onClick={() => goToDemo(tpl.id)}
+                        className="group relative w-16 h-20 sm:w-20 sm:h-24 rounded-lg overflow-hidden border border-white/10 hover:border-gold/50 hover:scale-110 transition-all duration-300 shadow-md hover:shadow-lg hover:shadow-gold/10"
+                      >
+                        <div className={`absolute inset-0 bg-gradient-to-br ${tpl.bg}`} />
+                        <div className="absolute inset-1 rounded border border-white/5" />
+                        {/* Mini names */}
+                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5">
+                          <span className="text-white/40 text-[5px] sm:text-[6px] font-calligraphy">A&A</span>
+                          <div className="w-3 h-px" style={{ backgroundColor: tpl.accent, opacity: 0.5 }} />
+                        </div>
+                        {/* Accent bar */}
+                        <div className="absolute bottom-0 inset-x-0 h-0.5" style={{ backgroundColor: tpl.accent }} />
+                        {/* Hover tooltip */}
+                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-foreground text-background text-[9px] px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                          {tpl.name}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+                    <Button
+                      onClick={() => goToDemo("emerald-noir")}
+                      size="lg"
+                      className="bg-emerald hover:bg-emerald-dark text-primary-foreground border border-gold/40 px-8 py-6 text-lg font-display pulse-glow gap-2"
+                    >
+                      <Eye className="w-5 h-5" />
+                      View Live Demo
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={goToTemplates}
+                      size="lg"
+                      className="border-gold/30 text-gold hover:bg-gold/10 hover:text-gold-light px-6 py-6 text-base font-display"
+                    >
+                      Browse All Templates
+                    </Button>
+                  </div>
                 </div>
               </section>
 
