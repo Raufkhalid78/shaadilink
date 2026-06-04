@@ -14,6 +14,9 @@ import {
   Crown,
   ImagePlus,
   Settings2,
+  BarChart3,
+  ShieldCheck,
+  Languages,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -67,6 +70,21 @@ const features = [
     icon: Settings2,
     title: "Full Customization",
     description: "Toggle sections, dress codes, events & more.",
+  },
+  {
+    icon: BarChart3,
+    title: "Analytics & Page Views",
+    description: "Track guest views, messages, and RSVP responses in real-time.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Auto Privacy Protection",
+    description: "Invitation auto-privatizes 30 days after your wedding.",
+  },
+  {
+    icon: Languages,
+    title: "Multi-Language Support",
+    description: "Support for English, Urdu, and other languages in your invitation.",
   },
 ];
 

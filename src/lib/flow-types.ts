@@ -13,9 +13,22 @@ export interface FlowData {
   partner1Name: string;
   partner2Name: string;
   venue: string;
+  venueAddress: string;
   welcomeMessage: string;
-  events: { name: string; date: string; time: string }[];
+  events: { name: string; date: string; time: string; venue?: string }[];
   backgroundMusic: string;
+  // Dress code
+  dressCodeWomen: string;
+  dressCodeMen: string;
+  // Transportation
+  transportation: string;
+  // Accommodation
+  accommodation: string;
+  // Gifts/Registry
+  gifts: string;
+  // Photos
+  heroImage: string;
+  slideshowImages: string[];
   // Step 5: Payment (simulated)
   paymentDone: boolean;
 }
@@ -29,6 +42,7 @@ export const initialFlowData: FlowData = {
   partner1Name: "",
   partner2Name: "",
   venue: "",
+  venueAddress: "",
   welcomeMessage: "",
   events: [
     { name: "Mehndi", date: "", time: "" },
@@ -36,6 +50,13 @@ export const initialFlowData: FlowData = {
     { name: "Walima", date: "", time: "" },
   ],
   backgroundMusic: "soft-sitar",
+  dressCodeWomen: "",
+  dressCodeMen: "",
+  transportation: "",
+  accommodation: "",
+  gifts: "",
+  heroImage: "",
+  slideshowImages: [],
   paymentDone: false,
 };
 
@@ -47,7 +68,14 @@ export type FlowStep =
   | "details"
   | "payment"
   | "success"
-  | "demo";
+  | "demo"
+  | "about"
+  | "contact"
+  | "affiliate"
+  | "terms"
+  | "privacy"
+  | "refund"
+  | "shipping";
 
 export const planDetails = {
   classic: {
@@ -55,12 +83,18 @@ export const planDetails = {
     price: "2,499",
     priceNote: "One-time payment",
     features: [
-      "1 Invitation",
+      "1 Invitation Webpage",
       "Door Animation",
       "RSVP Collection",
       "Countdown Timer",
       "8 Classic Templates",
       "Share via Link",
+      "Unlimited Edits",
+      "Guest Messaging & Inbox",
+      "Music, Photos & Custom Uploads",
+      "Google Maps & Multi-Language",
+      "Analytics & Page View Tracking",
+      "Auto Privacy After Wedding",
     ],
   },
   royal: {
@@ -69,12 +103,15 @@ export const planDetails = {
     priceNote: "One-time payment",
     features: [
       "Everything in Classic",
+      "Access to ALL Classic + Royal Templates",
+      "10 Premium Animated Templates",
       "Scratch Card Reveal",
-      "Fireworks & Effects",
+      "Fireworks & Cinematic Effects",
       "Background Music",
-      "Photo Gallery",
+      "Photo Gallery & Slideshow",
       "Custom Domain",
-      "2 Premium Templates",
+      "3D Door & Curtain Reveal",
+      "Premium Motion Storytelling",
       "Priority Support",
     ],
   },

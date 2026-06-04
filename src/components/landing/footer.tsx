@@ -4,18 +4,18 @@ import { Heart, Instagram, Facebook, Twitter, Mail, Globe } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 const quickLinks = [
-  { label: "About", href: "#" },
-  { label: "Features", href: "#features" },
+  { label: "About", href: "#", action: "about" },
+  { label: "Features", href: "#features", action: undefined },
   { label: "Templates", href: "#templates", action: "templates" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "How It Works", href: "#how-it-works" },
+  { label: "Pricing", href: "#pricing", action: undefined },
+  { label: "How It Works", href: "#how-it-works", action: undefined },
 ];
 
 const legalLinks = [
-  { label: "Terms & Conditions", href: "#" },
-  { label: "Privacy Policy", href: "#" },
-  { label: "Refund Policy", href: "#" },
-  { label: "Shipping & Delivery", href: "#" },
+  { label: "Terms & Conditions", action: "terms" as const },
+  { label: "Privacy Policy", action: "privacy" as const },
+  { label: "Refund Policy", action: "refund" as const },
+  { label: "Shipping & Delivery", action: "shipping" as const },
 ];
 
 const socialLinks = [
@@ -26,9 +26,24 @@ const socialLinks = [
 
 interface FooterProps {
   onTemplatesClick?: () => void;
+  onAboutClick?: () => void;
+  onContactClick?: () => void;
+  onLegalClick?: (type: "terms" | "privacy" | "refund" | "shipping") => void;
+  onAffiliateClick?: () => void;
 }
 
-export function Footer({ onTemplatesClick }: FooterProps) {
+export function Footer({
+  onTemplatesClick,
+  onAboutClick,
+  onContactClick,
+  onLegalClick,
+  onAffiliateClick,
+}: FooterProps) {
+  const handleQuickLink = (link: (typeof quickLinks)[0]) => {
+    if (link.action === "about" && onAboutClick) onAboutClick();
+    else if (link.action === "templates" && onTemplatesClick) onTemplatesClick();
+  };
+
   return (
     <footer className="bg-emerald-dark text-white mt-auto">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -75,9 +90,9 @@ export function Footer({ onTemplatesClick }: FooterProps) {
             <ul className="space-y-3">
               {quickLinks.map((link) => (
                 <li key={link.label}>
-                  {link.action === "templates" ? (
+                  {link.action ? (
                     <button
-                      onClick={onTemplatesClick}
+                      onClick={() => handleQuickLink(link)}
                       className="text-sm text-white/60 hover:text-gold transition-colors"
                     >
                       {link.label}
@@ -103,12 +118,12 @@ export function Footer({ onTemplatesClick }: FooterProps) {
             <ul className="space-y-3">
               {legalLinks.map((link) => (
                 <li key={link.label}>
-                  <a
-                    href={link.href}
+                  <button
+                    onClick={() => onLegalClick?.(link.action)}
                     className="text-sm text-white/60 hover:text-gold transition-colors"
                   >
                     {link.label}
-                  </a>
+                  </button>
                 </li>
               ))}
             </ul>
@@ -120,6 +135,14 @@ export function Footer({ onTemplatesClick }: FooterProps) {
               Get In Touch
             </h4>
             <ul className="space-y-3">
+              <li>
+                <button
+                  onClick={onContactClick}
+                  className="text-sm text-white/60 hover:text-gold transition-colors"
+                >
+                  Contact Us
+                </button>
+              </li>
               <li>
                 <a href="mailto:hello@shaadilink.pk" className="text-sm text-white/60 hover:text-gold transition-colors flex items-center gap-2">
                   <Mail className="w-3.5 h-3.5 shrink-0" />
@@ -136,9 +159,12 @@ export function Footer({ onTemplatesClick }: FooterProps) {
 
             {/* Affiliate link */}
             <div className="mt-6 pt-4 border-t border-white/10">
-              <a href="#" className="text-sm text-gold/70 hover:text-gold transition-colors font-medium">
+              <button
+                onClick={onAffiliateClick}
+                className="text-sm text-gold/70 hover:text-gold transition-colors font-medium"
+              >
                 Become an Affiliate →
-              </a>
+              </button>
             </div>
           </div>
         </div>

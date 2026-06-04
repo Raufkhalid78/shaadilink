@@ -920,6 +920,7 @@ export default function InvitationViewer() {
   const [wishName, setWishName] = useState('')
   const [wishMessage, setWishMessage] = useState('')
   const [musicPlaying, setMusicPlaying] = useState(false)
+  const [language, setLanguage] = useState<'en' | 'ur'>('en')
   const [showConfetti, setShowConfetti] = useState(false)
   const [rsvpHearts, setRsvpHearts] = useState<number[]>([])
   const [heroVisible, setHeroVisible] = useState(false)
@@ -1124,7 +1125,17 @@ export default function InvitationViewer() {
       <ConfettiDisplay show={showConfetti} />
 
       {/* Music toggle */}
-      <div className="fixed top-4 right-4 z-[200]">
+      <div className="fixed top-4 right-4 z-[200] flex items-center gap-2">
+        <button
+          onClick={() => {
+            const newLang = language === 'en' ? 'ur' : 'en'
+            setLanguage(newLang)
+          }}
+          className="w-10 h-10 rounded-full border border-gold/30 bg-[#0f1a16]/80 backdrop-blur-sm flex items-center justify-center transition-all duration-300 hover:border-gold/60 hover:bg-[#0f1a16] text-gold/70 hover:text-gold text-xs font-bold"
+          aria-label="Toggle language"
+        >
+          {language === 'en' ? 'اردو' : 'EN'}
+        </button>
         <MusicToggle isPlaying={musicPlaying} onToggle={() => setMusicPlaying(!musicPlaying)} />
       </div>
 
@@ -1386,12 +1397,32 @@ export default function InvitationViewer() {
                           className="bg-[#0a1210] border-gold/20 text-gold-light placeholder:text-gold/30 focus:border-gold/50 focus:ring-gold/20 transition-all duration-300"
                         />
                       </div>
+                      <div className="space-y-2">
+                        <label className="text-sm text-gold/70 font-display">Will you be attending?</label>
+                        <select
+                          value={rsvpStatus || ''}
+                          onChange={(e) => setRsvpStatus(e.target.value as 'accept' | 'decline' | null || null)}
+                          className="w-full h-11 rounded-lg bg-[#0a1210] border border-gold/20 text-gold-light text-sm px-3 focus:border-gold/50 focus:ring-gold/20 focus:outline-none transition-all duration-300 appearance-none cursor-pointer"
+                          style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23b4914d' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em' }}
+                        >
+                          <option value="" className="bg-[#0a1210] text-gold/50">Select...</option>
+                          <option value="accept" className="bg-[#0a1210] text-gold-light">Yes, I'll be there! 🎉</option>
+                          <option value="decline" className="bg-[#0a1210] text-gold-light">Sorry, I can't make it 💌</option>
+                        </select>
+                      </div>
                       <div className="flex gap-3 pt-2">
-                        <Button onClick={() => handleRSVP('accept')} className="flex-1 bg-emerald/80 hover:bg-emerald text-white border border-gold/30 rounded-lg h-11 font-display green-glow transition-all duration-300 hover:scale-[1.02]">
+                        <Button 
+                          onClick={() => handleRSVP('accept')} 
+                          className="flex-1 bg-emerald/80 hover:bg-emerald text-white border border-gold/30 rounded-lg h-11 font-display green-glow transition-all duration-300 hover:scale-[1.02]"
+                        >
                           <Check className="w-4 h-4 mr-1.5" />
                           Joyfully Accept
                         </Button>
-                        <Button onClick={() => handleRSVP('decline')} className="flex-1 bg-transparent border border-gold/20 text-gold/70 hover:bg-gold/5 hover:text-gold hover:border-gold/30 rounded-lg h-11 font-display transition-all duration-300" variant="outline">
+                        <Button 
+                          onClick={() => handleRSVP('decline')} 
+                          className="flex-1 bg-transparent border border-gold/20 text-gold/70 hover:bg-gold/5 hover:text-gold hover:border-gold/30 rounded-lg h-11 font-display transition-all duration-300" 
+                          variant="outline"
+                        >
                           <X className="w-4 h-4 mr-1.5" />
                           Respectfully Decline
                         </Button>

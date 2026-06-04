@@ -18,12 +18,32 @@ import { LoginPage } from "@/components/flow/login-page";
 import { DetailsPage } from "@/components/flow/details-page";
 import { PaymentPage } from "@/components/flow/payment-page";
 import { SuccessPage } from "@/components/flow/success-page";
+import { AboutPage } from "@/components/flow/about-page";
+import { ContactPage } from "@/components/flow/contact-page";
+import { AffiliatePage } from "@/components/flow/affiliate-page";
+import { LegalPage } from "@/components/flow/legal-page";
 import InvitationViewer from "@/components/viewer/invitation-viewer";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Eye, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { FlowData, FlowStep } from "@/lib/flow-types";
 import { initialFlowData } from "@/lib/flow-types";
+
+/* Wrapper for page transitions - defined outside render to avoid state reset */
+function InfoPageWrapper({ children, stepKey }: { children: React.ReactNode; stepKey: string }) {
+  return (
+    <motion.div
+      key={stepKey}
+      initial={{ opacity: 0, x: 40 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -40 }}
+      transition={{ duration: 0.4 }}
+      className="flex-1"
+    >
+      {children}
+    </motion.div>
+  );
+}
 
 export default function Home() {
   const [currentStep, setCurrentStep] = useState<FlowStep>("landing");
@@ -100,6 +120,11 @@ export default function Home() {
 
   const goToDemo = () => setCurrentStep("demo");
 
+  const goToAbout = () => setCurrentStep("about");
+  const goToContact = () => setCurrentStep("contact");
+  const goToAffiliate = () => setCurrentStep("affiliate");
+  const goToLegal = (type: "terms" | "privacy" | "refund" | "shipping") => setCurrentStep(type);
+
   return (
     <div className="min-h-screen flex flex-col">
       <AnimatePresence mode="wait">
@@ -133,32 +158,18 @@ export default function Home() {
         )}
 
         {currentStep === "templates" && (
-          <motion.div
-            key="templates"
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -40 }}
-            transition={{ duration: 0.4 }}
-            className="flex-1"
-          >
+          <InfoPageWrapper stepKey="templates">
             <TemplatesPage
               selectedPlan={flowData.selectedPlan}
               onBack={handleBackToLanding}
               onPreview={goToDemo}
               onSelectTemplate={handleSelectTemplate}
             />
-          </motion.div>
+          </InfoPageWrapper>
         )}
 
         {currentStep === "signup" && (
-          <motion.div
-            key="signup"
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -40 }}
-            transition={{ duration: 0.4 }}
-            className="flex-1"
-          >
+          <InfoPageWrapper stepKey="signup">
             <SignupPage
               flowData={flowData}
               onUpdateData={updateFlowData}
@@ -166,18 +177,11 @@ export default function Home() {
               onContinue={handleSignupComplete}
               onLogin={handleGoToLogin}
             />
-          </motion.div>
+          </InfoPageWrapper>
         )}
 
         {currentStep === "login" && (
-          <motion.div
-            key="login"
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -40 }}
-            transition={{ duration: 0.4 }}
-            className="flex-1"
-          >
+          <InfoPageWrapper stepKey="login">
             <LoginPage
               onBack={handleBackToLanding}
               onLogin={handleLoginComplete}
@@ -186,60 +190,63 @@ export default function Home() {
                 alert("Password reset link sent to your email!");
               }}
             />
-          </motion.div>
+          </InfoPageWrapper>
         )}
 
         {currentStep === "details" && (
-          <motion.div
-            key="details"
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -40 }}
-            transition={{ duration: 0.4 }}
-            className="flex-1"
-          >
+          <InfoPageWrapper stepKey="details">
             <DetailsPage
               flowData={flowData}
               onUpdateData={updateFlowData}
               onBack={() => setCurrentStep("signup")}
               onContinue={handleDetailsComplete}
             />
-          </motion.div>
+          </InfoPageWrapper>
         )}
 
         {currentStep === "payment" && (
-          <motion.div
-            key="payment"
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -40 }}
-            transition={{ duration: 0.4 }}
-            className="flex-1"
-          >
+          <InfoPageWrapper stepKey="payment">
             <PaymentPage
               flowData={flowData}
               onUpdateData={updateFlowData}
               onBack={() => setCurrentStep("details")}
               onContinue={handlePaymentComplete}
             />
-          </motion.div>
+          </InfoPageWrapper>
         )}
 
         {currentStep === "success" && (
-          <motion.div
-            key="success"
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-            className="flex-1"
-          >
+          <InfoPageWrapper stepKey="success">
             <SuccessPage
               flowData={flowData}
               onViewInvitation={handleViewInvitation}
               onGoHome={handleGoHome}
             />
-          </motion.div>
+          </InfoPageWrapper>
+        )}
+
+        {currentStep === "about" && (
+          <InfoPageWrapper stepKey="about">
+            <AboutPage onBack={handleBackToLanding} />
+          </InfoPageWrapper>
+        )}
+
+        {currentStep === "contact" && (
+          <InfoPageWrapper stepKey="contact">
+            <ContactPage onBack={handleBackToLanding} />
+          </InfoPageWrapper>
+        )}
+
+        {currentStep === "affiliate" && (
+          <InfoPageWrapper stepKey="affiliate">
+            <AffiliatePage onBack={handleBackToLanding} />
+          </InfoPageWrapper>
+        )}
+
+        {(currentStep === "terms" || currentStep === "privacy" || currentStep === "refund" || currentStep === "shipping") && (
+          <InfoPageWrapper stepKey={currentStep}>
+            <LegalPage type={currentStep} onBack={handleBackToLanding} />
+          </InfoPageWrapper>
         )}
 
         {currentStep === "landing" && (
@@ -255,6 +262,8 @@ export default function Home() {
               onTemplatesClick={goToTemplates}
               onGetStarted={scrollToPricing}
               onLoginClick={handleLoginClick}
+              onAboutClick={goToAbout}
+              onContactClick={goToContact}
             />
             <main className="flex-1">
               <Hero
@@ -308,7 +317,13 @@ export default function Home() {
 
               <CTASection onGetStarted={scrollToPricing} />
             </main>
-            <Footer onTemplatesClick={goToTemplates} />
+            <Footer
+              onTemplatesClick={goToTemplates}
+              onAboutClick={goToAbout}
+              onContactClick={goToContact}
+              onLegalClick={goToLegal}
+              onAffiliateClick={goToAffiliate}
+            />
           </motion.div>
         )}
       </AnimatePresence>

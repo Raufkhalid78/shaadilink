@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -14,6 +14,13 @@ import {
   Plus,
   Trash2,
   User,
+  Shirt,
+  Car,
+  Hotel,
+  Gift,
+  ImagePlus,
+  X,
+  Globe,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +41,8 @@ export function DetailsPage({
   onContinue,
 }: DetailsPageProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const heroInputRef = useRef<HTMLInputElement>(null);
+  const slideshowInputRef = useRef<HTMLInputElement>(null);
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
@@ -60,6 +69,39 @@ export function DetailsPage({
 
   const removeEvent = (index: number) => {
     onUpdateData({ events: flowData.events.filter((_, i) => i !== index) });
+  };
+
+  const handleHeroImageUpload = () => {
+    heroInputRef.current?.click();
+  };
+
+  const handleSlideshowUpload = () => {
+    slideshowInputRef.current?.click();
+  };
+
+  const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: "hero" | "slideshow"
+  ) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    // Simulate file upload with URL.createObjectURL for preview
+    if (type === "hero" && files[0]) {
+      const url = URL.createObjectURL(files[0]);
+      onUpdateData({ heroImage: url });
+    } else if (type === "slideshow" && files.length > 0) {
+      const newImages = Array.from(files)
+        .slice(0, 4 - flowData.slideshowImages.length)
+        .map((f) => URL.createObjectURL(f));
+      onUpdateData({ slideshowImages: [...flowData.slideshowImages, ...newImages] });
+    }
+    e.target.value = "";
+  };
+
+  const removeSlideshowImage = (index: number) => {
+    const updated = flowData.slideshowImages.filter((_, i) => i !== index);
+    onUpdateData({ slideshowImages: updated });
   };
 
   return (
@@ -151,7 +193,7 @@ export function DetailsPage({
               </div>
             </section>
 
-            {/* Venue */}
+            {/* Venue with Maps */}
             <section className="space-y-4">
               <div className="flex items-center gap-2 mb-3">
                 <MapPin className="w-4 h-4 text-gold" />
@@ -159,20 +201,40 @@ export function DetailsPage({
                   Venue
                 </h2>
               </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                  Venue Name & Address
-                </label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    value={flowData.venue}
-                    onChange={(e) => onUpdateData({ venue: e.target.value })}
-                    placeholder="e.g. The Grand Palace, Lahore"
-                    className={`pl-10 h-11 ${errors.venue ? "border-red-400" : ""}`}
-                  />
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                    Venue Name
+                  </label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      value={flowData.venue}
+                      onChange={(e) => onUpdateData({ venue: e.target.value })}
+                      placeholder="e.g. The Grand Palace, Lahore"
+                      className={`pl-10 h-11 ${errors.venue ? "border-red-400" : ""}`}
+                    />
+                  </div>
+                  {errors.venue && <p className="text-xs text-red-500">{errors.venue}</p>}
                 </div>
-                {errors.venue && <p className="text-xs text-red-500">{errors.venue}</p>}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                    Full Address (for Google Maps)
+                  </label>
+                  <div className="relative">
+                    <Globe className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      value={flowData.venueAddress}
+                      onChange={(e) => onUpdateData({ venueAddress: e.target.value })}
+                      placeholder="e.g. The Grand Palace, MM Alam Road, Gulberg III, Lahore"
+                      className="pl-10 h-11"
+                    />
+                  </div>
+                  <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                    <MapPin className="w-3 h-3" />
+                    Full address enables embedded Google Maps in your invitation
+                  </p>
+                </div>
               </div>
             </section>
 
@@ -260,6 +322,103 @@ export function DetailsPage({
               </div>
             </section>
 
+            {/* Dress Code */}
+            <section className="space-y-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Shirt className="w-4 h-4 text-gold" />
+                <h2 className="font-display text-lg font-semibold text-foreground">
+                  Dress Code
+                </h2>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                    Women&apos;s Dress Code
+                  </label>
+                  <Input
+                    value={flowData.dressCodeWomen}
+                    onChange={(e) => onUpdateData({ dressCodeWomen: e.target.value })}
+                    placeholder="e.g. Elegant formal attire in pastel tones"
+                    className="h-11"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                    Men&apos;s Dress Code
+                  </label>
+                  <Input
+                    value={flowData.dressCodeMen}
+                    onChange={(e) => onUpdateData({ dressCodeMen: e.target.value })}
+                    placeholder="e.g. Suit or traditional shalwar kameez"
+                    className="h-11"
+                  />
+                </div>
+              </div>
+            </section>
+
+            {/* Transportation */}
+            <section className="space-y-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Car className="w-4 h-4 text-gold" />
+                <h2 className="font-display text-lg font-semibold text-foreground">
+                  Transportation
+                </h2>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                  Transportation Details
+                </label>
+                <Textarea
+                  value={flowData.transportation}
+                  onChange={(e) => onUpdateData({ transportation: e.target.value })}
+                  placeholder="e.g. Shuttle service will be available from the city center to the venue."
+                  className="min-h-[70px] resize-none"
+                />
+              </div>
+            </section>
+
+            {/* Accommodation */}
+            <section className="space-y-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Hotel className="w-4 h-4 text-gold" />
+                <h2 className="font-display text-lg font-semibold text-foreground">
+                  Accommodation
+                </h2>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                  Accommodation Details
+                </label>
+                <Textarea
+                  value={flowData.accommodation}
+                  onChange={(e) => onUpdateData({ accommodation: e.target.value })}
+                  placeholder="e.g. Special rates at The Grand Palace. Use code SHAADI2025 when booking."
+                  className="min-h-[70px] resize-none"
+                />
+              </div>
+            </section>
+
+            {/* Gifts */}
+            <section className="space-y-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Gift className="w-4 h-4 text-gold" />
+                <h2 className="font-display text-lg font-semibold text-foreground">
+                  Gifts
+                </h2>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                  Gift Registry / Message
+                </label>
+                <Textarea
+                  value={flowData.gifts}
+                  onChange={(e) => onUpdateData({ gifts: e.target.value })}
+                  placeholder="e.g. Your love and blessings are the greatest gifts we could ever ask for."
+                  className="min-h-[70px] resize-none"
+                />
+              </div>
+            </section>
+
             {/* Background Music */}
             <section className="space-y-4">
               <div className="flex items-center gap-2 mb-3">
@@ -290,6 +449,98 @@ export function DetailsPage({
                     {option.label}
                   </button>
                 ))}
+              </div>
+            </section>
+
+            {/* Photo Upload */}
+            <section className="space-y-4">
+              <div className="flex items-center gap-2 mb-3">
+                <ImagePlus className="w-4 h-4 text-gold" />
+                <h2 className="font-display text-lg font-semibold text-foreground">
+                  Photos
+                </h2>
+              </div>
+
+              {/* Hero Image */}
+              <div className="space-y-2">
+                <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                  Hero Background Image
+                </label>
+                {flowData.heroImage ? (
+                  <div className="relative rounded-xl overflow-hidden border border-border/50 aspect-[16/9]">
+                    <img
+                      src={flowData.heroImage}
+                      alt="Hero preview"
+                      className="w-full h-full object-cover"
+                    />
+                    <button
+                      onClick={() => onUpdateData({ heroImage: "" })}
+                      className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-red-500 transition-colors"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={handleHeroImageUpload}
+                    className="w-full p-6 rounded-xl border-2 border-dashed border-border/50 hover:border-gold/30 transition-colors flex flex-col items-center gap-2 text-muted-foreground hover:text-foreground"
+                  >
+                    <ImagePlus className="w-8 h-8" />
+                    <span className="text-sm font-medium">Upload Hero Image</span>
+                    <span className="text-xs">Recommended: 1920x1080px</span>
+                  </button>
+                )}
+                <input
+                  ref={heroInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleFileChange(e, "hero")}
+                  className="hidden"
+                />
+              </div>
+
+              {/* Slideshow Images */}
+              <div className="space-y-2">
+                <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                  Slideshow Photos (up to 4)
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {flowData.slideshowImages.map((img, idx) => (
+                    <div
+                      key={idx}
+                      className="relative rounded-lg overflow-hidden border border-border/50 aspect-square"
+                    >
+                      <img
+                        src={img}
+                        alt={`Slideshow ${idx + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        onClick={() => removeSlideshowImage(idx)}
+                        className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-red-500 transition-colors"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                  {flowData.slideshowImages.length < 4 && (
+                    <button
+                      onClick={handleSlideshowUpload}
+                      className="rounded-lg border-2 border-dashed border-border/50 hover:border-gold/30 transition-colors flex flex-col items-center justify-center gap-1 text-muted-foreground hover:text-foreground aspect-square"
+                    >
+                      <Plus className="w-5 h-5" />
+                      <span className="text-[10px]">Add Photo</span>
+                    </button>
+                  )}
+                </div>
+                <input
+                  ref={slideshowInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => handleFileChange(e, "slideshow")}
+                  className="hidden"
+                />
               </div>
             </section>
 

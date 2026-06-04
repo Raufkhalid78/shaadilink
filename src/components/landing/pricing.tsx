@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check, Crown } from "lucide-react";
+import { Check, Crown, Sparkles, ArrowRight } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,36 +12,44 @@ const plans = [
     name: "Classic",
     price: "2,499",
     period: "/invitation",
-    description: "Everything you need for a beautiful digital invitation.",
+    description: "Elegant classic invitations — everything you need for a beautiful digital invitation.",
     features: [
-      "1 Invitation",
-      "Door Animation",
-      "RSVP Collection",
-      "Countdown Timer",
-      "3 Classic Templates",
-      "Share via Link",
+      "Access to ShaadiLink Classic Invitations",
+      "8 Premium Animated Templates",
+      "1 Invitation Webpage",
+      "Unlimited Edits Until Wedding Date",
+      "Buy More Invitations Anytime (Add-On)",
+      "Guest Messaging & Inbox",
+      "Music, Photos & Custom Uploads",
+      "Google Maps & Multi-Language Support",
+      "Analytics & Page View Tracking",
+      "Automatic Privacy Protection After Wedding",
     ],
-    cta: "Choose Classic",
+    cta: "Start with Classic",
     highlighted: false,
+    badgeText: "MOST POPULAR",
   },
   {
     id: "royal" as const,
     name: "Royal",
     price: "3,999",
     period: "/invitation",
-    description: "The ultimate experience with all premium features unlocked.",
+    description: "Premium cinematic experience with all premium features unlocked.",
     features: [
-      "Everything in Classic",
-      "Scratch Card Reveal",
-      "Fireworks & Effects",
-      "Background Music",
-      "Photo Gallery",
-      "Custom Domain",
-      "5 Premium Templates",
+      "Everything in Classic, Plus:",
+      "Access to ALL Classic + Royal Invitations",
+      "10 Premium Animated Templates",
+      "Cinematic Royal Invitation Experience",
+      "Scratch Card Reveal & Fireworks",
+      "3D Door & Curtain Reveal Animations",
+      "Cinematic Hero Backgrounds",
+      "Premium Motion Storytelling",
+      "Exclusive Royal Template Collection",
       "Priority Support",
     ],
-    cta: "Choose Royal",
+    cta: "Unlock Royal Experience",
     highlighted: true,
+    badgeText: "PREMIUM CINEMATIC",
   },
 ];
 
@@ -76,13 +84,13 @@ export function Pricing({ onSelectPlan }: PricingProps) {
         {/* Section Header */}
         <div className="text-center mb-14 sm:mb-20 reveal-on-scroll">
           <span className="inline-block font-calligraphy text-gold text-lg mb-3">
-            ✦ Pricing ✦
+            ✦ Choose Your Experience ✦
           </span>
           <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">
-            Simple, Transparent Pricing
+            Choose Your Invitation Experience
           </h2>
           <p className="mt-4 text-muted-foreground max-w-xl mx-auto text-base sm:text-lg">
-            No subscriptions. No hidden fees. One payment gives you full access.
+            Elegant classic invitations or immersive cinematic luxury experiences.
           </p>
         </div>
 
@@ -103,12 +111,19 @@ export function Pricing({ onSelectPlan }: PricingProps) {
                     : "border-border/50 hover:border-gold/30"
                 }`}
               >
-                {/* Popular badge */}
+                {/* Badge */}
                 {plan.highlighted && (
                   <div className="absolute top-0 right-0">
                     <Badge className="rounded-none rounded-bl-lg bg-gold text-emerald-dark font-semibold px-4 py-1.5 text-xs">
                       <Crown className="h-3 w-3 mr-1" />
-                      Most Popular
+                      {plan.badgeText}
+                    </Badge>
+                  </div>
+                )}
+                {!plan.highlighted && (
+                  <div className="absolute top-0 right-0">
+                    <Badge className="rounded-none rounded-bl-lg bg-emerald/80 text-primary-foreground font-semibold px-4 py-1.5 text-xs">
+                      {plan.badgeText}
                     </Badge>
                   </div>
                 )}
@@ -133,7 +148,7 @@ export function Pricing({ onSelectPlan }: PricingProps) {
 
                 <CardContent className="px-6 sm:px-8 pb-8 pt-4">
                   {/* Features list */}
-                  <ul className="space-y-3 mb-8">
+                  <ul className="space-y-2.5 mb-8">
                     {plan.features.map((feature) => (
                       <li key={feature} className="flex items-start gap-3">
                         <div
@@ -167,6 +182,36 @@ export function Pricing({ onSelectPlan }: PricingProps) {
             </motion.div>
           ))}
         </motion.div>
+
+        {/* Upgrade notice */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.3 }}
+          className="mt-10 text-center"
+        >
+          <div className="inline-flex items-center gap-2 px-5 py-3 rounded-xl border border-gold/20 bg-gold/5">
+            <Sparkles className="w-4 h-4 text-gold" />
+            <p className="text-sm text-muted-foreground">
+              Already purchased Classic?{" "}
+              <span className="text-gold font-semibold">Upgrade to Royal</span> anytime
+              without repurchasing the full plan.
+            </p>
+            <ArrowRight className="w-4 h-4 text-gold" />
+          </div>
+        </motion.div>
+
+        {/* Security badge */}
+        <div className="mt-6 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1">
+            <svg className="w-3.5 h-3.5 text-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+            Secure payments via SSL encryption
+          </div>
+        </div>
       </div>
     </section>
   );

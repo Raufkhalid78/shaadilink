@@ -18,9 +18,11 @@ interface NavbarProps {
   onTemplatesClick?: () => void;
   onGetStarted?: () => void;
   onLoginClick?: () => void;
+  onAboutClick?: () => void;
+  onContactClick?: () => void;
 }
 
-export function Navbar({ onTemplatesClick, onGetStarted, onLoginClick }: NavbarProps) {
+export function Navbar({ onTemplatesClick, onGetStarted, onLoginClick, onAboutClick, onContactClick }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -35,6 +37,8 @@ export function Navbar({ onTemplatesClick, onGetStarted, onLoginClick }: NavbarP
     { label: "Features", href: "#features", action: undefined },
     { label: "How It Works", href: "#how-it-works", action: undefined },
     { label: "Templates", href: undefined, action: onTemplatesClick },
+    { label: "About", href: undefined, action: onAboutClick },
+    { label: "Contact", href: undefined, action: onContactClick },
     { label: "Pricing", href: "#pricing", action: undefined },
   ];
 
@@ -62,13 +66,13 @@ export function Navbar({ onTemplatesClick, onGetStarted, onLoginClick }: NavbarP
         </a>
 
         {/* Desktop Nav Links */}
-        <div className="hidden md:flex items-center gap-1">
+        <div className="hidden lg:flex items-center gap-1">
           {navLinks.map((link) =>
             link.action ? (
               <button
                 key={link.label}
                 onClick={link.action}
-                className="px-4 py-2 text-sm font-medium text-foreground/70 hover:text-foreground transition-colors rounded-md hover:bg-accent/50"
+                className="px-3 py-2 text-sm font-medium text-foreground/70 hover:text-foreground transition-colors rounded-md hover:bg-accent/50"
               >
                 {link.label}
               </button>
@@ -76,7 +80,7 @@ export function Navbar({ onTemplatesClick, onGetStarted, onLoginClick }: NavbarP
               <a
                 key={link.label}
                 href={link.href}
-                className="px-4 py-2 text-sm font-medium text-foreground/70 hover:text-foreground transition-colors rounded-md hover:bg-accent/50"
+                className="px-3 py-2 text-sm font-medium text-foreground/70 hover:text-foreground transition-colors rounded-md hover:bg-accent/50"
               >
                 {link.label}
               </a>
@@ -85,7 +89,7 @@ export function Navbar({ onTemplatesClick, onGetStarted, onLoginClick }: NavbarP
         </div>
 
         {/* Desktop CTA */}
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden lg:flex items-center gap-3">
           <Button
             variant="ghost"
             onClick={onLoginClick}
@@ -105,7 +109,7 @@ export function Navbar({ onTemplatesClick, onGetStarted, onLoginClick }: NavbarP
         {/* Mobile Menu */}
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="md:hidden">
+            <Button variant="ghost" size="icon" className="lg:hidden">
               <Menu className="h-5 w-5" />
               <span className="sr-only">Open menu</span>
             </Button>
