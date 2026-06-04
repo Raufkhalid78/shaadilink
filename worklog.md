@@ -152,3 +152,43 @@ Stage Summary:
 - Card gradients render correctly (base gradient + pattern overlay separated)
 - Names, date, venue all clearly readable on template cards
 - Section has cohesive, luxurious feel appropriate for wedding invitation platform
+
+---
+Task ID: 20
+Agent: Main Agent
+Task: Make each template have its own unique door opening scene
+
+Work Log:
+- Analyzed current door implementation - all 10 templates had identical door opening scene (same Islamic arch, same Arabic text, same circular button)
+- Designed 10 unique door opening experiences based on template themes
+- Added doorStyle property to TemplateTheme interface with type-safe config
+- Created 10 unique door configurations:
+  1. emerald-noir: classic-doors with Islamic arch, بِسْمِ اللَّهِ text, ✦ icon, circle button
+  2. crimson-royale: curtains with floral pattern, 👑 icon, shield button
+  3. majestic-love: scroll unfurl with paisley pattern, 💫 icon, diamond button
+  4. garden-romance: petal bloom with floral pattern, 🌸 icon, circle button
+  5. modern-minimal: split-screen slide with minimal pattern, ▷ icon, hexagon button
+  6. mughal-emerald: archway with mandala pattern, 🕌 icon, circle button
+  7. rose-gold-blush: curtains with floral pattern, 🌹 icon, diamond button
+  8. ivory-dream: classic-doors with diamond lattice, ◈ icon, diamond button
+  9. royal-imperial: dome lift with mosque silhouette, 🏰 icon, shield button
+  10. royal-elegance: lantern open with star pattern, ⭐ icon, star button
+- Created DoorSvgPattern component with 10 distinct SVG patterns (arch, floral, minimal, mandala, paisley, diamond, dome, star, geometric, lantern)
+- Created CenterButton component with 5 button shapes (circle, diamond, shield, hexagon, star)
+- Created decorative caps: CurtainEdge, DomeCap, ArchwayCap, ScrollCap
+- Created DoorOverlay component that dynamically renders based on theme.doorStyle
+- Added 8 new CSS door animations in globals.css:
+  - curtainOpen (slide + skew), petalOpen (scale + rotate), splitOpen (translateX)
+  - archOpen (3D rotateY), scrollUnfurl (scaleX collapse), domeLift (translateY)
+  - lanternOpen (rotateY + translateY)
+  - Idle animations: curtainDrape, petalSway, scrollShimmer, domeFloat, lanternGlow
+- Verified with Agent Browser: all 5 tested templates show unique door scenes
+- Lint passes cleanly with zero errors
+
+Stage Summary:
+- All 10 templates now have unique door opening experiences
+- Different door types: classic doors, curtains, petals, split-screen, scroll, archway, dome, lantern
+- Different animations: 3D rotation, fabric slide, petal bloom, clean slide, scroll unfurl, dome lift, lantern open
+- Different SVG patterns, center icons, button shapes, and panel text per template
+- Royal Imperial is most unique (single full-screen dome panel vs left/right split)
+- No touch to scratch card, countdown, events, RSVP, or wishes sections

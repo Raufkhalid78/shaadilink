@@ -186,6 +186,197 @@
   transform-origin: right center;
 }
 
+/* Curtain slide animations */
+@keyframes curtainOpenLeft {
+  0% { transform: translateX(0) skewX(0deg); opacity: 1; }
+  60% { opacity: 1; }
+  100% { transform: translateX(-110%) skewX(-8deg); opacity: 0.3; }
+}
+
+@keyframes curtainOpenRight {
+  0% { transform: translateX(0) skewX(0deg); opacity: 1; }
+  60% { opacity: 1; }
+  100% { transform: translateX(110%) skewX(8deg); opacity: 0.3; }
+}
+
+.curtain-open-left {
+  animation: curtainOpenLeft 1.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  transform-origin: left center;
+}
+
+.curtain-open-right {
+  animation: curtainOpenRight 1.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  transform-origin: right center;
+}
+
+/* Petal bloom animations */
+@keyframes petalOpenLeft {
+  0% { transform: scale(1) rotate(0deg) translateX(0); opacity: 1; }
+  30% { opacity: 0.8; }
+  100% { transform: scale(0.3) rotate(-45deg) translateX(-60%); opacity: 0; }
+}
+
+@keyframes petalOpenRight {
+  0% { transform: scale(1) rotate(0deg) translateX(0); opacity: 1; }
+  30% { opacity: 0.8; }
+  100% { transform: scale(0.3) rotate(45deg) translateX(60%); opacity: 0; }
+}
+
+.petal-open-left {
+  animation: petalOpenLeft 1.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  transform-origin: right center;
+}
+
+.petal-open-right {
+  animation: petalOpenRight 1.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  transform-origin: left center;
+}
+
+/* Split screen animations */
+@keyframes splitOpenLeft {
+  0% { transform: translateX(0); opacity: 1; }
+  100% { transform: translateX(-100%); opacity: 0; }
+}
+
+@keyframes splitOpenRight {
+  0% { transform: translateX(0); opacity: 1; }
+  100% { transform: translateX(100%); opacity: 0; }
+}
+
+.split-open-left {
+  animation: splitOpenLeft 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.split-open-right {
+  animation: splitOpenRight 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Archway open (rotateY like classic but with visible arch silhouette) */
+@keyframes archOpenLeft {
+  0% { transform: perspective(1600px) rotateY(0deg); }
+  100% { transform: perspective(1600px) rotateY(-105deg); }
+}
+
+@keyframes archOpenRight {
+  0% { transform: perspective(1600px) rotateY(0deg); }
+  100% { transform: perspective(1600px) rotateY(105deg); }
+}
+
+.arch-open-left {
+  animation: archOpenLeft 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  transform-origin: left center;
+}
+
+.arch-open-right {
+  animation: archOpenRight 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  transform-origin: right center;
+}
+
+/* Scroll unfurl animations */
+@keyframes scrollUnfurlLeft {
+  0% { transform: scaleX(1); opacity: 1; }
+  70% { opacity: 1; }
+  100% { transform: scaleX(0); opacity: 0; }
+}
+
+@keyframes scrollUnfurlRight {
+  0% { transform: scaleX(1); opacity: 1; }
+  70% { opacity: 1; }
+  100% { transform: scaleX(0); opacity: 0; }
+}
+
+.scroll-unfurl-left {
+  animation: scrollUnfurlLeft 1.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  transform-origin: right center;
+}
+
+.scroll-unfurl-right {
+  animation: scrollUnfurlRight 1.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  transform-origin: left center;
+}
+
+/* Dome lift animation */
+@keyframes domeLiftUp {
+  0% { transform: translateY(0); opacity: 1; }
+  40% { opacity: 1; }
+  100% { transform: translateY(-120vh); opacity: 0; }
+}
+
+.dome-lift-up {
+  animation: domeLiftUp 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Lantern open animations */
+@keyframes lanternOpenLeft {
+  0% { transform: perspective(1600px) rotateY(0deg) translateY(0); }
+  100% { transform: perspective(1600px) rotateY(-115deg) translateY(-15px); }
+}
+
+@keyframes lanternOpenRight {
+  0% { transform: perspective(1600px) rotateY(0deg) translateY(0); }
+  100% { transform: perspective(1600px) rotateY(115deg) translateY(-15px); }
+}
+
+.lantern-open-left {
+  animation: lanternOpenLeft 1.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  transform-origin: left center;
+}
+
+.lantern-open-right {
+  animation: lanternOpenRight 1.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  transform-origin: right center;
+}
+
+/* Curtain drape waviness */
+@keyframes curtainDrape {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(1.01); }
+}
+
+.curtain-drape-idle {
+  animation: curtainDrape 3s ease-in-out infinite;
+}
+
+/* Petal idle sway */
+@keyframes petalSway {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(1deg); }
+}
+
+.petal-sway-idle {
+  animation: petalSway 4s ease-in-out infinite;
+}
+
+/* Scroll idle shimmer */
+@keyframes scrollShimmer {
+  0%, 100% { opacity: 0.05; }
+  50% { opacity: 0.12; }
+}
+
+.scroll-shimmer-idle {
+  animation: scrollShimmer 3s ease-in-out infinite;
+}
+
+/* Dome idle float */
+@keyframes domeFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+.dome-float-idle {
+  animation: domeFloat 4s ease-in-out infinite;
+}
+
+/* Lantern glow flicker */
+@keyframes lanternGlow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
+}
+
+.lantern-glow-idle {
+  animation: lanternGlow 2.5s ease-in-out infinite;
+}
+
 /* Firework particle */
 @keyframes fireworkRise {
   0% { transform: translateY(0); opacity: 1; }
