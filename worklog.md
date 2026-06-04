@@ -56,3 +56,34 @@ Stage Summary:
 - Key visual improvements: glassmorphism navbar, animated particles, staggered text reveal, category tabs, template gallery, enhanced pricing cards, animated CTA
 - All interactive features verified working
 - Lint passes cleanly with zero errors
+
+---
+Task ID: 17
+Agent: Main Agent
+Task: Fix templates not working - selecting a template still shows the same demo
+
+Work Log:
+- Diagnosed root cause: InvitationViewer was completely static with hardcoded colors and data, ignoring templateId and flowData
+- TemplatesPage onPreview was typed as `() => void` so template ID was lost when clicking "Live Demo"
+- Created TEMPLATE_THEMES config with 10 theme definitions (emerald-noir, crimson-royale, majestic-love, garden-romance, modern-minimal, mughal-emerald, rose-gold-blush, ivory-dream, royal-imperial, royal-elegance)
+- Each theme defines: bgPrimary/Secondary, accent colors, text colors, border colors, scratch card colors, firework/confetti colors
+- Updated TemplatesPage to pass templateId on preview: `onPreview: (templateId: string) => void`
+- Updated page.tsx to store previewTemplateId state and pass it + flowData to InvitationViewer
+- Updated InvitationViewer to accept templateId and flowData props
+- Made InvitationViewer dynamically use partner1/partner2, venueName, venueAddress, welcomeMsg from flowData
+- Applied theme colors to all major sections: doors, hero, welcome message, countdown, events, venue, RSVP, wishes, footer
+- Updated sub-components to accept accentColor/theme: CornerOrnament, GoldDivider, HeartDivider, WaveDivider, BackgroundParticles, FireworksDisplay, ConfettiDisplay, CountdownTimer, MusicToggle
+- Fixed tap-to-open button using hardcoded green (#39564c/#1d3029) → now uses theme.accentDark/theme.bgDoor
+- Fixed Back button to return to Templates page when coming from preview (instead of always going to landing)
+- Fixed Back button styling to match template theme colors
+- Exported getTheme and TemplateTheme from invitation-viewer for use in page.tsx
+- Verified with Agent Browser: Crimson Royale shows red, Garden Romance shows pink, Modern Minimal shows blue
+- All templates show distinct, different color schemes with zero gold/emerald remnants
+
+Stage Summary:
+- Templates now work correctly - each template shows its own color scheme
+- 10 theme configurations for all 10 template IDs
+- Dynamic data (names, venue, events) flows from flowData to InvitationViewer
+- Sub-components (dividers, particles, fireworks, countdown, music toggle) all respect theme colors
+- Back button is theme-aware and navigates correctly
+- Lint passes cleanly, no runtime errors

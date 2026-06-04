@@ -30,6 +30,7 @@ import { ArrowLeft, Eye, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { FlowData, FlowStep } from "@/lib/flow-types";
 import { initialFlowData } from "@/lib/flow-types";
+import { getTheme } from "@/components/viewer/invitation-viewer";
 
 /* Wrapper for page transitions - defined outside render to avoid state reset */
 function InfoPageWrapper({ children, stepKey }: { children: React.ReactNode; stepKey: string }) {
@@ -50,6 +51,7 @@ function InfoPageWrapper({ children, stepKey }: { children: React.ReactNode; ste
 export default function Home() {
   const [currentStep, setCurrentStep] = useState<FlowStep>("landing");
   const [flowData, setFlowData] = useState<FlowData>(initialFlowData);
+  const [previewTemplateId, setPreviewTemplateId] = useState<string | null>(null);
   useScrollReveal();
 
   useEffect(() => {
@@ -92,6 +94,7 @@ export default function Home() {
 
   const handleGoHome = () => {
     setFlowData(initialFlowData);
+    setPreviewTemplateId(null);
     setCurrentStep("landing");
   };
 
@@ -120,7 +123,11 @@ export default function Home() {
     setCurrentStep("templates");
   };
 
-  const goToDemo = () => setCurrentStep("demo");
+  const goToDemo = (templateId?: string) => {
+    if (templateId) setPreviewTemplateId(templateId);
+    else setPreviewTemplateId(flowData.selectedTemplateId);
+    setCurrentStep("demo");
+  };
 
   const goToAbout = () => setCurrentStep("about");
   const goToContact = () => setCurrentStep("contact");
@@ -144,18 +151,29 @@ export default function Home() {
                 onClick={() => {
                   if (flowData.paymentDone) {
                     setCurrentStep("success");
+                  } else if (previewTemplateId) {
+                    setPreviewTemplateId(null);
+                    setCurrentStep("templates");
                   } else {
                     setCurrentStep("landing");
                   }
                 }}
-                className="bg-[#0f1a16]/90 backdrop-blur-md text-gold border border-gold/40 hover:bg-[#0f1a16] hover:text-gold-light hover:border-gold/60 hover:shadow-[0_0_20px_rgba(180,145,77,0.2)] gap-2 font-display px-4 py-2 transition-all duration-300"
+                className="backdrop-blur-md gap-2 font-display px-4 py-2 transition-all duration-300"
+                style={{
+                  backgroundColor: `${getTheme(previewTemplateId || flowData.selectedTemplateId).bgPrimary}e6`,
+                  color: getTheme(previewTemplateId || flowData.selectedTemplateId).accentLight,
+                  border: `1px solid ${getTheme(previewTemplateId || flowData.selectedTemplateId).borderAccent}`,
+                }}
                 size="sm"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Back
               </Button>
             </div>
-            <InvitationViewer />
+            <InvitationViewer
+              templateId={previewTemplateId || flowData.selectedTemplateId || undefined}
+              flowData={flowData}
+            />
           </motion.div>
         )}
 
@@ -164,7 +182,7 @@ export default function Home() {
             <TemplatesPage
               selectedPlan={flowData.selectedPlan}
               onBack={handleBackToLanding}
-              onPreview={goToDemo}
+              onPreview={(templateId) => goToDemo(templateId)}
               onSelectTemplate={handleSelectTemplate}
             />
           </InfoPageWrapper>

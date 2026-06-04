@@ -261,7 +261,7 @@ function TemplateCard({
 interface TemplatesPageProps {
   selectedPlan: "classic" | "royal" | null;
   onBack: () => void;
-  onPreview: () => void;
+  onPreview: (templateId: string) => void;
   onSelectTemplate: (templateId: string) => void;
 }
 
@@ -362,7 +362,7 @@ export function TemplatesPage({
                       key={template.id}
                       template={template}
                       onSelect={onSelectTemplate}
-                      onPreview={() => onPreview()}
+                      onPreview={(id) => onPreview(id)}
                     />
                   ))}
                 </AnimatePresence>
@@ -389,7 +389,7 @@ export function TemplatesPage({
                       key={template.id}
                       template={template}
                       onSelect={onSelectTemplate}
-                      onPreview={() => onPreview()}
+                      onPreview={(id) => onPreview(id)}
                       isRoyal
                     />
                   ))}
