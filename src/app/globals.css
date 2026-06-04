@@ -165,216 +165,352 @@
   cursor: pointer;
 }
 
-/* Door animation */
+/* ═══════════════════════════════════════════
+   3D DOOR ANIMATIONS - Realistic swing physics
+   ═══════════════════════════════════════════ */
+
+/* Classic 3D Door Open - Multi-step with overshoot + settle */
 @keyframes doorOpenLeft {
-  0% { transform: perspective(1600px) rotateY(0deg); }
-  100% { transform: perspective(1600px) rotateY(-110deg); }
+  0% { transform: rotateY(0deg); }
+  3% { transform: rotateY(-1deg); }          /* Initial hesitation */
+  8% { transform: rotateY(-5deg); }          /* Slow push begins */
+  25% { transform: rotateY(-45deg); }        /* Accelerating */
+  50% { transform: rotateY(-85deg); }        /* Swinging freely */
+  75% { transform: rotateY(-108deg); }       /* Nearly fully open */
+  88% { transform: rotateY(-114deg); }       /* Overshoot */
+  96% { transform: rotateY(-107deg); }       /* Settle back */
+  100% { transform: rotateY(-110deg); }      /* Final rest */
 }
 
 @keyframes doorOpenRight {
-  0% { transform: perspective(1600px) rotateY(0deg); }
-  100% { transform: perspective(1600px) rotateY(110deg); }
+  0% { transform: rotateY(0deg); }
+  3% { transform: rotateY(1deg); }
+  8% { transform: rotateY(5deg); }
+  25% { transform: rotateY(45deg); }
+  50% { transform: rotateY(85deg); }
+  75% { transform: rotateY(108deg); }
+  88% { transform: rotateY(114deg); }
+  96% { transform: rotateY(107deg); }
+  100% { transform: rotateY(110deg); }
 }
 
 .door-open-left {
-  animation: doorOpenLeft 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: doorOpenLeft 2.2s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
   transform-origin: left center;
+  transform-style: preserve-3d;
 }
 
 .door-open-right {
-  animation: doorOpenRight 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: doorOpenRight 2.2s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
   transform-origin: right center;
+  transform-style: preserve-3d;
 }
 
-/* Curtain slide animations */
+/* Curtain slide animations - Fabric gathering with wave distortion */
 @keyframes curtainOpenLeft {
-  0% { transform: translateX(0) skewX(0deg); opacity: 1; }
-  60% { opacity: 1; }
-  100% { transform: translateX(-110%) skewX(-8deg); opacity: 0.3; }
+  0% { transform: translateX(0) skewX(0deg) scaleX(1); opacity: 1; }
+  10% { transform: translateX(-2%) skewX(-1deg) scaleX(0.98); opacity: 1; }
+  30% { transform: translateX(-15%) skewX(-4deg) scaleX(0.88); opacity: 0.95; }
+  50% { transform: translateX(-40%) skewX(-6deg) scaleX(0.72); opacity: 0.8; }
+  70% { transform: translateX(-70%) skewX(-8deg) scaleX(0.55); opacity: 0.6; }
+  85% { transform: translateX(-95%) skewX(-9deg) scaleX(0.4); opacity: 0.4; }
+  100% { transform: translateX(-115%) skewX(-10deg) scaleX(0.3); opacity: 0; }
 }
 
 @keyframes curtainOpenRight {
-  0% { transform: translateX(0) skewX(0deg); opacity: 1; }
-  60% { opacity: 1; }
-  100% { transform: translateX(110%) skewX(8deg); opacity: 0.3; }
+  0% { transform: translateX(0) skewX(0deg) scaleX(1); opacity: 1; }
+  10% { transform: translateX(2%) skewX(1deg) scaleX(0.98); opacity: 1; }
+  30% { transform: translateX(15%) skewX(4deg) scaleX(0.88); opacity: 0.95; }
+  50% { transform: translateX(40%) skewX(6deg) scaleX(0.72); opacity: 0.8; }
+  70% { transform: translateX(70%) skewX(8deg) scaleX(0.55); opacity: 0.6; }
+  85% { transform: translateX(95%) skewX(9deg) scaleX(0.4); opacity: 0.4; }
+  100% { transform: translateX(115%) skewX(10deg) scaleX(0.3); opacity: 0; }
 }
 
 .curtain-open-left {
-  animation: curtainOpenLeft 1.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: curtainOpenLeft 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   transform-origin: left center;
 }
 
 .curtain-open-right {
-  animation: curtainOpenRight 1.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: curtainOpenRight 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   transform-origin: right center;
 }
 
-/* Petal bloom animations */
+/* Petal bloom animations - Organic unfolding */
 @keyframes petalOpenLeft {
   0% { transform: scale(1) rotate(0deg) translateX(0); opacity: 1; }
-  30% { opacity: 0.8; }
-  100% { transform: scale(0.3) rotate(-45deg) translateX(-60%); opacity: 0; }
+  15% { transform: scale(0.95) rotate(-5deg) translateX(-5%); opacity: 0.9; }
+  35% { transform: scale(0.8) rotate(-15deg) translateX(-20%); opacity: 0.7; }
+  60% { transform: scale(0.55) rotate(-30deg) translateX(-40%); opacity: 0.4; }
+  100% { transform: scale(0.2) rotate(-50deg) translateX(-65%); opacity: 0; }
 }
 
 @keyframes petalOpenRight {
   0% { transform: scale(1) rotate(0deg) translateX(0); opacity: 1; }
-  30% { opacity: 0.8; }
-  100% { transform: scale(0.3) rotate(45deg) translateX(60%); opacity: 0; }
+  15% { transform: scale(0.95) rotate(5deg) translateX(5%); opacity: 0.9; }
+  35% { transform: scale(0.8) rotate(15deg) translateX(20%); opacity: 0.7; }
+  60% { transform: scale(0.55) rotate(30deg) translateX(40%); opacity: 0.4; }
+  100% { transform: scale(0.2) rotate(50deg) translateX(65%); opacity: 0; }
 }
 
 .petal-open-left {
-  animation: petalOpenLeft 1.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: petalOpenLeft 1.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   transform-origin: right center;
 }
 
 .petal-open-right {
-  animation: petalOpenRight 1.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: petalOpenRight 1.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   transform-origin: left center;
 }
 
-/* Split screen animations */
+/* Split screen animations - Smooth glass-like slide */
 @keyframes splitOpenLeft {
   0% { transform: translateX(0); opacity: 1; }
-  100% { transform: translateX(-100%); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateX(-105%); opacity: 0; }
 }
 
 @keyframes splitOpenRight {
   0% { transform: translateX(0); opacity: 1; }
-  100% { transform: translateX(100%); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateX(105%); opacity: 0; }
 }
 
 .split-open-left {
-  animation: splitOpenLeft 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: splitOpenLeft 1.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
 .split-open-right {
-  animation: splitOpenRight 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: splitOpenRight 1.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
-/* Archway open (rotateY like classic but with visible arch silhouette) */
+/* Archway open - Same 3D swing physics as classic */
 @keyframes archOpenLeft {
-  0% { transform: perspective(1600px) rotateY(0deg); }
-  100% { transform: perspective(1600px) rotateY(-105deg); }
+  0% { transform: rotateY(0deg); }
+  3% { transform: rotateY(-1deg); }
+  8% { transform: rotateY(-4deg); }
+  25% { transform: rotateY(-40deg); }
+  50% { transform: rotateY(-78deg); }
+  75% { transform: rotateY(-100deg); }
+  88% { transform: rotateY(-108deg); }
+  96% { transform: rotateY(-102deg); }
+  100% { transform: rotateY(-105deg); }
 }
 
 @keyframes archOpenRight {
-  0% { transform: perspective(1600px) rotateY(0deg); }
-  100% { transform: perspective(1600px) rotateY(105deg); }
+  0% { transform: rotateY(0deg); }
+  3% { transform: rotateY(1deg); }
+  8% { transform: rotateY(4deg); }
+  25% { transform: rotateY(40deg); }
+  50% { transform: rotateY(78deg); }
+  75% { transform: rotateY(100deg); }
+  88% { transform: rotateY(108deg); }
+  96% { transform: rotateY(102deg); }
+  100% { transform: rotateY(105deg); }
 }
 
 .arch-open-left {
-  animation: archOpenLeft 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: archOpenLeft 2.2s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
   transform-origin: left center;
+  transform-style: preserve-3d;
 }
 
 .arch-open-right {
-  animation: archOpenRight 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: archOpenRight 2.2s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
   transform-origin: right center;
+  transform-style: preserve-3d;
 }
 
-/* Scroll unfurl animations */
+/* Scroll unfurl animations - Paper rolling with curl */
 @keyframes scrollUnfurlLeft {
-  0% { transform: scaleX(1); opacity: 1; }
-  70% { opacity: 1; }
-  100% { transform: scaleX(0); opacity: 0; }
+  0% { transform: scaleX(1) scaleY(1); opacity: 1; }
+  15% { transform: scaleX(0.95) scaleY(1.02); opacity: 1; }
+  40% { transform: scaleX(0.7) scaleY(1.01); opacity: 1; }
+  65% { transform: scaleX(0.4) scaleY(1.005); opacity: 0.8; }
+  85% { transform: scaleX(0.15) scaleY(1); opacity: 0.4; }
+  100% { transform: scaleX(0) scaleY(1); opacity: 0; }
 }
 
 @keyframes scrollUnfurlRight {
-  0% { transform: scaleX(1); opacity: 1; }
-  70% { opacity: 1; }
-  100% { transform: scaleX(0); opacity: 0; }
+  0% { transform: scaleX(1) scaleY(1); opacity: 1; }
+  15% { transform: scaleX(0.95) scaleY(1.02); opacity: 1; }
+  40% { transform: scaleX(0.7) scaleY(1.01); opacity: 1; }
+  65% { transform: scaleX(0.4) scaleY(1.005); opacity: 0.8; }
+  85% { transform: scaleX(0.15) scaleY(1); opacity: 0.4; }
+  100% { transform: scaleX(0) scaleY(1); opacity: 0; }
 }
 
 .scroll-unfurl-left {
-  animation: scrollUnfurlLeft 1.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: scrollUnfurlLeft 1.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   transform-origin: right center;
 }
 
 .scroll-unfurl-right {
-  animation: scrollUnfurlRight 1.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: scrollUnfurlRight 1.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   transform-origin: left center;
 }
 
-/* Dome lift animation */
+/* Dome lift animation - Floating upward with wobble */
 @keyframes domeLiftUp {
-  0% { transform: translateY(0); opacity: 1; }
-  40% { opacity: 1; }
-  100% { transform: translateY(-120vh); opacity: 0; }
+  0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+  5% { transform: translateY(-2vh) rotate(-0.3deg) scale(1.002); opacity: 1; }
+  15% { transform: translateY(-12vh) rotate(0.5deg) scale(1.005); opacity: 1; }
+  30% { transform: translateY(-35vh) rotate(-0.3deg) scale(1.01); opacity: 0.9; }
+  50% { transform: translateY(-60vh) rotate(0.4deg) scale(1.015); opacity: 0.7; }
+  70% { transform: translateY(-85vh) rotate(-0.2deg) scale(1.02); opacity: 0.4; }
+  85% { transform: translateY(-100vh) rotate(0.1deg) scale(1.025); opacity: 0.2; }
+  100% { transform: translateY(-120vh) rotate(0deg) scale(1.03); opacity: 0; }
 }
 
 .dome-lift-up {
-  animation: domeLiftUp 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: domeLiftUp 2.5s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
 }
 
-/* Lantern open animations */
+/* Lantern open animations - 3D swing with upward float */
 @keyframes lanternOpenLeft {
-  0% { transform: perspective(1600px) rotateY(0deg) translateY(0); }
-  100% { transform: perspective(1600px) rotateY(-115deg) translateY(-15px); }
+  0% { transform: rotateY(0deg) translateY(0); }
+  3% { transform: rotateY(-1deg) translateY(0); }
+  10% { transform: rotateY(-8deg) translateY(-1px); }
+  30% { transform: rotateY(-50deg) translateY(-5px); }
+  55% { transform: rotateY(-90deg) translateY(-10px); }
+  75% { transform: rotateY(-112deg) translateY(-14px); }
+  90% { transform: rotateY(-118deg) translateY(-16px); }
+  100% { transform: rotateY(-115deg) translateY(-15px); }
 }
 
 @keyframes lanternOpenRight {
-  0% { transform: perspective(1600px) rotateY(0deg) translateY(0); }
-  100% { transform: perspective(1600px) rotateY(115deg) translateY(-15px); }
+  0% { transform: rotateY(0deg) translateY(0); }
+  3% { transform: rotateY(1deg) translateY(0); }
+  10% { transform: rotateY(8deg) translateY(-1px); }
+  30% { transform: rotateY(50deg) translateY(-5px); }
+  55% { transform: rotateY(90deg) translateY(-10px); }
+  75% { transform: rotateY(112deg) translateY(-14px); }
+  90% { transform: rotateY(118deg) translateY(-16px); }
+  100% { transform: rotateY(115deg) translateY(-15px); }
 }
 
 .lantern-open-left {
-  animation: lanternOpenLeft 1.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: lanternOpenLeft 2.2s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
   transform-origin: left center;
+  transform-style: preserve-3d;
 }
 
 .lantern-open-right {
-  animation: lanternOpenRight 1.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: lanternOpenRight 2.2s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
   transform-origin: right center;
+  transform-style: preserve-3d;
 }
 
-/* Curtain drape waviness */
+/* ═══ Idle Animations - Subtle breathing/life ═══ */
+
+/* Classic door idle - Subtle breathing press */
+@keyframes doorBreathe {
+  0%, 100% { transform: rotateY(0deg) scale(1); }
+  50% { transform: rotateY(-0.3deg) scale(1.001); }
+}
+
+.door-breathe-idle {
+  animation: doorBreathe 4s ease-in-out infinite;
+  transform-style: preserve-3d;
+}
+
+/* Curtain drape waviness - Fabric movement */
 @keyframes curtainDrape {
-  0%, 100% { transform: scaleY(1); }
-  50% { transform: scaleY(1.01); }
+  0%, 100% { transform: scaleY(1) skewX(0deg); }
+  25% { transform: scaleY(1.008) skewX(0.2deg); }
+  50% { transform: scaleY(1) skewX(-0.1deg); }
+  75% { transform: scaleY(1.005) skewX(0.15deg); }
 }
 
 .curtain-drape-idle {
-  animation: curtainDrape 3s ease-in-out infinite;
+  animation: curtainDrape 3.5s ease-in-out infinite;
 }
 
-/* Petal idle sway */
+/* Petal idle sway - Gentle organic movement */
 @keyframes petalSway {
-  0%, 100% { transform: rotate(0deg); }
-  50% { transform: rotate(1deg); }
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(0.8deg) scale(1.003); }
+  50% { transform: rotate(-0.5deg) scale(1.001); }
+  75% { transform: rotate(0.3deg) scale(1.002); }
 }
 
 .petal-sway-idle {
-  animation: petalSway 4s ease-in-out infinite;
+  animation: petalSway 4.5s ease-in-out infinite;
 }
 
-/* Scroll idle shimmer */
+/* Split screen idle - Subtle glass shimmer */
+@keyframes splitShimmer {
+  0%, 100% { opacity: 0.02; }
+  50% { opacity: 0.06; }
+}
+
+.split-shimmer-idle {
+  animation: splitShimmer 3s ease-in-out infinite;
+}
+
+/* Scroll idle shimmer - Paper glow */
 @keyframes scrollShimmer {
-  0%, 100% { opacity: 0.05; }
-  50% { opacity: 0.12; }
+  0%, 100% { opacity: 0.05; transform: scaleX(1); }
+  50% { opacity: 0.12; transform: scaleX(1.001); }
 }
 
 .scroll-shimmer-idle {
   animation: scrollShimmer 3s ease-in-out infinite;
 }
 
-/* Dome idle float */
+/* Dome idle float - Gentle hover */
 @keyframes domeFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  30% { transform: translateY(-3px) rotate(0.15deg); }
+  60% { transform: translateY(-5px) rotate(-0.1deg); }
+  80% { transform: translateY(-2px) rotate(0.05deg); }
 }
 
 .dome-float-idle {
-  animation: domeFloat 4s ease-in-out infinite;
+  animation: domeFloat 4.5s ease-in-out infinite;
 }
 
-/* Lantern glow flicker */
+/* Lantern glow flicker - Warm pulse */
 @keyframes lanternGlow {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.7; }
+  0%, 100% { opacity: 0.4; filter: brightness(1); }
+  30% { opacity: 0.55; filter: brightness(1.05); }
+  60% { opacity: 0.7; filter: brightness(1.1); }
+  80% { opacity: 0.5; filter: brightness(1.02); }
 }
 
 .lantern-glow-idle {
-  animation: lanternGlow 2.5s ease-in-out infinite;
+  animation: lanternGlow 2.8s ease-in-out infinite;
+}
+
+/* Archway idle - Subtle depth breathing */
+.arch-breathe-idle {
+  animation: doorBreathe 4s ease-in-out infinite;
+  transform-style: preserve-3d;
+}
+
+/* ═══ Light Leak Animation ═══ */
+@keyframes lightLeakGrow {
+  0% { opacity: 0; transform: scaleX(0); }
+  10% { opacity: 0; transform: scaleX(0); }
+  30% { opacity: 0.3; transform: scaleX(0.1); }
+  60% { opacity: 0.7; transform: scaleX(0.5); }
+  100% { opacity: 1; transform: scaleX(1); }
+}
+
+.door-light-leak {
+  animation: lightLeakGrow 2.2s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+/* ═══ Door Frame Shadow ═══ */
+@keyframes frameShadowReveal {
+  0% { opacity: 0; }
+  30% { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+
+.door-frame-shadow {
+  animation: frameShadowReveal 2s ease-out forwards;
 }
 
 /* Firework particle */

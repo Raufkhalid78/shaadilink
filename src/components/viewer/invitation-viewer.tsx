@@ -1601,6 +1601,7 @@ function DoorPanelContent({ theme, text, textLang }: { theme: TemplateTheme; tex
 /* ─── Door Handle ─── */
 function DoorHandle({ theme, side }: { theme: TemplateTheme; side: 'left' | 'right' }) {
   const ds = theme.doorStyle
+  const posClass = side === 'left' ? 'right-5' : 'left-5'
   // Different handle styles based on door type
   if (ds.type === 'curtains') {
     return (
@@ -1610,13 +1611,13 @@ function DoorHandle({ theme, side }: { theme: TemplateTheme; side: 'left' | 'rig
     )
   }
   if (ds.type === 'split-screen') {
-    return null // No handle for modern split
+    return null
   }
   if (ds.type === 'petals') {
-    return null // No handle for petals
+    return null
   }
   if (ds.type === 'dome') {
-    return null // No handle for dome
+    return null
   }
   if (ds.type === 'scroll') {
     return (
@@ -1625,11 +1626,53 @@ function DoorHandle({ theme, side }: { theme: TemplateTheme; side: 'left' | 'rig
       </div>
     )
   }
-  // Classic door handle (default)
+  // Realistic 3D door handle/knocker for classic, archway, lantern types - LARGER & MORE VISIBLE
   return (
-    <div className={`absolute ${side === 'left' ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2 flex flex-col items-center gap-2`}>
-      <div className="w-2 h-8 rounded-full" style={{ backgroundColor: `rgba(${theme.accentRgb},0.3)` }} />
-      <div className="w-3 h-3 rounded-full border" style={{ borderColor: `rgba(${theme.accentRgb},0.4)` }} />
+    <div className={`absolute ${posClass} top-1/2 -translate-y-1/2 flex flex-col items-center gap-3 z-10`}>
+      {/* Door knocker ring - scaled up */}
+      <div className="relative">
+        {/* Knocker plate / backplate - larger */}
+        <div className="w-10 h-12 rounded" style={{
+          background: `linear-gradient(145deg, ${theme.accentLight}, ${theme.accent}, ${theme.accentDark})`,
+          boxShadow: `0 3px 8px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.3), inset 0 -1px 2px rgba(0,0,0,0.2)`,
+          border: `1px solid rgba(${theme.accentRgb},0.6)`,
+        }}>
+          {/* Plate screw holes */}
+          <div className="absolute top-1.5 left-1.5 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'rgba(0,0,0,0.25)', boxShadow: 'inset 0 0.5px 1px rgba(255,255,255,0.15)' }} />
+          <div className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'rgba(0,0,0,0.25)', boxShadow: 'inset 0 0.5px 1px rgba(255,255,255,0.15)' }} />
+          <div className="absolute bottom-1.5 left-1.5 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'rgba(0,0,0,0.25)', boxShadow: 'inset 0 0.5px 1px rgba(255,255,255,0.15)' }} />
+          <div className="absolute bottom-1.5 right-1.5 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'rgba(0,0,0,0.25)', boxShadow: 'inset 0 0.5px 1px rgba(255,255,255,0.15)' }} />
+        </div>
+        {/* Knocker ring - larger with metallic sheen */}
+        <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-7 h-9 rounded-full border-[3px]" style={{
+          borderColor: theme.accent,
+          boxShadow: `0 2px 6px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.25), 0 0 8px rgba(${theme.accentRgb},0.3)`,
+          background: `radial-gradient(circle at 35% 30%, rgba(255,255,255,0.12), transparent)`,
+        }} />
+        {/* Knocker ring hanging attachment point */}
+        <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full" style={{
+          background: `linear-gradient(145deg, ${theme.accentLight}, ${theme.accentDark})`,
+          boxShadow: `0 1px 2px rgba(0,0,0,0.3)`,
+        }} />
+      </div>
+      {/* Keyhole plate - larger and more detailed */}
+      <div className="w-6 h-10 rounded relative" style={{
+        background: `linear-gradient(145deg, ${theme.accentDark}, ${theme.accent}, ${theme.accentDark})`,
+        boxShadow: `0 2px 5px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.2)`,
+        border: `1px solid rgba(${theme.accentRgb},0.4)`,
+      }}>
+        {/* Keyhole circle */}
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full" style={{
+          backgroundColor: 'rgba(0,0,0,0.7)',
+          boxShadow: 'inset 0 0.5px 1px rgba(255,255,255,0.1)',
+        }} />
+        {/* Keyhole slot */}
+        <div className="absolute top-3.5 left-1/2 -translate-x-1/2 w-0.5 h-3" style={{
+          backgroundColor: 'rgba(0,0,0,0.7)',
+        }} />
+        {/* Plate decorative border */}
+        <div className="absolute inset-1 rounded-sm border" style={{ borderColor: `rgba(${theme.accentRgb},0.25)` }} />
+      </div>
     </div>
   )
 }
@@ -1733,22 +1776,49 @@ function CenterButton({ theme, onClick }: { theme: TemplateTheme; onClick: () =>
 /* ─── Door Decorative Elements ─── */
 function CurtainEdge({ side, accentRgb }: { side: 'left' | 'right'; accentRgb: string }) {
   return (
-    <svg className={`absolute bottom-0 ${side === 'left' ? 'right-0' : 'left-0'} w-full h-24 opacity-30`} viewBox="0 0 200 60" preserveAspectRatio="none" fill="none">
-      <path
-        d="M0 0 Q25 15 50 5 Q75 20 100 8 Q125 18 150 5 Q175 15 200 0 L200 60 L0 60Z"
-        fill={`rgba(${accentRgb},0.15)`}
-      />
-    </svg>
+    <>
+      {/* Fabric tassel bottom edge */}
+      <svg className={`absolute bottom-0 ${side === 'left' ? 'right-0' : 'left-0'} w-full h-28 opacity-30`} viewBox="0 0 200 70" preserveAspectRatio="none" fill="none">
+        <path
+          d="M0 0 Q25 15 50 5 Q75 20 100 8 Q125 18 150 5 Q175 15 200 0 L200 50 L0 50Z"
+          fill={`rgba(${accentRgb},0.15)`}
+        />
+        {/* Tassels */}
+        {[20, 50, 80, 120, 150, 180].map(x => (
+          <g key={x}>
+            <line x1={x} y1="48" x2={x} y2="65" stroke={`rgba(${accentRgb},0.3)`} strokeWidth="1" />
+            <circle cx={x} cy="67" r="2" fill={`rgba(${accentRgb},0.25)`} />
+          </g>
+        ))}
+      </svg>
+      {/* Curtain rod top */}
+      <div className={`absolute top-0 ${side === 'left' ? 'right-0' : 'left-0'} w-full h-3 opacity-40`} style={{
+        background: `linear-gradient(180deg, rgba(${accentRgb},0.4), rgba(${accentRgb},0.1))`,
+        borderRadius: '0 0 2px 2px',
+      }} />
+    </>
   )
 }
 
 function DomeCap({ accent }: { accent: string }) {
   return (
     <svg className="absolute top-0 left-0 w-full h-1/3 opacity-20" viewBox="0 0 400 150" preserveAspectRatio="none" fill="none">
+      {/* Main dome */}
       <path d="M0 150 Q0 30 200 0 Q400 30 400 150" stroke={accent} strokeWidth="1.5" fill="none" />
       <path d="M20 150 Q20 50 200 20 Q380 50 380 150" stroke={accent} strokeWidth="0.8" fill="none" />
+      {/* Finial */}
       <circle cx="200" cy="10" r="8" stroke={accent} strokeWidth="0.6" fill="none" />
       <line x1="200" y1="0" x2="200" y2="18" stroke={accent} strokeWidth="0.8" />
+      {/* Crescent moon atop finial */}
+      <path d="M196 4 Q200 0 204 4" stroke={accent} strokeWidth="0.5" fill="none" />
+      {/* Minarets */}
+      <rect x="10" y="120" width="8" height="30" stroke={accent} strokeWidth="0.4" fill="none" />
+      <path d="M10 120 Q14 112 18 120" stroke={accent} strokeWidth="0.4" fill="none" />
+      <rect x="382" y="120" width="8" height="30" stroke={accent} strokeWidth="0.4" fill="none" />
+      <path d="M382 120 Q386 112 390 120" stroke={accent} strokeWidth="0.4" fill="none" />
+      {/* Decorative bands */}
+      <line x1="0" y1="130" x2="400" y2="130" stroke={accent} strokeWidth="0.4" />
+      <line x1="0" y1="140" x2="400" y2="140" stroke={accent} strokeWidth="0.3" />
     </svg>
   )
 }
@@ -1756,23 +1826,227 @@ function DomeCap({ accent }: { accent: string }) {
 function ArchwayCap({ accent }: { accent: string }) {
   return (
     <svg className="absolute top-0 left-0 w-full h-1/4 opacity-15" viewBox="0 0 400 120" preserveAspectRatio="none" fill="none">
+      {/* Main arch */}
       <path d="M0 120 L0 60 Q0 0 200 0 Q400 0 400 60 L400 120" stroke={accent} strokeWidth="1.5" fill="none" />
       <path d="M20 120 L20 65 Q20 15 200 15 Q380 15 380 65 L380 120" stroke={accent} strokeWidth="0.8" fill="none" />
+      {/* Keystone at top */}
+      <path d="M190 0 L200 -8 L210 0" stroke={accent} strokeWidth="0.6" fill="none" />
+      {/* Decorative voussoirs (arch segments) */}
+      {[30, 60, 90, 120, 150, 200, 250, 280, 310, 340, 370].map(x => (
+        <line key={x} x1={x} y1="0" x2={x} y2="30" stroke={accent} strokeWidth="0.2" opacity="0.3" />
+      ))}
     </svg>
   )
 }
 
 function ScrollCap({ side, accent, accentRgb }: { side: 'top' | 'bottom'; accent: string; accentRgb: string }) {
   return (
-    <svg className={`absolute ${side === 'top' ? 'top-0' : 'bottom-0'} left-0 w-full h-8 opacity-30`} viewBox="0 0 400 20" preserveAspectRatio="none" fill="none">
-      <rect x="0" y={side === 'top' ? '0' : '8'} width="400" height="12" rx="6" fill={`rgba(${accentRgb},0.2)`} stroke={accent} strokeWidth="0.5" />
+    <svg className={`absolute ${side === 'top' ? 'top-0' : 'bottom-0'} left-0 w-full h-10 opacity-30`} viewBox="0 0 400 28" preserveAspectRatio="none" fill="none">
+      {/* Scroll rod */}
+      <rect x="0" y={side === 'top' ? '0' : '14'} width="400" height="14" rx="7" fill={`rgba(${accentRgb},0.2)`} stroke={accent} strokeWidth="0.5" />
+      {/* Scroll rolled edge highlight */}
+      <rect x="2" y={side === 'top' ? '2' : '16'} width="396" height="4" rx="2" fill={`rgba(${accentRgb},0.1)`} />
+      {/* End caps */}
+      <circle cx="10" cy={side === 'top' ? '7' : '21'} r="5" stroke={accent} strokeWidth="0.5" fill={`rgba(${accentRgb},0.15)`} />
+      <circle cx="390" cy={side === 'top' ? '7' : '21'} r="5" stroke={accent} strokeWidth="0.5" fill={`rgba(${accentRgb},0.15)`} />
     </svg>
+  )
+}
+
+/* ─── 3D Door Panel Inset (Raised Panel) ─── */
+function DoorPanelInset({ x, y, w, h, accent, accentRgb }: { x: string; y: string; w: string; h: string; accent: string; accentRgb: string }) {
+  return (
+    <div className="absolute" style={{
+      left: x, top: y, width: w, height: h,
+      background: `linear-gradient(145deg, rgba(${accentRgb},0.08), rgba(${accentRgb},0.16))`,
+      border: `1.5px solid rgba(${accentRgb},0.25)`,
+      borderRadius: '3px',
+      boxShadow: `inset 2px 2px 6px rgba(0,0,0,0.25), inset -2px -2px 4px rgba(${accentRgb},0.1), 0 1px 3px rgba(${accentRgb},0.15)`,
+    }}>
+      {/* Inner recess border - gives raised panel effect */}
+      <div className="absolute" style={{
+        left: '5px', top: '5px', right: '5px', bottom: '5px',
+        border: `1px solid rgba(${accentRgb},0.12)`,
+        borderRadius: '2px',
+      boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.12), 0 0.5px 1px rgba(${accentRgb},0.08)',
+      }} />
+      {/* Subtle inner highlight - simulates light catching the panel edge */}
+      <div className="absolute" style={{
+        left: '1px', top: '1px', right: '60%', bottom: '85%',
+      background: `linear-gradient(135deg, rgba(${accentRgb},0.12), transparent)`,
+      borderRadius: '2px 0 0 0',
+      }} />
+    </div>
+  )
+}
+
+/* ─── Door Hinges ─── */
+function DoorHinges({ side, accent, accentRgb }: { side: 'left' | 'right'; accent: string; accentRgb: string }) {
+  const hingePositions = ['15%', '45%', '75%']
+  const posClass = side === 'left' ? 'left-1 -translate-x-1/3' : 'right-1 translate-x-1/3'
+  return (
+    <>
+      {hingePositions.map((top, i) => (
+        <div key={i} className={`absolute ${posClass}`} style={{ top, zIndex: 5 }}>
+          {/* Hinge body - wider and taller */}
+          <div className="w-4 h-14 rounded-sm" style={{
+            background: `linear-gradient(${side === 'left' ? '90deg' : '270deg'}, ${accent}, ${accent}aa)`,
+            boxShadow: `0 2px 5px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.2)`,
+            border: `1px solid rgba(${accentRgb},0.6)`,
+          }}>
+            {/* Hinge pin dots - larger */}
+            <div className="absolute top-2 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'rgba(0,0,0,0.4)', boxShadow: 'inset 0 0.5px 0.5px rgba(255,255,255,0.2)' }} />
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'rgba(0,0,0,0.4)', boxShadow: 'inset 0 0.5px 0.5px rgba(255,255,255,0.2)' }} />
+            {/* Center screw */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-1 rounded-full" style={{ backgroundColor: 'rgba(0,0,0,0.3)' }} />
+          </div>
+          {/* Hinge plate (mortise) - wider */}
+          <div className={`absolute ${side === 'left' ? '-left-1' : '-right-1'} top-0 w-6 h-14 rounded-sm`} style={{
+            background: `rgba(${accentRgb},0.2)`,
+            border: `1px solid rgba(${accentRgb},0.25)`,
+            boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.15)',
+          }}>
+            {/* Mortise screw holes */}
+            <div className="absolute top-2 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full" style={{ backgroundColor: 'rgba(0,0,0,0.2)' }} />
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full" style={{ backgroundColor: 'rgba(0,0,0,0.2)' }} />
+          </div>
+        </div>
+      ))}
+    </>
+  )
+}
+
+/* ─── Door Frame ─── */
+function DoorFrame({ theme, type }: { theme: TemplateTheme; type: string }) {
+  const frameColor = theme.bgDoor
+  const frameAccent = theme.accent
+  const frameAccentRgb = theme.accentRgb
+  return (
+    <div className="absolute inset-0 pointer-events-none z-[1]">
+      {/* Top frame bar - wider and more prominent */}
+      <div className="absolute top-0 left-0 right-0 h-8" style={{
+        background: `linear-gradient(180deg, ${frameColor}, ${frameColor}cc)`,
+        borderBottom: `2px solid rgba(${frameAccentRgb},0.3)`,
+        boxShadow: `0 4px 12px rgba(0,0,0,0.4), inset 0 -2px 4px rgba(${frameAccentRgb},0.12)`,
+      }}>
+        {/* Top frame decorative line */}
+        <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1/3 h-px" style={{ backgroundColor: `rgba(${frameAccentRgb},0.25)` }} />
+        {/* Top frame inner bevel */}
+        <div className="absolute bottom-0 left-0 right-0 h-1" style={{
+          background: `linear-gradient(180deg, rgba(${frameAccentRgb},0.08), transparent)`,
+        }} />
+      </div>
+      {/* Bottom threshold - wider */}
+      <div className="absolute bottom-0 left-0 right-0 h-7" style={{
+        background: `linear-gradient(0deg, ${frameColor}, ${frameColor}bb)`,
+        borderTop: `2px solid rgba(${frameAccentRgb},0.3)`,
+        boxShadow: `0 -3px 10px rgba(0,0,0,0.3), inset 0 2px 4px rgba(${frameAccentRgb},0.1)`,
+      }}>
+        {/* Threshold step line */}
+        <div className="absolute top-1 left-1/2 -translate-x-1/2 w-1/4 h-px" style={{ backgroundColor: `rgba(${frameAccentRgb},0.2)` }} />
+      </div>
+      {/* Left frame pillar - wider with carvings */}
+      <div className="absolute top-8 left-0 w-7 bottom-7" style={{
+        background: `linear-gradient(90deg, ${frameColor}, ${frameColor}99)`,
+        borderRight: `2px solid rgba(${frameAccentRgb},0.25)`,
+        boxShadow: `4px 0 12px rgba(0,0,0,0.3), inset -2px 0 4px rgba(${frameAccentRgb},0.08)`,
+      }}>
+        {/* Decorative carving on frame - more visible */}
+        <div className="absolute top-[15%] left-1/2 -translate-x-1/2 w-2 h-[70%]" style={{
+          borderLeft: `1.5px solid rgba(${frameAccentRgb},0.25)`,
+          borderRight: `1.5px solid rgba(${frameAccentRgb},0.25)`,
+        }} />
+        {/* Frame groove lines */}
+        <div className="absolute top-[20%] left-1 w-5 h-px" style={{ backgroundColor: `rgba(${frameAccentRgb},0.15)` }} />
+        <div className="absolute top-[50%] left-1 w-5 h-px" style={{ backgroundColor: `rgba(${frameAccentRgb},0.15)` }} />
+        <div className="absolute top-[80%] left-1 w-5 h-px" style={{ backgroundColor: `rgba(${frameAccentRgb},0.15)` }} />
+      </div>
+      {/* Right frame pillar - wider with carvings */}
+      <div className="absolute top-8 right-0 w-7 bottom-7" style={{
+        background: `linear-gradient(270deg, ${frameColor}, ${frameColor}99)`,
+        borderLeft: `2px solid rgba(${frameAccentRgb},0.25)`,
+        boxShadow: `-4px 0 12px rgba(0,0,0,0.3), inset 2px 0 4px rgba(${frameAccentRgb},0.08)`,
+      }}>
+        {/* Decorative carving on frame - more visible */}
+        <div className="absolute top-[15%] left-1/2 -translate-x-1/2 w-2 h-[70%]" style={{
+          borderLeft: `1.5px solid rgba(${frameAccentRgb},0.25)`,
+          borderRight: `1.5px solid rgba(${frameAccentRgb},0.25)`,
+        }} />
+        {/* Frame groove lines */}
+        <div className="absolute top-[20%] right-1 w-5 h-px" style={{ backgroundColor: `rgba(${frameAccentRgb},0.15)` }} />
+        <div className="absolute top-[50%] right-1 w-5 h-px" style={{ backgroundColor: `rgba(${frameAccentRgb},0.15)` }} />
+        <div className="absolute top-[80%] right-1 w-5 h-px" style={{ backgroundColor: `rgba(${frameAccentRgb},0.15)` }} />
+      </div>
+      {/* Corner accents - larger and more visible */}
+      {[
+        { top: '0', left: '0' },
+        { top: '0', right: '0' },
+        { bottom: '0', left: '0' },
+        { bottom: '0', right: '0' },
+      ].map((pos, i) => (
+        <div key={i} className="absolute w-8 h-8" style={{ ...pos, background: `radial-gradient(circle at center, rgba(${frameAccentRgb},0.25), transparent)` }} />
+      ))}
+      {/* Keystone at top center */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-8" style={{
+        background: `linear-gradient(180deg, ${frameColor}, ${frameColor}aa)`,
+        borderBottom: `2px solid rgba(${frameAccentRgb},0.3)`,
+        clipPath: 'polygon(10% 0%, 90% 0%, 100% 100%, 0% 100%)',
+      }}>
+        <div className="absolute inset-x-2 top-2 bottom-2 border" style={{ borderColor: `rgba(${frameAccentRgb},0.2)`, borderRadius: '1px' }} />
+      </div>
+    </div>
+  )
+}
+
+/* ─── Light Leak Effect ─── */
+function LightLeak({ accentRgb, doorsOpened }: { accentRgb: string; doorsOpened: boolean }) {
+  if (!doorsOpened) return null
+  return (
+    <div className="absolute inset-0 pointer-events-none z-[2] flex items-center justify-center">
+      {/* Central vertical light beam */}
+      <div className="door-light-leak" style={{
+        width: '40px',
+        height: '100%',
+        background: `linear-gradient(90deg,
+          transparent 0%,
+          rgba(${accentRgb},0.02) 15%,
+          rgba(${accentRgb},0.08) 30%,
+          rgba(255,245,200,0.12) 45%,
+          rgba(255,250,220,0.18) 50%,
+          rgba(255,245,200,0.12) 55%,
+          rgba(${accentRgb},0.08) 70%,
+          rgba(${accentRgb},0.02) 85%,
+          transparent 100%
+        )`,
+      }} />
+      {/* Wide ambient glow */}
+      <div className="absolute inset-0 door-light-leak" style={{
+        background: `radial-gradient(ellipse at center, rgba(${accentRgb},0.06) 0%, rgba(${accentRgb},0.02) 30%, transparent 60%)`,
+        animationDelay: '0.3s',
+      }} />
+      {/* Light rays */}
+      <div className="absolute inset-0 overflow-hidden">
+        {[-30, -15, 0, 15, 30].map((angle, i) => (
+          <div key={i} className="absolute door-light-leak" style={{
+            left: '50%',
+            top: '30%',
+            width: '2px',
+            height: '60%',
+            background: `linear-gradient(180deg, rgba(255,250,220,0.15), transparent)`,
+            transform: `translateX(-50%) rotate(${angle}deg)`,
+            transformOrigin: 'top center',
+            animationDelay: `${0.2 + i * 0.1}s`,
+          }} />
+        ))}
+      </div>
+    </div>
   )
 }
 
 /* ─── Door Overlay Component ─── */
 function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doorsOpened: boolean; onOpen: () => void }) {
   const ds = theme.doorStyle
+  const is3DType = ['classic-doors', 'archway', 'lantern'].includes(ds.type)
 
   // Get animation class names for left and right panels
   const getAnimClasses = (): { left: string; right: string } => {
@@ -1793,12 +2067,15 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
   // Get idle animation class for the panel
   const getIdleClass = (): string => {
     switch (ds.type) {
+      case 'classic-doors': return 'door-breathe-idle'
+      case 'archway': return 'arch-breathe-idle'
       case 'curtains': return 'curtain-drape-idle'
       case 'petals': return 'petal-sway-idle'
       case 'scroll': return 'scroll-shimmer-idle'
       case 'dome': return 'dome-float-idle'
       case 'lantern': return 'lantern-glow-idle'
-      default: return ''
+      case 'split-screen': return 'split-shimmer-idle'
+      default: return 'door-breathe-idle'
     }
   }
 
@@ -1808,7 +2085,7 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
       case 'classic-doors':
       case 'archway':
       case 'lantern':
-        return { transformOrigin: 'left center', transformStyle: 'preserve-3d', backfaceVisibility: 'hidden' }
+        return { transformOrigin: 'left center', transformStyle: 'preserve-3d' }
       case 'curtains':
         return { transformOrigin: 'left center' }
       case 'split-screen':
@@ -1820,7 +2097,7 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
       case 'dome':
         return {}
       default:
-        return { transformOrigin: 'left center', transformStyle: 'preserve-3d', backfaceVisibility: 'hidden' }
+        return { transformOrigin: 'left center', transformStyle: 'preserve-3d' }
     }
   }
 
@@ -1829,7 +2106,7 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
       case 'classic-doors':
       case 'archway':
       case 'lantern':
-        return { transformOrigin: 'right center', transformStyle: 'preserve-3d', backfaceVisibility: 'hidden' }
+        return { transformOrigin: 'right center', transformStyle: 'preserve-3d' }
       case 'curtains':
         return { transformOrigin: 'right center' }
       case 'split-screen':
@@ -1841,7 +2118,7 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
       case 'dome':
         return {}
       default:
-        return { transformOrigin: 'right center', transformStyle: 'preserve-3d', backfaceVisibility: 'hidden' }
+        return { transformOrigin: 'right center', transformStyle: 'preserve-3d' }
     }
   }
 
@@ -1851,7 +2128,6 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
   // Get gradient direction modifiers for curtain-style panels
   const getPanelGradient = (isLeft: boolean): string => {
     if (ds.type === 'curtains') {
-      // Curtains have a softer, fabric-like gradient
       return isLeft
         ? `linear-gradient(135deg, ${theme.bgDoor} 0%, ${theme.bgSecondary} 60%, ${theme.bgDoor} 100%)`
         : `linear-gradient(225deg, ${theme.bgDoor} 0%, ${theme.bgSecondary} 60%, ${theme.bgDoor} 100%)`
@@ -1877,6 +2153,96 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
     return isLeft ? theme.bgDoorGradient : theme.bgDoorGradient.replace('135deg', '225deg')
   }
 
+  // Wood grain texture overlay for 3D doors - more visible
+  const getWoodGrainOverlay = (): React.CSSProperties => {
+    if (!is3DType) return {}
+    return {
+      backgroundImage: `
+        repeating-linear-gradient(
+          90deg,
+          transparent,
+          transparent 6px,
+          rgba(${theme.accentRgb},0.04) 6px,
+          rgba(${theme.accentRgb},0.04) 7px
+        ),
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 30px,
+          rgba(${theme.accentRgb},0.03) 30px,
+          rgba(${theme.accentRgb},0.03) 31px
+        )
+      `,
+    }
+  }
+
+  // Edge color for 3D door thickness
+  const edgeColor = theme.accentDark
+  const edgeWidth = 18 // px - thickness of the door (visible when swinging open)
+
+  // Render raised panel insets for 3D door types
+  const renderDoorPanels = (side: 'left' | 'right') => {
+    if (!is3DType) return null
+    return (
+      <>
+        {/* Upper panel */}
+        <DoorPanelInset
+          x="12%" y="10%" w={side === 'left' ? '55%' : '55%'} h="30%"
+          accent={theme.accent} accentRgb={theme.accentRgb}
+        />
+        {/* Lower panel */}
+        <DoorPanelInset
+          x="12%" y="56%" w={side === 'left' ? '55%' : '55%'} h="30%"
+          accent={theme.accent} accentRgb={theme.accentRgb}
+        />
+      </>
+    )
+  }
+
+  // Render 3D edge face (door thickness)
+  const renderEdgeFace = (side: 'left' | 'right') => {
+    if (!is3DType) return null
+    const edgeStyle: React.CSSProperties = side === 'left'
+      ? {
+          position: 'absolute',
+          top: 0,
+          right: `-${edgeWidth}px`,
+          width: `${edgeWidth}px`,
+          height: '100%',
+          background: `linear-gradient(90deg, ${edgeColor}, ${theme.bgDoor}aa)`,
+          transform: 'rotateY(90deg)',
+          transformOrigin: 'left center',
+          boxShadow: `3px 0 8px rgba(0,0,0,0.4), inset 0 0 3px rgba(0,0,0,0.15)`,
+          borderLeft: `1px solid rgba(${theme.accentRgb},0.15)`,
+          borderRight: `1px solid rgba(0,0,0,0.2)`,
+        }
+      : {
+          position: 'absolute',
+          top: 0,
+          left: `-${edgeWidth}px`,
+          width: `${edgeWidth}px`,
+          height: '100%',
+          background: `linear-gradient(270deg, ${edgeColor}, ${theme.bgDoor}aa)`,
+          transform: 'rotateY(-90deg)',
+          transformOrigin: 'right center',
+          boxShadow: `-3px 0 8px rgba(0,0,0,0.4), inset 0 0 3px rgba(0,0,0,0.15)`,
+          borderRight: `1px solid rgba(${theme.accentRgb},0.15)`,
+          borderLeft: `1px solid rgba(0,0,0,0.2)`,
+        }
+    return (
+      <div style={edgeStyle}>
+        {/* Edge grain lines - more visible */}
+        <div className="absolute inset-0" style={{
+          backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 12px, rgba(${theme.accentRgb},0.08) 12px, rgba(${theme.accentRgb},0.08) 13px)`,
+        }} />
+        {/* Light highlight on inner edge */}
+        <div className="absolute inset-0" style={{
+          background: `linear-gradient(${side === 'left' ? '270deg' : '90deg'}, rgba(${theme.accentRgb},0.12), transparent 60%)`,
+        }} />
+      </div>
+    )
+  }
+
   return (
     <>
       {/* Background behind doors */}
@@ -1891,6 +2257,16 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
         )}
       </div>
 
+      {/* Light leak effect - between doors */}
+      <LightLeak accentRgb={theme.accentRgb} doorsOpened={doorsOpened} />
+
+      {/* Door Frame - visible behind the doors, fades during opening */}
+      {is3DType && (
+        <div className={doorsOpened ? 'door-frame-shadow' : ''} style={doorsOpened ? { transition: 'opacity 2s ease-out' } : {}}>
+          <DoorFrame theme={theme} type={ds.type} />
+        </div>
+      )}
+
       {/* ─── Dome type: single full-screen panel ─── */}
       {ds.type === 'dome' && (
         <div className={`absolute inset-0 ${anim.left} ${!doorsOpened ? idleClass : ''}`}>
@@ -1898,6 +2274,11 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
             <DoorSvgPattern pattern={ds.svgPattern} accent={theme.accent} accentRgb={theme.accentRgb} />
             <DomeCap accent={theme.accent} />
             <div className="absolute inset-0 door-shimmer" />
+            {/* Stone/marble texture */}
+            <div className="absolute inset-0" style={{
+              backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(${theme.accentRgb},0.015) 20px, rgba(${theme.accentRgb},0.015) 21px),
+                repeating-linear-gradient(90deg, transparent, transparent 30px, rgba(${theme.accentRgb},0.01) 30px, rgba(${theme.accentRgb},0.01) 31px)`,
+            }} />
             <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse at center, rgba(${theme.accentRgb},0.05), transparent)` }} />
             {/* Dome text - horizontal layout */}
             <div className="absolute inset-0 flex items-center justify-center">
@@ -1925,16 +2306,55 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
             className={`absolute top-0 left-0 w-1/2 h-full ${anim.left} ${!doorsOpened ? idleClass : ''}`}
             style={getLeftPanelStyle()}
           >
-            <div className={`relative w-full h-full ${ds.type === 'curtains' ? '' : 'border-r'} overflow-hidden`} style={{ background: getPanelGradient(true), borderColor: theme.borderSubtle }}>
+            {/* Front face of door */}
+            <div className={`relative w-full h-full ${ds.type === 'curtains' ? '' : 'border-r'} overflow-hidden`}
+              style={{
+                background: getPanelGradient(true),
+                borderColor: theme.borderSubtle,
+                backfaceVisibility: 'hidden',
+                ...getWoodGrainOverlay(),
+              }}
+            >
               <DoorSvgPattern pattern={ds.svgPattern} accent={theme.accent} accentRgb={theme.accentRgb} />
               {ds.type === 'archway' && <ArchwayCap accent={theme.accent} />}
               {ds.type === 'scroll' && <ScrollCap side="top" accent={theme.accent} accentRgb={theme.accentRgb} />}
               {ds.type === 'curtains' && <CurtainEdge side="left" accentRgb={theme.accentRgb} />}
               <div className="absolute inset-0 door-shimmer" />
               <div className="absolute inset-0" style={{ background: `linear-gradient(to right, transparent, rgba(${theme.accentRgb},0.05))` }} />
+              {/* Raised panel insets for 3D doors */}
+              {renderDoorPanels('left')}
               <DoorPanelContent theme={theme} text={ds.leftText} textLang={ds.leftTextLang} />
               <DoorHandle theme={theme} side="left" />
+              {/* Hinges on hinge side (left) */}
+              {is3DType && <DoorHinges side="left" accent={theme.accent} accentRgb={theme.accentRgb} />}
+              {/* Split-screen frosted glass effect */}
+              {ds.type === 'split-screen' && (
+                <div className="absolute inset-0" style={{
+                  background: 'linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.02) 100%)',
+                  backdropFilter: 'blur(0.5px)',
+                }} />
+              )}
+              {/* Curtain fabric folds */}
+              {ds.type === 'curtains' && (
+                <div className="absolute inset-0 pointer-events-none" style={{
+                  backgroundImage: `repeating-linear-gradient(90deg,
+                    transparent 0px,
+                    rgba(${theme.accentRgb},0.04) 20px,
+                    transparent 25px,
+                    rgba(${theme.accentRgb},0.03) 45px,
+                    transparent 50px
+                  )`,
+                }} />
+              )}
+              {/* Petal soft gradient overlay */}
+              {ds.type === 'petals' && (
+                <div className="absolute inset-0 pointer-events-none" style={{
+                  background: `radial-gradient(ellipse at ${ds.type === 'petals' ? '30% 50%' : '70% 50%'}, rgba(${theme.accentRgb},0.06), transparent 60%)`,
+                }} />
+              )}
             </div>
+            {/* 3D Edge face (door thickness) - visible when door swings */}
+            {renderEdgeFace('left')}
           </div>
 
           {/* Right Panel */}
@@ -1942,16 +2362,55 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
             className={`absolute top-0 right-0 w-1/2 h-full ${anim.right} ${!doorsOpened ? idleClass : ''}`}
             style={getRightPanelStyle()}
           >
-            <div className={`relative w-full h-full ${ds.type === 'curtains' ? '' : 'border-l'} overflow-hidden`} style={{ background: getPanelGradient(false), borderColor: theme.borderSubtle }}>
+            {/* Front face of door */}
+            <div className={`relative w-full h-full ${ds.type === 'curtains' ? '' : 'border-l'} overflow-hidden`}
+              style={{
+                background: getPanelGradient(false),
+                borderColor: theme.borderSubtle,
+                backfaceVisibility: 'hidden',
+                ...getWoodGrainOverlay(),
+              }}
+            >
               <DoorSvgPattern pattern={ds.svgPattern} accent={theme.accent} accentRgb={theme.accentRgb} />
               {ds.type === 'archway' && <ArchwayCap accent={theme.accent} />}
               {ds.type === 'scroll' && <ScrollCap side="bottom" accent={theme.accent} accentRgb={theme.accentRgb} />}
               {ds.type === 'curtains' && <CurtainEdge side="right" accentRgb={theme.accentRgb} />}
               <div className="absolute inset-0 door-shimmer" />
               <div className="absolute inset-0" style={{ background: `linear-gradient(to left, transparent, rgba(${theme.accentRgb},0.05))` }} />
+              {/* Raised panel insets for 3D doors */}
+              {renderDoorPanels('right')}
               <DoorPanelContent theme={theme} text={ds.rightText} textLang={ds.rightTextLang} />
               <DoorHandle theme={theme} side="right" />
+              {/* Hinges on hinge side (right) */}
+              {is3DType && <DoorHinges side="right" accent={theme.accent} accentRgb={theme.accentRgb} />}
+              {/* Split-screen frosted glass effect */}
+              {ds.type === 'split-screen' && (
+                <div className="absolute inset-0" style={{
+                  background: 'linear-gradient(225deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.02) 100%)',
+                  backdropFilter: 'blur(0.5px)',
+                }} />
+              )}
+              {/* Curtain fabric folds */}
+              {ds.type === 'curtains' && (
+                <div className="absolute inset-0 pointer-events-none" style={{
+                  backgroundImage: `repeating-linear-gradient(270deg,
+                    transparent 0px,
+                    rgba(${theme.accentRgb},0.04) 20px,
+                    transparent 25px,
+                    rgba(${theme.accentRgb},0.03) 45px,
+                    transparent 50px
+                  )`,
+                }} />
+              )}
+              {/* Petal soft gradient overlay */}
+              {ds.type === 'petals' && (
+                <div className="absolute inset-0 pointer-events-none" style={{
+                  background: `radial-gradient(ellipse at 70% 50%, rgba(${theme.accentRgb},0.06), transparent 60%)`,
+                }} />
+              )}
             </div>
+            {/* 3D Edge face (door thickness) - visible when door swings */}
+            {renderEdgeFace('right')}
           </div>
         </>
       )}

@@ -192,3 +192,88 @@ Stage Summary:
 - Different SVG patterns, center icons, button shapes, and panel text per template
 - Royal Imperial is most unique (single full-screen dome panel vs left/right split)
 - No touch to scratch card, countdown, events, RSVP, or wishes sections
+
+---
+Task ID: 2
+Agent: full-stack-developer
+Task: Upgrade door opening animations to look like real 3D doors with depth, panels, hinges, frames, and realistic swing physics
+
+Work Log:
+- Read existing CSS animations in globals.css (lines 168-378) and DoorOverlay component (lines 1774-1972) in invitation-viewer.tsx
+- Replaced all 8 door animation keyframes with multi-step realistic physics versions:
+  - Classic doors: 9-step keyframes with hesitation, slow start, acceleration, overshoot, settle back (2.2s)
+  - Curtains: 7-step with fabric gathering, skewX wave distortion, scaleX compression, fade out (2s)
+  - Petals: 5-step organic unfolding with scale/rotate/translateX progression (1.6s)
+  - Split-screen: Smooth glass-like slide with opacity transitions (1.4s)
+  - Archway: Same 3D physics as classic with arch-specific angles (2.2s)
+  - Scroll: Paper rolling with scaleY curl effect at start, progressive scaleX collapse (1.8s)
+  - Dome: 8-step floating upward with rotation wobble and scale growth (2.5s)
+  - Lantern: 8-step 3D swing with progressive translateY upward float (2.2s)
+- Upgraded all idle animations with more organic feel:
+  - Classic/Archway: doorBreathe with subtle rotateY + scale (new, previously no idle)
+  - Curtains: Enhanced curtainDrape with skewX fabric movement
+  - Petals: Enhanced petalSway with scale breathing
+  - Split-screen: New splitShimmer idle animation (previously had no idle)
+  - Dome: Enhanced domeFloat with rotation wobble
+  - Lantern: Enhanced lanternGlow with brightness filter
+- Added new CSS animations: lightLeakGrow (light between doors), frameShadowReveal (door frame reveal)
+- Added transform-style: preserve-3d to all 3D door type CSS classes
+- Created DoorPanelInset component: raised panel rectangles with recessed inner border, subtle shadow for 3D depth
+- Created DoorHinges component: 3 decorative hinges per side with gradient bodies, pin dots, and mortise plates
+- Created DoorFrame component: full door frame with top bar, bottom threshold, left/right pillars with decorative carvings, corner accents
+- Created LightLeak component: central vertical light beam, wide ambient glow, 5 angled light rays, all animated with lightLeakGrow
+- Upgraded DoorHandle component: realistic door knocker ring with backplate, plus keyhole plate with actual keyhole shape
+- Upgraded CurtainEdge: added tassels at bottom and curtain rod at top
+- Upgraded DomeCap: added minarets, crescent moon, decorative bands
+- Upgraded ArchwayCap: added keystone, decorative voussoirs (arch segment lines)
+- Upgraded ScrollCap: added scroll rod highlight, end caps
+- Upgraded DoorOverlay component with comprehensive 3D door features:
+  - Front face with backfaceVisibility: hidden for 3D correctness
+  - Wood grain texture overlay for 3D door types (repeating gradient stripes)
+  - Door edge/thickness face using rotateY(90deg) with translateZ for 3D depth (10px thick)
+  - Edge face has grain lines and contrasting color for visible depth
+  - Split-screen frosted glass overlay with backdrop blur
+  - Curtain fabric folds using repeating gradient
+  - Petal soft gradient overlay
+  - Dome stone/marble texture
+  - All door types get their specific idle animations (including new door-breathe-idle and arch-breathe-idle)
+- Lint passes cleanly with zero errors
+
+Stage Summary:
+- All door animations now have multi-step keyframes with realistic swing physics (hesitation → acceleration → overshoot → settle)
+- 3D door types (classic, archway, lantern) now show visible door thickness when swinging open
+- Doors have raised panel insets, decorative hinges, realistic knocker handles with keyholes, and door frames
+- Light leak effect appears between doors as they open (central beam + ambient glow + light rays)
+- All door types have unique idle animations that make them feel alive
+- Curtain, dome, scroll, petal, split-screen types have enhanced textures and effects
+- No changes to ScratchCard, fireworks, confetti, or any component outside DoorOverlay scope
+---
+Task ID: 1
+Agent: main
+Task: Improve door opening animations to look like real 3D doors
+
+Work Log:
+- Read and analyzed the full invitation-viewer.tsx component (2300+ lines) and globals.css (580+ lines)
+- Identified all door animation types: classic-doors, curtains, petals, split-screen, archway, scroll, dome, lantern
+- Delegated comprehensive door animation upgrade to full-stack-developer agent
+- Agent upgraded all CSS keyframes with multi-step realistic physics (hesitation → push → acceleration → overshoot → settle)
+- Agent added new components: DoorPanelInset, DoorHinges, DoorFrame, LightLeak
+- Agent added 3D door edge/thickness using rotateY(90deg) technique
+- Agent added texture effects: wood grain for 3D doors, fabric folds for curtains, stone/marble for dome, frosted glass for split-screen
+- After browser testing revealed details were too subtle, I increased prominence of all elements:
+  - Panel insets: opacity 0.03→0.16, border 1px→1.5px, stronger shadows
+  - Hinges: w-3→w-4, h-8→h-14, added center screw, larger mortise plates with screw holes
+  - 3D edge thickness: 10px→18px with stronger shadows and light highlights
+  - Door frame: top bar h-5→h-8, pillars w-4→w-7, threshold h-4→h-7, added keystone at top center, groove lines on pillars
+  - Door knocker: backplate w-6→w-10 h-12, ring w-4→w-7 h-9 with attachment point, keyhole plate w-6→h-10 with decorative border
+  - Door frame now stays visible during opening animation (fades gradually instead of disappearing)
+  - Wood grain opacity increased for better visibility
+
+Stage Summary:
+- All 8 door animation types upgraded with realistic multi-step CSS keyframes
+- 3D door depth now visible when doors swing open (18px edge thickness)
+- Door frame with keystone, pillars with carvings, and threshold
+- Door knocker with backplate, hanging ring, screw holes, and keyhole plate
+- Light leak effect with central beam, ambient glow, and 5 angled light rays
+- Fabric folds for curtains, stone texture for dome, frosted glass for split-screen
+- Lint passes, no browser errors, dev server compiles successfully
