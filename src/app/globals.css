@@ -1,0 +1,388 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-playfair);
+  --font-calligraphy: var(--font-amiri);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-gold: var(--gold);
+  --color-gold-light: var(--gold-light);
+  --color-emerald: var(--emerald);
+  --color-emerald-dark: var(--emerald-dark);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --radius: 0.625rem;
+  --background: oklch(0.985 0.002 80);
+  --foreground: oklch(0.17 0.02 70);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.17 0.02 70);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.17 0.02 70);
+  --primary: oklch(0.45 0.12 155);
+  --primary-foreground: oklch(0.98 0.005 80);
+  --secondary: oklch(0.96 0.01 80);
+  --secondary-foreground: oklch(0.25 0.02 70);
+  --muted: oklch(0.96 0.008 80);
+  --muted-foreground: oklch(0.5 0.02 70);
+  --accent: oklch(0.93 0.015 80);
+  --accent-foreground: oklch(0.25 0.02 70);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.91 0.01 80);
+  --input: oklch(0.91 0.01 80);
+  --ring: oklch(0.45 0.12 155);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --gold: oklch(0.72 0.15 75);
+  --gold-light: oklch(0.82 0.1 80);
+  --emerald: oklch(0.45 0.12 155);
+  --emerald-dark: oklch(0.25 0.1 155);
+  --sidebar: oklch(0.985 0.002 80);
+  --sidebar-foreground: oklch(0.17 0.02 70);
+  --sidebar-primary: oklch(0.45 0.12 155);
+  --sidebar-primary-foreground: oklch(0.98 0.005 80);
+  --sidebar-accent: oklch(0.96 0.01 80);
+  --sidebar-accent-foreground: oklch(0.25 0.02 70);
+  --sidebar-border: oklch(0.91 0.01 80);
+  --sidebar-ring: oklch(0.45 0.12 155);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  section[id] {
+    scroll-margin-top: 80px;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: oklch(0.7 0.05 155);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.6 0.08 155);
+}
+
+/* Font classes */
+.font-display {
+  font-family: var(--font-playfair), Georgia, serif;
+}
+.font-calligraphy {
+  font-family: var(--font-amiri), serif;
+}
+
+/* Gold shimmer animation */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.gold-shimmer {
+  background: linear-gradient(90deg, var(--gold) 0%, var(--gold-light) 50%, var(--gold) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Enhanced gold shimmer - more visible */
+.gold-shimmer-strong {
+  background: linear-gradient(
+    90deg,
+    #8b6d2f 0%,
+    #d4a853 20%,
+    #f0d78c 35%,
+    #fff4d0 50%,
+    #f0d78c 65%,
+    #d4a853 80%,
+    #8b6d2f 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2.5s ease-in-out infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Scratch card styles */
+.scratch-canvas {
+  touch-action: none;
+  cursor: pointer;
+}
+
+/* Door animation */
+@keyframes doorOpenLeft {
+  0% { transform: perspective(1600px) rotateY(0deg); }
+  100% { transform: perspective(1600px) rotateY(-110deg); }
+}
+
+@keyframes doorOpenRight {
+  0% { transform: perspective(1600px) rotateY(0deg); }
+  100% { transform: perspective(1600px) rotateY(110deg); }
+}
+
+.door-open-left {
+  animation: doorOpenLeft 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  transform-origin: left center;
+}
+
+.door-open-right {
+  animation: doorOpenRight 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  transform-origin: right center;
+}
+
+/* Firework particle */
+@keyframes fireworkRise {
+  0% { transform: translateY(0); opacity: 1; }
+  60% { opacity: 1; }
+  100% { transform: translateY(-200px); opacity: 0; }
+}
+
+@keyframes fireworkBurst {
+  0% { transform: scale(0); opacity: 1; }
+  50% { opacity: 1; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+/* Floating animation */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Pulse glow */
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 5px rgba(180, 145, 77, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(180, 145, 77, 0.6), 0 0 40px rgba(180, 145, 77, 0.3); }
+}
+
+.pulse-glow {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+/* Sparkle animation for scratch card */
+@keyframes sparkleAnim {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--sparkle-x, 0), var(--sparkle-y, -20px)) scale(0);
+    opacity: 0;
+  }
+}
+
+/* Rotating ring animation for door button */
+@keyframes rotateRing {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.animate-rotate-ring {
+  animation: rotateRing 8s linear infinite;
+}
+
+/* Door shimmer effect */
+@keyframes doorShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.door-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(180, 145, 77, 0.06) 25%,
+    rgba(212, 168, 83, 0.12) 50%,
+    rgba(180, 145, 77, 0.06) 75%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: doorShimmer 4s ease-in-out infinite;
+}
+
+/* Door glow behind - particles effect */
+@keyframes doorGlowPulse {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.05); }
+}
+
+.animate-door-glow {
+  animation: doorGlowPulse 2s ease-in-out infinite;
+}
+
+/* Button hover glow */
+@keyframes buttonHoverGlow {
+  0%, 100% { box-shadow: 0 0 15px rgba(180, 145, 77, 0.4), 0 0 30px rgba(180, 145, 77, 0.2); }
+  50% { box-shadow: 0 0 25px rgba(180, 145, 77, 0.7), 0 0 50px rgba(180, 145, 77, 0.4), 0 0 80px rgba(180, 145, 77, 0.2); }
+}
+
+.animate-button-glow {
+  animation: buttonHoverGlow 1.5s ease-in-out infinite;
+}
+
+/* Gold border pulse for scratch card reveal */
+@keyframes goldBorderPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(180, 145, 77, 0.3), 0 0 40px rgba(180, 145, 77, 0.1); }
+  50% { box-shadow: 0 0 35px rgba(180, 145, 77, 0.6), 0 0 70px rgba(180, 145, 77, 0.3), 0 0 100px rgba(180, 145, 77, 0.15); }
+}
+
+.gold-border-pulse {
+  animation: goldBorderPulse 1.5s ease-in-out infinite;
+}
+
+/* Countdown pulsing glow */
+@keyframes countdownPulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(180, 145, 77, 0.15); }
+  50% { box-shadow: 0 0 20px rgba(180, 145, 77, 0.35), 0 0 40px rgba(180, 145, 77, 0.15); }
+}
+
+.countdown-pulse {
+  animation: countdownPulse 2s ease-in-out infinite;
+}
+
+/* Confetti animation for RSVP */
+@keyframes confettiFall {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+.confetti-piece {
+  animation: confettiFall 3s ease-out forwards;
+}
+
+/* Floating background particles */
+@keyframes floatParticle {
+  0% { transform: translateY(0) translateX(0); opacity: 0; }
+  10% { opacity: var(--particle-opacity, 0.3); }
+  90% { opacity: var(--particle-opacity, 0.3); }
+  100% { transform: translateY(-100vh) translateX(var(--particle-drift, 20px)); opacity: 0; }
+}
+
+.bg-particle {
+  animation: floatParticle var(--particle-duration, 15s) linear infinite;
+  animation-delay: var(--particle-delay, 0s);
+}
+
+/* Green glow for accept button */
+@keyframes greenGlow {
+  0%, 100% { box-shadow: 0 0 10px rgba(34, 197, 94, 0.3), 0 0 20px rgba(180, 145, 77, 0.2); }
+  50% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.5), 0 0 40px rgba(180, 145, 77, 0.3), 0 0 60px rgba(34, 197, 94, 0.2); }
+}
+
+.green-glow {
+  animation: greenGlow 2s ease-in-out infinite;
+}
+
+/* Heart float animation for RSVP confirmation */
+@keyframes heartFloat {
+  0% { transform: translateY(0) scale(0); opacity: 0; }
+  20% { transform: translateY(-20px) scale(1); opacity: 1; }
+  100% { transform: translateY(-80px) scale(0.8); opacity: 0; }
+}
+
+.heart-float {
+  animation: heartFloat 2s ease-out forwards;
+}
+
+/* Music icon pulse */
+@keyframes musicPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.music-pulse {
+  animation: musicPulse 1s ease-in-out infinite;
+}
+
+/* Scroll reveal */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.reveal-on-scroll.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Shimmer rotation for 3D door button */
+@keyframes shimmerRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Custom scrollbar for wishes section */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(180, 145, 77, 0.2);
+  border-radius: 2px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(180, 145, 77, 0.4);
+}
