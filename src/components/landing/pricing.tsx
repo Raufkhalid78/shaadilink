@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check, Crown, Sparkles, ArrowRight } from "lucide-react";
+import { Check, Crown, Sparkles, ArrowRight, Lock } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -89,7 +89,12 @@ export function Pricing({ onSelectPlan }: PricingProps) {
           <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">
             Choose Your Invitation Experience
           </h2>
-          <p className="mt-4 text-muted-foreground max-w-xl mx-auto text-base sm:text-lg">
+          <div className="flex items-center justify-center gap-3 mt-5">
+            <div className="h-px w-16 bg-gradient-to-r from-transparent to-gold/50" />
+            <div className="h-1.5 w-1.5 rounded-full bg-gold/60" />
+            <div className="h-px w-16 bg-gradient-to-l from-transparent to-gold/50" />
+          </div>
+          <p className="mt-5 text-muted-foreground max-w-xl mx-auto text-base sm:text-lg">
             Elegant classic invitations or immersive cinematic luxury experiences.
           </p>
         </div>
@@ -105,28 +110,34 @@ export function Pricing({ onSelectPlan }: PricingProps) {
           {plans.map((plan) => (
             <motion.div key={plan.name} variants={cardVariants}>
               <Card
-                className={`relative overflow-hidden h-full transition-all duration-300 hover:shadow-xl ${
+                className={`relative overflow-hidden h-full transition-all duration-300 rounded-2xl ${
                   plan.highlighted
-                    ? "border-2 border-gold shadow-lg shadow-gold/10 hover:shadow-gold/20"
-                    : "border-border/50 hover:border-gold/30"
+                    ? "border-2 border-gold shadow-lg shadow-gold/10 hover:shadow-xl hover:shadow-gold/20 hover:scale-[1.02]"
+                    : "border-border/30 hover:border-gold/30 hover:shadow-lg"
                 }`}
               >
+                {/* Top accent bar */}
+                <div
+                  className={`h-1 w-full ${
+                    plan.highlighted
+                      ? "bg-gradient-to-r from-gold/60 via-gold-light to-gold/60"
+                      : "bg-gradient-to-r from-emerald/60 via-emerald to-emerald/60"
+                  }`}
+                />
+
                 {/* Badge */}
-                {plan.highlighted && (
-                  <div className="absolute top-0 right-0">
-                    <Badge className="rounded-none rounded-bl-lg bg-gold text-emerald-dark font-semibold px-4 py-1.5 text-xs">
-                      <Crown className="h-3 w-3 mr-1" />
-                      {plan.badgeText}
-                    </Badge>
-                  </div>
-                )}
-                {!plan.highlighted && (
-                  <div className="absolute top-0 right-0">
-                    <Badge className="rounded-none rounded-bl-lg bg-emerald/80 text-primary-foreground font-semibold px-4 py-1.5 text-xs">
-                      {plan.badgeText}
-                    </Badge>
-                  </div>
-                )}
+                <div className="absolute top-4 right-4">
+                  <Badge
+                    className={`rounded-lg font-semibold px-3 py-1 text-xs ${
+                      plan.highlighted
+                        ? "bg-gold text-emerald-dark"
+                        : "bg-emerald/80 text-primary-foreground"
+                    }`}
+                  >
+                    {plan.highlighted && <Crown className="h-3 w-3 mr-1" />}
+                    {plan.badgeText}
+                  </Badge>
+                </div>
 
                 <CardHeader className="pb-2 pt-6 px-6 sm:px-8">
                   <h3 className="font-display text-2xl font-bold text-foreground">
@@ -192,25 +203,19 @@ export function Pricing({ onSelectPlan }: PricingProps) {
           className="mt-10 text-center"
         >
           <div className="inline-flex items-center gap-2 px-5 py-3 rounded-xl border border-gold/20 bg-gold/5">
-            <Sparkles className="w-4 h-4 text-gold" />
+            <Sparkles className="w-4 h-4 text-gold shrink-0" />
             <p className="text-sm text-muted-foreground">
               Already purchased Classic?{" "}
               <span className="text-gold font-semibold">Upgrade to Royal</span> anytime
-              without repurchasing the full plan.
             </p>
-            <ArrowRight className="w-4 h-4 text-gold" />
+            <ArrowRight className="w-4 h-4 text-gold shrink-0" />
           </div>
         </motion.div>
 
         {/* Security badge */}
         <div className="mt-6 flex items-center justify-center gap-2 text-xs text-muted-foreground">
-          <div className="flex items-center gap-1">
-            <svg className="w-3.5 h-3.5 text-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-            </svg>
-            Secure payments via SSL encryption
-          </div>
+          <Lock className="w-3.5 h-3.5 text-emerald shrink-0" />
+          Secure payments via SSL encryption
         </div>
       </div>
     </section>

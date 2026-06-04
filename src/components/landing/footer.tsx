@@ -1,7 +1,10 @@
 "use client";
 
-import { Heart, Instagram, Facebook, Twitter, Mail, Globe } from "lucide-react";
+import { useState } from "react";
+import { Heart, Instagram, Facebook, Twitter, Mail, Globe, Send } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const quickLinks = [
   { label: "About", href: "#", action: "about" },
@@ -39,13 +42,23 @@ export function Footer({
   onLegalClick,
   onAffiliateClick,
 }: FooterProps) {
+  const [email, setEmail] = useState("");
+
   const handleQuickLink = (link: (typeof quickLinks)[0]) => {
     if (link.action === "about" && onAboutClick) onAboutClick();
     else if (link.action === "templates" && onTemplatesClick) onTemplatesClick();
   };
 
+  const handleNewsletterSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setEmail("");
+  };
+
   return (
     <footer className="bg-emerald-dark text-white mt-auto">
+      {/* Subtle gold geometric top border */}
+      <div className="h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent" />
+
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Main Footer Content */}
         <div className="py-12 sm:py-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10">
@@ -79,6 +92,29 @@ export function Footer({
                   </a>
                 );
               })}
+            </div>
+
+            {/* Newsletter signup */}
+            <div className="mt-6">
+              <p className="text-white/50 text-xs font-medium uppercase tracking-wider mb-2">
+                Stay Updated
+              </p>
+              <form onSubmit={handleNewsletterSubmit} className="flex gap-2">
+                <Input
+                  type="email"
+                  placeholder="Your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="h-9 bg-white/10 border-white/10 text-white placeholder:text-white/30 text-sm focus:border-gold/50 focus:ring-gold/20"
+                />
+                <Button
+                  type="submit"
+                  size="sm"
+                  className="h-9 bg-gold hover:bg-gold-light text-emerald-dark font-semibold shrink-0 px-3 border-none"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                </Button>
+              </form>
             </div>
           </div>
 
