@@ -687,7 +687,7 @@ function ConfettiDisplay({ show, colors: propColors }: { show: boolean; colors?:
 }
 
 /* ─── Scratch Card (v8 - Grid-based tracking + fixed DPR + sparkle trail) ─── */
-function ScratchCard({ revealed, onReveal, theme }: { revealed: boolean; onReveal: () => void; theme: TemplateTheme }) {
+function ScratchCard({ revealed, onReveal, theme, language, translations }: { revealed: boolean; onReveal: () => void; theme: TemplateTheme; language: 'en' | 'ur'; translations: Record<string, string> }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const isDrawing = useRef(false)
   const revealedRef = useRef(false)
@@ -811,14 +811,14 @@ function ScratchCard({ revealed, onReveal, theme }: { revealed: boolean; onRevea
     ctx.shadowColor = `rgba(${theme.accentRgb}, 0.5)`
     ctx.shadowBlur = 12
     ctx.fillStyle = `rgba(${theme.accentRgb}, 0.85)`
-    ctx.font = 'bold 18px serif'
+    ctx.font = language === 'ur' ? 'bold 18px Noto Nastaliq Urdu, serif' : 'bold 18px serif'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
-    ctx.fillText('✦  Scratch Here  ✦', cx, cy - 8)
+    ctx.fillText(language === 'ur' ? (translations.scratchHere || '✦  یہاں کھرچیں  ✦') : '✦  Scratch Here  ✦', cx, cy - 8)
     ctx.shadowBlur = 0
     ctx.fillStyle = `rgba(${theme.accentRgb}, 0.5)`
-    ctx.font = '11px serif'
-    ctx.fillText('to reveal your invitation', cx, cy + 14)
+    ctx.font = language === 'ur' ? '11px Noto Nastaliq Urdu, serif' : '11px serif'
+    ctx.fillText(language === 'ur' ? (translations.toReveal || 'دعوت نامہ دیکھنے کے لیے') : 'to reveal your invitation', cx, cy + 14)
 
     // Finger icon hint
     ctx.fillStyle = `rgba(${theme.accentRgb}, 0.25)`
@@ -828,7 +828,7 @@ function ScratchCard({ revealed, onReveal, theme }: { revealed: boolean; onRevea
     // Reset grid and percent
     gridRef.current = new Set()
     setScratchPercent(0)
-  }, [revealed, theme])
+  }, [revealed, theme, language, translations])
 
   // Sparkle trail animation loop
   useEffect(() => {
@@ -1012,7 +1012,7 @@ function ScratchCard({ revealed, onReveal, theme }: { revealed: boolean; onRevea
         className="font-calligraphy text-3xl sm:text-4xl"
         style={{ color: theme.accent }}
       >
-        Scratch to Reveal
+        {language === 'ur' ? (translations.scratchReveal || 'دعوت نامہ دیکھنے کے لیے') : 'Scratch to Reveal'}
       </motion.h2>
       <HeartDivider accentColor={theme.accent} />
       {/* Progress indicator */}
@@ -1078,7 +1078,7 @@ function ScratchCard({ revealed, onReveal, theme }: { revealed: boolean; onRevea
                   className="font-calligraphy text-2xl sm:text-3xl font-bold"
                   style={{ color: theme.accentLight, textShadow: `0 0 25px rgba(${theme.accentRgb},0.4), 0 0 50px rgba(${theme.accentRgb},0.2)` }}
                 >
-                  You&apos;re Invited!
+                  {language === 'ur' ? (translations.youreInvited || 'آپ مدعو ہیں!') : "You're Invited!"}
                 </motion.p>
                 <motion.div
                   initial={{ scaleX: 0 }}
@@ -1094,7 +1094,7 @@ function ScratchCard({ revealed, onReveal, theme }: { revealed: boolean; onRevea
                   className="font-display text-2xl sm:text-3xl font-bold"
                   style={{ color: theme.textSecondary, textShadow: `0 0 15px rgba(${theme.accentRgb},0.3)` }}
                 >
-                  March 15, 2027
+                  {language === 'ur' ? (translations.march15 || '15 مارچ 2027') : 'March 15, 2027'}
                 </motion.p>
                 <motion.p
                   initial={{ y: 10, opacity: 0 }}
@@ -1103,7 +1103,7 @@ function ScratchCard({ revealed, onReveal, theme }: { revealed: boolean; onRevea
                   className="font-calligraphy text-lg"
                   style={{ color: theme.accent }}
                 >
-                  Sunday
+                  {language === 'ur' ? (translations.sunday || 'اتوار') : 'Sunday'}
                 </motion.p>
                 <motion.p
                   initial={{ y: 10, opacity: 0 }}
@@ -1112,7 +1112,7 @@ function ScratchCard({ revealed, onReveal, theme }: { revealed: boolean; onRevea
                   className="text-sm"
                   style={{ color: theme.accentLight }}
                 >
-                  7:00 PM <span style={{ color: theme.accentLight, fontWeight: 600 }}>PKT</span>
+                  {language === 'ur' ? (translations.time7pm || 'شام 7 بجے') : '7:00 PM'} <span style={{ color: theme.accentLight, fontWeight: 600 }}>{language === 'ur' ? (translations.pkt || 'پاکستانی وقت') : 'PKT'}</span>
                 </motion.p>
               </motion.div>
             ) : (
@@ -1127,7 +1127,7 @@ function ScratchCard({ revealed, onReveal, theme }: { revealed: boolean; onRevea
                   className="font-calligraphy text-2xl sm:text-3xl font-bold"
                   style={{ color: theme.accentLight, textShadow: `0 0 15px rgba(${theme.accentRgb},0.25)` }}
                 >
-                  You&apos;re Invited!
+                  {language === 'ur' ? (translations.youreInvited || 'آپ مدعو ہیں!') : "You're Invited!"}
                 </p>
                 <div
                   className="h-px w-20"
@@ -1137,19 +1137,19 @@ function ScratchCard({ revealed, onReveal, theme }: { revealed: boolean; onRevea
                   className="font-display text-2xl sm:text-3xl font-bold"
                   style={{ color: theme.textSecondary, textShadow: `0 0 10px rgba(${theme.accentRgb},0.15)` }}
                 >
-                  March 15, 2027
+                  {language === 'ur' ? (translations.march15 || '15 مارچ 2027') : 'March 15, 2027'}
                 </p>
                 <p
                   className="font-calligraphy text-lg"
                   style={{ color: theme.accentLight }}
                 >
-                  Sunday
+                  {language === 'ur' ? (translations.sunday || 'اتوار') : 'Sunday'}
                 </p>
                 <p
                   className="text-sm"
                   style={{ color: theme.accent }}
                 >
-                  7:00 PM <span style={{ color: theme.accentLight, fontWeight: 600 }}>PKT</span>
+                  {language === 'ur' ? (translations.time7pm || 'شام 7 بجے') : '7:00 PM'} <span style={{ color: theme.accentLight, fontWeight: 600 }}>{language === 'ur' ? (translations.pkt || 'پاکستانی وقت') : 'PKT'}</span>
                 </p>
               </motion.div>
             )}
@@ -2815,10 +2815,6 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
     gettingMarried: 'ہم شادی کر رہے ہیں',
     requestHonour: 'آپ کی موجودگی کی عزت کی درخواست ہے',
     scratchReveal: 'دعوت نامہ دیکھنے کے لیے',
-    scratchHere: 'ظاہر کرنے کے لیے کھرچیں',
-    youreInvited: 'آپ مدعو ہیں!',
-    sunday: 'اتوار',
-    pkt: 'پاکستانی وقت',
     ourMoments: 'ہماری یادگاریں',
     countingDown: 'ہمیشہ کی طرف گنتی',
     days: 'دن',
@@ -2855,6 +2851,17 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
     at: 'پر',
     joinUs: 'میں شامل ہوں',
     celebration: 'تقریب',
+    partner1: 'احمد',
+    partner2: 'فاطمہ',
+    venueName: 'دی گرانڈ پرل ہال',
+    venueAddress: 'مین بلیوارڈ، گلبرگ، لاہور',
+    scratchHere: '✦  یہاں کھرچیں  ✦',
+    toReveal: 'دعوت نامہ دیکھنے کے لیے',
+    youreInvited: 'آپ مدعو ہیں!',
+    march15: '15 مارچ 2027',
+    sunday: 'اتوار',
+    time7pm: 'شام 7 بجے',
+    pkt: 'پاکستانی وقت',
   }
 
   // Translation function - uses static dictionary first, then AI for dynamic content
@@ -2863,11 +2870,69 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
 
     // Immediately set static translations (instant)
     setTranslations(URDU_DICT)
+    setIsTranslating(true)
 
-    // For any dynamic content that needs AI translation, add it here
-    // For now, static dictionary covers all known strings
-    setIsTranslating(false)
-  }, [language, translations])
+    try {
+      // Build texts object for AI translation with ALL dynamic content
+      const dynamicTexts: Record<string, string> = {
+        partner1,
+        partner2,
+        venueName,
+        venueAddress,
+        scratchHere: '✦  Scratch Here  ✦',
+        toReveal: 'to reveal your invitation',
+        youreInvited: "You're Invited!",
+        march15: 'March 15, 2027',
+        sunday: 'Sunday',
+        time7pm: '7:00 PM',
+        pkt: 'PKT',
+        scratchReveal: 'Scratch to Reveal',
+      }
+
+      // Add each event
+      events.forEach((event, idx) => {
+        dynamicTexts[`event${idx}_name`] = event.name
+        dynamicTexts[`event${idx}_date`] = event.date
+        dynamicTexts[`event${idx}_time`] = event.time
+        dynamicTexts[`event${idx}_desc`] = event.description
+      })
+
+      const response = await fetch('/api/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ texts: dynamicTexts }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        if (data.translations) {
+          // Static URDU_DICT takes priority over AI translations for known keys
+          // (our hand-crafted translations are higher quality for common strings)
+          setTranslations(prev => {
+            const aiOnly: Record<string, string> = {}
+            for (const [key, value] of Object.entries(data.translations as Record<string, string>)) {
+              // Only use AI translation if we don't have a static one
+              if (!prev[key] || prev[key] === key) {
+                aiOnly[key] = value
+              }
+            }
+            return { ...aiOnly, ...prev }
+          })
+        }
+      }
+    } catch (error) {
+      console.error('AI translation failed:', error)
+      // Static translations are already set, so the page still works
+    } finally {
+      setIsTranslating(false)
+    }
+  }, [language, translations, partner1, partner2, venueName, venueAddress, events])
+
+  // Update html element lang/dir attributes when language changes
+  useEffect(() => {
+    document.documentElement.lang = language === 'ur' ? 'ur' : 'en'
+    document.documentElement.dir = language === 'ur' ? 'rtl' : 'ltr'
+  }, [language])
 
   // Trigger translation when language switches to Urdu
   useEffect(() => {
@@ -2898,6 +2963,23 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
 
   // Get translated welcome message
   const translatedWelcomeMsg = language === 'ur' && translations.welcomeMsg ? translations.welcomeMsg : welcomeMsg
+
+  // Translated dynamic content
+  const translatedPartner1 = language === 'ur' && translations.partner1 ? translations.partner1 : partner1
+  const translatedPartner2 = language === 'ur' && translations.partner2 ? translations.partner2 : partner2
+  const translatedVenueName = language === 'ur' && translations.venueName ? translations.venueName : venueName
+  const translatedVenueAddress = language === 'ur' && translations.venueAddress ? translations.venueAddress : venueAddress
+
+  // Get translated event info
+  const getTranslatedEvent = useCallback((event: { name: string; date: string; time: string; description: string }, index: number) => {
+    if (language === 'en') return event
+    return {
+      name: translations[`event${index}_name`] || event.name,
+      date: translations[`event${index}_date`] || event.date,
+      time: translations[`event${index}_time`] || event.time,
+      description: translations[`event${index}_desc`] || getEventDescription(event.name, event.description),
+    }
+  }, [language, translations, getEventDescription])
 
   return (
     <div className="relative min-h-screen overflow-x-hidden" dir={language === 'ur' ? 'rtl' : 'ltr'} style={{ backgroundColor: theme.bgPrimary, color: theme.textPrimary }}>
@@ -2980,7 +3062,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
               className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-[0.08em] mb-2"
               style={{ color: theme.textPrimary }}
             >
-              {partner1}
+              {translatedPartner1}
             </motion.h1>
 
             <motion.div
@@ -3001,7 +3083,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
               className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-[0.08em] mb-8"
               style={{ color: theme.textPrimary }}
             >
-              {partner2}
+              {translatedPartner2}
             </motion.h1>
 
             <motion.div
@@ -3056,7 +3138,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
         {/* ─── Scratch to Reveal ─── */}
         <RevealSection>
           <section className="py-16 md:py-20 px-6">
-            <ScratchCard revealed={scratchRevealed} onReveal={handleScratchReveal} theme={theme} />
+            <ScratchCard revealed={scratchRevealed} onReveal={handleScratchReveal} theme={theme} language={language} translations={translations} />
           </section>
         </RevealSection>
 
@@ -3092,7 +3174,9 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
               <div className="relative w-full">
                 <div className="absolute left-5 top-0 bottom-0 w-px" style={{ background: `linear-gradient(to bottom, rgba(${theme.accentRgb},0.4), rgba(${theme.accentRgb},0.2), rgba(${theme.accentRgb},0.4))` }} />
                 <div className="flex flex-col gap-8">
-                  {events.map((event, idx) => (
+                  {events.map((event, idx) => {
+                    const te = getTranslatedEvent(event, idx)
+                    return (
                     <RevealSection key={event.name} delay={idx * 0.12}>
                       <div className="flex gap-5 items-start">
                         <div className="relative z-10 flex-shrink-0">
@@ -3101,16 +3185,17 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                         <div className="flex-1 pb-2">
                           <div className="flex items-center gap-2 mb-1">
                             <Calendar className="w-3.5 h-3.5" style={{ color: `rgba(${theme.accentRgb},0.5)` }} />
-                            <span className="text-xs" style={{ color: `rgba(${theme.accentRgb},0.5)` }}>{event.date}</span>
+                            <span className="text-xs" style={{ color: `rgba(${theme.accentRgb},0.5)` }}>{te.date}</span>
                             <Clock className="w-3.5 h-3.5 ml-2" style={{ color: `rgba(${theme.accentRgb},0.5)` }} />
-                            <span className="text-xs" style={{ color: `rgba(${theme.accentRgb},0.5)` }}>{event.time}</span>
+                            <span className="text-xs" style={{ color: `rgba(${theme.accentRgb},0.5)` }}>{te.time}</span>
                           </div>
-                          <h3 className="font-display text-xl font-semibold mb-1" style={{ color: theme.accent }}>{event.name}</h3>
-                          <p className="text-sm leading-relaxed" style={{ color: `rgba(${theme.accentRgb},0.5)` }}>{getEventDescription(event.name, event.description)}</p>
+                          <h3 className="font-display text-xl font-semibold mb-1" style={{ color: theme.accent }}>{te.name}</h3>
+                          <p className="text-sm leading-relaxed" style={{ color: `rgba(${theme.accentRgb},0.5)` }}>{te.description}</p>
                         </div>
                       </div>
                     </RevealSection>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
             </div>
@@ -3140,8 +3225,8 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
               </svg>
 
               <div className="text-center space-y-2">
-                <h3 className="font-display text-2xl" style={{ color: theme.accent }}>{venueName}</h3>
-                <p className="text-sm" style={{ color: `rgba(${theme.accentRgb},0.6)` }}>{venueAddress}</p>
+                <h3 className="font-display text-2xl" style={{ color: theme.accent }}>{translatedVenueName}</h3>
+                <p className="text-sm" style={{ color: `rgba(${theme.accentRgb},0.6)` }}>{translatedVenueAddress}</p>
               </div>
 
               <Button

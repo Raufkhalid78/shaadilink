@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
 
     // Build a structured prompt for translation
     const textEntries = Object.entries(texts as Record<string, string>)
-    const numberedTexts = textEntries.map(([key, value], i) => `${i + 1}. [${key}]: ${value}`).join('\n')
+    const numberedTexts = textEntries.map(([key, value], i) => `${i + 1}. ${key}: ${value}`).join('\n')
 
     const completion = await zai.chat.completions.create({
       messages: [
@@ -42,7 +42,12 @@ Example output: {"greeting": "آپ مدعو ہیں", "venue": "دی گرانڈ �
       // Try to extract JSON from the response (in case it has markdown wrapping)
       const jsonMatch = responseText.match(/\{[\s\S]*\}/)
       if (jsonMatch) {
-        translations = JSON.parse(jsonMatch[0])
+        const parsed = JSON.parse(jsonMatch[0])
+        // Sanitize keys: strip surrounding brackets that AI may add (e.g. "[event0_name]" → "event0_name")
+        for (const [key, value] of Object.entries(parsed)) {
+          const cleanKey = key.replace(/^\[(.+)\]$/, '$1')
+          translations[cleanKey] = value as string
+        }
       }
     } catch (e) {
       console.error('Failed to parse translation response:', e)
