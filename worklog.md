@@ -48,3 +48,28 @@ Stage Summary:
 - Scratch card text in Urdu ✅
 - All sections (countdown, RSVP, wishes, venue, timeline) properly translated ✅
 - Static dictionary takes priority over AI for better quality control ✅
+
+---
+Task ID: 4
+Agent: main
+Task: Implement AI Urdu translation for wishes/blessings section content
+
+Work Log:
+- Analyzed the invitation-viewer.tsx code structure to understand the wishes system
+- Identified that wish messages (names and message content) were NOT being AI-translated - only static section heading was translated
+- Modified wishes state type to include optional `translatedName` and `translatedMessage` fields
+- Added wish messages to the AI translation request in `translateToUrdu` function
+- Added code to update wishes with AI-translated names and messages after translation completes
+- Updated the wishes rendering to use `translatedName`/`translatedMessage` when in Urdu mode
+- Updated `handleSendWish` to AI-translate new wishes when submitted in Urdu mode
+- Added `wishesRef` to avoid circular dependency (wishes in useCallback dep array causing re-render loops)
+- Tested in browser: verified all 3 default wishes are AI-translated (Ayesha Khan → عائشہ خان, Omar Farooq → عمر فاروق, messages fully translated)
+- Verified switching back to English shows original content correctly
+- Lint passes clean
+
+Stage Summary:
+- Wish names are now AI-translated (e.g., "Ayesha Khan" → "عائشہ خان") ✅
+- Wish messages are now AI-translated (e.g., "May Allah bless your union..." → "اللہ تعالیٰ آپ کے اتحاد کو لامحدود محبت اور خوشی سے مبارک ہو!") ✅
+- New wishes submitted in Urdu mode are also AI-translated on-the-fly ✅
+- Section heading "Blessings & Wishes" → "دعائیں اور آرزوئیں" ✅ (static, high-quality)
+- All other content already translated: partner names, events, dates, venue, scratch card ✅

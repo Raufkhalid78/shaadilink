@@ -2761,11 +2761,16 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
   const [showConfetti, setShowConfetti] = useState(false)
   const [rsvpHearts, setRsvpHearts] = useState<number[]>([])
   const [heroVisible, setHeroVisible] = useState(false)
-  const [wishes, setWishes] = useState([
+  const [wishes, setWishes] = useState<
+    Array<{ name: string; message: string; translatedName?: string; translatedMessage?: string }>
+  >([
     { name: 'Ayesha Khan', message: 'May Allah bless your union with endless love and happiness! 🤲' },
     { name: 'Omar Farooq', message: 'Wishing you a lifetime of joy and togetherness! 💒' },
     { name: 'Zainab Malik', message: 'MashaAllah! May your journey be filled with blessings! ✨' },
   ])
+  // Keep a ref to the current wishes so the translation callback can read them without re-creating
+  const wishesRef = useRef(wishes)
+  wishesRef.current = wishes
 
   const handleDoorOpen = useCallback(() => {
     if (doorsOpened) return
@@ -2791,14 +2796,34 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
     }
   }, [rsvpName])
 
-  const handleSendWish = useCallback(() => {
+  const handleSendWish = useCallback(async () => {
     if (!wishName.trim()) { toast.error('Please enter your name'); return }
     if (!wishMessage.trim()) { toast.error('Please write a blessing or wish'); return }
-    setWishes((prev) => [{ name: wishName.trim(), message: wishMessage.trim() }, ...prev])
+    const newWish = { name: wishName.trim(), message: wishMessage.trim() }
     setWishName('')
     setWishMessage('')
-    toast.success('Your blessing has been sent! 💝')
-  }, [wishName, wishMessage])
+    toast.success(language === 'ur' ? 'آپ کی دعا بھیج دی گئی! 💝' : 'Your blessing has been sent! 💝')
+
+    // If in Urdu mode, translate the new wish via AI before adding
+    if (language === 'ur') {
+      try {
+        const response = await fetch('/api/translate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ texts: { wishName: newWish.name, wishMessage: newWish.message } }),
+        })
+        if (response.ok) {
+          const data = await response.json()
+          const t = data.translations as Record<string, string>
+          setWishes((prev) => [{ ...newWish, translatedName: t.wishName || newWish.name, translatedMessage: t.wishMessage || newWish.message }, ...prev])
+          return
+        }
+      } catch {
+        // Fallback: add without translation
+      }
+    }
+    setWishes((prev) => [newWish, ...prev])
+  }, [wishName, wishMessage, language])
 
   const handleScratchReveal = useCallback(() => {
     setScratchRevealed(true)
@@ -2897,6 +2922,12 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
         dynamicTexts[`event${idx}_desc`] = event.description
       })
 
+      // Add each wish message for AI translation
+      wishesRef.current.forEach((wish, idx) => {
+        dynamicTexts[`wish${idx}_name`] = wish.name
+        dynamicTexts[`wish${idx}_message`] = wish.message
+      })
+
       const response = await fetch('/api/translate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -2918,6 +2949,14 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
             }
             return { ...aiOnly, ...prev }
           })
+
+          // Update wishes with AI-translated names and messages
+          const aiTranslations = data.translations as Record<string, string>
+          setWishes(prev => prev.map((wish, idx) => ({
+            ...wish,
+            translatedName: aiTranslations[`wish${idx}_name`] || wish.name,
+            translatedMessage: aiTranslations[`wish${idx}_message`] || wish.message,
+          })))
         }
       }
     } catch (error) {
@@ -2926,7 +2965,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
     } finally {
       setIsTranslating(false)
     }
-  }, [language, translations, partner1, partner2, venueName, venueAddress, events])
+  }, [language, partner1, partner2, venueName, venueAddress, events])
 
   // Update html element lang/dir attributes when language changes
   useEffect(() => {
@@ -3359,7 +3398,10 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
               <HeartDivider accentColor={theme.accent} />
 
               <div className="w-full space-y-3 max-h-72 overflow-y-auto pr-2 custom-scrollbar">
-                {wishes.map((wish, idx) => (
+                {wishes.map((wish, idx) => {
+                  const displayName = language === 'ur' && wish.translatedName ? wish.translatedName : wish.name
+                  const displayMessage = language === 'ur' && wish.translatedMessage ? wish.translatedMessage : wish.message
+                  return (
                   <motion.div
                     key={`${wish.name}-${idx}`}
                     initial={{ opacity: 0, y: 10 }}
@@ -3370,15 +3412,15 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                   >
                     <div className="flex items-start gap-3">
                       <div className="w-8 h-8 rounded-full border flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: `linear-gradient(to bottom right, rgba(${theme.accentRgb},0.3), rgba(${theme.accentRgb},0.1))`, borderColor: theme.borderSubtle }}>
-                        <span className="text-xs font-bold" style={{ color: theme.accent }}>{wish.name.charAt(0).toUpperCase()}</span>
+                        <span className="text-xs font-bold" style={{ color: theme.accent }}>{displayName.charAt(0).toUpperCase()}</span>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-display mb-1" style={{ color: `rgba(${theme.accentRgb},0.7)` }}>{wish.name}</p>
-                        <p className="text-sm leading-relaxed" style={{ color: `rgba(${theme.accentRgb},0.8)` }}>{wish.message}</p>
+                        <p className="text-xs font-display mb-1" style={{ color: `rgba(${theme.accentRgb},0.7)` }}>{displayName}</p>
+                        <p className="text-sm leading-relaxed" style={{ color: `rgba(${theme.accentRgb},0.8)` }}>{displayMessage}</p>
                       </div>
                     </div>
                   </motion.div>
-                ))}
+                )})}
               </div>
 
               <div className="w-full space-y-3">
