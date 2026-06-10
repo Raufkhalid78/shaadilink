@@ -13,13 +13,13 @@ const quickLinks = [
   { label: "How It Works", href: "#how-it-works", action: undefined },
   { label: "Templates", href: undefined, action: "templates" },
   { label: "Pricing", href: "#pricing", action: undefined },
-  { label: "About", href: undefined, action: "about" },
+  { label: "About", href: "/about", action: undefined },
 ];
 
 const legalLinks = [
-  { label: "Terms & Conditions", action: "terms" as const },
-  { label: "Privacy Policy", action: "privacy" as const },
-  { label: "Refund Policy", action: "refund" as const },
+  { label: "Terms & Conditions", href: "/terms" },
+  { label: "Privacy Policy", href: "/privacy" },
+  { label: "Refund Policy", href: "/refund" },
 ];
 
 const socialLinks = [
@@ -190,22 +190,22 @@ export function Footer({
               <ul className="space-y-3">
                 {legalLinks.map((link) => (
                   <li key={link.label}>
-                    <button
-                      onClick={() => onLegalClick?.(link.action)}
-                      className="text-sm text-white/50 hover:text-gold transition-colors duration-200 text-left"
+                    <a
+                      href={link.href}
+                      className="text-sm text-white/50 hover:text-gold transition-colors duration-200 text-left block"
                     >
                       {link.label}
-                    </button>
+                    </a>
                   </li>
                 ))}
                 <li>
-                  <button
-                    onClick={onAffiliateClick}
+                  <a
+                    href="/affiliate"
                     className="text-sm text-gold/60 hover:text-gold transition-colors duration-200 flex items-center gap-1.5 font-medium"
                   >
                     <Sparkles className="w-3 h-3" />
                     Affiliate Program
-                  </button>
+                  </a>
                 </li>
               </ul>
             </motion.div>
@@ -242,13 +242,13 @@ export function Footer({
               </form>
 
               <div className="mt-6 space-y-2.5">
-                <button
-                  onClick={onContactClick}
+                <a
+                  href="/contact"
                   className="text-sm text-white/50 hover:text-gold transition-colors flex items-center gap-2"
                 >
                   <Mail className="w-3.5 h-3.5 shrink-0" />
                   Contact Us
-                </button>
+                </a>
                 <a
                   href={`mailto:${CONTACT_CONFIG.email}`}
                   className="text-sm text-white/50 hover:text-gold transition-colors flex items-center gap-2"

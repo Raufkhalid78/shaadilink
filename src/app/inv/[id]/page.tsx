@@ -25,6 +25,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${names} — Wedding Invitation | ShaadiLink`,
     description: `You are invited to the wedding of ${names} at ${data.venue}. View the beautiful digital invitation on ShaadiLink.`,
+    robots: {
+      index: false,
+      follow: false,
+    },
     openGraph: {
       title: `${names} — Wedding Invitation`,
       description: `You are invited to the wedding celebration of ${names}.`,

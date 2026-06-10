@@ -85,11 +85,87 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const schemaJson = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://shaadilink.com.pk/#software",
+        "name": "ShaadiLink",
+        "url": "https://shaadilink.com.pk",
+        "applicationCategory": "DesignApplication",
+        "operatingSystem": "All",
+        "offers": {
+          "@type": "AggregateOffer",
+          "priceCurrency": "PKR",
+          "lowPrice": "2499",
+          "highPrice": "3999",
+          "offerCount": "2",
+          "offers": [
+            {
+              "@type": "Offer",
+              "name": "Classic Plan",
+              "price": "2499",
+              "priceCurrency": "PKR"
+            },
+            {
+              "@type": "Offer",
+              "name": "Royal Plan",
+              "price": "3999",
+              "priceCurrency": "PKR"
+            }
+          ]
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.9",
+          "ratingCount": "142",
+          "bestRating": "5",
+          "worstRating": "1"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://shaadilink.com.pk/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is ShaadiLink?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "ShaadiLink is Pakistan's premium digital wedding invitation platform, allowing you to create beautiful online cards with 3D animations, realistic door reveals, scratch-to-reveal dates, music, photo galleries, and guest RSVPs."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How much does a digital wedding card cost in Pakistan?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "ShaadiLink offers two plans: the Classic Plan for Rs. 2,499 (featuring 8 elegant templates and core features) and the Royal Plan for Rs. 3,999 (unlocking 18 premium templates, 3D door reveals, scratch cards, travel details, and digital shagun)."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I edit the invitation card after publishing?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, both plans allow you to make unlimited edits to event dates, timings, venues, and photos right up until your wedding day from your ShaadiLink dashboard."
+            }
+          }
+        ]
+      }
+    ]
+  };
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${playfair.variable} ${amiri.variable} ${inter.variable} ${cinzelDec.variable} ${pinyon.variable} antialiased bg-background text-foreground`}
       >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaJson) }}
+        />
         {children}
         <Toaster
           theme="dark"

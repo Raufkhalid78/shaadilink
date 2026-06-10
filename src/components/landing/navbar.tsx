@@ -52,8 +52,8 @@ export function Navbar({ onTemplatesClick, onGetStarted, onLoginClick, onAboutCl
     { label: "Features", href: "#features", action: undefined, sectionId: "features" },
     { label: "How It Works", href: "#how-it-works", action: undefined, sectionId: "how-it-works" },
     { label: "Templates", href: undefined, action: onTemplatesClick, sectionId: undefined },
-    { label: "About", href: undefined, action: onAboutClick, sectionId: undefined },
-    { label: "Contact", href: undefined, action: onContactClick, sectionId: undefined },
+    { label: "About", href: "/about", action: undefined, sectionId: undefined },
+    { label: "Contact", href: "/contact", action: undefined, sectionId: undefined },
     { label: "Pricing", href: "#pricing", action: undefined, sectionId: "pricing" },
   ];
 

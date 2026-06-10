@@ -1,17 +1,28 @@
 User-agent: Googlebot
 Allow: /
+Disallow: /inv/
+Disallow: /api/
 
 User-agent: Bingbot
 Allow: /
+Disallow: /inv/
+Disallow: /api/
 
 User-agent: Twitterbot
 Allow: /
+Disallow: /inv/
+Disallow: /api/
 
 User-agent: facebookexternalhit
 Allow: /
+Disallow: /inv/
+Disallow: /api/
 
 User-agent: *
 Allow: /
+Disallow: /inv/
+Disallow: /api/
 
 Sitemap: https://shaadilink.com.pk/sitemap.xml
+
 
