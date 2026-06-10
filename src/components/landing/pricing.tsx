@@ -163,17 +163,20 @@ export function Pricing({ onSelectPlan }: PricingProps) {
                 }}
               >
                 {/* Animated top gradient bar */}
-                <div
-                  className={`h-1 w-full ${
-                    plan.highlighted
-                      ? "bg-gradient-to-r from-gold/60 via-gold-light to-gold/60"
-                      : "bg-gradient-to-r from-emerald/40 via-emerald to-emerald/40"
-                  }`}
-                  style={{
-                    backgroundSize: "200% 100%",
-                    animation: plan.highlighted ? "shimmer 3s ease-in-out infinite" : undefined,
-                  }}
-                />
+                <div className="h-1 w-full overflow-hidden relative">
+                  <div
+                    className={`absolute inset-0 ${
+                      plan.highlighted
+                        ? "bg-gradient-to-r from-gold/60 via-gold-light to-gold/60"
+                        : "bg-gradient-to-r from-emerald/40 via-emerald to-emerald/40"
+                    }`}
+                  />
+                  {plan.highlighted && (
+                    <div
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-[blockShimmerComposited_2.5s_infinite]"
+                    />
+                  )}
+                </div>
 
                 {/* Glow orb behind the royal card */}
                 {plan.highlighted && (

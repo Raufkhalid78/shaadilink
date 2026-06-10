@@ -120,19 +120,19 @@ function FormMockup() {
                   {field.label}
                 </label>
                 <div
-                  className={`flex items-center gap-2 rounded-lg px-3 py-2.5 border transition-all duration-300 ${
+                  className={`flex items-center gap-2 rounded-lg px-3 py-2.5 border ${
                     isActive
                       ? "bg-emerald/5 border-gold/30 shadow-sm shadow-gold/10"
                       : "bg-gray-50/50 border-gray-100"
                   }`}
                 >
                   <Icon
-                    className={`w-3.5 h-3.5 shrink-0 transition-colors duration-300 ${
+                    className={`w-3.5 h-3.5 shrink-0 ${
                       isActive ? "text-gold" : "text-emerald/60"
                     }`}
                   />
                   <span
-                    className={`text-sm truncate transition-colors duration-300 ${
+                    className={`text-sm truncate ${
                       isActive ? "text-foreground" : "text-gray-700"
                     }`}
                   >
@@ -225,13 +225,11 @@ function InvitationPreview() {
       {/* Card */}
       <div className="relative bg-gradient-to-br from-[#1a1a1a] via-[#2a1f1f] to-[#1a1a1a] rounded-2xl shadow-2xl overflow-hidden border border-gold/20">
         {/* Animated shimmer border */}
-        <div className="absolute inset-0 rounded-2xl">
+        <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
           <div
-            className="absolute inset-0 rounded-2xl opacity-30"
+            className="absolute inset-0 opacity-20 -translate-x-full animate-[blockShimmerComposited_3.5s_infinite]"
             style={{
-              background: "linear-gradient(90deg, transparent 0%, rgba(180,145,77,0.3) 50%, transparent 100%)",
-              backgroundSize: "200% 100%",
-              animation: "shimmer 3s ease-in-out infinite",
+              background: "linear-gradient(90deg, transparent, rgba(180,145,77,0.4), transparent)",
             }}
           />
         </div>

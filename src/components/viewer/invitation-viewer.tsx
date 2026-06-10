@@ -907,7 +907,7 @@ function GoldDustSplash({ show, colors: propColors }: { show: boolean; colors?: 
     window.addEventListener('resize', resize)
 
     // Spawn initial burst of particles along the center seam
-    const count = 150
+    const count = 60
     const w = window.innerWidth
     const h = window.innerHeight
     const particles: GDParticle[] = []
@@ -938,7 +938,7 @@ function GoldDustSplash({ show, colors: propColors }: { show: boolean; colors?: 
       const current = particlesRef.current
 
       // Spawn a few more tailing particles for a continuous flow
-      if (current.length < 250 && Math.random() < 0.6) {
+      if (current.length < 80 && Math.random() < 0.6) {
         const isLeft = Math.random() < 0.5
         current.push({
           x: window.innerWidth / 2,
@@ -979,17 +979,16 @@ function GoldDustSplash({ show, colors: propColors }: { show: boolean; colors?: 
         ctx.globalAlpha = alpha
         ctx.fillStyle = p.color
 
-        ctx.save()
-        ctx.translate(p.x, p.y)
-        ctx.rotate(p.rotation)
         const r = p.size * (0.4 + alpha * 0.6)
         
         ctx.beginPath()
-        for (let j = 0; j < 4; j++) {
-          ctx.rotate(Math.PI / 4)
-          ctx.fillRect(-r * 0.15, -r, r * 0.3, r * 2)
-        }
-        ctx.restore()
+        ctx.moveTo(p.x, p.y - r)
+        ctx.quadraticCurveTo(p.x, p.y, p.x + r, p.y)
+        ctx.quadraticCurveTo(p.x, p.y, p.x, p.y + r)
+        ctx.quadraticCurveTo(p.x, p.y, p.x - r, p.y)
+        ctx.quadraticCurveTo(p.x, p.y, p.x, p.y - r)
+        ctx.closePath()
+        ctx.fill()
 
         if (p.size > 2.5) {
           ctx.beginPath()
@@ -3271,7 +3270,7 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
       {/* Left Panel */}
       <div
         className={`absolute top-0 left-0 w-1/2 h-full ${anim.left} ${!doorsOpened ? idleClass : ''}`}
-        style={{ transformOrigin: 'left center', transformStyle: 'preserve-3d' }}
+        style={{ transformOrigin: 'left center', transformStyle: 'preserve-3d', willChange: 'transform' }}
       >
         {/* Front face of door */}
         <div className="relative w-full h-full border-r overflow-hidden"
@@ -3311,7 +3310,7 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
       {/* Right Panel */}
       <div
         className={`absolute top-0 right-0 w-1/2 h-full ${anim.right} ${!doorsOpened ? idleClass : ''}`}
-        style={{ transformOrigin: 'right center', transformStyle: 'preserve-3d' }}
+        style={{ transformOrigin: 'right center', transformStyle: 'preserve-3d', willChange: 'transform' }}
       >
         {/* Front face of door */}
         <div className="relative w-full h-full border-l overflow-hidden"
@@ -3412,46 +3411,52 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
   const [musicPlaying, setMusicPlaying] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
-  // Manage audio playback
+  // Preload and warm up audio track
   useEffect(() => {
     if (typeof window === 'undefined') return
 
-    // If no music is selected or "no-music" is active, or doors are not opened yet
     const musicTrack = flowData?.backgroundMusic
-    if (!musicTrack || musicTrack === 'no-music' || !doorsOpened) {
+    if (!musicTrack || musicTrack === 'no-music') {
       if (audioRef.current) {
         audioRef.current.pause()
+        audioRef.current = null
       }
       return
     }
 
-    // Initialize audio if not already done or if the track changed
     const trackSrc = `/music/${musicTrack}.mp3`
-    if (!audioRef.current || audioRef.current.src !== window.location.origin + trackSrc) {
+    const absoluteSrc = window.location.origin + trackSrc
+    if (!audioRef.current || audioRef.current.src !== absoluteSrc) {
       if (audioRef.current) {
         audioRef.current.pause()
       }
-      audioRef.current = new Audio(trackSrc)
-      audioRef.current.loop = true
+      const audio = new Audio(trackSrc)
+      audio.loop = true
+      audio.preload = 'auto'
+      audioRef.current = audio
     }
 
-    if (musicPlaying) {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current = null
+      }
+    }
+  }, [flowData?.backgroundMusic])
+
+  // Play/pause control
+  useEffect(() => {
+    if (!audioRef.current) return
+
+    if (doorsOpened && musicPlaying) {
       audioRef.current.play().catch(err => {
         console.warn('Audio play failed (waiting for user interaction):', err)
-        // If autoplay/play fails, toggle playing off
         setMusicPlaying(false)
       })
     } else {
       audioRef.current.pause()
     }
-
-    return () => {
-      // Clean up audio on unmount
-      if (audioRef.current) {
-        audioRef.current.pause()
-      }
-    }
-  }, [musicPlaying, flowData?.backgroundMusic, doorsOpened])
+  }, [doorsOpened, musicPlaying])
 
   const [language, setLanguage] = useState<'en' | 'ur'>('en')
   const [translations, setTranslations] = useState<Record<string, string>>({})
@@ -3484,7 +3489,14 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
   const handleDoorOpen = useCallback(() => {
     if (doorsOpened) return
     setDoorsOpened(true)
-    setShowFireworks(true)
+    
+    // Delay fireworks until the doors are almost open (1.5s delay)
+    // This frees up main thread/GPU cycles for the door swing animation.
+    setTimeout(() => {
+      setShowFireworks(true)
+    }, 1500)
+    setTimeout(() => setShowFireworks(false), 6500)
+
     if (theme.id.includes('royal')) {
       setShowGoldDust(true)
       setTimeout(() => setShowGoldDust(false), 4500)
@@ -3492,7 +3504,6 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
     if (flowData?.backgroundMusic && flowData.backgroundMusic !== 'no-music') {
       setMusicPlaying(true)
     }
-    setTimeout(() => setShowFireworks(false), 5000)
     setTimeout(() => setDoorOverlayVisible(false), 2200)
     setTimeout(() => setHeroVisible(true), 1800)
   }, [doorsOpened, theme.id, flowData?.backgroundMusic])

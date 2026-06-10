@@ -225,8 +225,14 @@ function TemplateCard({
           </Button>
         </div>
 
-        <button onClick={(e) => { e.stopPropagation(); setLiked(!liked); }} className="absolute top-3 right-3 z-30 w-8 h-8 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center hover:bg-black/50 transition-colors">
-          <Heart className={`w-4 h-4 transition-colors ${liked ? "text-red-400 fill-red-400" : "text-white/60"}`} />
+        <button
+          onClick={(e) => { e.stopPropagation(); setLiked(!liked); }}
+          className="absolute top-1 right-1 z-30 w-12 h-12 flex items-center justify-center focus:outline-none"
+          aria-label="Add template to favorites"
+        >
+          <div className={`w-8 h-8 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center hover:bg-black/50 transition-colors`}>
+            <Heart className={`w-4 h-4 transition-colors ${liked ? "text-red-400 fill-red-400" : "text-white/60"}`} />
+          </div>
         </button>
 
         {isRoyal && (

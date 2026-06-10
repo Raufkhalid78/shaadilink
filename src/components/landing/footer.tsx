@@ -151,9 +151,9 @@ export function Footer({
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
             >
-              <h4 className="font-display font-semibold text-xs uppercase tracking-[0.15em] text-gold mb-5">
+              <h3 className="font-display font-semibold text-xs uppercase tracking-[0.15em] text-gold mb-5">
                 Quick Links
-              </h4>
+              </h3>
               <ul className="space-y-3">
                 {quickLinks.map((link) => (
                   <li key={link.label}>
@@ -184,9 +184,9 @@ export function Footer({
               viewport={{ once: true }}
               transition={{ delay: 0.15 }}
             >
-              <h4 className="font-display font-semibold text-xs uppercase tracking-[0.15em] text-gold mb-5">
+              <h3 className="font-display font-semibold text-xs uppercase tracking-[0.15em] text-gold mb-5">
                 Legal
-              </h4>
+              </h3>
               <ul className="space-y-3">
                 {legalLinks.map((link) => (
                   <li key={link.label}>
@@ -217,9 +217,9 @@ export function Footer({
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
             >
-              <h4 className="font-display font-semibold text-xs uppercase tracking-[0.15em] text-gold mb-5">
+              <h3 className="font-display font-semibold text-xs uppercase tracking-[0.15em] text-gold mb-5">
                 Stay Updated
-              </h4>
+              </h3>
               <p className="text-white/40 text-xs mb-3 leading-relaxed">
                 Get notified about new templates and exclusive offers.
               </p>
