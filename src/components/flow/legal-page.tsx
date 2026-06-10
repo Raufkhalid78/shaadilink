@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { ArrowLeft, Heart, FileText, Shield, RotateCcw, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CONTACT_CONFIG } from "@/lib/config";
 
 type LegalType = "terms" | "privacy" | "refund" | "shipping";
 
@@ -105,7 +106,7 @@ const legalData: Record<
       {
         heading: "7. Your Rights",
         content:
-          "You have the right to access, correct, or delete your personal data at any time. Contact us at hello@shaadilink.pk for any data-related requests.",
+          `You have the right to access, correct, or delete your personal data at any time. Contact us at ${CONTACT_CONFIG.email} for any data-related requests.`,
       },
     ],
   },
@@ -122,7 +123,7 @@ const legalData: Record<
       {
         heading: "2. Duplicate Payments",
         content:
-          "If a duplicate payment occurs due to a technical error, we will review the transaction and process a refund after deducting applicable processing charges. Please contact us at hello@shaadilink.pk with your transaction details.",
+          `If a duplicate payment occurs due to a technical error, we will review the transaction and process a refund after deducting applicable processing charges. Please contact us at ${CONTACT_CONFIG.email} with your transaction details.`,
       },
       {
         heading: "3. Erroneous Payments",
@@ -258,10 +259,10 @@ export function LegalPage({ type, onBack }: LegalPageProps) {
               Have questions about our policies?{" "}
               <span className="text-gold font-medium">Contact us</span> at{" "}
               <a
-                href="mailto:hello@shaadilink.pk"
+                href={`mailto:${CONTACT_CONFIG.email}`}
                 className="text-gold hover:text-gold-light underline"
               >
-                hello@shaadilink.pk
+                {CONTACT_CONFIG.email}
               </a>
             </p>
           </div>

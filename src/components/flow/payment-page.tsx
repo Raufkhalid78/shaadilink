@@ -3,18 +3,12 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import {
-  ArrowLeft,
-  ArrowRight,
-  Check,
-  CreditCard,
-  Shield,
-  Lock,
-  Crown,
-  Sparkles,
+  ArrowLeft, ArrowRight, Check, CreditCard, Shield, Lock, Crown, Sparkles, Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 import type { FlowData } from "@/lib/flow-types";
 import { planDetails } from "@/lib/flow-types";
 
@@ -25,13 +19,23 @@ interface PaymentPageProps {
   onContinue: () => void;
 }
 
-export function PaymentPage({
-  flowData,
-  onUpdateData,
-  onBack,
-  onContinue,
-}: PaymentPageProps) {
+function formatCardNumber(value: string) {
+  return value.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim();
+}
+function formatExpiry(value: string) {
+  const digits = value.replace(/\D/g, "").slice(0, 4);
+  if (digits.length >= 3) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+  return digits;
+}
+
+export function PaymentPage({ flowData, onUpdateData, onBack, onContinue }: PaymentPageProps) {
   const [processing, setProcessing] = useState(false);
+  const [cardNumber, setCardNumber] = useState("");
+  const [expiry, setExpiry] = useState("");
+  const [cvc, setCvc] = useState("");
+  const [cardName, setCardName] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
   const plan = planDetails[flowData.selectedPlan || "classic"];
   const templateName =
     flowData.selectedTemplateId
@@ -39,14 +43,65 @@ export function PaymentPage({
       .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
       .join(" ") || "Template";
 
-  const handlePayment = () => {
+  const validate = () => {
+    const newErrors: Record<string, string> = {};
+    const rawCard = cardNumber.replace(/\s/g, "");
+    if (!rawCard) newErrors.cardNumber = "Card number is required";
+    else if (rawCard.length < 16) newErrors.cardNumber = "Enter a valid 16-digit card number";
+
+    if (!expiry) newErrors.expiry = "Expiry date is required";
+    else if (!/^\d{2}\/\d{2}$/.test(expiry)) newErrors.expiry = "Enter expiry as MM/YY";
+    else {
+      const [mm, yy] = expiry.split("/").map(Number);
+      if (mm < 1 || mm > 12) newErrors.expiry = "Invalid month";
+      else {
+        const now = new Date();
+        const exp = new Date(2000 + yy, mm - 1);
+        if (exp < now) newErrors.expiry = "Card has expired";
+      }
+    }
+
+    if (!cvc) newErrors.cvc = "CVC is required";
+    else if (cvc.length < 3) newErrors.cvc = "CVC must be 3–4 digits";
+
+    if (!cardName.trim()) newErrors.cardName = "Cardholder name is required";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handlePayment = async () => {
+    if (!validate()) return;
     setProcessing(true);
-    // Simulate payment processing
-    setTimeout(() => {
+
+    try {
+      // Simulated payment processing (2s) — replace with Stripe later
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      // Record order in Supabase
+      if (flowData.invitationId) {
+        const res = await fetch("/api/orders", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            invitationId: flowData.invitationId,
+            plan: flowData.selectedPlan || "classic",
+          }),
+        });
+        if (!res.ok) {
+          const data = await res.json();
+          toast.error(data.error || "Could not record order. Please contact support.");
+          return;
+        }
+      }
+
       onUpdateData({ paymentDone: true });
-      setProcessing(false);
       onContinue();
-    }, 2000);
+    } catch {
+      toast.error("Payment processing failed. Please try again.");
+    } finally {
+      setProcessing(false);
+    }
   };
 
   return (
@@ -105,43 +160,75 @@ export function PaymentPage({
                   <h2 className="font-display text-lg font-semibold">Card Details</h2>
                 </div>
 
+                {/* Card Number */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                    Card Number
+                    Card Number <span className="text-red-400">*</span>
                   </label>
                   <div className="relative">
                     <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
+                      value={cardNumber}
+                      onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
                       placeholder="4242 4242 4242 4242"
-                      className="pl-10 h-11"
+                      className={`pl-10 h-11 font-mono tracking-wider ${errors.cardNumber ? "border-red-400" : ""}`}
                       maxLength={19}
+                      inputMode="numeric"
                     />
                   </div>
+                  {errors.cardNumber && <p className="text-xs text-red-500">{errors.cardNumber}</p>}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
+                  {/* Expiry */}
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                      Expiry Date
+                      Expiry <span className="text-red-400">*</span>
                     </label>
-                    <Input placeholder="MM/YY" className="h-11" maxLength={5} />
+                    <Input
+                      value={expiry}
+                      onChange={(e) => setExpiry(formatExpiry(e.target.value))}
+                      placeholder="MM/YY"
+                      className={`h-11 font-mono ${errors.expiry ? "border-red-400" : ""}`}
+                      maxLength={5}
+                      inputMode="numeric"
+                    />
+                    {errors.expiry && <p className="text-xs text-red-500">{errors.expiry}</p>}
                   </div>
+                  {/* CVC */}
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                      CVC
+                      CVC <span className="text-red-400">*</span>
                     </label>
                     <div className="relative">
-                      <Input placeholder="123" className="h-11" maxLength={4} />
+                      <Input
+                        value={cvc}
+                        onChange={(e) => setCvc(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                        placeholder="123"
+                        className={`h-11 font-mono ${errors.cvc ? "border-red-400" : ""}`}
+                        maxLength={4}
+                        inputMode="numeric"
+                        type="password"
+                      />
                       <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
                     </div>
+                    {errors.cvc && <p className="text-xs text-red-500">{errors.cvc}</p>}
                   </div>
                 </div>
 
+                {/* Cardholder Name */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                    Cardholder Name
+                    Cardholder Name <span className="text-red-400">*</span>
                   </label>
-                  <Input placeholder="Name on card" className="h-11" />
+                  <Input
+                    value={cardName}
+                    onChange={(e) => setCardName(e.target.value)}
+                    placeholder="Name on card"
+                    className={`h-11 ${errors.cardName ? "border-red-400" : ""}`}
+                    autoComplete="cc-name"
+                  />
+                  {errors.cardName && <p className="text-xs text-red-500">{errors.cardName}</p>}
                 </div>
               </div>
 
@@ -164,19 +251,9 @@ export function PaymentPage({
                 className="w-full h-12 bg-gold hover:bg-gold-light text-emerald-dark font-semibold text-base gap-2"
               >
                 {processing ? (
-                  <>
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                      className="w-4 h-4 border-2 border-emerald-dark/30 border-t-emerald-dark rounded-full"
-                    />
-                    Processing Payment...
-                  </>
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Processing Payment...</>
                 ) : (
-                  <>
-                    Pay Rs. {plan.price}
-                    <ArrowRight className="w-4 h-4" />
-                  </>
+                  <>Pay Rs. {plan.price}<ArrowRight className="w-4 h-4" /></>
                 )}
               </Button>
             </div>
@@ -194,7 +271,7 @@ export function PaymentPage({
                     <span className="text-muted-foreground">Template</span>
                     <span className="font-medium">{templateName}</span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center">
                     <span className="text-muted-foreground">Plan</span>
                     <Badge
                       className={

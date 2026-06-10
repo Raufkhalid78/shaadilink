@@ -3,28 +3,13 @@
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import {
-  ArrowLeft,
-  ArrowRight,
-  Calendar,
-  Heart,
-  MapPin,
-  Music,
-  MessageSquare,
-  Check,
-  Plus,
-  Trash2,
-  User,
-  Shirt,
-  Car,
-  Hotel,
-  Gift,
-  ImagePlus,
-  X,
-  Globe,
+  ArrowLeft, ArrowRight, Calendar, Heart, MapPin, Music, MessageSquare,
+  Check, Plus, Trash2, User, Shirt, Car, Hotel, Gift, ImagePlus, X, Globe, Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
 import type { FlowData } from "@/lib/flow-types";
 
 interface DetailsPageProps {
@@ -34,13 +19,10 @@ interface DetailsPageProps {
   onContinue: () => void;
 }
 
-export function DetailsPage({
-  flowData,
-  onUpdateData,
-  onBack,
-  onContinue,
-}: DetailsPageProps) {
+export function DetailsPage({ flowData, onUpdateData, onBack, onContinue }: DetailsPageProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isUploading, setIsUploading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const heroInputRef = useRef<HTMLInputElement>(null);
   const slideshowInputRef = useRef<HTMLInputElement>(null);
 
@@ -53,8 +35,56 @@ export function DetailsPage({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
-    if (validate()) onContinue();
+  const handleSubmit = async () => {
+    if (!validate()) return;
+    setIsSaving(true);
+
+    try {
+      // Save invitation to Supabase
+      const res = await fetch("/api/invitations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          templateId: flowData.selectedTemplateId,
+          plan: flowData.selectedPlan,
+          partner1Name: flowData.partner1Name,
+          partner2Name: flowData.partner2Name,
+          venue: flowData.venue,
+          venueAddress: flowData.venueAddress,
+          welcomeMessage: flowData.welcomeMessage,
+          backgroundMusic: flowData.backgroundMusic,
+          dressCodeWomen: flowData.dressCodeWomen,
+          dressCodeMen: flowData.dressCodeMen,
+          transportation: flowData.transportation,
+          accommodation: flowData.accommodation,
+          gifts: flowData.gifts,
+          heroImageUrl: flowData.heroImage,
+          slideshowImageUrls: flowData.slideshowImages,
+          events: flowData.events,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        // If user is not authenticated (e.g. demo mode), continue anyway
+        if (res.status === 401) {
+          onContinue();
+          return;
+        }
+        toast.error(data.error || "Failed to save invitation details.");
+        return;
+      }
+
+      const data = await res.json();
+      onUpdateData({ invitationId: data.invitationId });
+      onContinue();
+    } catch (err) {
+      console.error("Details save error:", err);
+      // Network error — still let them proceed
+      onContinue();
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const updateEvent = (index: number, field: string, value: string) => {
@@ -71,32 +101,69 @@ export function DetailsPage({
     onUpdateData({ events: flowData.events.filter((_, i) => i !== index) });
   };
 
-  const handleHeroImageUpload = () => {
-    heroInputRef.current?.click();
+  /** Upload files to Supabase Storage via /api/upload */
+  const uploadFiles = async (files: File[]): Promise<string[]> => {
+    const formData = new FormData();
+    files.forEach((f) => formData.append("files", f));
+
+    const res = await fetch("/api/upload", { method: "POST", body: formData });
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || "Upload failed");
+    }
+    const data = await res.json();
+    return data.urls as string[];
   };
 
-  const handleSlideshowUpload = () => {
-    slideshowInputRef.current?.click();
-  };
-
-  const handleFileChange = (
+  const handleFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
     type: "hero" | "slideshow"
   ) => {
     const files = e.target.files;
-    if (!files) return;
-
-    // Simulate file upload with URL.createObjectURL for preview
-    if (type === "hero" && files[0]) {
-      const url = URL.createObjectURL(files[0]);
-      onUpdateData({ heroImage: url });
-    } else if (type === "slideshow" && files.length > 0) {
-      const newImages = Array.from(files)
-        .slice(0, 4 - flowData.slideshowImages.length)
-        .map((f) => URL.createObjectURL(f));
-      onUpdateData({ slideshowImages: [...flowData.slideshowImages, ...newImages] });
-    }
+    if (!files || files.length === 0) return;
     e.target.value = "";
+
+    setIsUploading(true);
+    try {
+      if (type === "hero" && files[0]) {
+        // Show local preview immediately for UX
+        const localUrl = URL.createObjectURL(files[0]);
+        onUpdateData({ heroImage: localUrl });
+
+        // Upload to Supabase Storage
+        const urls = await uploadFiles([files[0]]);
+        URL.revokeObjectURL(localUrl); // Fix memory leak — revoke after upload
+        onUpdateData({ heroImage: urls[0] });
+        toast.success("Hero image uploaded!");
+      } else if (type === "slideshow") {
+        const available = 4 - flowData.slideshowImages.length;
+        const toUpload = Array.from(files).slice(0, available);
+
+        // Show local previews immediately
+        const localUrls = toUpload.map((f) => URL.createObjectURL(f));
+        onUpdateData({ slideshowImages: [...flowData.slideshowImages, ...localUrls] });
+
+        // Upload to Supabase Storage
+        const remoteUrls = await uploadFiles(toUpload);
+
+        // Replace local preview URLs with remote ones and revoke local
+        localUrls.forEach((u) => URL.revokeObjectURL(u));
+        const updatedSlideshow = [
+          ...flowData.slideshowImages.slice(0, flowData.slideshowImages.length),
+          ...remoteUrls,
+        ];
+        // Rebuild: keep existing remote + new remote
+        const existing = flowData.slideshowImages.filter((u) => !localUrls.includes(u));
+        onUpdateData({ slideshowImages: [...existing, ...remoteUrls] });
+        toast.success(`${remoteUrls.length} photo(s) uploaded!`);
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Upload failed";
+      toast.error(msg);
+      // Fallback: keep local preview if upload fails (user can still proceed)
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const removeSlideshowImage = (index: number) => {
@@ -114,6 +181,7 @@ export function DetailsPage({
               variant="ghost"
               onClick={onBack}
               className="gap-2 text-foreground/70 hover:text-foreground"
+              disabled={isSaving}
             >
               <ArrowLeft className="w-4 h-4" />
               <span className="hidden sm:inline">Back</span>
@@ -155,9 +223,7 @@ export function DetailsPage({
             <section className="space-y-4">
               <div className="flex items-center gap-2 mb-3">
                 <Heart className="w-4 h-4 text-gold" />
-                <h2 className="font-display text-lg font-semibold text-foreground">
-                  Couple Names
-                </h2>
+                <h2 className="font-display text-lg font-semibold text-foreground">Couple Names</h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
@@ -193,13 +259,11 @@ export function DetailsPage({
               </div>
             </section>
 
-            {/* Venue with Maps */}
+            {/* Venue */}
             <section className="space-y-4">
               <div className="flex items-center gap-2 mb-3">
                 <MapPin className="w-4 h-4 text-gold" />
-                <h2 className="font-display text-lg font-semibold text-foreground">
-                  Venue
-                </h2>
+                <h2 className="font-display text-lg font-semibold text-foreground">Venue</h2>
               </div>
               <div className="space-y-3">
                 <div className="space-y-1.5">
@@ -242,9 +306,7 @@ export function DetailsPage({
             <section className="space-y-4">
               <div className="flex items-center gap-2 mb-3">
                 <MessageSquare className="w-4 h-4 text-gold" />
-                <h2 className="font-display text-lg font-semibold text-foreground">
-                  Welcome Message
-                </h2>
+                <h2 className="font-display text-lg font-semibold text-foreground">Welcome Message</h2>
               </div>
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
@@ -253,7 +315,7 @@ export function DetailsPage({
                 <Textarea
                   value={flowData.welcomeMessage}
                   onChange={(e) => onUpdateData({ welcomeMessage: e.target.value })}
-                  placeholder="With hearts full of love and joy, we warmly invite you to share in the celebration of our union..."
+                  placeholder="With hearts full of love and joy, we warmly invite you..."
                   className="min-h-[100px] resize-none"
                 />
               </div>
@@ -264,9 +326,7 @@ export function DetailsPage({
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-gold" />
-                  <h2 className="font-display text-lg font-semibold text-foreground">
-                    Events
-                  </h2>
+                  <h2 className="font-display text-lg font-semibold text-foreground">Events</h2>
                 </div>
                 <Button
                   variant="ghost"
@@ -326,9 +386,7 @@ export function DetailsPage({
             <section className="space-y-4">
               <div className="flex items-center gap-2 mb-3">
                 <Shirt className="w-4 h-4 text-gold" />
-                <h2 className="font-display text-lg font-semibold text-foreground">
-                  Dress Code
-                </h2>
+                <h2 className="font-display text-lg font-semibold text-foreground">Dress Code</h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
@@ -360,72 +418,49 @@ export function DetailsPage({
             <section className="space-y-4">
               <div className="flex items-center gap-2 mb-3">
                 <Car className="w-4 h-4 text-gold" />
-                <h2 className="font-display text-lg font-semibold text-foreground">
-                  Transportation
-                </h2>
+                <h2 className="font-display text-lg font-semibold text-foreground">Transportation</h2>
               </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                  Transportation Details
-                </label>
-                <Textarea
-                  value={flowData.transportation}
-                  onChange={(e) => onUpdateData({ transportation: e.target.value })}
-                  placeholder="e.g. Shuttle service will be available from the city center to the venue."
-                  className="min-h-[70px] resize-none"
-                />
-              </div>
+              <Textarea
+                value={flowData.transportation}
+                onChange={(e) => onUpdateData({ transportation: e.target.value })}
+                placeholder="e.g. Shuttle service will be available from the city center."
+                className="min-h-[70px] resize-none"
+              />
             </section>
 
             {/* Accommodation */}
             <section className="space-y-4">
               <div className="flex items-center gap-2 mb-3">
                 <Hotel className="w-4 h-4 text-gold" />
-                <h2 className="font-display text-lg font-semibold text-foreground">
-                  Accommodation
-                </h2>
+                <h2 className="font-display text-lg font-semibold text-foreground">Accommodation</h2>
               </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                  Accommodation Details
-                </label>
-                <Textarea
-                  value={flowData.accommodation}
-                  onChange={(e) => onUpdateData({ accommodation: e.target.value })}
-                  placeholder="e.g. Special rates at The Grand Palace. Use code SHAADI2025 when booking."
-                  className="min-h-[70px] resize-none"
-                />
-              </div>
+              <Textarea
+                value={flowData.accommodation}
+                onChange={(e) => onUpdateData({ accommodation: e.target.value })}
+                placeholder="e.g. Special rates at The Grand Palace. Use code SHAADI2025."
+                className="min-h-[70px] resize-none"
+              />
             </section>
 
             {/* Gifts */}
             <section className="space-y-4">
               <div className="flex items-center gap-2 mb-3">
                 <Gift className="w-4 h-4 text-gold" />
-                <h2 className="font-display text-lg font-semibold text-foreground">
-                  Gifts
-                </h2>
+                <h2 className="font-display text-lg font-semibold text-foreground">Gifts</h2>
               </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                  Gift Registry / Message
-                </label>
-                <Textarea
-                  value={flowData.gifts}
-                  onChange={(e) => onUpdateData({ gifts: e.target.value })}
-                  placeholder="e.g. Your love and blessings are the greatest gifts we could ever ask for."
-                  className="min-h-[70px] resize-none"
-                />
-              </div>
+              <Textarea
+                value={flowData.gifts}
+                onChange={(e) => onUpdateData({ gifts: e.target.value })}
+                placeholder="e.g. Your love and blessings are the greatest gifts."
+                className="min-h-[70px] resize-none"
+              />
             </section>
 
             {/* Background Music */}
             <section className="space-y-4">
               <div className="flex items-center gap-2 mb-3">
                 <Music className="w-4 h-4 text-gold" />
-                <h2 className="font-display text-lg font-semibold text-foreground">
-                  Background Music
-                </h2>
+                <h2 className="font-display text-lg font-semibold text-foreground">Background Music</h2>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {[
@@ -458,6 +493,11 @@ export function DetailsPage({
                 <ImagePlus className="w-4 h-4 text-gold" />
                 <h2 className="font-display text-lg font-semibold text-foreground">
                   Photos
+                  {isUploading && (
+                    <span className="ml-2 text-xs text-muted-foreground font-normal inline-flex items-center gap-1">
+                      <Loader2 className="w-3 h-3 animate-spin" /> Uploading...
+                    </span>
+                  )}
                 </h2>
               </div>
 
@@ -476,18 +516,20 @@ export function DetailsPage({
                     <button
                       onClick={() => onUpdateData({ heroImage: "" })}
                       className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-red-500 transition-colors"
+                      aria-label="Remove hero image"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 ) : (
                   <button
-                    onClick={handleHeroImageUpload}
-                    className="w-full p-6 rounded-xl border-2 border-dashed border-border/50 hover:border-gold/30 transition-colors flex flex-col items-center gap-2 text-muted-foreground hover:text-foreground"
+                    onClick={() => heroInputRef.current?.click()}
+                    disabled={isUploading}
+                    className="w-full p-6 rounded-xl border-2 border-dashed border-border/50 hover:border-gold/30 transition-colors flex flex-col items-center gap-2 text-muted-foreground hover:text-foreground disabled:opacity-50"
                   >
                     <ImagePlus className="w-8 h-8" />
                     <span className="text-sm font-medium">Upload Hero Image</span>
-                    <span className="text-xs">Recommended: 1920x1080px</span>
+                    <span className="text-xs">Recommended: 1920×1080px</span>
                   </button>
                 )}
                 <input
@@ -518,6 +560,7 @@ export function DetailsPage({
                       <button
                         onClick={() => removeSlideshowImage(idx)}
                         className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-red-500 transition-colors"
+                        aria-label={`Remove photo ${idx + 1}`}
                       >
                         <X className="w-3 h-3" />
                       </button>
@@ -525,8 +568,9 @@ export function DetailsPage({
                   ))}
                   {flowData.slideshowImages.length < 4 && (
                     <button
-                      onClick={handleSlideshowUpload}
-                      className="rounded-lg border-2 border-dashed border-border/50 hover:border-gold/30 transition-colors flex flex-col items-center justify-center gap-1 text-muted-foreground hover:text-foreground aspect-square"
+                      onClick={() => slideshowInputRef.current?.click()}
+                      disabled={isUploading}
+                      className="rounded-lg border-2 border-dashed border-border/50 hover:border-gold/30 transition-colors flex flex-col items-center justify-center gap-1 text-muted-foreground hover:text-foreground aspect-square disabled:opacity-50"
                     >
                       <Plus className="w-5 h-5" />
                       <span className="text-[10px]">Add Photo</span>
@@ -548,10 +592,14 @@ export function DetailsPage({
             <div className="pt-4">
               <Button
                 onClick={handleSubmit}
+                disabled={isSaving || isUploading}
                 className="w-full h-12 bg-gold hover:bg-gold-light text-emerald-dark font-semibold text-base gap-2"
               >
-                Continue to Payment
-                <ArrowRight className="w-4 h-4" />
+                {isSaving ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Saving Details...</>
+                ) : (
+                  <>Continue to Payment<ArrowRight className="w-4 h-4" /></>
+                )}
               </Button>
             </div>
           </div>

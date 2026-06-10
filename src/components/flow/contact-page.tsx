@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { CONTACT_CONFIG } from "@/lib/config";
 import {
   ArrowLeft,
   Heart,
@@ -11,6 +13,7 @@ import {
   Send,
   CheckCircle,
   Phone,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +29,8 @@ export function ContactPage({ onBack }: ContactPageProps) {
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const validate = () => {
     const newErrors: Record<string, string> = {};
     if (!formData.name.trim()) newErrors.name = "Name is required";
@@ -37,9 +42,25 @@ export function ContactPage({ onBack }: ContactPageProps) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
-    if (validate()) {
+  const handleSubmit = async () => {
+    if (!validate()) return;
+    setIsLoading(true);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        toast.error(data.error || "Failed to send message. Please try again.");
+        return;
+      }
       setSubmitted(true);
+    } catch {
+      toast.error("Network error. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -115,10 +136,10 @@ export function ContactPage({ onBack }: ContactPageProps) {
                       <div>
                         <p className="font-medium text-foreground text-sm">Email</p>
                         <a
-                          href="mailto:hello@shaadilink.pk"
+                          href={`mailto:${CONTACT_CONFIG.email}`}
                           className="text-gold hover:text-gold-light text-sm transition-colors"
                         >
-                          hello@shaadilink.pk
+                          {CONTACT_CONFIG.email}
                         </a>
                       </div>
                     </div>
@@ -129,7 +150,7 @@ export function ContactPage({ onBack }: ContactPageProps) {
                       </div>
                       <div>
                         <p className="font-medium text-foreground text-sm">Phone</p>
-                        <p className="text-muted-foreground text-sm">+92 300 1234567</p>
+                        <p className="text-muted-foreground text-sm">{CONTACT_CONFIG.phone}</p>
                       </div>
                     </div>
 
@@ -139,7 +160,7 @@ export function ContactPage({ onBack }: ContactPageProps) {
                       </div>
                       <div>
                         <p className="font-medium text-foreground text-sm">Location</p>
-                        <p className="text-muted-foreground text-sm">Lahore, Pakistan</p>
+                        <p className="text-muted-foreground text-sm">{CONTACT_CONFIG.address}</p>
                       </div>
                     </div>
 
@@ -150,7 +171,7 @@ export function ContactPage({ onBack }: ContactPageProps) {
                       <div>
                         <p className="font-medium text-foreground text-sm">Response Time</p>
                         <p className="text-muted-foreground text-sm">
-                          We typically respond within 24–48 hours
+                          {CONTACT_CONFIG.responseTime}
                         </p>
                       </div>
                     </div>
@@ -250,10 +271,14 @@ export function ContactPage({ onBack }: ContactPageProps) {
 
                           <Button
                             onClick={handleSubmit}
+                            disabled={isLoading}
                             className="w-full h-12 bg-emerald hover:bg-emerald-dark text-primary-foreground border border-gold/30 font-semibold text-base gap-2"
                           >
-                            <Send className="w-4 h-4" />
-                            Send Message
+                            {isLoading ? (
+                              <><Loader2 className="w-4 h-4 animate-spin" /> Sending...</>
+                            ) : (
+                              <><Send className="w-4 h-4" /> Send Message</>
+                            )}
                           </Button>
                         </div>
                       )}

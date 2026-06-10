@@ -5,10 +5,9 @@ export interface FlowData {
   selectedPlan: "classic" | "royal" | null;
   // Step 2: Template selection
   selectedTemplateId: string | null;
-  // Step 3: Account creation
+  // Step 3: Account creation (password never stored here — Supabase handles it)
   fullName: string;
   email: string;
-  password: string;
   // Step 4: Invitation details
   partner1Name: string;
   partner2Name: string;
@@ -26,11 +25,14 @@ export interface FlowData {
   accommodation: string;
   // Gifts/Registry
   gifts: string;
-  // Photos
+  // Photos (real Supabase Storage URLs after upload)
   heroImage: string;
   slideshowImages: string[];
   // Step 5: Payment (simulated)
   paymentDone: boolean;
+  // Backend IDs — set after API calls
+  userId?: string;
+  invitationId?: string;
 }
 
 export const initialFlowData: FlowData = {
@@ -38,7 +40,6 @@ export const initialFlowData: FlowData = {
   selectedTemplateId: null,
   fullName: "",
   email: "",
-  password: "",
   partner1Name: "",
   partner2Name: "",
   venue: "",
@@ -75,7 +76,7 @@ export type FlowStep =
   | "terms"
   | "privacy"
   | "refund"
-  | "shipping";
+  | "dashboard";
 
 export const planDetails = {
   classic: {
@@ -111,6 +112,10 @@ export const planDetails = {
       "Photo Gallery & Slideshow",
       "Custom Domain",
       "3D Door & Curtain Reveal",
+      "Add to Calendar Integration",
+      "Pakistani Digital Shagun & Registry",
+      "Dress Code Swatches (Ladies/Gentlemen)",
+      "Travel & Accommodation Info Blocks",
       "Premium Motion Storytelling",
       "Priority Support",
     ],

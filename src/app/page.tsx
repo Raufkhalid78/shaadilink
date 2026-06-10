@@ -24,6 +24,7 @@ import { AboutPage } from "@/components/flow/about-page";
 import { ContactPage } from "@/components/flow/contact-page";
 import { AffiliatePage } from "@/components/flow/affiliate-page";
 import { LegalPage } from "@/components/flow/legal-page";
+import { DashboardPage } from "@/components/flow/dashboard-page";
 import InvitationViewer from "@/components/viewer/invitation-viewer";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Eye, Sparkles } from "lucide-react";
@@ -31,8 +32,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import type { FlowData, FlowStep } from "@/lib/flow-types";
 import { initialFlowData } from "@/lib/flow-types";
 import { getTheme } from "@/components/viewer/invitation-viewer";
+import { createClient } from "@/lib/supabase/client";
 
-/* Wrapper for page transitions - defined outside render to avoid state reset */
+/* Wrapper for page transitions */
 function InfoPageWrapper({ children, stepKey }: { children: React.ReactNode; stepKey: string }) {
   return (
     <motion.div
@@ -52,7 +54,24 @@ export default function Home() {
   const [currentStep, setCurrentStep] = useState<FlowStep>("landing");
   const [flowData, setFlowData] = useState<FlowData>(initialFlowData);
   const [previewTemplateId, setPreviewTemplateId] = useState<string | null>(null);
+  // Track previous step so Details → Back works correctly
+  const [stepBeforeDetails, setStepBeforeDetails] = useState<FlowStep>("signup");
   useScrollReveal();
+
+  // Restore session on mount — if user is already logged in, pre-populate email/userId
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setFlowData((prev) => ({
+          ...prev,
+          userId: session.user.id,
+          email: session.user.email ?? prev.email,
+          fullName: session.user.user_metadata?.full_name ?? prev.fullName,
+        }));
+      }
+    });
+  }, []);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
@@ -62,6 +81,7 @@ export default function Home() {
     setFlowData((prev) => ({ ...prev, ...updates }));
   }, []);
 
+  /* ── Navigation Handlers ── */
   const handleGetStarted = (plan: "classic" | "royal") => {
     updateFlowData({ selectedPlan: plan });
     setCurrentStep("templates");
@@ -69,15 +89,29 @@ export default function Home() {
 
   const handleSelectTemplate = (templateId: string) => {
     updateFlowData({ selectedTemplateId: templateId });
-    setCurrentStep("signup");
+    // If already logged in, skip signup and go to details
+    if (flowData.userId) {
+      setStepBeforeDetails("templates");
+      setCurrentStep("details");
+    } else {
+      setCurrentStep("signup");
+    }
   };
 
   const handleSignupComplete = () => {
+    setStepBeforeDetails("signup");
     setCurrentStep("details");
   };
 
-  const handleLoginComplete = () => {
-    setCurrentStep("details");
+  const handleLoginComplete = (userId: string, email: string) => {
+    updateFlowData({ userId, email });
+    // If a template was already selected, go to details; otherwise go to dashboard
+    if (flowData.selectedTemplateId) {
+      setStepBeforeDetails("login");
+      setCurrentStep("details");
+    } else {
+      setCurrentStep("dashboard");
+    }
   };
 
   const handleDetailsComplete = () => {
@@ -93,27 +127,75 @@ export default function Home() {
     setCurrentStep("demo");
   };
 
+  const handleViewInvitationById = (invitationId: string) => {
+    // Load the invitation into flowData for viewing
+    fetch(`/api/invitations/${invitationId}`)
+      .then((r) => r.json())
+      .then(({ invitation }) => {
+        if (invitation) {
+          updateFlowData({
+            invitationId: invitation.id,
+            selectedTemplateId: invitation.template_id,
+            partner1Name: invitation.partner1_name,
+            partner2Name: invitation.partner2_name,
+            venue: invitation.venue,
+            venueAddress: invitation.venue_address,
+            welcomeMessage: invitation.welcome_message,
+            backgroundMusic: invitation.background_music,
+            dressCodeWomen: invitation.dress_code_women,
+            dressCodeMen: invitation.dress_code_men,
+            transportation: invitation.transportation,
+            accommodation: invitation.accommodation,
+            gifts: invitation.gifts,
+            heroImage: invitation.hero_image_url,
+            slideshowImages: invitation.slideshow_image_urls || [],
+            events: (invitation.events || []).sort(
+              (a: { order_index: number }, b: { order_index: number }) => a.order_index - b.order_index
+            ).map((e: { name: string; date: string; time: string; venue?: string }) => ({
+              name: e.name, date: e.date, time: e.time, venue: e.venue,
+            })),
+            selectedPlan: invitation.plan,
+          });
+          setPreviewTemplateId(invitation.template_id);
+          setCurrentStep("demo");
+        }
+      })
+      .catch(() => {
+        setPreviewTemplateId(invitationId);
+        setCurrentStep("demo");
+      });
+  };
+
   const handleGoHome = () => {
     setFlowData(initialFlowData);
     setPreviewTemplateId(null);
     setCurrentStep("landing");
   };
 
-  const handleBackToLanding = () => {
+  const handleGoToDashboard = () => {
+    setCurrentStep("dashboard");
+  };
+
+  const handleSignOut = () => {
+    setFlowData(initialFlowData);
+    setPreviewTemplateId(null);
     setCurrentStep("landing");
   };
 
-  const handleLoginClick = () => {
-    setCurrentStep("login");
+  const handleCreateNew = () => {
+    // Reset invitation-specific fields, keep user identity
+    setFlowData((prev) => ({
+      ...initialFlowData,
+      userId: prev.userId,
+      email: prev.email,
+      fullName: prev.fullName,
+    }));
+    setCurrentStep("templates");
   };
 
-  const handleGoToSignup = () => {
-    setCurrentStep("signup");
-  };
-
-  const handleGoToLogin = () => {
-    setCurrentStep("login");
-  };
+  const handleBackToLanding = () => setCurrentStep("landing");
+  const handleLoginClick = () => setCurrentStep("login");
+  const handleGoToSignup = () => setCurrentStep("signup");
 
   const scrollToPricing = () => {
     document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
@@ -133,11 +215,13 @@ export default function Home() {
   const goToAbout = () => setCurrentStep("about");
   const goToContact = () => setCurrentStep("contact");
   const goToAffiliate = () => setCurrentStep("affiliate");
-  const goToLegal = (type: "terms" | "privacy" | "refund" | "shipping") => setCurrentStep(type);
+  // Removed "shipping" — irrelevant for a digital product
+  const goToLegal = (type: "terms" | "privacy" | "refund") => setCurrentStep(type);
 
   return (
     <div className="min-h-screen flex flex-col">
       <AnimatePresence mode="wait">
+        {/* ── Demo / Invitation Viewer ── */}
         {currentStep === "demo" && (
           <motion.div
             key="demo"
@@ -152,6 +236,8 @@ export default function Home() {
                 onClick={() => {
                   if (flowData.paymentDone) {
                     setCurrentStep("success");
+                  } else if (flowData.invitationId) {
+                    setCurrentStep("dashboard");
                   } else if (previewTemplateId) {
                     setPreviewTemplateId(null);
                     setCurrentStep("templates");
@@ -178,6 +264,7 @@ export default function Home() {
           </motion.div>
         )}
 
+        {/* ── Templates ── */}
         {currentStep === "templates" && (
           <InfoPageWrapper stepKey="templates">
             <TemplatesPage
@@ -189,6 +276,7 @@ export default function Home() {
           </InfoPageWrapper>
         )}
 
+        {/* ── Signup ── */}
         {currentStep === "signup" && (
           <InfoPageWrapper stepKey="signup">
             <SignupPage
@@ -196,35 +284,35 @@ export default function Home() {
               onUpdateData={updateFlowData}
               onBack={() => setCurrentStep("templates")}
               onContinue={handleSignupComplete}
-              onLogin={handleGoToLogin}
+              onLogin={handleLoginClick}
             />
           </InfoPageWrapper>
         )}
 
+        {/* ── Login ── */}
         {currentStep === "login" && (
           <InfoPageWrapper stepKey="login">
             <LoginPage
               onBack={handleBackToLanding}
               onLogin={handleLoginComplete}
               onSignup={handleGoToSignup}
-              onForgotPassword={() => {
-                alert("Password reset link sent to your email!");
-              }}
             />
           </InfoPageWrapper>
         )}
 
+        {/* ── Details ── */}
         {currentStep === "details" && (
           <InfoPageWrapper stepKey="details">
             <DetailsPage
               flowData={flowData}
               onUpdateData={updateFlowData}
-              onBack={() => setCurrentStep("signup")}
+              onBack={() => setCurrentStep(stepBeforeDetails)}
               onContinue={handleDetailsComplete}
             />
           </InfoPageWrapper>
         )}
 
+        {/* ── Payment ── */}
         {currentStep === "payment" && (
           <InfoPageWrapper stepKey="payment">
             <PaymentPage
@@ -236,40 +324,52 @@ export default function Home() {
           </InfoPageWrapper>
         )}
 
+        {/* ── Success ── */}
         {currentStep === "success" && (
           <InfoPageWrapper stepKey="success">
             <SuccessPage
               flowData={flowData}
               onViewInvitation={handleViewInvitation}
-              onGoHome={handleGoHome}
+              onGoToDashboard={handleGoToDashboard}
             />
           </InfoPageWrapper>
         )}
 
+        {/* ── Dashboard ── */}
+        {currentStep === "dashboard" && (
+          <InfoPageWrapper stepKey="dashboard">
+            <DashboardPage
+              flowData={flowData}
+              onCreateNew={handleCreateNew}
+              onViewInvitation={handleViewInvitationById}
+              onSignOut={handleSignOut}
+            />
+          </InfoPageWrapper>
+        )}
+
+        {/* ── Static pages ── */}
         {currentStep === "about" && (
           <InfoPageWrapper stepKey="about">
             <AboutPage onBack={handleBackToLanding} />
           </InfoPageWrapper>
         )}
-
         {currentStep === "contact" && (
           <InfoPageWrapper stepKey="contact">
             <ContactPage onBack={handleBackToLanding} />
           </InfoPageWrapper>
         )}
-
         {currentStep === "affiliate" && (
           <InfoPageWrapper stepKey="affiliate">
             <AffiliatePage onBack={handleBackToLanding} />
           </InfoPageWrapper>
         )}
-
-        {(currentStep === "terms" || currentStep === "privacy" || currentStep === "refund" || currentStep === "shipping") && (
+        {(currentStep === "terms" || currentStep === "privacy" || currentStep === "refund") && (
           <InfoPageWrapper stepKey={currentStep}>
             <LegalPage type={currentStep} onBack={handleBackToLanding} />
           </InfoPageWrapper>
         )}
 
+        {/* ── Landing ── */}
         {currentStep === "landing" && (
           <motion.div
             key="landing"
@@ -287,10 +387,7 @@ export default function Home() {
               onContactClick={goToContact}
             />
             <main className="flex-1">
-              <Hero
-                onViewTemplates={goToTemplates}
-                onGetStarted={scrollToPricing}
-              />
+              <Hero onViewTemplates={goToTemplates} onGetStarted={scrollToPricing} />
               <StatsBar />
               <Features />
               <TemplateShowcase />
@@ -300,7 +397,7 @@ export default function Home() {
               <Pricing onSelectPlan={handleGetStarted} />
               <FAQ />
 
-              {/* Live Demo CTA Section with Template Preview */}
+              {/* Live Demo CTA Section */}
               <section id="live-demo" className="py-24 px-6 bg-gradient-to-b from-background to-emerald-dark/10 relative overflow-hidden">
                 <div className="absolute inset-0 opacity-[0.04]">
                   <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
@@ -323,42 +420,9 @@ export default function Home() {
                     See It <span className="gold-shimmer">Live</span>
                   </h2>
                   <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-                    Experience the magic — from the grand door-opening to the
-                    interactive scratch card, countdown, and fireworks.
-                    Choose a template to preview:
+                    Experience the magic — from the grand door-opening to the interactive scratch card, countdown, and fireworks.
                   </p>
 
-                  {/* Template Quick-Select Thumbnails */}
-                  <div className="flex flex-wrap items-center justify-center gap-3 mt-4">
-                    {[
-                      { id: "emerald-noir", name: "Emerald Noir", bg: "from-[#0f1a16] to-[#0a1210]", accent: "#d4a853" },
-                      { id: "crimson-royale", name: "Crimson Royale", bg: "from-[#1a0a0e] to-[#120810]", accent: "#dc2626" },
-                      { id: "garden-romance", name: "Garden Romance", bg: "from-[#1a0a14] to-[#120810]", accent: "#ec4899" },
-                      { id: "royal-imperial", name: "Royal Imperial", bg: "from-[#1a100a] to-[#120c08]", accent: "#f59e0b" },
-                      { id: "mughal-emerald", name: "Mughal Emerald", bg: "from-[#0a1a18] to-[#081412]", accent: "#2dd4bf" },
-                      { id: "royal-elegance", name: "Royal Elegance", bg: "from-[#1a080e] to-[#12060a]", accent: "#f43f5e" },
-                    ].map((tpl) => (
-                      <button
-                        key={tpl.id}
-                        onClick={() => goToDemo(tpl.id)}
-                        className="group relative w-16 h-20 sm:w-20 sm:h-24 rounded-lg overflow-hidden border border-white/10 hover:border-gold/50 hover:scale-110 transition-all duration-300 shadow-md hover:shadow-lg hover:shadow-gold/10"
-                      >
-                        <div className={`absolute inset-0 bg-gradient-to-br ${tpl.bg}`} />
-                        <div className="absolute inset-1 rounded border border-white/5" />
-                        {/* Mini names */}
-                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5">
-                          <span className="text-white/40 text-[5px] sm:text-[6px] font-calligraphy">A&A</span>
-                          <div className="w-3 h-px" style={{ backgroundColor: tpl.accent, opacity: 0.5 }} />
-                        </div>
-                        {/* Accent bar */}
-                        <div className="absolute bottom-0 inset-x-0 h-0.5" style={{ backgroundColor: tpl.accent }} />
-                        {/* Hover tooltip */}
-                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-foreground text-background text-[9px] px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                          {tpl.name}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
 
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
                     <Button

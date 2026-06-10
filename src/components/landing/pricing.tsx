@@ -1,8 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Check, Crown, Sparkles, ArrowRight, Lock } from "lucide-react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Check, Crown, Sparkles, ArrowRight, Lock, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -11,63 +11,58 @@ const plans = [
     id: "classic" as const,
     name: "Classic",
     price: "2,499",
-    period: "/invitation",
-    description: "Elegant classic invitations — everything you need for a beautiful digital invitation.",
+    originalPrice: "3,499",
+    period: "/ invitation",
+    description: "Elegant classic invitations — everything you need for a beautiful digital celebration.",
     features: [
-      "Access to ShaadiLink Classic Invitations",
       "8 Premium Animated Templates",
       "1 Invitation Webpage",
       "Unlimited Edits Until Wedding Date",
-      "Buy More Invitations Anytime (Add-On)",
       "Guest Messaging & Inbox",
       "Music, Photos & Custom Uploads",
-      "Google Maps & Multi-Language Support",
+      "Google Maps & Multi-Language",
       "Analytics & Page View Tracking",
-      "Automatic Privacy Protection After Wedding",
+      "Automatic Privacy Protection",
     ],
     cta: "Start with Classic",
     highlighted: false,
-    badgeText: "MOST POPULAR",
+    badgeText: "POPULAR",
+    savings: null,
   },
   {
     id: "royal" as const,
     name: "Royal",
     price: "3,999",
-    period: "/invitation",
-    description: "Premium cinematic experience with all premium features unlocked.",
+    originalPrice: "5,499",
+    period: "/ invitation",
+    description: "Premium cinematic experience — unlock every feature for the grandest celebration.",
     features: [
       "Everything in Classic, Plus:",
-      "Access to ALL Classic + Royal Invitations",
-      "10 Premium Animated Templates",
-      "Cinematic Royal Invitation Experience",
-      "Scratch Card Reveal & Fireworks",
-      "3D Door & Curtain Reveal Animations",
-      "Cinematic Hero Backgrounds",
+      "All 18 Classic + Royal Templates",
+      "Cinematic 3D Door & Curtain Reveals",
+      "Scratch Card Date Reveal + Fireworks",
+      "Add to Calendar Integration",
+      "Pakistani Digital Shagun & Registry",
+      "Dress Code Swatches (Ladies/Gentlemen)",
+      "Travel & Accommodation Info Blocks",
       "Premium Motion Storytelling",
       "Exclusive Royal Template Collection",
-      "Priority Support",
+      "Priority Support 24/7",
     ],
     cta: "Unlock Royal Experience",
     highlighted: true,
-    badgeText: "PREMIUM CINEMATIC",
+    badgeText: "PREMIUM",
+    savings: "Save Rs. 1,500",
   },
 ];
 
 const containerVariants = {
   hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.15 },
-  },
+  visible: { opacity: 1, transition: { staggerChildren: 0.2 } },
 };
-
 const cardVariants = {
   hidden: { opacity: 0, y: 40 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: "easeOut" },
-  },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" as const } },
 };
 
 interface PricingProps {
@@ -75,28 +70,68 @@ interface PricingProps {
 }
 
 export function Pricing({ onSelectPlan }: PricingProps) {
+  const [hovered, setHovered] = useState<string | null>(null);
+
   return (
-    <section
-      id="pricing"
-      className="py-20 sm:py-28 bg-gradient-to-b from-muted/50 to-background"
-    >
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+    <section id="pricing" className="py-24 sm:py-32 relative overflow-hidden">
+      {/* Rich background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-emerald-dark/15 to-background" />
+      <div
+        className="absolute inset-0 opacity-40"
+        style={{
+          background:
+            "radial-gradient(ellipse at 30% 60%, rgba(212,168,83,0.06) 0%, transparent 55%), radial-gradient(ellipse at 70% 40%, rgba(82,170,120,0.06) 0%, transparent 55%)",
+        }}
+      />
+
+      {/* Subtle Islamic pattern */}
+      <div className="absolute inset-0 opacity-[0.018]">
+        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="pricing-pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+              <path d="M50 5 L61.8 21.8 L81.8 18.2 L70 35 L81.8 51.8 L61.8 48.2 L50 65 L38.2 48.2 L18.2 51.8 L30 35 L18.2 18.2 L38.2 21.8 Z"
+                fill="none" stroke="#d4a853" strokeWidth="0.5" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#pricing-pattern)" />
+        </svg>
+      </div>
+
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
-        <div className="text-center mb-14 sm:mb-20 reveal-on-scroll">
-          <span className="inline-block font-calligraphy text-gold text-lg mb-3">
-            ✦ Choose Your Experience ✦
-          </span>
-          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">
-            Choose Your Invitation Experience
-          </h2>
+        <div className="text-center mb-16 sm:mb-20 reveal-on-scroll">
+          <motion.span
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-gold/20 bg-gold/10 text-gold text-sm font-medium mb-4"
+          >
+            <Crown className="w-3.5 h-3.5" />
+            Choose Your Experience
+          </motion.span>
+          <motion.h2
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-foreground"
+          >
+            Choose Your <span className="gold-shimmer">Invitation Plan</span>
+          </motion.h2>
           <div className="flex items-center justify-center gap-3 mt-5">
             <div className="h-px w-16 bg-gradient-to-r from-transparent to-gold/50" />
             <div className="h-1.5 w-1.5 rounded-full bg-gold/60" />
             <div className="h-px w-16 bg-gradient-to-l from-transparent to-gold/50" />
           </div>
-          <p className="mt-5 text-muted-foreground max-w-xl mx-auto text-base sm:text-lg">
-            Elegant classic invitations or immersive cinematic luxury experiences.
-          </p>
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="mt-5 text-muted-foreground max-w-xl mx-auto text-base sm:text-lg"
+          >
+            Elegant classic invitations or immersive cinematic luxury — both crafted for Pakistani weddings.
+          </motion.p>
         </div>
 
         {/* Pricing Cards */}
@@ -105,73 +140,122 @@ export function Pricing({ onSelectPlan }: PricingProps) {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-50px" }}
-          className="grid grid-cols-1 md:grid-cols-2 gap-8"
+          className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8"
         >
-          {plans.map((plan) => (
-            <motion.div key={plan.name} variants={cardVariants}>
-              <Card
-                className={`relative overflow-hidden h-full transition-all duration-300 rounded-2xl ${
+          {plans.map((plan) => {
+            const isHovered = hovered === plan.id;
+            return (
+              <motion.div
+                key={plan.name}
+                variants={cardVariants}
+                onMouseEnter={() => setHovered(plan.id)}
+                onMouseLeave={() => setHovered(null)}
+                className={`relative rounded-2xl overflow-hidden transition-all duration-500 ${
                   plan.highlighted
-                    ? "border-2 border-gold shadow-lg shadow-gold/10 hover:shadow-xl hover:shadow-gold/20 hover:scale-[1.02]"
-                    : "border-border/30 hover:border-gold/30 hover:shadow-lg"
-                }`}
+                    ? "border border-gold/40 shadow-2xl shadow-gold/15"
+                    : "border border-border/20 hover:border-gold/20"
+                } ${isHovered ? "-translate-y-2" : ""}`}
+                style={{
+                  background: plan.highlighted
+                    ? "linear-gradient(145deg, oklch(0.16 0.035 80 / 0.7), oklch(0.12 0.025 155 / 0.9))"
+                    : "oklch(0.14 0.022 155 / 0.8)",
+                  backdropFilter: "blur(20px)",
+                  boxShadow: plan.highlighted
+                    ? isHovered
+                      ? "0 30px 80px rgba(212,168,83,0.2), 0 8px 30px rgba(0,0,0,0.5)"
+                      : "0 20px 60px rgba(212,168,83,0.12), 0 4px 20px rgba(0,0,0,0.4)"
+                    : isHovered
+                      ? "0 20px 50px rgba(0,0,0,0.4), 0 0 0 1px rgba(212,168,83,0.15)"
+                      : "0 4px 20px rgba(0,0,0,0.25)",
+                }}
               >
-                {/* Top accent bar */}
+                {/* Animated top gradient bar */}
                 <div
                   className={`h-1 w-full ${
                     plan.highlighted
                       ? "bg-gradient-to-r from-gold/60 via-gold-light to-gold/60"
-                      : "bg-gradient-to-r from-emerald/60 via-emerald to-emerald/60"
+                      : "bg-gradient-to-r from-emerald/40 via-emerald to-emerald/40"
                   }`}
+                  style={{
+                    backgroundSize: "200% 100%",
+                    animation: plan.highlighted ? "shimmer 3s ease-in-out infinite" : undefined,
+                  }}
                 />
 
+                {/* Glow orb behind the royal card */}
+                {plan.highlighted && (
+                  <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full blur-3xl pointer-events-none"
+                    style={{ background: "radial-gradient(circle, rgba(212,168,83,0.12) 0%, transparent 70%)" }}
+                  />
+                )}
+
                 {/* Badge */}
-                <div className="absolute top-4 right-4">
+                <div className="absolute top-5 right-5">
                   <Badge
-                    className={`rounded-lg font-semibold px-3 py-1 text-xs ${
+                    className={`rounded-lg font-bold px-3 py-1 text-xs flex items-center gap-1.5 ${
                       plan.highlighted
-                        ? "bg-gold text-emerald-dark"
-                        : "bg-emerald/80 text-primary-foreground"
+                        ? "bg-gold text-emerald-dark shadow-lg shadow-gold/30"
+                        : "bg-emerald/80 text-primary-foreground border border-emerald/40"
                     }`}
                   >
-                    {plan.highlighted && <Crown className="h-3 w-3 mr-1" />}
+                    {plan.highlighted && <Crown className="h-3 w-3" />}
                     {plan.badgeText}
                   </Badge>
                 </div>
 
-                <CardHeader className="pb-2 pt-6 px-6 sm:px-8">
-                  <h3 className="font-display text-2xl font-bold text-foreground">
+                <div className="p-7 sm:p-9">
+                  {/* Plan name */}
+                  <h3 className="font-display text-2xl font-bold text-foreground mb-1">
                     {plan.name}
                   </h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {plan.description}
-                  </p>
-                  <div className="mt-4 flex items-baseline gap-1">
-                    <span className="text-sm text-muted-foreground">Rs.</span>
-                    <span className="font-display text-4xl sm:text-5xl font-bold text-foreground">
-                      {plan.price}
-                    </span>
-                    <span className="text-muted-foreground text-sm">
-                      {plan.period}
-                    </span>
-                  </div>
-                </CardHeader>
+                  <p className="text-sm text-muted-foreground">{plan.description}</p>
 
-                <CardContent className="px-6 sm:px-8 pb-8 pt-4">
-                  {/* Features list */}
-                  <ul className="space-y-2.5 mb-8">
-                    {plan.features.map((feature) => (
-                      <li key={feature} className="flex items-start gap-3">
+                  {/* Price */}
+                  <div className="mt-6 flex items-end gap-2">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-sm text-muted-foreground">Rs.</span>
+                      <span
+                        className={`font-display text-5xl font-bold ${
+                          plan.highlighted ? "text-gold text-glow-gold" : "text-foreground"
+                        }`}
+                      >
+                        {plan.price}
+                      </span>
+                    </div>
+                    <div className="flex flex-col mb-1">
+                      <span className="text-xs text-muted-foreground line-through">Rs. {plan.originalPrice}</span>
+                      <span className="text-muted-foreground text-sm">{plan.period}</span>
+                    </div>
+                  </div>
+
+                  {plan.savings && (
+                    <div className="mt-2 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald/10 border border-emerald/20 text-emerald text-xs font-semibold">
+                      <Star className="w-3 h-3 fill-emerald" />
+                      {plan.savings}
+                    </div>
+                  )}
+
+                  {/* Divider */}
+                  <div className="my-6 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+
+                  {/* Features */}
+                  <ul className="space-y-3 mb-8">
+                    {plan.features.map((feature, i) => (
+                      <li key={i} className="flex items-start gap-3">
                         <div
                           className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${
-                            plan.highlighted
-                              ? "bg-gold/20 text-gold"
-                              : "bg-emerald/10 text-emerald"
+                            plan.highlighted ? "bg-gold/20 text-gold" : "bg-emerald/10 text-emerald"
                           }`}
                         >
                           <Check className="h-3 w-3" />
                         </div>
-                        <span className="text-sm text-foreground/80">{feature}</span>
+                        <span
+                          className={`text-sm ${
+                            i === 0 && plan.highlighted ? "text-gold font-semibold" : "text-foreground/75"
+                          }`}
+                        >
+                          {feature}
+                        </span>
                       </li>
                     ))}
                   </ul>
@@ -180,43 +264,45 @@ export function Pricing({ onSelectPlan }: PricingProps) {
                   <Button
                     onClick={() => onSelectPlan?.(plan.id)}
                     size="lg"
-                    className={`w-full font-semibold text-base h-12 ${
+                    className={`w-full font-bold text-base h-13 rounded-xl transition-all duration-300 ${
                       plan.highlighted
-                        ? "bg-gold hover:bg-gold-light text-emerald-dark pulse-glow border-none"
-                        : "bg-emerald hover:bg-emerald-dark text-primary-foreground border border-gold/20"
+                        ? "bg-gold hover:bg-gold-light text-emerald-dark pulse-glow border-none shadow-lg shadow-gold/25"
+                        : "bg-emerald/10 hover:bg-emerald text-emerald hover:text-primary-foreground border border-emerald/30"
                     }`}
                   >
+                    {plan.highlighted && <Crown className="w-4 h-4 mr-2" />}
                     {plan.cta}
                   </Button>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
+                </div>
+              </motion.div>
+            );
+          })}
         </motion.div>
 
-        {/* Upgrade notice */}
+        {/* Bottom notices */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.3 }}
-          className="mt-10 text-center"
+          className="mt-10 flex flex-col sm:flex-row items-center justify-between gap-4"
         >
-          <div className="inline-flex items-center gap-2 px-5 py-3 rounded-xl border border-gold/20 bg-gold/5">
-            <Sparkles className="w-4 h-4 text-gold shrink-0" />
+          <div 
+            onClick={() => onSelectPlan?.("royal")}
+            className="inline-flex items-center gap-2 px-5 py-3 rounded-xl border border-gold/15 bg-gold/5 cursor-pointer hover:bg-gold/10 hover:border-gold/30 transition-all duration-300 group"
+          >
+            <Sparkles className="w-4 h-4 text-gold shrink-0 group-hover:scale-110 transition-transform" />
             <p className="text-sm text-muted-foreground">
-              Already purchased Classic?{" "}
-              <span className="text-gold font-semibold">Upgrade to Royal</span> anytime
+              Already on Classic?{" "}
+              <span className="text-gold font-semibold hover:text-gold-light underline underline-offset-4 decoration-gold/30">Upgrade to Royal</span> anytime
             </p>
-            <ArrowRight className="w-4 h-4 text-gold shrink-0" />
+            <ArrowRight className="w-4 h-4 text-gold shrink-0 group-hover:translate-x-1 transition-transform" />
+          </div>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Lock className="w-3.5 h-3.5 text-emerald shrink-0" />
+            Secure payments · SSL encrypted
           </div>
         </motion.div>
-
-        {/* Security badge */}
-        <div className="mt-6 flex items-center justify-center gap-2 text-xs text-muted-foreground">
-          <Lock className="w-3.5 h-3.5 text-emerald shrink-0" />
-          Secure payments via SSL encryption
-        </div>
       </div>
     </section>
   );

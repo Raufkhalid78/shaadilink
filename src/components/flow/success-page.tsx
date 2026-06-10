@@ -3,44 +3,56 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import {
-  Check,
-  Copy,
-  ExternalLink,
-  Share2,
-  Sparkles,
-  PartyPopper,
-  MessageSquare,
+  Check, Copy, ExternalLink, Share2, Sparkles, PartyPopper, LayoutDashboard,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import type { FlowData } from "@/lib/flow-types";
 
 interface SuccessPageProps {
   flowData: FlowData;
   onViewInvitation: () => void;
-  onGoHome: () => void;
+  onGoToDashboard: () => void;
 }
 
-export function SuccessPage({
-  flowData,
-  onViewInvitation,
-  onGoHome,
-}: SuccessPageProps) {
+export function SuccessPage({ flowData, onViewInvitation, onGoToDashboard }: SuccessPageProps) {
   const [copied, setCopied] = useState(false);
 
-  const invitationLink = `https://shaadilink.pk/inv/${flowData.selectedTemplateId || "emerald-noir"}`;
+  // Use real invitationId for unique link; fall back to template for demo mode
+  const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
+  const invitationLink = flowData.invitationId
+    ? `${baseUrl}/inv/${flowData.invitationId}`
+    : `${baseUrl}/demo/${flowData.selectedTemplateId || "emerald-noir"}`;
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(invitationLink).then(() => {
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(invitationLink);
       setCopied(true);
+      toast.success("Link copied to clipboard!");
       setTimeout(() => setCopied(false), 2000);
-    });
+    } catch {
+      // Fallback for browsers that don't support clipboard API
+      try {
+        const textarea = document.createElement("textarea");
+        textarea.value = invitationLink;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+        setCopied(true);
+        toast.success("Link copied!");
+        setTimeout(() => setCopied(false), 2000);
+      } catch {
+        toast.error("Could not copy automatically. Please copy the link manually.");
+      }
+    }
   };
 
   const handleWhatsApp = () => {
     const text = encodeURIComponent(
       `You're invited! 🎉 View our wedding invitation: ${invitationLink}`
     );
-    window.open(`https://wa.me/?text=${text}`, "_blank");
+    window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");
   };
 
   const templateName =
@@ -76,7 +88,6 @@ export function SuccessPage({
                   <Check className="w-7 h-7 text-primary-foreground" />
                 </motion.div>
               </div>
-              {/* Confetti-like decorations */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: -10 }}
@@ -130,6 +141,7 @@ export function SuccessPage({
                 size="icon"
                 onClick={handleCopy}
                 className="shrink-0 h-11 w-11 border-gold/30 text-gold hover:bg-gold/10"
+                aria-label="Copy link"
               >
                 {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               </Button>
@@ -158,15 +170,15 @@ export function SuccessPage({
                 className="flex-1 h-11 border-emerald/30 text-emerald hover:bg-emerald/10 gap-2"
               >
                 <Share2 className="w-4 h-4" />
-                Share on WhatsApp
+                Share via WhatsApp
               </Button>
               <Button
                 variant="outline"
-                onClick={onGoHome}
-                className="flex-1 h-11 border-border text-muted-foreground hover:text-foreground gap-2"
+                onClick={onGoToDashboard}
+                className="flex-1 h-11 border-gold/30 text-gold hover:bg-gold/10 gap-2"
               >
-                <MessageSquare className="w-4 h-4" />
-                Go to Dashboard
+                <LayoutDashboard className="w-4 h-4" />
+                Dashboard
               </Button>
             </div>
           </motion.div>
@@ -185,7 +197,7 @@ export function SuccessPage({
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Couple</span>
                 <span className="font-medium">
-                  {flowData.partner1Name || "Partner 1"} & {flowData.partner2Name || "Partner 2"}
+                  {flowData.partner1Name || "Partner 1"} &amp; {flowData.partner2Name || "Partner 2"}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -202,6 +214,14 @@ export function SuccessPage({
                   {flowData.events.filter((e) => e.name).length || flowData.events.length} events
                 </span>
               </div>
+              {flowData.invitationId && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">ID</span>
+                  <span className="font-mono text-xs text-muted-foreground truncate max-w-[160px]">
+                    {flowData.invitationId}
+                  </span>
+                </div>
+              )}
             </div>
           </motion.div>
         </motion.div>

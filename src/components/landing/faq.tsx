@@ -60,14 +60,15 @@ const itemVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, ease: "easeOut" },
+    transition: { duration: 0.5, ease: "easeOut" as const },
   },
 };
 
 export function FAQ() {
   return (
-    <section id="faq" className="py-20 sm:py-28 bg-gradient-to-b from-muted/30 to-background">
-      <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+    <section id="faq" className="py-24 sm:py-32 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-emerald-dark/10 to-background" />
+      <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
         <div className="text-center mb-14 sm:mb-20 reveal-on-scroll">
           <span className="inline-block font-calligraphy text-gold text-lg mb-3">

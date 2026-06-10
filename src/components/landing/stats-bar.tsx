@@ -1,165 +1,148 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import {
-  motion,
-  useInView,
-  useMotionValue,
-  useTransform,
-  animate,
-} from "framer-motion";
-import { Heart, Users, Star, Sparkles } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { motion, useInView } from "framer-motion";
+import { Heart, Users, Star, Globe } from "lucide-react";
 
-/* ─── Stat Data ─── */
-
-interface StatItem {
-  value: number;
-  suffix: string;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-}
-
-const stats: StatItem[] = [
-  { value: 5000, suffix: "+", label: "Happy Families", icon: Heart },
-  { value: 50000, suffix: "+", label: "Guests Reached", icon: Users },
-  { value: 99, suffix: "%", label: "Satisfaction", icon: Star },
-  { value: 15, suffix: "+", label: "Premium Templates", icon: Sparkles },
+const stats = [
+  {
+    icon: Users,
+    value: 5000,
+    suffix: "+",
+    label: "Families Served",
+    color: "text-emerald",
+    glow: "0 0 20px rgba(82, 170, 120, 0.4)",
+  },
+  {
+    icon: Heart,
+    value: 98,
+    suffix: "%",
+    label: "Satisfaction Rate",
+    color: "text-rose-400",
+    glow: "0 0 20px rgba(251, 113, 133, 0.4)",
+  },
+  {
+    icon: Star,
+    value: 4.9,
+    suffix: "/5",
+    label: "Average Rating",
+    color: "text-gold",
+    glow: "0 0 20px rgba(212, 168, 83, 0.5)",
+  },
+  {
+    icon: Globe,
+    value: 30,
+    suffix: "+",
+    label: "Countries Reached",
+    color: "text-blue-400",
+    glow: "0 0 20px rgba(96, 165, 250, 0.4)",
+  },
 ];
 
-/* ─── Animated Counter ─── */
-
-function AnimatedCounter({
-  value,
+function CountUp({
+  target,
   suffix,
-  inView,
+  isDecimal,
 }: {
-  value: number;
+  target: number;
   suffix: string;
-  inView: boolean;
+  isDecimal: boolean;
 }) {
-  const motionVal = useMotionValue(0);
-  const rounded = useTransform(motionVal, (v) => {
-    if (value >= 1000) {
-      return Math.round(v).toLocaleString();
-    }
-    return Math.round(v).toString();
-  });
-  const nodeRef = useRef<HTMLSpanElement>(null);
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-50px" });
 
   useEffect(() => {
     if (!inView) return;
+    const duration = 1800;
+    const steps = 60;
+    const increment = target / steps;
+    let current = 0;
+    let step = 0;
 
-    const controls = animate(motionVal, value, {
-      duration: 2,
-      ease: "easeOut",
-    });
+    const timer = setInterval(() => {
+      step++;
+      current = Math.min(current + increment, target);
+      setCount(isDecimal ? parseFloat(current.toFixed(1)) : Math.round(current));
+      if (step >= steps) clearInterval(timer);
+    }, duration / steps);
 
-    const unsubscribe = rounded.on("change", (v) => {
-      if (nodeRef.current) {
-        nodeRef.current.textContent = v + suffix;
-      }
-    });
-
-    return () => {
-      controls.stop();
-      unsubscribe();
-    };
-  }, [inView, value, suffix, motionVal, rounded]);
+    return () => clearInterval(timer);
+  }, [inView, target, isDecimal]);
 
   return (
-    <span
-      ref={nodeRef}
-      className="font-display text-3xl sm:text-4xl font-bold gold-shimmer-strong"
-    >
-      0{suffix}
+    <span ref={ref}>
+      {isDecimal ? count.toFixed(1) : count.toLocaleString()}
+      {suffix}
     </span>
   );
 }
 
-/* ─── Individual Stat ─── */
-
-function StatCard({
-  stat,
-  index,
-  inView,
-}: {
-  stat: StatItem;
-  index: number;
-  inView: boolean;
-}) {
-  const Icon = stat.icon;
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-      transition={{
-        duration: 0.6,
-        delay: index * 0.1,
-        ease: "easeOut",
-      }}
-      className="flex flex-col items-center px-6 py-6 sm:py-8 relative group"
-    >
-      {/* Icon */}
-      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gold/10 mb-3 group-hover:bg-gold/20 transition-colors duration-300">
-        <Icon className="w-4 h-4 text-gold" />
-      </div>
-      <AnimatedCounter
-        value={stat.value}
-        suffix={stat.suffix}
-        inView={inView}
-      />
-      <span className="mt-2 text-white/50 text-xs sm:text-sm uppercase tracking-wider text-center">
-        {stat.label}
-      </span>
-    </motion.div>
-  );
-}
-
-/* ─── Stats Bar Component ─── */
-
 export function StatsBar() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(containerRef, { once: true, margin: "-50px" });
-
   return (
-    <motion.section
-      ref={containerRef}
-      initial={{ opacity: 0, y: 30 }}
-      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-      transition={{ duration: 0.8, ease: "easeOut" }}
-      className="relative w-full bg-emerald-dark"
-    >
-      {/* Gold geometric border - top */}
+    <section className="relative py-16 overflow-hidden">
+      {/* Top & bottom gradient fade */}
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
+
+      {/* Background */}
       <div
-        className="w-full h-px"
+        className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(90deg, transparent, rgba(180,145,77,0.2) 15%, rgba(212,168,83,0.4) 30%, rgba(180,145,77,0.2) 50%, rgba(212,168,83,0.4) 70%, rgba(180,145,77,0.2) 85%, transparent)",
+            "radial-gradient(ellipse at 50% 50%, oklch(0.16 0.04 155 / 0.6) 0%, transparent 70%)",
         }}
       />
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4">
-          {stats.map((stat, i) => (
-            <div key={stat.label} className="relative">
-              <StatCard stat={stat} index={i} inView={isInView} />
-              {/* Vertical divider between items */}
-              {i < stats.length - 1 && (
-                <div className="hidden md:block absolute right-0 top-1/2 -translate-y-1/2 h-10 w-px bg-gold/15" />
-              )}
-            </div>
-          ))}
+      <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-gold/10 rounded-2xl overflow-hidden border border-gold/10 shadow-lg shadow-black/30">
+          {stats.map((stat, i) => {
+            const Icon = stat.icon;
+            return (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1, duration: 0.6 }}
+                className="relative flex flex-col items-center justify-center py-8 px-6 bg-card/80 backdrop-blur-sm gap-2 group hover:bg-card transition-colors duration-300"
+              >
+                {/* Glow on hover */}
+                <div
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-none"
+                  style={{
+                    background: `radial-gradient(circle at 50% 50%, ${stat.glow.replace("0 0 20px ", "")} 0%, transparent 70%)`,
+                  }}
+                />
+
+                {/* Icon */}
+                <div
+                  className={`relative w-10 h-10 rounded-xl flex items-center justify-center bg-white/5 border border-white/10 mb-1`}
+                >
+                  <Icon className={`w-5 h-5 ${stat.color}`} />
+                </div>
+
+                {/* Number */}
+                <p
+                  className={`font-display text-3xl sm:text-4xl font-bold ${stat.color} relative`}
+                  style={{ textShadow: stat.glow }}
+                >
+                  <CountUp
+                    target={stat.value}
+                    suffix={stat.suffix}
+                    isDecimal={stat.value !== Math.floor(stat.value)}
+                  />
+                </p>
+
+                {/* Label */}
+                <p className="text-xs sm:text-sm text-muted-foreground font-medium text-center leading-tight">
+                  {stat.label}
+                </p>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
-
-      {/* Gold geometric border - bottom */}
-      <div
-        className="w-full h-px"
-        style={{
-          background:
-            "linear-gradient(90deg, transparent, rgba(180,145,77,0.2) 15%, rgba(212,168,83,0.4) 30%, rgba(180,145,77,0.2) 50%, rgba(212,168,83,0.4) 70%, rgba(180,145,77,0.2) 85%, transparent)",
-        }}
-      />
-    </motion.section>
+    </section>
   );
 }

@@ -23,6 +23,12 @@ import {
   User,
   MessageCircle,
   Loader2,
+  Copy,
+  Hotel,
+  Car,
+  Gift,
+  HelpCircle,
+  Info,
 } from 'lucide-react'
 import type { FlowData } from '@/lib/flow-types'
 
@@ -70,6 +76,8 @@ export interface TemplateTheme {
     animationClass: string
     buttonStyle: 'circle' | 'diamond' | 'shield' | 'hexagon' | 'star'
   }
+  fontDisplay?: string
+  fontCalligraphy?: string
 }
 
 const TEMPLATE_THEMES: Record<string, TemplateTheme> = {
@@ -130,11 +138,11 @@ const TEMPLATE_THEMES: Record<string, TemplateTheme> = {
     fireworkColors: ['#dc2626', '#f87171', '#ef4444', '#b91c1c', '#d4a853', '#ffd700', '#fca5a5'],
     confettiColors: ['#dc2626', '#f87171', '#d4a853', '#ffd700', '#ef4444', '#fca5a5', '#e8c66a'],
     doorStyle: {
-      type: 'classic-doors',
-      doorMaterial: 'lacquer',
-      panelLayout: '2-panel',
-      handleType: 'ring-knocker',
-      frameStyle: 'ornate',
+      type: 'curtains',
+      doorMaterial: 'painted',
+      panelLayout: 'flat',
+      handleType: 'none',
+      frameStyle: 'painted-rosettes',
       leftText: 'نّ',
       rightText: 'و',
       leftTextLang: 'ar',
@@ -166,10 +174,10 @@ const TEMPLATE_THEMES: Record<string, TemplateTheme> = {
     fireworkColors: ['#f59e0b', '#fbbf24', '#d97706', '#92400e', '#fff4d0', '#fde68a', '#ffd700'],
     confettiColors: ['#f59e0b', '#fbbf24', '#d97706', '#ffd700', '#fde68a', '#fff4d0', '#e8a4b8'],
     doorStyle: {
-      type: 'classic-doors',
-      doorMaterial: 'wood',
-      panelLayout: '2-panel',
-      handleType: 'lever',
+      type: 'scroll',
+      doorMaterial: 'painted',
+      panelLayout: 'flat',
+      handleType: 'none',
       frameStyle: 'simple',
       leftText: 'ع',
       rightText: 'ش',
@@ -202,10 +210,10 @@ const TEMPLATE_THEMES: Record<string, TemplateTheme> = {
     fireworkColors: ['#ec4899', '#f472b6', '#db2777', '#9d174d', '#ffd700', '#fbbf24', '#fca5a5'],
     confettiColors: ['#ec4899', '#f472b6', '#db2777', '#ffd700', '#fbbf24', '#fca5a5', '#e8c66a'],
     doorStyle: {
-      type: 'classic-doors',
+      type: 'petals',
       doorMaterial: 'painted',
-      panelLayout: 'glass-grid',
-      handleType: 'crystal',
+      panelLayout: 'flat',
+      handleType: 'none',
       frameStyle: 'painted-rosettes',
       leftText: 'Garden',
       rightText: 'Romance',
@@ -238,7 +246,7 @@ const TEMPLATE_THEMES: Record<string, TemplateTheme> = {
     fireworkColors: ['#60a5fa', '#93c5fd', '#3b82f6', '#1d4ed8', '#ffd700', '#d4a853', '#dbeafe'],
     confettiColors: ['#60a5fa', '#93c5fd', '#3b82f6', '#ffd700', '#d4a853', '#dbeafe', '#e8c66a'],
     doorStyle: {
-      type: 'classic-doors',
+      type: 'split-screen',
       doorMaterial: 'glass',
       panelLayout: 'flat',
       handleType: 'none',
@@ -274,7 +282,7 @@ const TEMPLATE_THEMES: Record<string, TemplateTheme> = {
     fireworkColors: ['#2dd4bf', '#5eead4', '#14b8a6', '#0d9488', '#ffd700', '#d4a853', '#a7f3d0'],
     confettiColors: ['#2dd4bf', '#5eead4', '#14b8a6', '#ffd700', '#d4a853', '#a7f3d0', '#e8c66a'],
     doorStyle: {
-      type: 'classic-doors',
+      type: 'archway',
       doorMaterial: 'stone',
       panelLayout: 'carved',
       handleType: 'iron-ring',
@@ -310,10 +318,10 @@ const TEMPLATE_THEMES: Record<string, TemplateTheme> = {
     fireworkColors: ['#fb7185', '#fda4af', '#e11d48', '#be123c', '#ffd700', '#d4a853', '#fecdd3'],
     confettiColors: ['#fb7185', '#fda4af', '#e11d48', '#ffd700', '#d4a853', '#fecdd3', '#e8c66a'],
     doorStyle: {
-      type: 'classic-doors',
+      type: 'lotus',
       doorMaterial: 'painted',
-      panelLayout: '4-panel',
-      handleType: 'crystal',
+      panelLayout: 'flat',
+      handleType: 'none',
       frameStyle: 'painted-rosettes',
       leftText: 'Rose',
       rightText: 'Gold',
@@ -346,10 +354,10 @@ const TEMPLATE_THEMES: Record<string, TemplateTheme> = {
     fireworkColors: ['#a8a29e', '#d6d3d1', '#78716c', '#57534e', '#ffd700', '#d4a853', '#e7e5e4'],
     confettiColors: ['#a8a29e', '#d6d3d1', '#78716c', '#ffd700', '#d4a853', '#e7e5e4', '#e8c66a'],
     doorStyle: {
-      type: 'classic-doors',
+      type: 'curtains',
       doorMaterial: 'painted',
-      panelLayout: '4-panel',
-      handleType: 'lever',
+      panelLayout: 'flat',
+      handleType: 'none',
       frameStyle: 'ornate',
       leftText: 'Ivory',
       rightText: 'Dream',
@@ -382,10 +390,10 @@ const TEMPLATE_THEMES: Record<string, TemplateTheme> = {
     fireworkColors: ['#f59e0b', '#fbbf24', '#d97706', '#92400e', '#ffd700', '#fff4d0', '#fde68a', '#e8c66a'],
     confettiColors: ['#f59e0b', '#fbbf24', '#d97706', '#ffd700', '#fde68a', '#fff4d0', '#e8a4b8', '#ec4899'],
     doorStyle: {
-      type: 'classic-doors',
-      doorMaterial: 'wood',
-      panelLayout: 'studded',
-      handleType: 'iron-ring',
+      type: 'dome',
+      doorMaterial: 'stone',
+      panelLayout: 'carved',
+      handleType: 'none',
       frameStyle: 'ornate',
       leftText: 'سلطنت',
       rightText: 'شاهی',
@@ -418,10 +426,10 @@ const TEMPLATE_THEMES: Record<string, TemplateTheme> = {
     fireworkColors: ['#f43f5e', '#fb7185', '#e11d48', '#be123c', '#ffd700', '#d4a853', '#fecdd3', '#e8c66a'],
     confettiColors: ['#f43f5e', '#fb7185', '#e11d48', '#ffd700', '#d4a853', '#fecdd3', '#e8c66a', '#fbbf24'],
     doorStyle: {
-      type: 'classic-doors',
-      doorMaterial: 'wood',
-      panelLayout: 'carved',
-      handleType: 'ring-knocker',
+      type: 'lantern',
+      doorMaterial: 'glass',
+      panelLayout: 'flat',
+      handleType: 'none',
       frameStyle: 'ornate',
       leftText: 'Royal',
       rightText: 'Elegance',
@@ -438,8 +446,132 @@ const TEMPLATE_THEMES: Record<string, TemplateTheme> = {
 const DEFAULT_THEME = TEMPLATE_THEMES['emerald-noir']
 
 export function getTheme(templateId?: string | null): TemplateTheme {
-  if (!templateId) return DEFAULT_THEME
-  return TEMPLATE_THEMES[templateId] || DEFAULT_THEME
+  if (!templateId) return { ...DEFAULT_THEME, fontDisplay: 'font-display', fontCalligraphy: 'font-calligraphy' }
+  const theme = TEMPLATE_THEMES[templateId] || DEFAULT_THEME
+  const isRoyal = templateId.includes('royal') || ['crimson-royale', 'majestic-love', 'royal-imperial', 'royal-elegance'].includes(templateId)
+  return {
+    ...theme,
+    fontDisplay: theme.fontDisplay || (isRoyal ? 'font-royal-display' : 'font-display'),
+    fontCalligraphy: theme.fontCalligraphy || (isRoyal ? 'font-royal-script' : 'font-calligraphy'),
+  }
+}
+
+/* ─── Premium Features Helper Functions ─── */
+export function extractColors(text: string): { name: string; hex: string }[] {
+  const colorMap: Record<string, string> = {
+    yellow: '#eab308',
+    mustard: '#ca8a04',
+    green: '#22c55e',
+    emerald: '#0f766e',
+    mint: '#6ee7b7',
+    olive: '#84cc16',
+    gold: '#d4a853',
+    maroon: '#7f1d1d',
+    burgundy: '#881337',
+    plum: '#581c87',
+    red: '#ef4444',
+    crimson: '#dc2626',
+    pink: '#ec4899',
+    magenta: '#d946ef',
+    peach: '#ffedd5',
+    orange: '#f97316',
+    white: '#ffffff',
+    black: '#000000',
+    blue: '#3b82f6',
+    navy: '#1e3a8a',
+    turquoise: '#06b6d4',
+    purple: '#a855f7',
+    lavender: '#f3e8ff',
+    silver: '#cbd5e1',
+    grey: '#6b7280',
+    gray: '#6b7280',
+    ivory: '#fffff0',
+    cream: '#fffdd0',
+    beige: '#f5f5dc',
+  };
+  
+  const results: { name: string; hex: string }[] = [];
+  const words = text.toLowerCase().split(/[\s,/\-+&]+/);
+  
+  for (const word of words) {
+    if (colorMap[word]) {
+      if (!results.some(c => c.name.toLowerCase() === word)) {
+        results.push({ name: word.charAt(0).toUpperCase() + word.slice(1), hex: colorMap[word] });
+      }
+    }
+  }
+  return results;
+}
+
+export interface ParsedGiftBank {
+  bankName?: string;
+  accountTitle?: string;
+  accountNumber?: string;
+  iban?: string;
+  raastId?: string;
+  easyPaisa?: string;
+  jazzCash?: string;
+}
+
+export function parseGiftDetails(text?: string): ParsedGiftBank | null {
+  if (!text) return null;
+  
+  const details: ParsedGiftBank = {};
+  
+  // Raast ID: e.g. Raast ID: 03001234567
+  const raastMatch = text.match(/(?:Raast\s*(?:ID)?|Raast)\s*[:\-\s]+\s*([0-9+]+)/i);
+  if (raastMatch) details.raastId = raastMatch[1].trim();
+  
+  // EasyPaisa: e.g. EasyPaisa: 03123456789
+  const epMatch = text.match(/(?:EasyPaisa|Easy\s*Paisa)\s*[:\-\s]+\s*([0-9+]+)/i);
+  if (epMatch) details.easyPaisa = epMatch[1].trim();
+  
+  // JazzCash: e.g. JazzCash: 03211234567
+  const jcMatch = text.match(/(?:JazzCash|Jazz\s*Cash)\s*[:\-\s]+\s*([0-9+]+)/i);
+  if (jcMatch) details.jazzCash = jcMatch[1].trim();
+  
+  // IBAN: e.g. PK45MEZN00028102384
+  const ibanMatch = text.match(/IBAN\s*[:\-\s]+\s*([A-Z]{2}[0-9]{2}[A-Z0-9\s]{16,30})/i);
+  if (ibanMatch) details.iban = ibanMatch[1].replace(/\s+/g, '').toUpperCase().trim();
+  
+  // Account Number: e.g. Account Number: 028102384
+  const accNumMatch = text.match(/(?:Account\s*(?:Number|No\.?)|Acc\s*(?:Number|No\.?))\s*[:\-\s]+\s*([0-9\-]+)/i);
+  if (accNumMatch) details.accountNumber = accNumMatch[1].trim();
+  
+  // Account Title: e.g. Account Title: Ahmed
+  const titleMatch = text.match(/(?:Account\s*Title|Acc\s*Title|Title)\s*[:\-\s]+\s*([a-zA-Z\s.()0-9]+?)(?=(?:\s*,|\s*\n|\s*Bank|\s*Account|\s*Raast|\s*EasyPaisa|$))/i);
+  if (titleMatch) details.accountTitle = titleMatch[1].trim();
+  
+  // Bank Name: e.g. Meezan Bank
+  const bankMatch = text.match(/(?:Bank\s*(?:Name)?|Bank)\s*[:\-\s]+\s*([a-zA-Z\s.()0-9]+?)(?=(?:\s*,|\s*\n|\s*Account|\s*Title|\s*IBAN|$))/i);
+  if (bankMatch) details.bankName = bankMatch[1].trim();
+  
+  if (Object.keys(details).length === 0) return null;
+  
+  return details;
+}
+
+export function getGoogleCalendarLink(event: { name: string; date: string; time: string; description: string }, partner1: string, partner2: string): string {
+  try {
+    const dateStr = event.date.replace(/,/g, ''); // e.g. "March 15 2027"
+    const timeStr = event.time.replace(/PKT|PST/gi, '').trim(); // e.g. "7:00 PM"
+    const combinedStr = `${dateStr} ${timeStr}`;
+    const parsedDate = new Date(combinedStr);
+    if (!isNaN(parsedDate.getTime())) {
+      const startISO = parsedDate.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+      const endDate = new Date(parsedDate.getTime() + 2 * 60 * 60 * 1000); // default to 2 hours duration
+      const endISO = endDate.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+      
+      const text = encodeURIComponent(`${partner1} & ${partner2}'s ${event.name}`);
+      const details = encodeURIComponent(`${event.description}`);
+      return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${startISO}/${endISO}&details=${details}`;
+    }
+  } catch (e) {
+    console.error("Calendar parsing error", e);
+  }
+  
+  const text = encodeURIComponent(`${partner1} & ${partner2}'s ${event.name}`);
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}`;
 }
 
 /* ─── InvitationViewer Props ─── */
@@ -576,7 +708,7 @@ function FireworksDisplay({ show, colors: propColors }: { show: boolean; colors?
     canvas.width = window.innerWidth
     canvas.height = window.innerHeight
 
-    interface FParticle { x: number; y: number; color: string; size: number; angle: number; speed: number; decay: number; trail: number[] }
+    interface FParticle { x: number; y: number; color: string; size: number; angle: number; speed: number; decay: number; trail: { x: number; y: number }[] }
     const particles: FParticle[] = []
     const colors = propColors || ['#b4914d', '#d4a853', '#e8c66a', '#8b6d2f', '#fff4d0', '#f0d78c', '#ffd700', '#ffe4b5', '#f5deb3']
 
@@ -686,6 +818,204 @@ function ConfettiDisplay({ show, colors: propColors }: { show: boolean; colors?:
   )
 }
 
+/* ─── Heart Path Helper ─── */
+const drawHeartPath = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) => {
+  ctx.beginPath()
+  const topCurveHeight = h * 0.3
+  ctx.moveTo(x + w / 2, y + topCurveHeight)
+  // Top-left curve
+  ctx.bezierCurveTo(
+    x + w / 2, y,
+    x, y,
+    x, y + topCurveHeight + (h - topCurveHeight) * 0.15
+  )
+  // Bottom-left curve
+  ctx.bezierCurveTo(
+    x, y + topCurveHeight + (h - topCurveHeight) * 0.6,
+    x + w / 2 - w * 0.05, y + h - h * 0.05,
+    x + w / 2, y + h
+  )
+  // Bottom-right curve
+  ctx.bezierCurveTo(
+    x + w / 2 + w * 0.05, y + h - h * 0.05,
+    x + w, y + topCurveHeight + (h - topCurveHeight) * 0.6,
+    x + w, y + topCurveHeight + (h - topCurveHeight) * 0.15
+  )
+  // Top-right curve
+  ctx.bezierCurveTo(
+    x + w, y,
+    x + w / 2, y,
+    x + w / 2, y + topCurveHeight
+  )
+  ctx.closePath()
+}
+
+const getHeartSvgPath = (w: number, h: number, margin = 0) => {
+  const x = margin
+  const y = margin
+  const width = w - margin * 2
+  const height = h - margin * 2
+  const topCurveHeight = height * 0.3
+  
+  const startX = x + width / 2
+  const startY = y + topCurveHeight
+  
+  return `M ${startX} ${startY}
+          C ${startX} ${y}, ${x} ${y}, ${x} ${startY + (height - topCurveHeight) * 0.15}
+          C ${x} ${startY + (height - topCurveHeight) * 0.6}, ${startX - width * 0.05} ${y + height - height * 0.05}, ${startX} ${y + height}
+          C ${startX + width * 0.05} ${y + height - height * 0.05}, ${x + width} ${startY + (height - topCurveHeight) * 0.6}, ${x + width} ${startY + (height - topCurveHeight) * 0.15}
+          C ${x + width} ${y}, ${startX} ${y}, ${startX} ${startY} Z`
+}
+
+/* ─── Gold Dust Splash ─── */
+interface GDParticle {
+  x: number
+  y: number
+  vx: number
+  vy: number
+  swaySpeed: number
+  swayOffset: number
+  life: number
+  maxLife: number
+  size: number
+  color: string
+  rotation: number
+  rotSpeed: number
+}
+
+function GoldDustSplash({ show, colors: propColors }: { show: boolean; colors?: string[] }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const particlesRef = useRef<GDParticle[]>([])
+  const animRef = useRef<number>(0)
+  const colors = propColors || ['#b4914d', '#d4a853', '#e8c66a', '#f0d78c', '#fff4d0']
+
+  useEffect(() => {
+    if (!show) return
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    const dpr = window.devicePixelRatio || 1
+    const resize = () => {
+      canvas.width = window.innerWidth * dpr
+      canvas.height = window.innerHeight * dpr
+      canvas.style.width = `${window.innerWidth}px`
+      canvas.style.height = `${window.innerHeight}px`
+      const ctx = canvas.getContext('2d')
+      if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+    }
+    resize()
+    window.addEventListener('resize', resize)
+
+    // Spawn initial burst of particles along the center seam
+    const count = 150
+    const w = window.innerWidth
+    const h = window.innerHeight
+    const particles: GDParticle[] = []
+    for (let i = 0; i < count; i++) {
+      const isLeft = Math.random() < 0.5
+      const vx = (isLeft ? -1 : 1) * (2 + Math.random() * 10)
+      const vy = (Math.random() - 0.5) * 3
+      particles.push({
+        x: w / 2,
+        y: Math.random() * h,
+        vx,
+        vy,
+        swaySpeed: 0.02 + Math.random() * 0.05,
+        swayOffset: Math.random() * Math.PI * 2,
+        life: 60 + Math.random() * 90,
+        maxLife: 150,
+        size: 1.5 + Math.random() * 3,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        rotation: Math.random() * Math.PI * 2,
+        rotSpeed: (Math.random() - 0.5) * 0.08,
+      })
+    }
+    particlesRef.current = particles
+
+    const ctx = canvas.getContext('2d')!
+    function animate() {
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight)
+      const current = particlesRef.current
+
+      // Spawn a few more tailing particles for a continuous flow
+      if (current.length < 250 && Math.random() < 0.6) {
+        const isLeft = Math.random() < 0.5
+        current.push({
+          x: window.innerWidth / 2,
+          y: Math.random() * window.innerHeight,
+          vx: (isLeft ? -1 : 1) * (1 + Math.random() * 6),
+          vy: (Math.random() - 0.5) * 2,
+          swaySpeed: 0.02 + Math.random() * 0.05,
+          swayOffset: Math.random() * Math.PI * 2,
+          life: 40 + Math.random() * 60,
+          maxLife: 100,
+          size: 1.2 + Math.random() * 2,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rotation: Math.random() * Math.PI * 2,
+          rotSpeed: (Math.random() - 0.5) * 0.08,
+        })
+      }
+
+      for (let i = current.length - 1; i >= 0; i--) {
+        const p = current[i]
+        p.x += p.vx
+        p.y += p.vy
+        p.rotation += p.rotSpeed
+
+        p.vx *= 0.96
+        p.vy *= 0.97
+
+        p.y += Math.sin(p.swayOffset) * 0.2
+        p.swayOffset += p.swaySpeed
+        p.y -= 0.15
+
+        p.life--
+        if (p.life <= 0) {
+          current.splice(i, 1)
+          continue
+        }
+
+        const alpha = p.life / p.maxLife
+        ctx.globalAlpha = alpha
+        ctx.fillStyle = p.color
+
+        ctx.save()
+        ctx.translate(p.x, p.y)
+        ctx.rotate(p.rotation)
+        const r = p.size * (0.4 + alpha * 0.6)
+        
+        ctx.beginPath()
+        for (let j = 0; j < 4; j++) {
+          ctx.rotate(Math.PI / 4)
+          ctx.fillRect(-r * 0.15, -r, r * 0.3, r * 2)
+        }
+        ctx.restore()
+
+        if (p.size > 2.5) {
+          ctx.beginPath()
+          ctx.arc(p.x, p.y, r * 2.5, 0, Math.PI * 2)
+          ctx.fillStyle = p.color
+          ctx.globalAlpha = alpha * 0.15
+          ctx.fill()
+        }
+      }
+
+      ctx.globalAlpha = 1
+      animRef.current = requestAnimationFrame(animate)
+    }
+
+    animRef.current = requestAnimationFrame(animate)
+
+    return () => {
+      window.removeEventListener('resize', resize)
+      cancelAnimationFrame(animRef.current)
+    }
+  }, [show, colors])
+
+  if (!show) return null
+  return <canvas ref={canvasRef} className="fixed inset-0 z-[49] pointer-events-none" style={{ width: '100vw', height: '100vh' }} />
+}
+
 /* ─── Scratch Card (v8 - Grid-based tracking + fixed DPR + sparkle trail) ─── */
 function ScratchCard({ revealed, onReveal, theme, language, translations }: { revealed: boolean; onReveal: () => void; theme: TemplateTheme; language: 'en' | 'ur'; translations: Record<string, string> }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -700,19 +1030,20 @@ function ScratchCard({ revealed, onReveal, theme, language, translations }: { re
   const sparklesRef = useRef<Array<{ x: number; y: number; vx: number; vy: number; life: number; maxLife: number; size: number; color: string }>>([])
   const sparkleAnimRef = useRef<number>(0)
 
+  const isRoyal = theme.id.includes('royal')
+  const CARD_W = isRoyal ? 320 : 340
+  const CARD_H = isRoyal ? 300 : 220
+
   // Grid-based scratch tracking (reliable, no getImageData needed)
-  const GRID_COLS = 17
-  const GRID_ROWS = 11
-  const REVEAL_THRESHOLD = 60 // Reveal when 60% of grid cells scratched
+  const GRID_COLS = isRoyal ? 15 : 17
+  const GRID_ROWS = isRoyal ? 15 : 11
+  const REVEAL_THRESHOLD = isRoyal ? 40 : 60
   const gridRef = useRef<Set<string>>(new Set())
 
   // Keep onReveal ref always current
   useEffect(() => {
     onRevealRef.current = onReveal
   }, [onReveal])
-
-  const CARD_W = 340
-  const CARD_H = 220
 
   // Initialize canvas
   useEffect(() => {
@@ -724,8 +1055,12 @@ function ScratchCard({ revealed, onReveal, theme, language, translations }: { re
     canvas.style.width = `${CARD_W}px`
     canvas.style.height = `${CARD_H}px`
     const ctx = canvas.getContext('2d')!
-    // Use setTransform to set DPR scaling cleanly
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+
+    if (isRoyal) {
+      drawHeartPath(ctx, 0, 0, CARD_W, CARD_H)
+      ctx.clip()
+    }
 
     // Rich dark gradient surface (theme-aware)
     const grad = ctx.createLinearGradient(0, 0, CARD_W, CARD_H)
@@ -774,38 +1109,50 @@ function ScratchCard({ revealed, onReveal, theme, language, translations }: { re
     ctx.globalAlpha = 1
 
     // Double border (theme-aware)
-    ctx.strokeStyle = `rgba(${theme.accentRgb}, 0.6)`
-    ctx.lineWidth = 2.5
-    ctx.strokeRect(4, 4, CARD_W - 8, CARD_H - 8)
-    ctx.strokeStyle = `rgba(${theme.accentRgb}, 0.25)`
-    ctx.lineWidth = 1
-    ctx.strokeRect(10, 10, CARD_W - 20, CARD_H - 20)
+    if (isRoyal) {
+      ctx.strokeStyle = `rgba(${theme.accentRgb}, 0.6)`
+      ctx.lineWidth = 2.5
+      drawHeartPath(ctx, 4, 4, CARD_W - 8, CARD_H - 8)
+      ctx.stroke()
 
-    // Corner decorations
-    const cornerSize = 20
-    const cornerOffset = 14
-    ctx.strokeStyle = `rgba(${theme.accentRgb}, 0.5)`
-    ctx.lineWidth = 1.5
-    ctx.beginPath()
-    ctx.moveTo(cornerOffset, cornerOffset + cornerSize)
-    ctx.lineTo(cornerOffset, cornerOffset)
-    ctx.lineTo(cornerOffset + cornerSize, cornerOffset)
-    ctx.stroke()
-    ctx.beginPath()
-    ctx.moveTo(CARD_W - cornerOffset - cornerSize, cornerOffset)
-    ctx.lineTo(CARD_W - cornerOffset, cornerOffset)
-    ctx.lineTo(CARD_W - cornerOffset, cornerOffset + cornerSize)
-    ctx.stroke()
-    ctx.beginPath()
-    ctx.moveTo(cornerOffset, CARD_H - cornerOffset - cornerSize)
-    ctx.lineTo(cornerOffset, CARD_H - cornerOffset)
-    ctx.lineTo(cornerOffset + cornerSize, CARD_H - cornerOffset)
-    ctx.stroke()
-    ctx.beginPath()
-    ctx.moveTo(CARD_W - cornerOffset - cornerSize, CARD_H - cornerOffset)
-    ctx.lineTo(CARD_W - cornerOffset, CARD_H - cornerOffset)
-    ctx.lineTo(CARD_W - cornerOffset, CARD_H - cornerOffset - cornerSize)
-    ctx.stroke()
+      ctx.strokeStyle = `rgba(${theme.accentRgb}, 0.25)`
+      ctx.lineWidth = 1
+      drawHeartPath(ctx, 10, 10, CARD_W - 20, CARD_H - 20)
+      ctx.stroke()
+    } else {
+      ctx.strokeStyle = `rgba(${theme.accentRgb}, 0.6)`
+      ctx.lineWidth = 2.5
+      ctx.strokeRect(4, 4, CARD_W - 8, CARD_H - 8)
+      ctx.strokeStyle = `rgba(${theme.accentRgb}, 0.25)`
+      ctx.lineWidth = 1
+      ctx.strokeRect(10, 10, CARD_W - 20, CARD_H - 20)
+
+      // Corner decorations
+      const cornerSize = 20
+      const cornerOffset = 14
+      ctx.strokeStyle = `rgba(${theme.accentRgb}, 0.5)`
+      ctx.lineWidth = 1.5
+      ctx.beginPath()
+      ctx.moveTo(cornerOffset, cornerOffset + cornerSize)
+      ctx.lineTo(cornerOffset, cornerOffset)
+      ctx.lineTo(cornerOffset + cornerSize, cornerOffset)
+      ctx.stroke()
+      ctx.beginPath()
+      ctx.moveTo(CARD_W - cornerOffset - cornerSize, cornerOffset)
+      ctx.lineTo(CARD_W - cornerOffset, cornerOffset)
+      ctx.lineTo(CARD_W - cornerOffset, cornerOffset + cornerSize)
+      ctx.stroke()
+      ctx.beginPath()
+      ctx.moveTo(cornerOffset, CARD_H - cornerOffset - cornerSize)
+      ctx.lineTo(cornerOffset, CARD_H - cornerOffset)
+      ctx.lineTo(cornerOffset + cornerSize, CARD_H - cornerOffset)
+      ctx.stroke()
+      ctx.beginPath()
+      ctx.moveTo(CARD_W - cornerOffset - cornerSize, CARD_H - cornerOffset)
+      ctx.lineTo(CARD_W - cornerOffset, CARD_H - cornerOffset)
+      ctx.lineTo(CARD_W - cornerOffset, CARD_H - cornerOffset - cornerSize)
+      ctx.stroke()
+    }
 
     // "Scratch Here" text with glow (theme-aware)
     ctx.shadowColor = `rgba(${theme.accentRgb}, 0.5)`
@@ -814,21 +1161,22 @@ function ScratchCard({ revealed, onReveal, theme, language, translations }: { re
     ctx.font = language === 'ur' ? 'bold 18px Noto Nastaliq Urdu, serif' : 'bold 18px serif'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
-    ctx.fillText(language === 'ur' ? (translations.scratchHere || '✦  یہاں کھرچیں  ✦') : '✦  Scratch Here  ✦', cx, cy - 8)
+    const cyOffset = isRoyal ? -12 : 0
+    ctx.fillText(language === 'ur' ? (translations.scratchHere || '✦  یہاں کھرچیں  ✦') : '✦  Scratch Here  ✦', cx, cy + cyOffset - 8)
     ctx.shadowBlur = 0
     ctx.fillStyle = `rgba(${theme.accentRgb}, 0.5)`
     ctx.font = language === 'ur' ? '11px Noto Nastaliq Urdu, serif' : '11px serif'
-    ctx.fillText(language === 'ur' ? (translations.toReveal || 'دعوت نامہ دیکھنے کے لیے') : 'to reveal your invitation', cx, cy + 14)
+    ctx.fillText(language === 'ur' ? (translations.toReveal || 'دعوت نامہ دیکھنے کے لیے') : 'to reveal your invitation', cx, cy + cyOffset + 14)
 
     // Finger icon hint
     ctx.fillStyle = `rgba(${theme.accentRgb}, 0.25)`
     ctx.font = '22px serif'
-    ctx.fillText('👆', cx, cy + 40)
+    ctx.fillText('👆', cx, cy + cyOffset + 42)
 
     // Reset grid and percent
     gridRef.current = new Set()
     setScratchPercent(0)
-  }, [revealed, theme, language, translations])
+  }, [revealed, theme, language, translations, CARD_W, CARD_H, isRoyal])
 
   // Sparkle trail animation loop
   useEffect(() => {
@@ -849,14 +1197,13 @@ function ScratchCard({ revealed, onReveal, theme, language, translations }: { re
         const s = sparkles[i]
         s.x += s.vx
         s.y += s.vy
-        s.vy += 0.08 // gravity
+        s.vy += 0.08
         s.life--
         if (s.life <= 0) { sparkles.splice(i, 1); continue }
         const alpha = s.life / s.maxLife
         sCtx.globalAlpha = alpha
         sCtx.fillStyle = s.color
         sCtx.beginPath()
-        // Star shape for sparkle
         const r = s.size * alpha
         sCtx.save()
         sCtx.translate(s.x, s.y)
@@ -865,7 +1212,6 @@ function ScratchCard({ revealed, onReveal, theme, language, translations }: { re
           sCtx.fillRect(-r * 0.15, -r, r * 0.3, r * 2)
         }
         sCtx.restore()
-        // Glow
         sCtx.beginPath()
         sCtx.arc(s.x, s.y, r * 2, 0, Math.PI * 2)
         sCtx.fillStyle = s.color
@@ -877,7 +1223,7 @@ function ScratchCard({ revealed, onReveal, theme, language, translations }: { re
     }
     sparkleAnimRef.current = requestAnimationFrame(animateSparkles)
     return () => cancelAnimationFrame(sparkleAnimRef.current)
-  }, [revealed])
+  }, [revealed, CARD_W, CARD_H])
 
   // Celebration effect on reveal
   useEffect(() => {
@@ -899,7 +1245,6 @@ function ScratchCard({ revealed, onReveal, theme, language, translations }: { re
   const markGrid = useCallback((x: number, y: number) => {
     const cellW = CARD_W / GRID_COLS
     const cellH = CARD_H / GRID_ROWS
-    // Mark the main cell and neighbors for smoother tracking
     const col = Math.floor(x / cellW)
     const row = Math.floor(y / cellH)
     const grid = gridRef.current
@@ -918,7 +1263,7 @@ function ScratchCard({ revealed, onReveal, theme, language, translations }: { re
     if (pct >= REVEAL_THRESHOLD && !revealedRef.current) {
       doReveal()
     }
-  }, [doReveal])
+  }, [doReveal, CARD_W, CARD_H, GRID_COLS, GRID_ROWS, REVEAL_THRESHOLD])
 
   const getPos = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     const canvas = canvasRef.current
@@ -934,11 +1279,17 @@ function ScratchCard({ revealed, onReveal, theme, language, translations }: { re
     if (!canvas || revealedRef.current) return
     const ctx = canvas.getContext('2d')!
     const dpr = window.devicePixelRatio || 1
-    // Reset transform to identity, then set DPR scale — ensures no double-scaling
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+
+    if (isRoyal) {
+      drawHeartPath(ctx, 0, 0, CARD_W, CARD_H)
+      if (!ctx.isPointInPath(x, y)) {
+        return
+      }
+    }
+
     ctx.globalCompositeOperation = 'destination-out'
 
-    // Interpolate from last position for smooth lines
     const last = lastPosRef.current
     if (last) {
       const dx = x - last.x
@@ -953,7 +1304,6 @@ function ScratchCard({ revealed, onReveal, theme, language, translations }: { re
         ctx.arc(ix, iy, 24, 0, Math.PI * 2)
         ctx.fill()
       }
-      // Add sparkle particles along the scratch path
       if (dist > 3) {
         const sparkColors = [theme.accentLight, theme.accent, theme.scratchAccent, '#fff4d0']
         for (let i = 0; i < Math.min(3, Math.floor(dist / 8)); i++) {
@@ -975,13 +1325,10 @@ function ScratchCard({ revealed, onReveal, theme, language, translations }: { re
       ctx.fill()
     }
 
-    // Reset composite operation
     ctx.globalCompositeOperation = 'source-over'
     lastPosRef.current = { x, y }
-
-    // Mark grid cells and check reveal (every scratch move, not random)
     markGrid(x, y)
-  }, [markGrid])
+  }, [markGrid, isRoyal, CARD_W, CARD_H, theme.accentLight, theme.accent, theme.scratchAccent])
 
   const handleStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault()
@@ -1009,15 +1356,14 @@ function ScratchCard({ revealed, onReveal, theme, language, translations }: { re
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        className="font-calligraphy text-3xl sm:text-4xl"
+        className={`${theme.fontCalligraphy} text-3xl sm:text-4xl`}
         style={{ color: theme.accent }}
       >
         {language === 'ur' ? (translations.scratchReveal || 'دعوت نامہ دیکھنے کے لیے') : 'Scratch to Reveal'}
       </motion.h2>
       <HeartDivider accentColor={theme.accent} />
-      {/* Progress indicator */}
       {!revealed && scratchPercent > 5 && (
-        <div className="w-48 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: `rgba(${theme.accentRgb}, 0.1)` }}>
+        <div className="w-48 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: `rgba(${theme.accentRgb},0.1)` }}>
           <motion.div
             className="h-full rounded-full"
             style={{ background: `linear-gradient(90deg, ${theme.accentDark}, ${theme.accentLight})` }}
@@ -1027,33 +1373,41 @@ function ScratchCard({ revealed, onReveal, theme, language, translations }: { re
         </div>
       )}
       <div
-        className="relative rounded-2xl overflow-hidden"
+        className={`relative ${isRoyal ? '' : 'rounded-2xl'} overflow-hidden`}
         style={{
           width: CARD_W,
           height: CARD_H,
           boxShadow: revealed
             ? `0 0 50px rgba(${theme.accentRgb},0.5), 0 0 100px rgba(${theme.accentRgb},0.2), rgba(0,0,0,0.3) 0px 4px 12px`
             : `rgba(${theme.accentRgb}, 0.3) 0px 8px 40px, rgba(0,0,0,0.3) 0px 4px 12px`,
+          clipPath: isRoyal ? 'url(#heart-clip)' : undefined,
         }}
       >
-        {/* Hidden content underneath scratch surface */}
         <div
-          className={`absolute inset-0 flex flex-col items-center justify-center rounded-2xl transition-all duration-1000 ${revealed ? 'gold-border-pulse' : ''}`}
+          className={`absolute inset-0 flex flex-col items-center justify-center ${isRoyal ? '' : 'rounded-2xl'} transition-all duration-1000 ${revealed ? 'gold-border-pulse' : ''}`}
           style={{
             background: `linear-gradient(135deg, ${theme.scratchBg[1]} 0%, ${theme.bgDoor} 30%, ${theme.scratchBg[2]} 50%, ${theme.bgDoor} 70%, ${theme.scratchBg[1]} 100%)`,
-            border: revealed ? `2px solid rgba(${theme.accentRgb}, 0.8)` : `2px solid rgba(${theme.accentRgb}, 0.4)`,
+            border: isRoyal 
+              ? 'none' 
+              : revealed ? `2px solid rgba(${theme.accentRgb}, 0.8)` : `2px solid rgba(${theme.accentRgb}, 0.4)`,
             boxShadow: revealed
               ? `0 0 40px rgba(${theme.accentRgb},0.5), 0 0 80px rgba(${theme.accentRgb},0.2), inset 0 0 40px rgba(${theme.accentRgb},0.12)`
               : `inset 0 0 30px rgba(${theme.accentRgb},0.05)`,
           }}
         >
-          {/* Corner ornamental borders */}
-          <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox={`0 0 ${CARD_W} ${CARD_H}`} fill="none">
-            <path d="M20 4 L4 4 L4 20" stroke={theme.scratchAccent} strokeWidth="1.5" opacity="0.5" />
-            <path d={`M${CARD_W - 20} 4 L${CARD_W - 4} 4 L${CARD_W - 4} 20`} stroke={theme.scratchAccent} strokeWidth="1.5" opacity="0.5" />
-            <path d={`M4 ${CARD_H - 20} L4 ${CARD_H - 4} L20 ${CARD_H - 4}`} stroke={theme.scratchAccent} strokeWidth="1.5" opacity="0.5" />
-            <path d={`M${CARD_W - 4} ${CARD_H - 20} L${CARD_W - 4} ${CARD_H - 4} L${CARD_W - 20} ${CARD_H - 4}`} stroke={theme.scratchAccent} strokeWidth="1.5" opacity="0.5" />
-          </svg>
+          {isRoyal ? (
+            <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox={`0 0 ${CARD_W} ${CARD_H}`} fill="none">
+              <path d={getHeartSvgPath(CARD_W, CARD_H, 4)} stroke={`rgba(${theme.accentRgb}, 0.8)`} strokeWidth="2.5" />
+              <path d={getHeartSvgPath(CARD_W, CARD_H, 10)} stroke={theme.scratchAccent} strokeWidth="1" opacity="0.5" />
+            </svg>
+          ) : (
+            <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox={`0 0 ${CARD_W} ${CARD_H}`} fill="none">
+              <path d="M20 4 L4 4 L4 20" stroke={theme.scratchAccent} strokeWidth="1.5" opacity="0.5" />
+              <path d={`M${CARD_W - 20} 4 L${CARD_W - 4} 4 L${CARD_W - 4} 20`} stroke={theme.scratchAccent} strokeWidth="1.5" opacity="0.5" />
+              <path d={`M4 ${CARD_H - 20} L4 ${CARD_H - 4} L20 ${CARD_H - 4}`} stroke={theme.scratchAccent} strokeWidth="1.5" opacity="0.5" />
+              <path d={`M${CARD_W - 4} ${CARD_H - 20} L${CARD_W - 4} ${CARD_H - 4} L${CARD_W - 20} ${CARD_H - 4}`} stroke={theme.scratchAccent} strokeWidth="1.5" opacity="0.5" />
+            </svg>
+          )}
 
           <AnimatePresence mode="wait">
             {revealed ? (
@@ -1062,7 +1416,7 @@ function ScratchCard({ revealed, onReveal, theme, language, translations }: { re
                 initial={{ scale: 0.5, opacity: 0, filter: 'blur(10px)' }}
                 animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }}
                 transition={{ duration: 0.8, ease: [0.34, 1.56, 0.64, 1] }}
-                className="flex flex-col items-center gap-2 z-10"
+                className={`flex flex-col items-center gap-2 z-10 ${isRoyal ? '-translate-y-3' : ''}`}
               >
                 <motion.div
                   initial={{ y: -20, opacity: 0 }}
@@ -1075,7 +1429,7 @@ function ScratchCard({ revealed, onReveal, theme, language, translations }: { re
                   initial={{ y: -10, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.3, duration: 0.5 }}
-                  className="font-calligraphy text-2xl sm:text-3xl font-bold"
+                  className={`${theme.fontCalligraphy} text-2xl sm:text-3xl font-bold`}
                   style={{ color: theme.accentLight, textShadow: `0 0 25px rgba(${theme.accentRgb},0.4), 0 0 50px rgba(${theme.accentRgb},0.2)` }}
                 >
                   {language === 'ur' ? (translations.youreInvited || 'آپ مدعو ہیں!') : "You're Invited!"}
@@ -1091,7 +1445,7 @@ function ScratchCard({ revealed, onReveal, theme, language, translations }: { re
                   initial={{ y: 10, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.6, duration: 0.5 }}
-                  className="font-display text-2xl sm:text-3xl font-bold"
+                  className={`${theme.fontDisplay} text-2xl sm:text-3xl font-bold`}
                   style={{ color: theme.textSecondary, textShadow: `0 0 15px rgba(${theme.accentRgb},0.3)` }}
                 >
                   {language === 'ur' ? (translations.march15 || '15 مارچ 2027') : 'March 15, 2027'}
@@ -1100,7 +1454,7 @@ function ScratchCard({ revealed, onReveal, theme, language, translations }: { re
                   initial={{ y: 10, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.7, duration: 0.5 }}
-                  className="font-calligraphy text-lg"
+                  className={`${theme.fontCalligraphy} text-lg`}
                   style={{ color: theme.accent }}
                 >
                   {language === 'ur' ? (translations.sunday || 'اتوار') : 'Sunday'}
@@ -1120,11 +1474,11 @@ function ScratchCard({ revealed, onReveal, theme, language, translations }: { re
                 key="hidden"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="flex flex-col items-center gap-2 z-10"
+                className={`flex flex-col items-center gap-2 z-10 ${isRoyal ? '-translate-y-3' : ''}`}
               >
                 <Sparkles className="w-5 h-5 mx-auto mb-0.5" style={{ color: theme.accent }} />
                 <p
-                  className="font-calligraphy text-2xl sm:text-3xl font-bold"
+                  className={`${theme.fontCalligraphy} text-2xl sm:text-3xl font-bold`}
                   style={{ color: theme.accentLight, textShadow: `0 0 15px rgba(${theme.accentRgb},0.25)` }}
                 >
                   {language === 'ur' ? (translations.youreInvited || 'آپ مدعو ہیں!') : "You're Invited!"}
@@ -1134,13 +1488,13 @@ function ScratchCard({ revealed, onReveal, theme, language, translations }: { re
                   style={{ background: `linear-gradient(90deg, transparent, ${theme.accent}, transparent)` }}
                 />
                 <p
-                  className="font-display text-2xl sm:text-3xl font-bold"
+                  className={`${theme.fontDisplay} text-2xl sm:text-3xl font-bold`}
                   style={{ color: theme.textSecondary, textShadow: `0 0 10px rgba(${theme.accentRgb},0.15)` }}
                 >
                   {language === 'ur' ? (translations.march15 || '15 مارچ 2027') : 'March 15, 2027'}
                 </p>
                 <p
-                  className="font-calligraphy text-lg"
+                  className={`${theme.fontCalligraphy} text-lg`}
                   style={{ color: theme.accentLight }}
                 >
                   {language === 'ur' ? (translations.sunday || 'اتوار') : 'Sunday'}
@@ -1191,7 +1545,7 @@ function ScratchCard({ revealed, onReveal, theme, language, translations }: { re
         {!revealed && (
           <canvas
             ref={sparkleCanvasRef}
-            className="absolute inset-0 rounded-2xl pointer-events-none z-40"
+            className={`absolute inset-0 ${isRoyal ? '' : 'rounded-2xl'} pointer-events-none z-40`}
             style={{ width: CARD_W, height: CARD_H }}
           />
         )}
@@ -1200,7 +1554,7 @@ function ScratchCard({ revealed, onReveal, theme, language, translations }: { re
         {!revealed && (
           <canvas
             ref={canvasRef}
-            className={`absolute inset-0 rounded-2xl cursor-pointer touch-none z-30 transition-opacity duration-400 ${canvasFading ? 'opacity-0' : 'opacity-100'}`}
+            className={`absolute inset-0 ${isRoyal ? '' : 'rounded-2xl'} cursor-pointer touch-none z-30 transition-opacity duration-400 ${canvasFading ? 'opacity-0' : 'opacity-100'}`}
             style={{ width: CARD_W, height: CARD_H, touchAction: 'none' }}
             onMouseDown={handleStart}
             onMouseMove={handleMove}
@@ -1215,6 +1569,7 @@ function ScratchCard({ revealed, onReveal, theme, language, translations }: { re
     </div>
   )
 }
+
 
 /* ─── Countdown Timer ─── */
 const COUNTDOWN_TARGET = new Date('2027-03-15T19:00:00+05:00').getTime()
@@ -1260,7 +1615,7 @@ function CountdownTimer({ theme, translations }: { theme: TemplateTheme; transla
                   animate={{ y: 0, opacity: 1, rotateX: 0 }}
                   exit={{ y: 15, opacity: 0, rotateX: 90 }}
                   transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-                  className="font-display text-2xl sm:text-3xl font-bold relative z-10"
+                  className={`${theme.fontDisplay} text-2xl sm:text-3xl font-bold relative z-10`}
                   style={{ color: theme.accent }}
                 >
                   {String(unit.value).padStart(2, '0')}
@@ -1282,14 +1637,22 @@ function CountdownTimer({ theme, translations }: { theme: TemplateTheme; transla
 }
 
 /* ─── Photo Gallery ─── */
-function PhotoGallery({ theme }: { theme: TemplateTheme }) {
-  const images = [
+function PhotoGallery({ theme, images: propImages }: { theme: TemplateTheme; images?: string[] }) {
+  const defaultImages = [
     { src: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=800&h=500&fit=crop', alt: 'Wedding couple' },
     { src: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800&h=500&fit=crop', alt: 'Wedding rings' },
     { src: 'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=800&h=500&fit=crop', alt: 'Wedding celebration' },
     { src: 'https://images.unsplash.com/photo-1529636798458-92182e662485?w=800&h=500&fit=crop', alt: 'Wedding decorations' },
   ]
+  const images = propImages && propImages.length > 0
+    ? propImages.map((src, idx) => ({ src, alt: `Wedding gallery photo ${idx + 1}` }))
+    : defaultImages
+
   const [activeIndex, setActiveIndex] = useState(0)
+
+  useEffect(() => {
+    setActiveIndex(0)
+  }, [images.length])
 
   useEffect(() => {
     const interval = setInterval(() => setActiveIndex((p) => (p + 1) % images.length), 4000)
@@ -1350,14 +1713,17 @@ function DoorSurface({ theme }: { theme: TemplateTheme }) {
   const ds = theme.doorStyle
   const a = theme.accentRgb
 
+  const escapedAccent = theme.accent.replace('#', '%23')
+  const boardSeamsPattern = `url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='${escapedAccent}' stop-opacity='0.03'/%3E%3Cstop offset='0.5' stop-color='${escapedAccent}' stop-opacity='0.06'/%3E%3Cstop offset='1' stop-color='${escapedAccent}' stop-opacity='0.02'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill='url(%23g)' width='200' height='200'/%3E%3Cpath d='M0 20h200M0 45h200M0 70h200M0 95h200M0 120h200M0 145h200M0 170h200' stroke='${escapedAccent}' stroke-width='0.15' opacity='0.15'/%3E%3C/svg%3E")`
+
   // Material-specific CSS background textures
   const materialStyles: Record<string, React.CSSProperties> = {
     wood: {
       backgroundImage: `
-        repeating-linear-gradient(87deg, transparent 0px, rgba(${a},0.04) 1px, transparent 2px, transparent 8px),
-        repeating-linear-gradient(2deg, rgba(${a},0.02) 0px, transparent 2px, transparent 20px),
-        repeating-linear-gradient(91deg, transparent 0px, rgba(${a},0.03) 1px, transparent 3px, transparent 12px),
-        linear-gradient(180deg, ${theme.bgDoor}, ${theme.bgSecondary})
+        ${boardSeamsPattern},
+        repeating-linear-gradient(87deg, transparent 0px, rgba(${a},0.03) 1px, transparent 2px, transparent 8px),
+        repeating-linear-gradient(2deg, rgba(${a},0.015) 0px, transparent 2px, transparent 20px),
+        linear-gradient(160deg, ${theme.bgDoor} 0%, ${theme.id === 'emerald-noir' ? '#1f4337' : '#3d2614'} 35%, ${theme.bgDoor} 60%, ${theme.bgSecondary} 100%)
       `,
     },
     lacquer: {
@@ -1504,12 +1870,83 @@ function DoorSurface({ theme }: { theme: TemplateTheme }) {
     )
   }
 
+  let baseStyle = materialStyles[ds.doorMaterial] || materialStyles.wood;
+
+  if (ds.type === 'curtains') {
+    baseStyle = {
+      backgroundImage: `
+        linear-gradient(90deg, 
+          rgba(0,0,0,0.45) 0%, 
+          rgba(255,255,255,0.06) 8%, 
+          rgba(0,0,0,0.15) 16%, 
+          rgba(255,255,255,0.04) 24%, 
+          rgba(0,0,0,0.35) 32%, 
+          rgba(255,255,255,0.08) 40%, 
+          rgba(0,0,0,0.2) 48%, 
+          rgba(255,255,255,0.06) 56%, 
+          rgba(0,0,0,0.35) 64%, 
+          rgba(255,255,255,0.08) 72%, 
+          rgba(0,0,0,0.2) 80%, 
+          rgba(255,255,255,0.06) 88%, 
+          rgba(0,0,0,0.5) 100%
+        ),
+        linear-gradient(180deg, ${theme.bgDoor}, ${theme.bgSecondary})
+      `,
+      boxShadow: 'inset 0 10px 30px rgba(0,0,0,0.6)',
+    };
+  } else if (ds.type === 'scroll') {
+    baseStyle = {
+      backgroundImage: `
+        linear-gradient(0deg, rgba(0,0,0,0.25) 0%, transparent 6%, transparent 94%, rgba(0,0,0,0.25) 100%),
+        repeating-linear-gradient(0deg, transparent 0px, rgba(${a}, 0.015) 2px, transparent 4px),
+        linear-gradient(90deg, rgba(${a}, 0.08) 0%, transparent 8%, transparent 92%, rgba(${a}, 0.08) 100%),
+        linear-gradient(180deg, ${theme.bgDoor}, ${theme.bgSecondary})
+      `,
+      boxShadow: 'inset 0 0 15px rgba(0,0,0,0.35)',
+    };
+  } else if (ds.type === 'petals' || ds.type === 'lotus') {
+    baseStyle = {
+      backgroundImage: `
+        radial-gradient(circle at 100% 50%, rgba(${a},0.06) 0%, transparent 65%),
+        radial-gradient(circle at 0% 50%, rgba(${a},0.06) 0%, transparent 65%),
+        linear-gradient(180deg, ${theme.bgDoor}, ${theme.bgSecondary})
+      `,
+    };
+  } else if (ds.type === 'archway') {
+    baseStyle = {
+      backgroundImage: `
+        repeating-linear-gradient(90deg, transparent 0px, rgba(0,0,0,0.12) 30px, transparent 31px),
+        repeating-linear-gradient(0deg, transparent 0px, rgba(0,0,0,0.12) 15px, transparent 16px),
+        radial-gradient(circle at 50% 50%, transparent 20%, rgba(0,0,0,0.35) 100%),
+        linear-gradient(180deg, ${theme.bgDoor}, ${theme.bgSecondary})
+      `,
+      boxShadow: 'inset 0 0 20px rgba(0,0,0,0.4)',
+    };
+  } else if (ds.type === 'lantern') {
+    baseStyle = {
+      backgroundImage: `
+        radial-gradient(circle at 50% 50%, rgba(255, 244, 200, 0.22) 0%, transparent 70%),
+        linear-gradient(180deg, ${theme.bgDoor}, ${theme.bgSecondary})
+      `,
+      boxShadow: `inset 0 0 25px rgba(${a}, 0.15), 0 0 10px rgba(${a}, 0.05)`,
+    };
+  } else if (ds.type === 'dome') {
+    baseStyle = {
+      backgroundImage: `
+        radial-gradient(circle at 50% 10%, rgba(${a}, 0.08) 0%, transparent 60%),
+        linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 50%, rgba(0,0,0,0.25) 100%),
+        linear-gradient(180deg, ${theme.bgDoor}, ${theme.bgSecondary})
+      `,
+      boxShadow: 'inset 0 0 20px rgba(0,0,0,0.35)',
+    };
+  }
+
   return (
     <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1 }}>
       {/* Material base texture */}
-      <div className="absolute inset-0" style={materialStyles[ds.doorMaterial] || materialStyles.wood} />
+      <div className="absolute inset-0" style={baseStyle} />
       {/* Glass-specific frosted overlay */}
-      {ds.doorMaterial === 'glass' && (
+      {ds.doorMaterial === 'glass' && ds.type !== 'lantern' && (
         <div className="absolute inset-0" style={{
           background: `radial-gradient(ellipse at 40% 30%, rgba(255,255,255,0.06), transparent 60%)`,
         }} />
@@ -1619,7 +2056,7 @@ function DoorPanelContent({ theme, text, textLang }: { theme: TemplateTheme; tex
           )}
         </svg>
         <span
-          className="font-calligraphy text-3xl sm:text-4xl leading-relaxed"
+          className={`${theme.fontCalligraphy} text-3xl sm:text-4xl leading-relaxed`}
           dir={isRtl ? 'rtl' : 'ltr'}
           style={{ color: `rgba(${theme.accentRgb},0.8)` }}
         >
@@ -1829,97 +2266,98 @@ function DoorHandle({ theme, side }: { theme: TemplateTheme; side: 'left' | 'rig
 /* ─── Center Button Styles ─── */
 function CenterButton({ theme, onClick }: { theme: TemplateTheme; onClick: () => void }) {
   const ds = theme.doorStyle
-  const sizeClass = 'w-28 h-28 md:w-36 md:h-36'
 
-  const renderButtonContent = () => (
-    <>
-      {/* Outer ring with 3D depth */}
-      <div className="absolute inset-0" style={{
-        background: `radial-gradient(circle at 35% 35%, ${theme.accentDark}, ${theme.bgDoor})`,
-        boxShadow: '0 8px 30px rgba(0,0,0,0.5), inset 0 2px 4px rgba(255,255,255,0.15), inset 0 -2px 6px rgba(0,0,0,0.3)',
-      }} />
-      <div className="absolute inset-1" style={{
-        background: `radial-gradient(circle at 40% 30%, ${theme.accentDark}, ${theme.bgDoor})`,
-        boxShadow: 'inset 0 1px 3px rgba(255,255,255,0.1)',
-      }} />
-      {/* Inner accent ring */}
-      <div className="absolute inset-3 md:inset-4 border-2 opacity-30" style={{ borderColor: theme.accent }} />
-      {/* Rotating shimmer line */}
-      <div className="absolute inset-0 overflow-hidden" style={{ borderRadius: 'inherit' }}>
-        <div className="absolute inset-0" style={{
-          background: 'linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.08) 50%, transparent 60%)',
-          transform: 'rotate(25deg)',
-          animation: 'shimmerRotate 3s ease-in-out infinite',
-        }} />
-      </div>
-      {/* Center content */}
+  // Organic wax seal colors matching each theme's vibe
+  const sealColor = theme.id === 'emerald-noir' || theme.id === 'mughal-emerald'
+    ? '#09251c'
+    : theme.id === 'crimson-royale' || theme.id === 'royal-elegance'
+    ? '#420d14'
+    : theme.id === 'rose-gold-blush' || theme.id === 'rose-gold-blush-royal'
+    ? '#5c222e'
+    : theme.id === 'majestic-love'
+    ? '#3b250d'
+    : '#1e1a14' // woody/slate brown default
+
+  const sealHighlight = theme.id === 'emerald-noir' || theme.id === 'mughal-emerald'
+    ? '#184b3b'
+    : theme.id === 'crimson-royale' || theme.id === 'royal-elegance'
+    ? '#7c1c27'
+    : theme.id === 'rose-gold-blush' || theme.id === 'rose-gold-blush-royal'
+    ? '#993f51'
+    : theme.id === 'majestic-love'
+    ? '#6b4822'
+    : '#483f36'
+
+  const accent = theme.accent
+
+  return (
+    <motion.button
+      onClick={onClick}
+      className="relative w-28 h-28 md:w-36 md:h-36 cursor-pointer focus:outline-none select-none z-30"
+      whileHover={{ scale: 1.08 }}
+      whileTap={{ scale: 0.95 }}
+      animate={{ y: [0, -6, 0] }}
+      transition={{ y: { duration: 2.5, repeat: Infinity, ease: "easeInOut" } }}
+      aria-label="Open invitation"
+    >
+      {/* Outer irregular melted wax overflow */}
+      <div 
+        className="absolute inset-0 shadow-2xl transition-all duration-300"
+        style={{
+          borderRadius: '48% 52% 51% 49% / 51% 48% 52% 49%',
+          background: `radial-gradient(circle at 35% 35%, ${sealHighlight}, ${sealColor})`,
+          boxShadow: '0 10px 30px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.18), inset 0 -3px 8px rgba(0,0,0,0.45)',
+          border: `1px solid rgba(${theme.accentRgb}, 0.12)`
+        }}
+      />
+      {/* Inner wax stamp stamp-recess */}
+      <div 
+        className="absolute inset-2.5"
+        style={{
+          borderRadius: '50% 50% 48% 52% / 48% 52% 50% 50%',
+          background: `radial-gradient(circle at 40% 30%, ${sealHighlight}, ${sealColor})`,
+          boxShadow: 'inset 2px 3px 6px rgba(0,0,0,0.45), inset -2px -2px 4px rgba(255,255,255,0.08), 0 1px 2px rgba(0,0,0,0.2)',
+          border: `0.5px solid rgba(${theme.accentRgb}, 0.08)`
+        }}
+      />
+      {/* Gold monogram circle border inside seal */}
+      <div 
+        className="absolute inset-5 opacity-30 border border-dashed"
+        style={{ 
+          borderColor: accent,
+          borderRadius: '50% 48% 51% 49% / 51% 49% 50% 50%',
+        }} 
+      />
+      {/* Embossed symbol / letter in the center */}
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-2xl md:text-3xl font-bold" style={{ color: theme.accent, textShadow: '0 1px 2px rgba(0,0,0,0.3)' }}>{ds.centerIcon}</span>
-        <span className="text-[8px] md:text-[10px] tracking-[0.2em] uppercase mt-0.5" style={{ color: theme.accent }}>tap to open</span>
+        <span 
+          className={`text-3xl md:text-4xl font-semibold select-none filter drop-shadow-[0_2px_2px_rgba(0,0,0,0.55)] ${theme.fontDisplay}`} 
+          style={{ 
+            color: accent,
+          }}
+        >
+          {ds.centerIcon || '❦'}
+        </span>
+        <span 
+          className={`text-[7px] md:text-[9px] tracking-[0.25em] uppercase mt-0.5 select-none opacity-70 ${theme.fontDisplay}`} 
+          style={{ 
+            color: accent,
+            textShadow: '0 1px 2px rgba(0,0,0,0.4)'
+          }}
+        >
+          open
+        </span>
       </div>
-      {/* Pulsing ring */}
-      <div className="absolute inset-[-8px] border animate-ping opacity-20" style={{ borderColor: theme.borderSubtle, borderRadius: 'inherit' }} />
-    </>
+      {/* Melty wax outer ripple shadow ring */}
+      <div 
+        className="absolute inset-[-6px] border animate-ping opacity-15" 
+        style={{ 
+          borderColor: theme.accent, 
+          borderRadius: '50%' 
+        }} 
+      />
+    </motion.button>
   )
-
-  switch (ds.buttonStyle) {
-    case 'diamond':
-      return (
-        <button
-          onClick={onClick}
-          className={`relative ${sizeClass} rotate-45 cursor-pointer focus:outline-none group animate-float`}
-          aria-label="Open invitation"
-        >
-          <div className="absolute inset-0 rotate-0" style={{ clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)' }}>
-            {renderButtonContent()}
-          </div>
-        </button>
-      )
-    case 'shield':
-      return (
-        <button
-          onClick={onClick}
-          className={`relative ${sizeClass} cursor-pointer focus:outline-none group animate-float`}
-          style={{ clipPath: 'polygon(15% 0%, 85% 0%, 100% 20%, 100% 70%, 50% 100%, 0% 70%, 0% 20%)' }}
-          aria-label="Open invitation"
-        >
-          {renderButtonContent()}
-        </button>
-      )
-    case 'hexagon':
-      return (
-        <button
-          onClick={onClick}
-          className={`relative ${sizeClass} cursor-pointer focus:outline-none group animate-float`}
-          style={{ clipPath: 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)' }}
-          aria-label="Open invitation"
-        >
-          {renderButtonContent()}
-        </button>
-      )
-    case 'star':
-      return (
-        <button
-          onClick={onClick}
-          className={`relative ${sizeClass} cursor-pointer focus:outline-none group animate-float`}
-          style={{ clipPath: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)' }}
-          aria-label="Open invitation"
-        >
-          {renderButtonContent()}
-        </button>
-      )
-    case 'circle':
-    default:
-      return (
-        <button
-          onClick={onClick}
-          className={`relative ${sizeClass} rounded-full cursor-pointer focus:outline-none group animate-float`}
-          aria-label="Open invitation"
-        >
-          {renderButtonContent()}
-        </button>
-      )
-  }
 }
 
 /* ─── Door Decorative Elements ─── */
@@ -2557,12 +2995,58 @@ function DoorSvgPattern({ pattern, accent, accentRgb }: { pattern: string; accen
 /* ─── Door Overlay Component ─── */
 function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doorsOpened: boolean; onOpen: () => void }) {
   const ds = theme.doorStyle
+  const a = theme.accentRgb
 
-  const anim = doorsOpened
-    ? { left: 'door-open-left', right: 'door-open-right' }
-    : { left: '', right: '' }
+  const getAnimClasses = () => {
+    if (!doorsOpened) return { left: '', right: '' }
+    switch (ds.type) {
+      case 'curtains':
+        return { left: 'curtain-open-left', right: 'curtain-open-right' }
+      case 'petals':
+      case 'lotus':
+        return { left: 'petal-open-left', right: 'petal-open-right' }
+      case 'split-screen':
+      case 'geometric':
+        return { left: 'split-open-left', right: 'split-open-right' }
+      case 'archway':
+        return { left: 'arch-open-left', right: 'arch-open-right' }
+      case 'scroll':
+        return { left: 'scroll-unfurl-left', right: 'scroll-unfurl-right' }
+      case 'dome':
+        return { left: 'dome-lift-up', right: 'dome-lift-up' }
+      case 'lantern':
+        return { left: 'lantern-open-left', right: 'lantern-open-right' }
+      case 'classic-doors':
+      default:
+        return { left: 'door-open-left', right: 'door-open-right' }
+    }
+  }
+  const anim = getAnimClasses()
 
-  const idleClass = 'door-breathe-idle'
+  const getIdleClass = () => {
+    switch (ds.type) {
+      case 'curtains':
+        return 'curtain-drape-idle'
+      case 'petals':
+      case 'lotus':
+        return 'petal-sway-idle'
+      case 'scroll':
+        return 'scroll-shimmer-idle'
+      case 'split-screen':
+      case 'geometric':
+        return 'split-shimmer-idle'
+      case 'dome':
+        return 'dome-float-idle'
+      case 'lantern':
+        return 'lantern-glow-idle'
+      case 'archway':
+        return 'arch-breathe-idle'
+      case 'classic-doors':
+      default:
+        return 'door-breathe-idle'
+    }
+  }
+  const idleClass = getIdleClass()
 
   // Get panel gradient based on material
   const getPanelGradient = (isLeft: boolean): string => {
@@ -2583,6 +3067,9 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
 
   // Render 3D edge face (door thickness)
   const renderEdgeFace = (side: 'left' | 'right') => {
+    // Only render thickness for classic doors, arches, and domes
+    if (!['classic-doors', 'archway', 'dome'].includes(ds.type)) return null
+
     const edgeStyle: React.CSSProperties = side === 'left'
       ? {
           position: 'absolute',
@@ -2624,6 +3111,141 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
     )
   }
 
+  const renderDoorTypeOverlays = (side: 'left' | 'right') => {
+    if (ds.type === 'curtains') {
+      return (
+        <div className="absolute inset-0 pointer-events-none shadow-inner" style={{ zIndex: 3 }}>
+          {/* Gold curtain trim fringe */}
+          <div className="absolute top-0 left-0 w-full h-2.5 bg-gradient-to-b from-gold via-gold-light to-amber-700/80 border-b border-gold/40" />
+          <div className="absolute bottom-0 left-0 w-full h-5 bg-gradient-to-t from-gold via-gold-light to-amber-700/80 border-t border-gold/40" style={{
+            backgroundImage: `repeating-linear-gradient(90deg, ${theme.accent} 0px, ${theme.accent} 3px, transparent 3px, transparent 6px)`
+          }} />
+          {/* Soft curtain fold shadow overlay */}
+          <div className="absolute inset-0" style={{
+            background: `linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, transparent 20%, transparent 80%, rgba(0,0,0,0.3) 100%)`
+          }} />
+        </div>
+      )
+    }
+    if (ds.type === 'scroll') {
+      return (
+        <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 4 }}>
+          {/* Roller tube representing wood bar */}
+          <div 
+            className="absolute top-0 w-6 h-full bg-gradient-to-r from-amber-950 via-amber-700 to-amber-950 border-amber-950 shadow-md"
+            style={{
+              left: side === 'left' ? '0' : 'auto',
+              right: side === 'right' ? '0' : 'auto',
+              boxShadow: side === 'left' ? '3px 0 8px rgba(0,0,0,0.5)' : '-3px 0 8px rgba(0,0,0,0.5)'
+            }}
+          >
+            {/* Gold Caps for Cylinders */}
+            <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-8 h-3.5 rounded-sm bg-gradient-to-r from-gold-light via-gold to-amber-700 border border-gold/40" />
+            <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-8 h-3.5 rounded-sm bg-gradient-to-r from-gold-light via-gold to-amber-700 border border-gold/40" />
+          </div>
+          {/* Gold scroll side borders */}
+          <div className="absolute top-0 bottom-0 w-0.5 bg-gold/40" style={{
+            left: side === 'left' ? '15px' : 'auto',
+            right: side === 'right' ? '15px' : 'auto',
+          }} />
+        </div>
+      )
+    }
+    if (ds.type === 'petals' || ds.type === 'lotus') {
+      return (
+        <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 3 }}>
+          {/* Petal vein lines */}
+          <svg className="absolute inset-0 w-full h-full opacity-35" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <path 
+              d={side === 'left' 
+                ? "M0,10 C40,20 60,45 100,50 M0,50 C40,48 70,68 100,90 M0,90 C30,80 50,95 100,100" 
+                : "M100,10 C60,20 40,45 0,50 M100,50 C60,48 30,68 0,90 M100,90 C70,80 50,95 0,100"} 
+              stroke={theme.accent} 
+              strokeWidth="0.5" 
+              fill="none" 
+            />
+            <path 
+              d={side === 'left' 
+                ? "M0,30 Q50,40 100,35 M0,70 Q50,60 100,75" 
+                : "M100,30 Q50,40 0,35 M100,70 Q50,60 0,75"} 
+              stroke={`rgba(${theme.accentRgb}, 0.4)`} 
+              strokeWidth="0.3" 
+              fill="none" 
+            />
+          </svg>
+          {/* Glowing center blossom overlay */}
+          <div className="absolute w-24 h-24 rounded-full bg-pink-500/5 blur-xl top-1/2 -translate-y-1/2" style={{
+            left: side === 'left' ? 'auto' : '-48px',
+            right: side === 'right' ? 'auto' : '-48px',
+          }} />
+        </div>
+      )
+    }
+    if (ds.type === 'archway') {
+      return (
+        <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 3 }}>
+          {/* Mughal pointed arch layout */}
+          <svg className="absolute top-0 left-0 w-full h-full opacity-40" viewBox="0 0 100 200" preserveAspectRatio="none">
+            <path 
+              d={side === 'left' 
+                ? "M 0 0 L 100 0 L 100 20 Q 95 30 75 45 Q 60 55 50 75 L 50 200 L 0 200 Z" 
+                : "M 100 0 L 0 0 L 0 20 Q 5 30 25 45 Q 40 55 50 75 L 50 200 L 100 200 Z"} 
+              fill="none" 
+              stroke={theme.accent} 
+              strokeWidth="0.8" 
+            />
+            {/* Fine carvings */}
+            <path 
+              d={side === 'left'
+                ? "M 90 22 C 85 28 75 35 68 45 C 62 52 58 60 56 70"
+                : "M 10 22 C 15 28 25 35 32 45 C 38 52 42 60 44 70"}
+              stroke={`rgba(${theme.accentRgb}, 0.5)`}
+              strokeWidth="0.4"
+              fill="none"
+            />
+          </svg>
+        </div>
+      )
+    }
+    if (ds.type === 'lantern') {
+      return (
+        <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 3 }}>
+          {/* Brass lattice frame */}
+          <div className="absolute inset-3 border border-gold/30 rounded-sm">
+            <div className="absolute inset-1 border border-gold/15" />
+          </div>
+          {/* Geometric panel dividers for lantern glass pane effect */}
+          <svg className="absolute inset-0 w-full h-full opacity-35" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <line x1="0" y1="0" x2="100" y2="100" stroke={theme.accent} strokeWidth="0.4" />
+            <line x1="0" y1="100" x2="100" y2="0" stroke={theme.accent} strokeWidth="0.4" />
+            <line x1="50" y1="0" x2="50" y2="100" stroke={theme.accent} strokeWidth="0.5" />
+            <line x1="0" y1="50" x2="100" y2="50" stroke={theme.accent} strokeWidth="0.5" />
+          </svg>
+        </div>
+      )
+    }
+    if (ds.type === 'dome') {
+      return (
+        <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 3 }}>
+          {/* Onion dome silhouette border */}
+          <svg className="absolute top-0 left-0 w-full h-full opacity-40" viewBox="0 0 100 200" preserveAspectRatio="none">
+            <path 
+              d={side === 'left' 
+                ? "M 0 0 L 100 0 L 100 30 Q 95 38 85 45 Q 65 52 50 65 L 50 200 L 0 200 Z" 
+                : "M 100 0 L 0 0 L 0 30 Q 5 38 15 45 Q 35 52 50 65 L 50 200 L 100 200 Z"} 
+              fill="none" 
+              stroke={theme.accent} 
+              strokeWidth="0.8" 
+            />
+          </svg>
+        </div>
+      )
+    }
+    return null
+  }
+
+  const shouldRenderHingesAndHandle = ['classic-doors', 'archway', 'dome'].includes(ds.type);
+
   return (
     <>
       {/* Background behind doors */}
@@ -2660,14 +3282,27 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
           }}
         >
           <DoorSurface theme={theme} />
+          {renderDoorTypeOverlays('left')}
           <div className="absolute inset-0 door-shimmer" />
           <div className="absolute inset-0" style={{ background: `linear-gradient(to right, transparent, rgba(${theme.accentRgb},0.05))` }} />
+          {/* Vignette shadow overlay - fades out as door opens */}
+          <div 
+            className="absolute inset-0 transition-opacity duration-[3200ms] pointer-events-none z-10"
+            style={{
+              background: `linear-gradient(to left, rgba(0,0,0,0.55), transparent)`,
+              opacity: doorsOpened ? 0 : 0.85,
+            }}
+          />
           {/* Panel layout */}
           <DoorPanelLayout theme={theme} side="left" />
           <DoorPanelContent theme={theme} text={ds.leftText} textLang={ds.leftTextLang} />
-          <DoorHandle theme={theme} side="left" />
+          {shouldRenderHingesAndHandle && <DoorHandle theme={theme} side="left" />}
+          {/* Center seam vertical golden divider */}
+          <div className="absolute right-0 top-0 bottom-0 w-[3px] z-20" style={{
+            background: `linear-gradient(to bottom, rgba(${theme.accentRgb}, 0.1), rgba(${theme.accentRgb}, 0.6), rgba(${theme.accentRgb}, 0.1))`
+          }} />
           {/* Hinges on hinge side (left) */}
-          <DoorHinges side="left" accent={theme.accent} accentRgb={theme.accentRgb} />
+          {shouldRenderHingesAndHandle && <DoorHinges side="left" accent={theme.accent} accentRgb={theme.accentRgb} />}
         </div>
         {/* 3D Edge face (door thickness) */}
         {renderEdgeFace('left')}
@@ -2687,14 +3322,27 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
           }}
         >
           <DoorSurface theme={theme} />
+          {renderDoorTypeOverlays('right')}
           <div className="absolute inset-0 door-shimmer" />
           <div className="absolute inset-0" style={{ background: `linear-gradient(to left, transparent, rgba(${theme.accentRgb},0.05))` }} />
+          {/* Vignette shadow overlay - fades out as door opens */}
+          <div 
+            className="absolute inset-0 transition-opacity duration-[3200ms] pointer-events-none z-10"
+            style={{
+              background: `linear-gradient(to right, rgba(0,0,0,0.55), transparent)`,
+              opacity: doorsOpened ? 0 : 0.85,
+            }}
+          />
           {/* Panel layout */}
           <DoorPanelLayout theme={theme} side="right" />
           <DoorPanelContent theme={theme} text={ds.rightText} textLang={ds.rightTextLang} />
-          <DoorHandle theme={theme} side="right" />
+          {shouldRenderHingesAndHandle && <DoorHandle theme={theme} side="right" />}
+          {/* Center seam vertical golden divider */}
+          <div className="absolute left-0 top-0 bottom-0 w-[3px] z-20" style={{
+            background: `linear-gradient(to bottom, rgba(${theme.accentRgb}, 0.1), rgba(${theme.accentRgb}, 0.6), rgba(${theme.accentRgb}, 0.1))`
+          }} />
           {/* Hinges on hinge side (right) */}
-          <DoorHinges side="right" accent={theme.accent} accentRgb={theme.accentRgb} />
+          {shouldRenderHingesAndHandle && <DoorHinges side="right" accent={theme.accent} accentRgb={theme.accentRgb} />}
         </div>
         {/* 3D Edge face (door thickness) */}
         {renderEdgeFace('right')}
@@ -2726,6 +3374,13 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
   const venueAddress = flowData?.venueAddress?.trim() || 'Main Boulevard, Gulberg, Lahore'
   const welcomeMsg = flowData?.welcomeMessage?.trim() || "With hearts full of love and joy, we warmly invite you to share in the celebration of our union. Your presence would mean the world to us as we begin this beautiful journey together."
 
+  const isDemo = !flowData?.invitationId && !flowData?.partner1Name
+  const dressCodeWomen = flowData?.dressCodeWomen?.trim() || (isDemo ? "Yellow / Green traditional" : "")
+  const dressCodeMen = flowData?.dressCodeMen?.trim() || (isDemo ? "Gold / Maroon formal" : "")
+  const accommodation = flowData?.accommodation?.trim() || (isDemo ? "Rooms blocked at Leela Palace & Pearl Continental. Mention 'Ahmed & Fatima' for discounts." : "")
+  const transportation = flowData?.transportation?.trim() || (isDemo ? "Shuttle service will run from Pearl Continental to the venue every 30 minutes starting at 6:30 PM." : "")
+  const gifts = flowData?.gifts?.trim() || (isDemo ? "Your prayers are our greatest gift. For Shagun, you may transfer to Meezan Bank, Title: Ahmed Khan, Account Number: 028102384, IBAN: PK45MEZN00028102384, Raast ID: 03001234567, EasyPaisa: 03123456789" : "")
+
   const dynamicEvents = useMemo(() => {
     if (flowData?.events && flowData.events.some(e => e.date || e.time)) {
       return flowData.events.filter(e => e.name).map(e => ({
@@ -2755,12 +3410,66 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
   const [wishName, setWishName] = useState('')
   const [wishMessage, setWishMessage] = useState('')
   const [musicPlaying, setMusicPlaying] = useState(false)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+
+  // Manage audio playback
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    // If no music is selected or "no-music" is active, or doors are not opened yet
+    const musicTrack = flowData?.backgroundMusic
+    if (!musicTrack || musicTrack === 'no-music' || !doorsOpened) {
+      if (audioRef.current) {
+        audioRef.current.pause()
+      }
+      return
+    }
+
+    // Initialize audio if not already done or if the track changed
+    const trackSrc = `/music/${musicTrack}.mp3`
+    if (!audioRef.current || audioRef.current.src !== window.location.origin + trackSrc) {
+      if (audioRef.current) {
+        audioRef.current.pause()
+      }
+      audioRef.current = new Audio(trackSrc)
+      audioRef.current.loop = true
+    }
+
+    if (musicPlaying) {
+      audioRef.current.play().catch(err => {
+        console.warn('Audio play failed (waiting for user interaction):', err)
+        // If autoplay/play fails, toggle playing off
+        setMusicPlaying(false)
+      })
+    } else {
+      audioRef.current.pause()
+    }
+
+    return () => {
+      // Clean up audio on unmount
+      if (audioRef.current) {
+        audioRef.current.pause()
+      }
+    }
+  }, [musicPlaying, flowData?.backgroundMusic, doorsOpened])
+
   const [language, setLanguage] = useState<'en' | 'ur'>('en')
   const [translations, setTranslations] = useState<Record<string, string>>({})
   const [isTranslating, setIsTranslating] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
   const [rsvpHearts, setRsvpHearts] = useState<number[]>([])
   const [heroVisible, setHeroVisible] = useState(false)
+  const [copiedField, setCopiedField] = useState<string | null>(null)
+  const handleCopy = (text: string, fieldName: string) => {
+    navigator.clipboard.writeText(text)
+    setCopiedField(fieldName)
+    toast.success(`${fieldName} copied to clipboard!`)
+    setTimeout(() => {
+      setCopiedField(null)
+    }, 2000)
+  }
+  const [showGoldDust, setShowGoldDust] = useState(false)
+  const [faqOpen, setFaqOpen] = useState<Record<number, boolean>>({})
   const [wishes, setWishes] = useState<
     Array<{ name: string; message: string; translatedName?: string; translatedMessage?: string }>
   >([
@@ -2776,13 +3485,44 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
     if (doorsOpened) return
     setDoorsOpened(true)
     setShowFireworks(true)
+    if (theme.id.includes('royal')) {
+      setShowGoldDust(true)
+      setTimeout(() => setShowGoldDust(false), 4500)
+    }
+    if (flowData?.backgroundMusic && flowData.backgroundMusic !== 'no-music') {
+      setMusicPlaying(true)
+    }
     setTimeout(() => setShowFireworks(false), 5000)
     setTimeout(() => setDoorOverlayVisible(false), 2200)
     setTimeout(() => setHeroVisible(true), 1800)
-  }, [doorsOpened])
+  }, [doorsOpened, theme.id, flowData?.backgroundMusic])
 
-  const handleRSVP = useCallback((status: 'accept' | 'decline') => {
+  const handleRSVP = useCallback(async (status: 'accept' | 'decline') => {
     if (!rsvpName.trim()) { toast.error('Please enter your name'); return }
+    
+    if (flowData?.invitationId) {
+      try {
+        const response = await fetch(`/api/invitations/${flowData.invitationId}/rsvp`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            guestName: rsvpName.trim(),
+            guestEmail: rsvpEmail.trim() || undefined,
+            status,
+          }),
+        })
+        if (!response.ok) {
+          const errData = await response.json()
+          toast.error(errData.error || 'Failed to submit RSVP. Please try again.')
+          return
+        }
+      } catch (err) {
+        console.error('RSVP submit error:', err)
+        toast.error('Network error. Please try again.')
+        return
+      }
+    }
+
     setRsvpStatus(status)
     setRsvpSubmitted(true)
     if (status === 'accept') {
@@ -2794,7 +3534,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
     } else {
       toast.success(`Thank you for letting us know, ${rsvpName}. You'll be missed! 💌`)
     }
-  }, [rsvpName])
+  }, [rsvpName, rsvpEmail, flowData?.invitationId])
 
   const handleSendWish = useCallback(async () => {
     if (!wishName.trim()) { toast.error('Please enter your name'); return }
@@ -2802,6 +3542,29 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
     const newWish = { name: wishName.trim(), message: wishMessage.trim() }
     setWishName('')
     setWishMessage('')
+
+    if (flowData?.invitationId) {
+      try {
+        const response = await fetch(`/api/invitations/${flowData.invitationId}/wishes`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            senderName: newWish.name,
+            message: newWish.message,
+          }),
+        })
+        if (!response.ok) {
+          const errData = await response.json()
+          toast.error(errData.error || 'Failed to submit wish. Please try again.')
+          return
+        }
+      } catch (err) {
+        console.error('Wish submit error:', err)
+        toast.error('Network error. Please try again.')
+        return
+      }
+    }
+
     toast.success(language === 'ur' ? 'آپ کی دعا بھیج دی گئی! 💝' : 'Your blessing has been sent! 💝')
 
     // If in Urdu mode, translate the new wish via AI before adding
@@ -2823,7 +3586,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
       }
     }
     setWishes((prev) => [newWish, ...prev])
-  }, [wishName, wishMessage, language])
+  }, [wishName, wishMessage, language, flowData?.invitationId])
 
   const handleScratchReveal = useCallback(() => {
     setScratchRevealed(true)
@@ -2887,6 +3650,20 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
     sunday: 'اتوار',
     time7pm: 'شام 7 بجے',
     pkt: 'پاکستانی وقت',
+    dressCode: 'ڈریس کوڈ',
+    ladies: 'خواتین',
+    gentlemen: 'حضرات',
+    recommendedColors: 'تجویز کردہ رنگ',
+    travelAccommodations: 'سفر اور رہائش',
+    hotelBlocks: 'ہوٹل بلاکس',
+    coordinator: 'کوآرڈینیٹر',
+    transportationInfo: 'ٹرانسپورٹ کی معلومات',
+    giftsShagun: 'شگون اور گفٹ رجسٹری',
+    shagunDetails: 'شگون کی تفصیلات',
+    copied: 'کاپی ہو گیا!',
+    copy: 'کاپی کریں',
+    faq: 'اکثر پوچھے گئے سوالات',
+    addToCalendar: 'کیلنڈر میں شامل کریں',
   }
 
   // Translation function - uses static dictionary first, then AI for dynamic content
@@ -2980,6 +3757,33 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
     }
   }, [language, translations, translateToUrdu])
 
+  // Load wishes from database on mount if invitationId is present
+  useEffect(() => {
+    if (!flowData?.invitationId) return
+
+    const loadDbWishes = async () => {
+      try {
+        const response = await fetch(`/api/invitations/${flowData.invitationId}/wishes`)
+        if (response.ok) {
+          const data = await response.json()
+          if (data.wishes && Array.isArray(data.wishes)) {
+            const mapped = data.wishes.map((w: any) => ({
+              name: w.sender_name ?? '',
+              message: w.message ?? '',
+            }))
+            if (mapped.length > 0) {
+              setWishes(mapped)
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load wishes from database:', error)
+      }
+    }
+
+    loadDbWishes()
+  }, [flowData?.invitationId])
+
   // Helper to get translated text
   const t = useCallback((key: string, fallback: string): string => {
     if (language === 'en') return fallback
@@ -3043,6 +3847,9 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
       <FireworksDisplay show={showFireworks} colors={theme.fireworkColors} />
       <ConfettiDisplay show={showConfetti} colors={theme.confettiColors} />
 
+      {/* Gold Dust Splash (Royal exclusive) */}
+      <GoldDustSplash show={showGoldDust} colors={theme.fireworkColors} />
+
       {/* Music toggle */}
       <div className="fixed top-4 right-4 z-[200] flex items-center gap-2">
         <button
@@ -3065,7 +3872,19 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
       </div>
 
       {/* ═══ Main Content ═══ */}
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: heroVisible ? 1 : 0 }} transition={{ duration: 1.5, ease: 'easeOut' }}>
+      <motion.div
+        initial={{ opacity: 0, scale: theme.id.includes('royal') ? 0.94 : 1, filter: theme.id.includes('royal') ? 'blur(6px)' : 'blur(0px)', y: theme.id.includes('royal') ? 20 : 0 }}
+        animate={{
+          opacity: heroVisible ? 1 : 0,
+          scale: heroVisible ? 1 : (theme.id.includes('royal') ? 0.94 : 1),
+          filter: heroVisible ? 'blur(0px)' : (theme.id.includes('royal') ? 'blur(6px)' : 'blur(0px)'),
+          y: heroVisible ? 0 : (theme.id.includes('royal') ? 20 : 0),
+        }}
+        transition={{
+          duration: theme.id.includes('royal') ? 2.2 : 1.5,
+          ease: theme.id.includes('royal') ? [0.16, 1, 0.3, 1] : 'easeOut',
+        }}
+      >
 
         {/* ─── Hero Section ─── */}
         <section className="relative min-h-screen flex flex-col items-center justify-center px-6 py-20 overflow-hidden">
@@ -3088,7 +3907,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.3 }}
-              className="font-calligraphy text-sm sm:text-base tracking-[0.4em] uppercase mb-8"
+              className={`${theme.fontCalligraphy} text-sm sm:text-base tracking-[0.4em] uppercase mb-8`}
               style={{ color: theme.textSecondary }}
             >
               {t('gettingMarried', "We're getting married")}
@@ -3098,7 +3917,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.5 }}
-              className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-[0.08em] mb-2"
+              className={`${theme.fontDisplay} text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-[0.08em] mb-2`}
               style={{ color: theme.textPrimary }}
             >
               {translatedPartner1}
@@ -3119,7 +3938,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.9 }}
-              className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-[0.08em] mb-8"
+              className={`${theme.fontDisplay} text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-[0.08em] mb-8`}
               style={{ color: theme.textPrimary }}
             >
               {translatedPartner2}
@@ -3140,7 +3959,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 1.4, duration: 0.8 }}
-              className="font-calligraphy text-base sm:text-lg tracking-[0.15em]"
+              className={`${theme.fontCalligraphy} text-base sm:text-lg tracking-[0.15em]`}
               style={{ color: theme.textSecondary }}
             >
               {t('requestHonour', 'Request the honour of your presence')}
@@ -3166,7 +3985,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
           <section className="py-16 md:py-20 px-6">
             <div className="max-w-lg mx-auto text-center">
               <WaveDivider accentColor={theme.accent} />
-              <p className="font-calligraphy text-xl md:text-2xl leading-relaxed italic whitespace-pre-wrap break-words my-8" style={{ color: theme.accentLight, textShadow: `0 0 15px rgba(${theme.accentRgb},0.2)` }}>
+              <p className={`${theme.fontCalligraphy} text-xl md:text-2xl leading-relaxed italic whitespace-pre-wrap break-words my-8`} style={{ color: theme.accentLight, textShadow: `0 0 15px rgba(${theme.accentRgb},0.2)` }}>
                 {translatedWelcomeMsg}
               </p>
               <WaveDivider accentColor={theme.accent} />
@@ -3185,9 +4004,9 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
         <RevealSection>
           <section className="py-16 md:py-20 px-6">
             <div className="flex flex-col items-center gap-6">
-              <h2 className="font-calligraphy text-3xl sm:text-4xl text-center" style={{ color: theme.accent }}>{t('ourMoments', 'Our Moments')}</h2>
+              <h2 className={`${theme.fontCalligraphy} text-3xl sm:text-4xl text-center`} style={{ color: theme.accent }}>{t('ourMoments', 'Our Moments')}</h2>
               <HeartDivider accentColor={theme.accent} />
-              <PhotoGallery theme={theme} />
+              <PhotoGallery theme={theme} images={flowData?.slideshowImages} />
             </div>
           </section>
         </RevealSection>
@@ -3196,7 +4015,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
         <RevealSection>
           <section className="py-16 md:py-20 px-6">
             <div className="flex flex-col items-center gap-8">
-              <h2 className="font-calligraphy text-3xl sm:text-4xl text-center" style={{ color: theme.accent }}>{t('countingDown', 'Counting Down to Forever')}</h2>
+              <h2 className={`${theme.fontCalligraphy} text-3xl sm:text-4xl text-center`} style={{ color: theme.accent }}>{t('countingDown', 'Counting Down to Forever')}</h2>
               <HeartDivider accentColor={theme.accent} />
               <CountdownTimer theme={theme} translations={language === 'ur' ? translations : undefined} />
             </div>
@@ -3207,7 +4026,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
         <RevealSection>
           <section className="py-16 md:py-20 px-6">
             <div className="flex flex-col items-center gap-8 max-w-md mx-auto">
-              <h2 className="font-calligraphy text-3xl sm:text-4xl text-center" style={{ color: theme.accent }}>{t('programTimeline', 'Program Timeline')}</h2>
+              <h2 className={`${theme.fontCalligraphy} text-3xl sm:text-4xl text-center`} style={{ color: theme.accent }}>{t('programTimeline', 'Program Timeline')}</h2>
               <HeartDivider accentColor={theme.accent} />
 
               <div className="relative w-full">
@@ -3228,8 +4047,22 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                             <Clock className="w-3.5 h-3.5 ml-2" style={{ color: `rgba(${theme.accentRgb},0.5)` }} />
                             <span className="text-xs" style={{ color: `rgba(${theme.accentRgb},0.5)` }}>{te.time}</span>
                           </div>
-                          <h3 className="font-display text-xl font-semibold mb-1" style={{ color: theme.accent }}>{te.name}</h3>
-                          <p className="text-sm leading-relaxed" style={{ color: `rgba(${theme.accentRgb},0.5)` }}>{te.description}</p>
+                          <h3 className={`${theme.fontDisplay} text-xl font-semibold mb-1`} style={{ color: theme.accent }}>{te.name}</h3>
+                          <p className="text-sm leading-relaxed mb-3" style={{ color: `rgba(${theme.accentRgb},0.5)` }}>{te.description}</p>
+                          <a
+                            href={getGoogleCalendarLink(event, partner1, partner2)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded border transition-all duration-300 hover:scale-[1.02] ${theme.fontDisplay} hover:opacity-90`}
+                            style={{
+                              backgroundColor: `rgba(${theme.accentRgb}, 0.05)`,
+                              borderColor: theme.borderSubtle,
+                              color: theme.accent
+                            }}
+                          >
+                            <Calendar className="w-3.5 h-3.5" />
+                            {t('addToCalendar', 'Add to Calendar')}
+                          </a>
                         </div>
                       </div>
                     </RevealSection>
@@ -3241,11 +4074,121 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
           </section>
         </RevealSection>
 
+        {/* ─── Dress Code Section ─── */}
+        {(dressCodeWomen || dressCodeMen) && (
+          <RevealSection>
+            <section className="py-16 md:py-20 px-6">
+              <div className="flex flex-col items-center gap-8 max-w-md mx-auto">
+                <h2 className={`${theme.fontCalligraphy} text-3xl sm:text-4xl text-center`} style={{ color: theme.accent }}>{t('dressCode', 'Dress Code')}</h2>
+                <HeartDivider accentColor={theme.accent} />
+                
+                <div className="grid grid-cols-2 gap-6 w-full">
+                  {/* Women's Dress Code */}
+                  {dressCodeWomen && (
+                    <div className="flex flex-col items-center p-5 rounded-xl border text-center backdrop-blur-sm" style={{ backgroundColor: `rgba(${theme.accentRgb},0.03)`, borderColor: theme.borderSubtle }}>
+                      <span className={`text-xs tracking-wider uppercase mb-1 ${theme.fontDisplay}`} style={{ color: `rgba(${theme.accentRgb},0.5)` }}>{t('ladies', 'Ladies')}</span>
+                      <p className="text-sm font-semibold mb-4 leading-relaxed" style={{ color: theme.textPrimary }}>{dressCodeWomen}</p>
+                      
+                      {extractColors(dressCodeWomen).length > 0 && (
+                        <div className="flex flex-col items-center gap-1.5">
+                          <span className="text-[10px] uppercase tracking-wider" style={{ color: `rgba(${theme.accentRgb},0.4)` }}>{t('recommendedColors', 'Themes')}</span>
+                          <div className="flex gap-2.5 justify-center flex-wrap">
+                            {extractColors(dressCodeWomen).map((color, i) => (
+                              <div key={i} className="flex flex-col items-center gap-1">
+                                <div 
+                                  className="w-6 h-6 rounded-full border shadow-sm cursor-help hover:scale-105 transition-transform" 
+                                  style={{ backgroundColor: color.hex, borderColor: `rgba(${theme.accentRgb},0.3)` }} 
+                                  title={color.name}
+                                />
+                                <span className="text-[9px]" style={{ color: `rgba(${theme.accentRgb},0.45)` }}>{color.name}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Men's Dress Code */}
+                  {dressCodeMen && (
+                    <div className="flex flex-col items-center p-5 rounded-xl border text-center backdrop-blur-sm" style={{ backgroundColor: `rgba(${theme.accentRgb},0.03)`, borderColor: theme.borderSubtle }}>
+                      <span className={`text-xs tracking-wider uppercase mb-1 ${theme.fontDisplay}`} style={{ color: `rgba(${theme.accentRgb},0.5)` }}>{t('gentlemen', 'Gentlemen')}</span>
+                      <p className="text-sm font-semibold mb-4 leading-relaxed" style={{ color: theme.textPrimary }}>{dressCodeMen}</p>
+                      
+                      {extractColors(dressCodeMen).length > 0 && (
+                        <div className="flex flex-col items-center gap-1.5">
+                          <span className="text-[10px] uppercase tracking-wider" style={{ color: `rgba(${theme.accentRgb},0.4)` }}>{t('recommendedColors', 'Themes')}</span>
+                          <div className="flex gap-2.5 justify-center flex-wrap">
+                            {extractColors(dressCodeMen).map((color, i) => (
+                              <div key={i} className="flex flex-col items-center gap-1">
+                                <div 
+                                  className="w-6 h-6 rounded-full border shadow-sm cursor-help hover:scale-105 transition-transform" 
+                                  style={{ backgroundColor: color.hex, borderColor: `rgba(${theme.accentRgb},0.3)` }} 
+                                  title={color.name}
+                                />
+                                <span className="text-[9px]" style={{ color: `rgba(${theme.accentRgb},0.45)` }}>{color.name}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </section>
+          </RevealSection>
+        )}
+
+        {/* ─── Travel & Accommodations Section ─── */}
+        {(accommodation || transportation) && (
+          <RevealSection>
+            <section className="py-16 md:py-20 px-6">
+              <div className="flex flex-col items-center gap-8 max-w-md mx-auto">
+                <h2 className={`${theme.fontCalligraphy} text-3xl sm:text-4xl text-center`} style={{ color: theme.accent }}>{t('travelAccommodations', 'Travel & Accommodations')}</h2>
+                <HeartDivider accentColor={theme.accent} />
+                
+                <div className="flex flex-col gap-5 w-full">
+                  {/* Hotel Blocks / Accommodation */}
+                  {accommodation && (
+                    <Card className="backdrop-blur-sm w-full" style={{ backgroundColor: `rgba(${theme.accentRgb},0.03)`, borderColor: theme.borderSubtle }}>
+                      <CardContent className="flex gap-4 p-5 items-start">
+                        <div className="w-10 h-10 rounded-full border flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `rgba(${theme.accentRgb},0.05)`, borderColor: theme.borderSubtle }}>
+                          <Hotel className="w-5 h-5" style={{ color: theme.accent }} />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className={`${theme.fontDisplay} text-base font-semibold mb-1`} style={{ color: theme.accent }}>{t('hotelBlocks', 'Hotel Accommodations')}</h3>
+                          <p className="text-sm leading-relaxed" style={{ color: `rgba(${theme.accentRgb},0.75)` }}>{accommodation}</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Travel / Transportation */}
+                  {transportation && (
+                    <Card className="backdrop-blur-sm w-full" style={{ backgroundColor: `rgba(${theme.accentRgb},0.03)`, borderColor: theme.borderSubtle }}>
+                      <CardContent className="flex gap-4 p-5 items-start">
+                        <div className="w-10 h-10 rounded-full border flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `rgba(${theme.accentRgb},0.05)`, borderColor: theme.borderSubtle }}>
+                          <Car className="w-5 h-5" style={{ color: theme.accent }} />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className={`${theme.fontDisplay} text-base font-semibold mb-1`} style={{ color: theme.accent }}>{t('transportationInfo', 'Transportation Info')}</h3>
+                          <p className="text-sm leading-relaxed" style={{ color: `rgba(${theme.accentRgb},0.75)` }}>{transportation}</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              </div>
+            </section>
+          </RevealSection>
+        )}
+
         {/* ─── Venue ─── */}
         <RevealSection>
           <section className="py-16 md:py-20 px-6">
             <div className="flex flex-col items-center gap-6 max-w-md mx-auto">
-              <h2 className="font-calligraphy text-3xl sm:text-4xl text-center flex items-center gap-3" style={{ color: theme.accent }}>
+              <h2 className={`${theme.fontCalligraphy} text-3xl sm:text-4xl text-center flex items-center gap-3`} style={{ color: theme.accent }}>
                 <MapPin className="w-7 h-7" style={{ color: `rgba(${theme.accentRgb},0.7)` }} />
                 {t('venue', 'Venue')}
               </h2>
@@ -3264,13 +4207,13 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
               </svg>
 
               <div className="text-center space-y-2">
-                <h3 className="font-display text-2xl" style={{ color: theme.accent }}>{translatedVenueName}</h3>
+                <h3 className={`${theme.fontDisplay} text-2xl`} style={{ color: theme.accent }}>{translatedVenueName}</h3>
                 <p className="text-sm" style={{ color: `rgba(${theme.accentRgb},0.6)` }}>{translatedVenueAddress}</p>
               </div>
 
               <Button
                 asChild
-                className="border rounded-lg px-6 py-2.5 h-auto font-display transition-all duration-300"
+                className={`border rounded-lg px-6 py-2.5 h-auto ${theme.fontDisplay} transition-all duration-300`}
                 style={{ backgroundColor: `rgba(${theme.accentRgb},0.1)`, borderColor: theme.borderSubtle, color: theme.accent }}
                 variant="outline"
               >
@@ -3283,11 +4226,261 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
           </section>
         </RevealSection>
 
+        {/* ─── Gift Registry & Shagun Section ─── */}
+        {gifts && (
+          <RevealSection>
+            <section className="py-16 md:py-20 px-6">
+              <div className="flex flex-col items-center gap-8 max-w-md mx-auto">
+                <h2 className={`${theme.fontCalligraphy} text-3xl sm:text-4xl text-center`} style={{ color: theme.accent }}>{t('giftsShagun', 'Digital Shagun & Registry')}</h2>
+                <HeartDivider accentColor={theme.accent} />
+                
+                <div className="w-full flex flex-col gap-6">
+                  {/* General message */}
+                  <div className="text-center p-4 border rounded-xl backdrop-blur-sm" style={{ backgroundColor: `rgba(${theme.accentRgb},0.02)`, borderColor: theme.borderSubtle }}>
+                    <Gift className="w-6 h-6 mx-auto mb-2" style={{ color: theme.accent }} />
+                    <p className="text-sm leading-relaxed" style={{ color: `rgba(${theme.accentRgb},0.8)` }}>{gifts}</p>
+                  </div>
+
+                  {/* Parsed Banking Cards */}
+                  {(() => {
+                    const parsed = parseGiftDetails(gifts);
+                    if (!parsed) return null;
+
+                    return (
+                      <div className="flex flex-col gap-4">
+                        <span className={`text-xs uppercase tracking-wider text-center ${theme.fontDisplay}`} style={{ color: `rgba(${theme.accentRgb},0.5)` }}>{t('shagunDetails', 'Quick Copy details')}</span>
+                        
+                        {/* Bank Card */}
+                        {(parsed.accountNumber || parsed.iban) && (
+                          <div className="relative p-5 rounded-2xl border backdrop-blur-md overflow-hidden" style={{ 
+                            background: `linear-gradient(135deg, rgba(${theme.accentRgb},0.06) 0%, rgba(${theme.accentRgb},0.02) 100%)`, 
+                            borderColor: theme.borderSubtle,
+                            boxShadow: `0 8px 32px 0 rgba(0,0,0,0.37)`
+                          }}>
+                            {/* Chip & Logo Decoration */}
+                            <div className="flex justify-between items-start mb-6">
+                              {/* Sim card chip */}
+                              <div className="w-9 h-7 rounded bg-amber-500/20 border border-amber-500/30 relative">
+                                <div className="absolute inset-x-2.5 top-0 bottom-0 border-l border-r border-amber-500/30" />
+                                <div className="absolute inset-y-2.5 left-0 right-0 border-t border-b border-amber-500/30" />
+                              </div>
+                              <span className="text-xs font-bold tracking-widest" style={{ color: theme.accent }}>{parsed.bankName || 'BANK'}</span>
+                            </div>
+
+                            <div className="space-y-4">
+                              {/* Account Title */}
+                              {parsed.accountTitle && (
+                                <div>
+                                  <span className="text-[10px] uppercase tracking-wider block" style={{ color: `rgba(${theme.accentRgb},0.45)` }}>Account Title</span>
+                                  <span className="text-sm font-semibold" style={{ color: theme.textPrimary }}>{parsed.accountTitle}</span>
+                                </div>
+                              )}
+
+                              {/* Account Number */}
+                              {parsed.accountNumber && (
+                                <div className="flex justify-between items-center">
+                                  <div>
+                                    <span className="text-[10px] uppercase tracking-wider block" style={{ color: `rgba(${theme.accentRgb},0.45)` }}>Account Number</span>
+                                    <span className="text-base font-mono tracking-wider" style={{ color: theme.textPrimary }}>{parsed.accountNumber}</span>
+                                  </div>
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    onClick={() => handleCopy(parsed.accountNumber!, 'Account Number')}
+                                    className="h-8 w-8 hover:bg-white/5"
+                                    style={{ color: theme.accent }}
+                                  >
+                                    {copiedField === 'Account Number' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                                  </Button>
+                                </div>
+                              )}
+
+                              {/* IBAN */}
+                              {parsed.iban && (
+                                <div className="flex justify-between items-center border-t pt-3" style={{ borderColor: `rgba(${theme.accentRgb},0.1)` }}>
+                                  <div className="min-w-0 flex-1">
+                                    <span className="text-[10px] uppercase tracking-wider block" style={{ color: `rgba(${theme.accentRgb},0.45)` }}>IBAN</span>
+                                    <span className="text-xs font-mono tracking-wider block truncate" style={{ color: theme.textPrimary }}>{parsed.iban}</span>
+                                  </div>
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    onClick={() => handleCopy(parsed.iban!, 'IBAN')}
+                                    className="h-8 w-8 hover:bg-white/5 ml-2"
+                                    style={{ color: theme.accent }}
+                                  >
+                                    {copiedField === 'IBAN' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Raast / EasyPaisa / JazzCash Mobile Wallets */}
+                        {(parsed.raastId || parsed.easyPaisa || parsed.jazzCash) && (
+                          <div className="grid grid-cols-1 gap-3">
+                            {/* Raast ID Card */}
+                            {parsed.raastId && (
+                              <div className="flex justify-between items-center p-4 rounded-xl border backdrop-blur-sm" style={{ backgroundColor: `rgba(${theme.accentRgb},0.03)`, borderColor: theme.borderSubtle }}>
+                                <div className="flex gap-3 items-center">
+                                  <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center font-bold text-xs" style={{ color: '#f97316' }}>R</div>
+                                  <div>
+                                    <span className="text-[9px] uppercase tracking-wider block" style={{ color: `rgba(${theme.accentRgb},0.45)` }}>Raast ID</span>
+                                    <span className="text-sm font-mono" style={{ color: theme.textPrimary }}>{parsed.raastId}</span>
+                                  </div>
+                                </div>
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  onClick={() => handleCopy(parsed.raastId!, 'Raast ID')}
+                                  className="h-8 w-8 hover:bg-white/5"
+                                  style={{ color: theme.accent }}
+                                >
+                                  {copiedField === 'Raast ID' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                                </Button>
+                              </div>
+                            )}
+
+                            {/* EasyPaisa Card */}
+                            {parsed.easyPaisa && (
+                              <div className="flex justify-between items-center p-4 rounded-xl border backdrop-blur-sm" style={{ backgroundColor: `rgba(${theme.accentRgb},0.03)`, borderColor: theme.borderSubtle }}>
+                                <div className="flex gap-3 items-center">
+                                  <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center font-bold text-xs" style={{ color: '#22c55e' }}>EP</div>
+                                  <div>
+                                    <span className="text-[9px] uppercase tracking-wider block" style={{ color: `rgba(${theme.accentRgb},0.45)` }}>EasyPaisa</span>
+                                    <span className="text-sm font-mono" style={{ color: theme.textPrimary }}>{parsed.easyPaisa}</span>
+                                  </div>
+                                </div>
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  onClick={() => handleCopy(parsed.easyPaisa!, 'EasyPaisa')}
+                                  className="h-8 w-8 hover:bg-white/5"
+                                  style={{ color: theme.accent }}
+                                >
+                                  {copiedField === 'EasyPaisa' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                                </Button>
+                              </div>
+                            )}
+
+                            {/* JazzCash Card */}
+                            {parsed.jazzCash && (
+                              <div className="flex justify-between items-center p-4 rounded-xl border backdrop-blur-sm" style={{ backgroundColor: `rgba(${theme.accentRgb},0.03)`, borderColor: theme.borderSubtle }}>
+                                <div className="flex gap-3 items-center">
+                                  <div className="w-8 h-8 rounded-lg bg-yellow-500/10 flex items-center justify-center font-bold text-xs" style={{ color: '#eab308' }}>JC</div>
+                                  <div>
+                                    <span className="text-[9px] uppercase tracking-wider block" style={{ color: `rgba(${theme.accentRgb},0.45)` }}>JazzCash</span>
+                                    <span className="text-sm font-mono" style={{ color: theme.textPrimary }}>{parsed.jazzCash}</span>
+                                  </div>
+                                </div>
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  onClick={() => handleCopy(parsed.jazzCash!, 'JazzCash')}
+                                  className="h-8 w-8 hover:bg-white/5"
+                                  style={{ color: theme.accent }}
+                                >
+                                  {copiedField === 'JazzCash' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
+            </section>
+          </RevealSection>
+        )}
+
+        {/* ─── Frequently Asked Questions Section ─── */}
+        <RevealSection>
+          <section className="py-16 md:py-20 px-6">
+            <div className="flex flex-col items-center gap-8 max-w-md mx-auto">
+              <h2 className={`${theme.fontCalligraphy} text-3xl sm:text-4xl text-center`} style={{ color: theme.accent }}>{t('faq', 'Frequently Asked Questions')}</h2>
+              <HeartDivider accentColor={theme.accent} />
+              
+              <div className="w-full flex flex-col gap-4">
+                {[
+                  {
+                    q_en: 'Can I bring a plus one?',
+                    q_ur: 'کیا میں اپنے ساتھ کسی اور کو لا سکتا ہوں؟',
+                    a_en: 'Please refer to your invitation card or contact the hosts directly. Seating is specifically reserved.',
+                    a_ur: 'مہربانی فرما کر اپنے دعوتی کارڈ پر دیکھیں یا میزبانوں سے رابطہ کریں۔ نشستیں مخصوص کی گئی ہیں۔',
+                  },
+                  {
+                    q_en: 'What time should I arrive?',
+                    q_ur: 'مجھے کس وقت پہنچنا چاہیے؟',
+                    a_en: 'We suggest arriving 15-30 minutes before the scheduled event time to settle in comfortably.',
+                    a_ur: 'ہم مشورہ دیتے ہیں کہ تقریب شروع ہونے سے 15-30 منٹ پہلے پہنچیں تاکہ آسانی سے بیٹھ سکیں۔',
+                  },
+                  {
+                    q_en: 'Is parking available at the venue?',
+                    q_ur: 'کیا ہال پر پارکنگ کی سہولت دستیاب ہے؟',
+                    a_en: 'Yes, valet parking is available at the venue for all guests.',
+                    a_ur: 'جی ہاں، تمام مہمانوں کے لیے ہال پر ویلے پارکنگ کی سہولت دستیاب ہے۔',
+                  },
+                  {
+                    q_en: 'Who can I contact for travel queries?',
+                    q_ur: 'سفر اور رہائش کے حوالے سے میں کس سے رابطہ کروں؟',
+                    a_en: 'Please refer to the Travel Coordinator details listed in the Travel section or contact the hosts.',
+                    a_ur: 'برائے مہربانی سفر کے سیکشن میں درج کوآرڈینیٹر کی تفصیلات دیکھیں یا میزبانوں سے رابطہ کریں۔',
+                  }
+                ].map((item, idx) => {
+                  const isExpanded = !!faqOpen[idx];
+                  const question = language === 'ur' ? item.q_ur : item.q_en;
+                  const answer = language === 'ur' ? item.a_ur : item.a_en;
+                  
+                  return (
+                    <div 
+                      key={idx}
+                      className="border rounded-xl overflow-hidden transition-all duration-300"
+                      style={{ backgroundColor: `rgba(${theme.accentRgb}, 0.02)`, borderColor: theme.borderSubtle }}
+                    >
+                      <button
+                        onClick={() => setFaqOpen(prev => ({ ...prev, [idx]: !prev[idx] }))}
+                        className={`w-full flex justify-between items-center p-4 text-left ${theme.fontDisplay} text-sm font-semibold transition-all duration-300`}
+                        style={{ color: theme.accent, textAlign: language === 'ur' ? 'right' : 'left' }}
+                      >
+                        <span className="flex-1 pr-4">{question}</span>
+                        <ChevronDown 
+                          className="w-4 h-4 flex-shrink-0 transition-transform duration-300" 
+                          style={{ 
+                            color: `rgba(${theme.accentRgb},0.5)`,
+                            transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'
+                          }} 
+                        />
+                      </button>
+                      <AnimatePresence initial={false}>
+                        {isExpanded && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            <div className="p-4 pt-0 border-t text-sm leading-relaxed" style={{ borderColor: `rgba(${theme.accentRgb},0.1)`, color: `rgba(${theme.accentRgb},0.8)` }}>
+                              {answer}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+        </RevealSection>
+
         {/* ─── RSVP ─── */}
         <RevealSection>
           <section className="py-16 md:py-20 px-6">
             <div className="flex flex-col items-center gap-8 max-w-md mx-auto">
-              <h2 className="font-calligraphy text-3xl sm:text-4xl text-center" style={{ color: theme.accent }}>{t('willYouAttend', 'Will You Attend?')}</h2>
+              <h2 className={`${theme.fontCalligraphy} text-3xl sm:text-4xl text-center`} style={{ color: theme.accent }}>{t('willYouAttend', 'Will You Attend?')}</h2>
               <HeartDivider accentColor={theme.accent} />
 
               <div className="relative w-full">
@@ -3308,7 +4501,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                   <Card className="w-full backdrop-blur-sm" style={{ backgroundColor: theme.bgPrimary + 'cc', borderColor: theme.borderSubtle }}>
                     <CardContent className="flex flex-col gap-5 pt-6">
                       <div className="space-y-2">
-                        <label className="text-sm font-display" style={{ color: `rgba(${theme.accentRgb},0.7)` }}>{t('yourName', 'Your Name')}</label>
+                        <label className={`text-sm ${theme.fontDisplay}`} style={{ color: `rgba(${theme.accentRgb},0.7)` }}>{t('yourName', 'Your Name')}</label>
                         <Input
                           value={rsvpName}
                           onChange={(e) => setRsvpName(e.target.value)}
@@ -3318,7 +4511,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-sm font-display" style={{ color: `rgba(${theme.accentRgb},0.7)` }}>{t('email', 'Email')} <span style={{ color: `rgba(${theme.accentRgb},0.3)` }}>{t('emailOptional', '(optional)')}</span></label>
+                        <label className={`text-sm ${theme.fontDisplay}`} style={{ color: `rgba(${theme.accentRgb},0.7)` }}>{t('email', 'Email')} <span style={{ color: `rgba(${theme.accentRgb},0.3)` }}>{t('emailOptional', '(optional)')}</span></label>
                         <Input
                           type="email"
                           value={rsvpEmail}
@@ -3329,7 +4522,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-sm font-display" style={{ color: `rgba(${theme.accentRgb},0.7)` }}>{t('willYouBeAttending', 'Will you be attending?')}</label>
+                        <label className={`text-sm ${theme.fontDisplay}`} style={{ color: `rgba(${theme.accentRgb},0.7)` }}>{t('willYouBeAttending', 'Will you be attending?')}</label>
                         <select
                           value={rsvpStatus || ''}
                           onChange={(e) => setRsvpStatus(e.target.value as 'accept' | 'decline' | null || null)}
@@ -3344,7 +4537,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                       <div className="flex gap-3 pt-2">
                         <Button 
                           onClick={() => handleRSVP('accept')} 
-                          className="flex-1 text-white border rounded-lg h-11 font-display green-glow transition-all duration-300 hover:scale-[1.02]"
+                          className={`flex-1 text-white border rounded-lg h-11 ${theme.fontDisplay} green-glow transition-all duration-300 hover:scale-[1.02]`}
                           style={{ backgroundColor: `rgba(${theme.accentRgb},0.8)`, borderColor: theme.borderSubtle }}
                         >
                           <Check className="w-4 h-4 mr-1.5" />
@@ -3352,7 +4545,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                         </Button>
                         <Button 
                           onClick={() => handleRSVP('decline')} 
-                          className="flex-1 border rounded-lg h-11 font-display transition-all duration-300" 
+                          className={`flex-1 border rounded-lg h-11 ${theme.fontDisplay} transition-all duration-300`} 
                           style={{ backgroundColor: 'transparent', borderColor: theme.borderSubtle, color: `rgba(${theme.accentRgb},0.7)` }}
                           variant="outline"
                         >
@@ -3375,7 +4568,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                         </div>
                       )}
                     </motion.div>
-                    <h3 className="font-display text-xl mb-2" style={{ color: theme.accent }}>
+                    <h3 className={`${theme.fontDisplay} text-xl mb-2`} style={{ color: theme.accent }}>
                       {rsvpStatus === 'accept' ? t('joyfullyAccepted', 'Joyfully Accepted!') : t('thankYou', 'Thank You!')}
                     </h3>
                     <p className="text-sm" style={{ color: `rgba(${theme.accentRgb},0.6)` }}>
@@ -3394,7 +4587,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
         <RevealSection>
           <section className="py-16 md:py-20 px-6">
             <div className="flex flex-col items-center gap-8 max-w-md mx-auto">
-              <h2 className="font-calligraphy text-3xl sm:text-4xl text-center" style={{ color: theme.accent }}>{t('blessingsWishes', 'Blessings & Wishes')}</h2>
+              <h2 className={`${theme.fontCalligraphy} text-3xl sm:text-4xl text-center`} style={{ color: theme.accent }}>{t('blessingsWishes', 'Blessings & Wishes')}</h2>
               <HeartDivider accentColor={theme.accent} />
 
               <div className="w-full space-y-3 max-h-72 overflow-y-auto pr-2 custom-scrollbar">
@@ -3415,7 +4608,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                         <span className="text-xs font-bold" style={{ color: theme.accent }}>{displayName.charAt(0).toUpperCase()}</span>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-display mb-1" style={{ color: `rgba(${theme.accentRgb},0.7)` }}>{displayName}</p>
+                        <p className={`text-xs ${theme.fontDisplay} mb-1`} style={{ color: `rgba(${theme.accentRgb},0.7)` }}>{displayName}</p>
                         <p className="text-sm leading-relaxed" style={{ color: `rgba(${theme.accentRgb},0.8)` }}>{displayMessage}</p>
                       </div>
                     </div>
@@ -3447,7 +4640,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                       rows={2}
                     />
                   </div>
-                  <Button onClick={handleSendWish} className="border h-auto px-4 rounded-lg font-display transition-all duration-300 flex-shrink-0 self-end" style={{ backgroundColor: `rgba(${theme.accentRgb},0.2)`, borderColor: theme.borderSubtle, color: theme.accent }}>
+                  <Button onClick={handleSendWish} className={`border h-auto px-4 rounded-lg ${theme.fontDisplay} transition-all duration-300 flex-shrink-0 self-end`} style={{ backgroundColor: `rgba(${theme.accentRgb},0.2)`, borderColor: theme.borderSubtle, color: theme.accent }}>
                     <Send className="w-4 h-4" />
                   </Button>
                 </div>
@@ -3466,6 +4659,15 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
           <p className="text-xs tracking-wider" style={{ color: `rgba(${theme.accentRgb},0.3)` }}>{t('madeWithLove', 'Made with love by ShaadiLink')}</p>
         </div>
       </motion.div>
+
+      {/* ═══ Inline SVG ClipPaths ─── */}
+      <svg width="0" height="0" className="absolute pointer-events-none">
+        <defs>
+          <clipPath id="heart-clip" clipPathUnits="userSpaceOnUse">
+            <path d={getHeartSvgPath(320, 300)} />
+          </clipPath>
+        </defs>
+      </svg>
     </div>
   )
 }

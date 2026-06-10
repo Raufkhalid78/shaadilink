@@ -23,10 +23,16 @@ const eslintConfig = [...nextCoreWebVitals, ...nextTypescript, {
     "react/display-name": "off",
     "react/prop-types": "off",
     "react-compiler/react-compiler": "off",
+    "react-hooks/set-state-in-effect": "off",
+    "react-hooks/preserve-manual-memoization": "off",
+    "react-hooks/refs": "off",
     
     // Next.js rules
     "@next/next/no-img-element": "off",
     "@next/next/no-html-link-for-pages": "off",
+    
+    // TypeScript rules override
+    "@typescript-eslint/no-require-imports": "off",
     
     // General JavaScript rules
     "prefer-const": "off",

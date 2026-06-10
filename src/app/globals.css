@@ -9,6 +9,8 @@
   --font-sans: var(--font-inter);
   --font-display: var(--font-playfair);
   --font-calligraphy: var(--font-amiri);
+  --font-royal-display: var(--font-cinzel-dec);
+  --font-royal-script: var(--font-pinyon);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -48,45 +50,76 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+/* ═══════════════════════════════════
+   DARK PREMIUM DESIGN SYSTEM (Default)
+   Rich deep emerald — like a royal chamber
+   ═══════════════════════════════════ */
 :root {
-  --radius: 0.625rem;
-  --background: oklch(0.985 0.002 80);
-  --foreground: oklch(0.17 0.02 70);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.17 0.02 70);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.17 0.02 70);
-  --primary: oklch(0.45 0.12 155);
+  --radius: 0.75rem;
+
+  /* Core dark palette */
+  --background: oklch(0.10 0.018 155);          /* Deep dark emerald */
+  --foreground: oklch(0.92 0.01 80);            /* Warm off-white */
+
+  /* Cards — slightly lighter than bg */
+  --card: oklch(0.14 0.02 155);
+  --card-foreground: oklch(0.92 0.01 80);
+
+  /* Popovers */
+  --popover: oklch(0.14 0.02 155);
+  --popover-foreground: oklch(0.92 0.01 80);
+
+  /* Primary — emerald */
+  --primary: oklch(0.52 0.14 155);
   --primary-foreground: oklch(0.98 0.005 80);
-  --secondary: oklch(0.96 0.01 80);
-  --secondary-foreground: oklch(0.25 0.02 70);
-  --muted: oklch(0.96 0.008 80);
-  --muted-foreground: oklch(0.5 0.02 70);
-  --accent: oklch(0.93 0.015 80);
-  --accent-foreground: oklch(0.25 0.02 70);
+
+  /* Secondary */
+  --secondary: oklch(0.18 0.025 155);
+  --secondary-foreground: oklch(0.85 0.02 80);
+
+  /* Muted — subtle container bg */
+  --muted: oklch(0.16 0.02 155);
+  --muted-foreground: oklch(0.55 0.03 130);
+
+  /* Accent */
+  --accent: oklch(0.18 0.03 80);
+  --accent-foreground: oklch(0.90 0.02 80);
+
+  /* Destructive */
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.91 0.01 80);
-  --input: oklch(0.91 0.01 80);
-  --ring: oklch(0.45 0.12 155);
+
+  /* Borders & inputs */
+  --border: oklch(0.22 0.025 155);
+  --input: oklch(0.18 0.025 155);
+  --ring: oklch(0.52 0.14 155);
+
+  /* Charts */
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --gold: oklch(0.72 0.15 75);
-  --gold-light: oklch(0.82 0.1 80);
-  --emerald: oklch(0.45 0.12 155);
-  --emerald-dark: oklch(0.25 0.1 155);
-  --sidebar: oklch(0.985 0.002 80);
-  --sidebar-foreground: oklch(0.17 0.02 70);
-  --sidebar-primary: oklch(0.45 0.12 155);
+
+  /* Brand colors */
+  --gold: oklch(0.74 0.16 78);
+  --gold-light: oklch(0.84 0.11 82);
+  --emerald: oklch(0.52 0.14 155);
+  --emerald-dark: oklch(0.12 0.03 155);
+
+  /* Sidebar */
+  --sidebar: oklch(0.12 0.02 155);
+  --sidebar-foreground: oklch(0.92 0.01 80);
+  --sidebar-primary: oklch(0.52 0.14 155);
   --sidebar-primary-foreground: oklch(0.98 0.005 80);
-  --sidebar-accent: oklch(0.96 0.01 80);
-  --sidebar-accent-foreground: oklch(0.25 0.02 70);
-  --sidebar-border: oklch(0.91 0.01 80);
-  --sidebar-ring: oklch(0.45 0.12 155);
+  --sidebar-accent: oklch(0.18 0.025 155);
+  --sidebar-accent-foreground: oklch(0.85 0.02 80);
+  --sidebar-border: oklch(0.22 0.025 155);
+  --sidebar-ring: oklch(0.52 0.14 155);
 }
 
+/* ═══════════════════════════════════
+   BASE LAYER
+   ═══════════════════════════════════ */
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -96,36 +129,50 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Subtle noise texture for depth */
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.025'/%3E%3C/svg%3E");
   }
   section[id] {
     scroll-margin-top: 80px;
   }
 }
 
-/* Custom scrollbar */
+/* ═══════════════════════════════════
+   CUSTOM SCROLLBAR
+   ═══════════════════════════════════ */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: oklch(0.10 0.018 155);
 }
 ::-webkit-scrollbar-thumb {
-  background: oklch(0.7 0.05 155);
+  background: oklch(0.74 0.16 78 / 0.4);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: oklch(0.6 0.08 155);
+  background: oklch(0.74 0.16 78 / 0.7);
 }
 
-/* Font classes */
+/* ═══════════════════════════════════
+   TYPOGRAPHY CLASSES
+   ═══════════════════════════════════ */
 .font-display {
   font-family: var(--font-playfair), Georgia, serif;
 }
 .font-calligraphy {
   font-family: var(--font-amiri), serif;
 }
+.font-royal-display {
+  font-family: var(--font-cinzel-dec), var(--font-playfair), Georgia, serif;
+}
+.font-royal-script {
+  font-family: var(--font-pinyon), var(--font-amiri), cursive, serif;
+}
 
-/* Gold shimmer animation */
+/* ═══════════════════════════════════
+   SHIMMER ANIMATIONS
+   ═══════════════════════════════════ */
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
@@ -140,7 +187,6 @@
   background-clip: text;
 }
 
-/* Enhanced gold shimmer - more visible */
 .gold-shimmer-strong {
   background: linear-gradient(
     90deg,
@@ -159,54 +205,87 @@
   background-clip: text;
 }
 
-/* Scratch card styles */
+/* ═══════════════════════════════════
+   GLASS & CARD UTILITIES
+   ═══════════════════════════════════ */
+.glass-card {
+  background: oklch(0.14 0.02 155 / 0.8);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border: 1px solid oklch(0.74 0.16 78 / 0.12);
+}
+
+.glass-card-strong {
+  background: oklch(0.16 0.025 155 / 0.9);
+  backdrop-filter: blur(30px) saturate(1.6);
+  -webkit-backdrop-filter: blur(30px) saturate(1.6);
+  border: 1px solid oklch(0.74 0.16 78 / 0.2);
+}
+
+/* Animated gradient border */
+@keyframes borderSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.gradient-border {
+  position: relative;
+  isolation: isolate;
+}
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: conic-gradient(from 0deg, transparent 0deg, #d4a853 60deg, #f0d78c 120deg, #d4a853 180deg, transparent 240deg, transparent 360deg);
+  animation: borderSpin 4s linear infinite;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.gradient-border:hover::before {
+  opacity: 1;
+}
+
+/* ═══════════════════════════════════
+   SCRATCH CARD
+   ═══════════════════════════════════ */
 .scratch-canvas {
   touch-action: none;
   cursor: pointer;
 }
 
-/* ═══════════════════════════════════════════
-   3D DOOR ANIMATIONS - Realistic swing physics
-   ═══════════════════════════════════════════ */
-
-/* Classic 3D Door Open - Multi-step with overshoot + settle */
+/* ═══════════════════════════════════
+   3D DOOR ANIMATIONS
+   ═══════════════════════════════════ */
 @keyframes doorOpenLeft {
   0% { transform: rotateY(0deg); }
-  3% { transform: rotateY(-1deg); }          /* Initial hesitation */
-  8% { transform: rotateY(-5deg); }          /* Slow push begins */
-  25% { transform: rotateY(-45deg); }        /* Accelerating */
-  50% { transform: rotateY(-85deg); }        /* Swinging freely */
-  75% { transform: rotateY(-108deg); }       /* Nearly fully open */
-  88% { transform: rotateY(-114deg); }       /* Overshoot */
-  96% { transform: rotateY(-107deg); }       /* Settle back */
-  100% { transform: rotateY(-110deg); }      /* Final rest */
+  20% { transform: rotateY(-10deg); }
+  45% { transform: rotateY(-50deg); }
+  70% { transform: rotateY(-85deg); }
+  90% { transform: rotateY(-102deg); }
+  100% { transform: rotateY(-105deg); }
 }
-
 @keyframes doorOpenRight {
   0% { transform: rotateY(0deg); }
-  3% { transform: rotateY(1deg); }
-  8% { transform: rotateY(5deg); }
-  25% { transform: rotateY(45deg); }
-  50% { transform: rotateY(85deg); }
-  75% { transform: rotateY(108deg); }
-  88% { transform: rotateY(114deg); }
-  96% { transform: rotateY(107deg); }
-  100% { transform: rotateY(110deg); }
+  20% { transform: rotateY(10deg); }
+  45% { transform: rotateY(50deg); }
+  70% { transform: rotateY(85deg); }
+  90% { transform: rotateY(102deg); }
+  100% { transform: rotateY(105deg); }
 }
-
 .door-open-left {
-  animation: doorOpenLeft 2.2s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  animation: doorOpenLeft 3.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   transform-origin: left center;
   transform-style: preserve-3d;
 }
-
 .door-open-right {
-  animation: doorOpenRight 2.2s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  animation: doorOpenRight 3.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   transform-origin: right center;
   transform-style: preserve-3d;
 }
 
-/* Curtain slide animations - Fabric gathering with wave distortion */
+/* ═══ Curtain ═══ */
 @keyframes curtainOpenLeft {
   0% { transform: translateX(0) skewX(0deg) scaleX(1); opacity: 1; }
   10% { transform: translateX(-2%) skewX(-1deg) scaleX(0.98); opacity: 1; }
@@ -216,7 +295,6 @@
   85% { transform: translateX(-95%) skewX(-9deg) scaleX(0.4); opacity: 0.4; }
   100% { transform: translateX(-115%) skewX(-10deg) scaleX(0.3); opacity: 0; }
 }
-
 @keyframes curtainOpenRight {
   0% { transform: translateX(0) skewX(0deg) scaleX(1); opacity: 1; }
   10% { transform: translateX(2%) skewX(1deg) scaleX(0.98); opacity: 1; }
@@ -226,18 +304,16 @@
   85% { transform: translateX(95%) skewX(9deg) scaleX(0.4); opacity: 0.4; }
   100% { transform: translateX(115%) skewX(10deg) scaleX(0.3); opacity: 0; }
 }
-
 .curtain-open-left {
-  animation: curtainOpenLeft 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  animation: curtainOpenLeft 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   transform-origin: left center;
 }
-
 .curtain-open-right {
-  animation: curtainOpenRight 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  animation: curtainOpenRight 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   transform-origin: right center;
 }
 
-/* Petal bloom animations - Organic unfolding */
+/* ═══ Petal ═══ */
 @keyframes petalOpenLeft {
   0% { transform: scale(1) rotate(0deg) translateX(0); opacity: 1; }
   15% { transform: scale(0.95) rotate(-5deg) translateX(-5%); opacity: 0.9; }
@@ -245,7 +321,6 @@
   60% { transform: scale(0.55) rotate(-30deg) translateX(-40%); opacity: 0.4; }
   100% { transform: scale(0.2) rotate(-50deg) translateX(-65%); opacity: 0; }
 }
-
 @keyframes petalOpenRight {
   0% { transform: scale(1) rotate(0deg) translateX(0); opacity: 1; }
   15% { transform: scale(0.95) rotate(5deg) translateX(5%); opacity: 0.9; }
@@ -253,76 +328,62 @@
   60% { transform: scale(0.55) rotate(30deg) translateX(40%); opacity: 0.4; }
   100% { transform: scale(0.2) rotate(50deg) translateX(65%); opacity: 0; }
 }
-
 .petal-open-left {
-  animation: petalOpenLeft 1.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  animation: petalOpenLeft 2.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   transform-origin: right center;
 }
-
 .petal-open-right {
-  animation: petalOpenRight 1.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  animation: petalOpenRight 2.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   transform-origin: left center;
 }
 
-/* Split screen animations - Smooth glass-like slide */
+/* ═══ Split Screen ═══ */
 @keyframes splitOpenLeft {
   0% { transform: translateX(0); opacity: 1; }
   20% { opacity: 1; }
   100% { transform: translateX(-105%); opacity: 0; }
 }
-
 @keyframes splitOpenRight {
   0% { transform: translateX(0); opacity: 1; }
   20% { opacity: 1; }
   100% { transform: translateX(105%); opacity: 0; }
 }
-
 .split-open-left {
-  animation: splitOpenLeft 1.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  animation: splitOpenLeft 1.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
-
 .split-open-right {
-  animation: splitOpenRight 1.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  animation: splitOpenRight 1.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
-/* Archway open - Same 3D swing physics as classic */
+/* ═══ Archway ═══ */
 @keyframes archOpenLeft {
   0% { transform: rotateY(0deg); }
-  3% { transform: rotateY(-1deg); }
-  8% { transform: rotateY(-4deg); }
-  25% { transform: rotateY(-40deg); }
-  50% { transform: rotateY(-78deg); }
-  75% { transform: rotateY(-100deg); }
-  88% { transform: rotateY(-108deg); }
-  96% { transform: rotateY(-102deg); }
-  100% { transform: rotateY(-105deg); }
+  20% { transform: rotateY(-8deg); }
+  45% { transform: rotateY(-48deg); }
+  70% { transform: rotateY(-82deg); }
+  90% { transform: rotateY(-98deg); }
+  100% { transform: rotateY(-100deg); }
 }
-
 @keyframes archOpenRight {
   0% { transform: rotateY(0deg); }
-  3% { transform: rotateY(1deg); }
-  8% { transform: rotateY(4deg); }
-  25% { transform: rotateY(40deg); }
-  50% { transform: rotateY(78deg); }
-  75% { transform: rotateY(100deg); }
-  88% { transform: rotateY(108deg); }
-  96% { transform: rotateY(102deg); }
-  100% { transform: rotateY(105deg); }
+  20% { transform: rotateY(8deg); }
+  45% { transform: rotateY(48deg); }
+  70% { transform: rotateY(82deg); }
+  90% { transform: rotateY(98deg); }
+  100% { transform: rotateY(100deg); }
 }
-
 .arch-open-left {
-  animation: archOpenLeft 2.2s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  animation: archOpenLeft 3.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   transform-origin: left center;
   transform-style: preserve-3d;
 }
-
 .arch-open-right {
-  animation: archOpenRight 2.2s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  animation: archOpenRight 3.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   transform-origin: right center;
   transform-style: preserve-3d;
 }
 
-/* Scroll unfurl animations - Paper rolling with curl */
+/* ═══ Scroll Unfurl ═══ */
 @keyframes scrollUnfurlLeft {
   0% { transform: scaleX(1) scaleY(1); opacity: 1; }
   15% { transform: scaleX(0.95) scaleY(1.02); opacity: 1; }
@@ -331,7 +392,6 @@
   85% { transform: scaleX(0.15) scaleY(1); opacity: 0.4; }
   100% { transform: scaleX(0) scaleY(1); opacity: 0; }
 }
-
 @keyframes scrollUnfurlRight {
   0% { transform: scaleX(1) scaleY(1); opacity: 1; }
   15% { transform: scaleX(0.95) scaleY(1.02); opacity: 1; }
@@ -340,18 +400,16 @@
   85% { transform: scaleX(0.15) scaleY(1); opacity: 0.4; }
   100% { transform: scaleX(0) scaleY(1); opacity: 0; }
 }
-
 .scroll-unfurl-left {
-  animation: scrollUnfurlLeft 1.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  animation: scrollUnfurlLeft 2.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   transform-origin: right center;
 }
-
 .scroll-unfurl-right {
-  animation: scrollUnfurlRight 1.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  animation: scrollUnfurlRight 2.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   transform-origin: left center;
 }
 
-/* Dome lift animation - Floating upward with wobble */
+/* ═══ Dome Lift ═══ */
 @keyframes domeLiftUp {
   0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
   5% { transform: translateY(-2vh) rotate(-0.3deg) scale(1.002); opacity: 1; }
@@ -362,134 +420,91 @@
   85% { transform: translateY(-100vh) rotate(0.1deg) scale(1.025); opacity: 0.2; }
   100% { transform: translateY(-120vh) rotate(0deg) scale(1.03); opacity: 0; }
 }
-
 .dome-lift-up {
-  animation: domeLiftUp 2.5s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  animation: domeLiftUp 3.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-/* Lantern open animations - 3D swing with upward float */
+/* ═══ Lantern ═══ */
 @keyframes lanternOpenLeft {
   0% { transform: rotateY(0deg) translateY(0); }
-  3% { transform: rotateY(-1deg) translateY(0); }
-  10% { transform: rotateY(-8deg) translateY(-1px); }
-  30% { transform: rotateY(-50deg) translateY(-5px); }
-  55% { transform: rotateY(-90deg) translateY(-10px); }
-  75% { transform: rotateY(-112deg) translateY(-14px); }
-  90% { transform: rotateY(-118deg) translateY(-16px); }
-  100% { transform: rotateY(-115deg) translateY(-15px); }
+  20% { transform: rotateY(-8deg) translateY(-1px); }
+  45% { transform: rotateY(-48deg) translateY(-5px); }
+  70% { transform: rotateY(-82deg) translateY(-10px); }
+  90% { transform: rotateY(-102deg) translateY(-14px); }
+  100% { transform: rotateY(-105deg) translateY(-15px); }
 }
-
 @keyframes lanternOpenRight {
   0% { transform: rotateY(0deg) translateY(0); }
-  3% { transform: rotateY(1deg) translateY(0); }
-  10% { transform: rotateY(8deg) translateY(-1px); }
-  30% { transform: rotateY(50deg) translateY(-5px); }
-  55% { transform: rotateY(90deg) translateY(-10px); }
-  75% { transform: rotateY(112deg) translateY(-14px); }
-  90% { transform: rotateY(118deg) translateY(-16px); }
-  100% { transform: rotateY(115deg) translateY(-15px); }
+  20% { transform: rotateY(8deg) translateY(-1px); }
+  45% { transform: rotateY(48deg) translateY(-5px); }
+  70% { transform: rotateY(82deg) translateY(-10px); }
+  90% { transform: rotateY(102deg) translateY(-14px); }
+  100% { transform: rotateY(105deg) translateY(-15px); }
 }
-
 .lantern-open-left {
-  animation: lanternOpenLeft 2.2s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  animation: lanternOpenLeft 3.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   transform-origin: left center;
   transform-style: preserve-3d;
 }
-
 .lantern-open-right {
-  animation: lanternOpenRight 2.2s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  animation: lanternOpenRight 3.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   transform-origin: right center;
   transform-style: preserve-3d;
 }
 
-/* ═══ Idle Animations - Subtle breathing/life ═══ */
-
-/* Classic door idle - Subtle breathing press */
+/* ═══ Idle Animations ═══ */
 @keyframes doorBreathe {
   0%, 100% { transform: rotateY(0deg) scale(1); }
   50% { transform: rotateY(-0.3deg) scale(1.001); }
 }
+.door-breathe-idle { animation: doorBreathe 4s ease-in-out infinite; transform-style: preserve-3d; }
 
-.door-breathe-idle {
-  animation: doorBreathe 4s ease-in-out infinite;
-  transform-style: preserve-3d;
-}
-
-/* Curtain drape waviness - Fabric movement */
 @keyframes curtainDrape {
   0%, 100% { transform: scaleY(1) skewX(0deg); }
   25% { transform: scaleY(1.008) skewX(0.2deg); }
   50% { transform: scaleY(1) skewX(-0.1deg); }
   75% { transform: scaleY(1.005) skewX(0.15deg); }
 }
+.curtain-drape-idle { animation: curtainDrape 3.5s ease-in-out infinite; }
 
-.curtain-drape-idle {
-  animation: curtainDrape 3.5s ease-in-out infinite;
-}
-
-/* Petal idle sway - Gentle organic movement */
 @keyframes petalSway {
   0%, 100% { transform: rotate(0deg) scale(1); }
   25% { transform: rotate(0.8deg) scale(1.003); }
   50% { transform: rotate(-0.5deg) scale(1.001); }
   75% { transform: rotate(0.3deg) scale(1.002); }
 }
+.petal-sway-idle { animation: petalSway 4.5s ease-in-out infinite; }
 
-.petal-sway-idle {
-  animation: petalSway 4.5s ease-in-out infinite;
-}
-
-/* Split screen idle - Subtle glass shimmer */
 @keyframes splitShimmer {
   0%, 100% { opacity: 0.02; }
   50% { opacity: 0.06; }
 }
+.split-shimmer-idle { animation: splitShimmer 3s ease-in-out infinite; }
 
-.split-shimmer-idle {
-  animation: splitShimmer 3s ease-in-out infinite;
-}
-
-/* Scroll idle shimmer - Paper glow */
 @keyframes scrollShimmer {
   0%, 100% { opacity: 0.05; transform: scaleX(1); }
   50% { opacity: 0.12; transform: scaleX(1.001); }
 }
+.scroll-shimmer-idle { animation: scrollShimmer 3s ease-in-out infinite; }
 
-.scroll-shimmer-idle {
-  animation: scrollShimmer 3s ease-in-out infinite;
-}
-
-/* Dome idle float - Gentle hover */
 @keyframes domeFloat {
   0%, 100% { transform: translateY(0) rotate(0deg); }
   30% { transform: translateY(-3px) rotate(0.15deg); }
   60% { transform: translateY(-5px) rotate(-0.1deg); }
   80% { transform: translateY(-2px) rotate(0.05deg); }
 }
+.dome-float-idle { animation: domeFloat 4.5s ease-in-out infinite; }
 
-.dome-float-idle {
-  animation: domeFloat 4.5s ease-in-out infinite;
-}
-
-/* Lantern glow flicker - Warm pulse */
 @keyframes lanternGlow {
   0%, 100% { opacity: 0.4; filter: brightness(1); }
   30% { opacity: 0.55; filter: brightness(1.05); }
   60% { opacity: 0.7; filter: brightness(1.1); }
   80% { opacity: 0.5; filter: brightness(1.02); }
 }
+.lantern-glow-idle { animation: lanternGlow 2.8s ease-in-out infinite; }
+.arch-breathe-idle { animation: doorBreathe 4s ease-in-out infinite; transform-style: preserve-3d; }
 
-.lantern-glow-idle {
-  animation: lanternGlow 2.8s ease-in-out infinite;
-}
-
-/* Archway idle - Subtle depth breathing */
-.arch-breathe-idle {
-  animation: doorBreathe 4s ease-in-out infinite;
-  transform-style: preserve-3d;
-}
-
-/* ═══ Light Leak Animation ═══ */
+/* ═══ Light Leak ═══ */
 @keyframes lightLeakGrow {
   0% { opacity: 0; transform: scaleX(0); }
   10% { opacity: 0; transform: scaleX(0); }
@@ -497,83 +512,56 @@
   60% { opacity: 0.7; transform: scaleX(0.5); }
   100% { opacity: 1; transform: scaleX(1); }
 }
+.door-light-leak { animation: lightLeakGrow 2.2s cubic-bezier(0.22, 0.61, 0.36, 1) forwards; }
 
-.door-light-leak {
-  animation: lightLeakGrow 2.2s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
-}
-
-/* ═══ Door Frame Shadow ═══ */
 @keyframes frameShadowReveal {
   0% { opacity: 0; }
   30% { opacity: 0.3; }
   100% { opacity: 1; }
 }
+.door-frame-shadow { animation: frameShadowReveal 2s ease-out forwards; }
 
-.door-frame-shadow {
-  animation: frameShadowReveal 2s ease-out forwards;
-}
-
-/* Firework particle */
+/* ═══════════════════════════════════
+   UTILITY ANIMATIONS
+   ═══════════════════════════════════ */
 @keyframes fireworkRise {
   0% { transform: translateY(0); opacity: 1; }
   60% { opacity: 1; }
   100% { transform: translateY(-200px); opacity: 0; }
 }
-
 @keyframes fireworkBurst {
   0% { transform: scale(0); opacity: 1; }
   50% { opacity: 1; }
   100% { transform: scale(1); opacity: 0; }
 }
 
-/* Floating animation */
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
 }
+.animate-float { animation: float 3s ease-in-out infinite; }
 
-.animate-float {
-  animation: float 3s ease-in-out infinite;
-}
-
-/* Pulse glow */
 @keyframes pulseGlow {
   0%, 100% { box-shadow: 0 0 5px rgba(180, 145, 77, 0.3); }
   50% { box-shadow: 0 0 20px rgba(180, 145, 77, 0.6), 0 0 40px rgba(180, 145, 77, 0.3); }
 }
+.pulse-glow { animation: pulseGlow 2s ease-in-out infinite; }
 
-.pulse-glow {
-  animation: pulseGlow 2s ease-in-out infinite;
-}
-
-/* Sparkle animation for scratch card */
 @keyframes sparkleAnim {
-  0% {
-    transform: translate(0, 0) scale(1);
-    opacity: 1;
-  }
-  100% {
-    transform: translate(var(--sparkle-x, 0), var(--sparkle-y, -20px)) scale(0);
-    opacity: 0;
-  }
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--sparkle-x, 0), var(--sparkle-y, -20px)) scale(0); opacity: 0; }
 }
 
-/* Rotating ring animation for door button */
 @keyframes rotateRing {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+.animate-rotate-ring { animation: rotateRing 8s linear infinite; }
 
-.animate-rotate-ring {
-  animation: rotateRing 8s linear infinite;
-}
-
-/* Door shimmer effect */
 @keyframes doorShimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
-
 .door-shimmer {
   background: linear-gradient(
     90deg,
@@ -587,129 +575,132 @@
   animation: doorShimmer 4s ease-in-out infinite;
 }
 
-/* Door glow behind - particles effect */
 @keyframes doorGlowPulse {
   0%, 100% { opacity: 0.3; transform: scale(1); }
   50% { opacity: 0.6; transform: scale(1.05); }
 }
+.animate-door-glow { animation: doorGlowPulse 2s ease-in-out infinite; }
 
-.animate-door-glow {
-  animation: doorGlowPulse 2s ease-in-out infinite;
-}
-
-/* Button hover glow */
 @keyframes buttonHoverGlow {
   0%, 100% { box-shadow: 0 0 15px rgba(180, 145, 77, 0.4), 0 0 30px rgba(180, 145, 77, 0.2); }
   50% { box-shadow: 0 0 25px rgba(180, 145, 77, 0.7), 0 0 50px rgba(180, 145, 77, 0.4), 0 0 80px rgba(180, 145, 77, 0.2); }
 }
+.animate-button-glow { animation: buttonHoverGlow 1.5s ease-in-out infinite; }
 
-.animate-button-glow {
-  animation: buttonHoverGlow 1.5s ease-in-out infinite;
-}
-
-/* Gold border pulse for scratch card reveal */
 @keyframes goldBorderPulse {
   0%, 100% { box-shadow: 0 0 20px rgba(180, 145, 77, 0.3), 0 0 40px rgba(180, 145, 77, 0.1); }
   50% { box-shadow: 0 0 35px rgba(180, 145, 77, 0.6), 0 0 70px rgba(180, 145, 77, 0.3), 0 0 100px rgba(180, 145, 77, 0.15); }
 }
+.gold-border-pulse { animation: goldBorderPulse 1.5s ease-in-out infinite; }
 
-.gold-border-pulse {
-  animation: goldBorderPulse 1.5s ease-in-out infinite;
-}
-
-/* Countdown pulsing glow */
 @keyframes countdownPulse {
   0%, 100% { box-shadow: 0 0 8px rgba(180, 145, 77, 0.15); }
   50% { box-shadow: 0 0 20px rgba(180, 145, 77, 0.35), 0 0 40px rgba(180, 145, 77, 0.15); }
 }
+.countdown-pulse { animation: countdownPulse 2s ease-in-out infinite; }
 
-.countdown-pulse {
-  animation: countdownPulse 2s ease-in-out infinite;
-}
-
-/* Confetti animation for RSVP */
 @keyframes confettiFall {
   0% { transform: translateY(0) rotate(0deg); opacity: 1; }
   100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
 }
+.confetti-piece { animation: confettiFall 3s ease-out forwards; }
 
-.confetti-piece {
-  animation: confettiFall 3s ease-out forwards;
-}
-
-/* Floating background particles */
 @keyframes floatParticle {
   0% { transform: translateY(0) translateX(0); opacity: 0; }
   10% { opacity: var(--particle-opacity, 0.3); }
   90% { opacity: var(--particle-opacity, 0.3); }
   100% { transform: translateY(-100vh) translateX(var(--particle-drift, 20px)); opacity: 0; }
 }
-
 .bg-particle {
   animation: floatParticle var(--particle-duration, 15s) linear infinite;
   animation-delay: var(--particle-delay, 0s);
 }
 
-/* Green glow for accept button */
 @keyframes greenGlow {
   0%, 100% { box-shadow: 0 0 10px rgba(34, 197, 94, 0.3), 0 0 20px rgba(180, 145, 77, 0.2); }
   50% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.5), 0 0 40px rgba(180, 145, 77, 0.3), 0 0 60px rgba(34, 197, 94, 0.2); }
 }
+.green-glow { animation: greenGlow 2s ease-in-out infinite; }
 
-.green-glow {
-  animation: greenGlow 2s ease-in-out infinite;
-}
-
-/* Heart float animation for RSVP confirmation */
 @keyframes heartFloat {
   0% { transform: translateY(0) scale(0); opacity: 0; }
   20% { transform: translateY(-20px) scale(1); opacity: 1; }
   100% { transform: translateY(-80px) scale(0.8); opacity: 0; }
 }
+.heart-float { animation: heartFloat 2s ease-out forwards; }
 
-.heart-float {
-  animation: heartFloat 2s ease-out forwards;
-}
-
-/* Music icon pulse */
 @keyframes musicPulse {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.1); }
 }
+.music-pulse { animation: musicPulse 1s ease-in-out infinite; }
 
-.music-pulse {
-  animation: musicPulse 1s ease-in-out infinite;
+/* ═══ Count-up helper ═══ */
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
+.count-up { animation: countUp 0.6s ease-out forwards; }
 
-/* Scroll reveal */
+/* ═══ Reveal on scroll ═══ */
 .reveal-on-scroll {
   opacity: 0;
   transform: translateY(30px);
   transition: opacity 0.8s ease, transform 0.8s ease;
 }
-
 .reveal-on-scroll.revealed {
   opacity: 1;
   transform: translateY(0);
 }
 
-/* Shimmer rotation for 3D door button */
+/* ═══ Door shimmer rotation ═══ */
 @keyframes shimmerRotate {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
-/* Custom scrollbar for wishes section */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
+/* ═══ Custom scrollbar (wishes) ═══ */
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background: rgba(180, 145, 77, 0.2);
   border-radius: 2px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(180, 145, 77, 0.4);
+}
+
+/* ═══ Section gradient dividers ═══ */
+.section-divider-top {
+  background: linear-gradient(to bottom, oklch(0.12 0.02 155), transparent);
+  height: 80px;
+  margin-bottom: -80px;
+  pointer-events: none;
+  position: relative;
+  z-index: 1;
+}
+
+/* ═══ Glow text utility ═══ */
+.text-glow-gold {
+  text-shadow: 0 0 20px rgba(212, 168, 83, 0.4), 0 0 40px rgba(212, 168, 83, 0.2);
+}
+.text-glow-emerald {
+  text-shadow: 0 0 20px rgba(0, 160, 100, 0.4), 0 0 40px rgba(0, 160, 100, 0.2);
+}
+
+/* ═══ Shimmer loading skeleton ═══ */
+@keyframes skeletonShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    oklch(0.16 0.02 155) 25%,
+    oklch(0.22 0.03 155) 50%,
+    oklch(0.16 0.02 155) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.5s ease-in-out infinite;
+  border-radius: 0.5rem;
 }

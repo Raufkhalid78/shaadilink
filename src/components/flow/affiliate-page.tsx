@@ -11,11 +11,13 @@ import {
   Users,
   TrendingUp,
   Gift,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
+import { toast } from "sonner";
 
 interface AffiliatePageProps {
   onBack: () => void;
@@ -30,6 +32,7 @@ export function AffiliatePage({ onBack }: AffiliatePageProps) {
   });
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isLoading, setIsLoading] = useState(false);
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
@@ -42,9 +45,30 @@ export function AffiliatePage({ onBack }: AffiliatePageProps) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
-    if (validate()) {
+  const handleSubmit = async () => {
+    if (!validate()) return;
+    setIsLoading(true);
+    try {
+      const res = await fetch("/api/affiliate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          socialId: formData.socialId,
+          promotionPlan: formData.promotion,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        toast.error(data.error || "Failed to submit application.");
+        return;
+      }
       setSubmitted(true);
+    } catch {
+      toast.error("Network error. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -252,10 +276,14 @@ export function AffiliatePage({ onBack }: AffiliatePageProps) {
 
                     <Button
                       onClick={handleSubmit}
+                      disabled={isLoading}
                       className="w-full h-12 bg-gold hover:bg-gold-light text-emerald-dark font-semibold text-base gap-2"
                     >
-                      <Send className="w-4 h-4" />
-                      Submit Application
+                      {isLoading ? (
+                        <><Loader2 className="w-4 h-4 animate-spin" /> Submitting...</>
+                      ) : (
+                        <><Send className="w-4 h-4" /> Submit Application</>
+                      )}
                     </Button>
 
                     <p className="text-xs text-muted-foreground text-center italic">

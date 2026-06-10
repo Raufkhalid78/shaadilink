@@ -69,7 +69,7 @@ export function CTASection({ onGetStarted }: CTASectionProps) {
         }}
       />
       <motion.div
-        className="absolute w-48 h-48 sm:w-72 sm:h-72 rounded-full bg-emerald-light/10 blur-3xl"
+        className="absolute w-48 h-48 sm:w-72 sm:h-72 rounded-full bg-emerald/10 blur-3xl"
         style={{ bottom: "10%", right: "15%" }}
         animate={{
           scale: [1.1, 1, 1.1],
