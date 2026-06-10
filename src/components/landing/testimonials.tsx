@@ -226,30 +226,35 @@ export function Testimonials() {
           </div>
 
           {/* Nav Buttons */}
-          <div className="flex items-center justify-center gap-4 mt-8">
+          <div className="flex items-center justify-center gap-2 mt-8">
             <button
               onClick={() => { pauseAutoPlay(); prev(); }}
-              className="flex items-center justify-center w-10 h-10 rounded-full border border-gold/20 bg-card/60 text-muted-foreground hover:text-gold hover:border-gold/50 transition-all duration-300"
+              className="flex items-center justify-center w-12 h-12 rounded-full border border-gold/20 bg-card/60 text-muted-foreground hover:text-gold hover:border-gold/50 transition-all duration-300"
+              aria-label="Previous testimonial"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
 
             {/* Dots */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               {testimonials.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => { pauseAutoPlay(); setActiveIdx(i); }}
-                  className={`rounded-full transition-all duration-300 ${
-                    i === activeIdx ? "w-6 h-2 bg-gold" : "w-2 h-2 bg-muted-foreground/30 hover:bg-gold/40"
-                  }`}
-                />
+                  className="w-8 h-8 flex items-center justify-center rounded-full focus:outline-none"
+                  aria-label={`Go to testimonial slide ${i + 1}`}
+                >
+                  <div className={`rounded-full transition-all duration-300 ${
+                    i === activeIdx ? "w-5 h-2 bg-gold" : "w-2 h-2 bg-muted-foreground/30 hover:bg-gold/40"
+                  }`} />
+                </button>
               ))}
             </div>
 
             <button
               onClick={() => { pauseAutoPlay(); next(); }}
-              className="flex items-center justify-center w-10 h-10 rounded-full border border-gold/20 bg-card/60 text-muted-foreground hover:text-gold hover:border-gold/50 transition-all duration-300"
+              className="flex items-center justify-center w-12 h-12 rounded-full border border-gold/20 bg-card/60 text-muted-foreground hover:text-gold hover:border-gold/50 transition-all duration-300"
+              aria-label="Next testimonial"
             >
               <ChevronRight className="w-5 h-5" />
             </button>

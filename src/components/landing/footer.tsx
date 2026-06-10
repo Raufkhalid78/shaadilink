@@ -135,9 +135,9 @@ export function Footer({
                       key={social.label}
                       href={social.href}
                       aria-label={social.label}
-                      className={`flex h-9 w-9 items-center justify-center rounded-full bg-white/8 border border-white/10 text-white/50 hover:text-white hover:border-transparent transition-all duration-300 ${social.color}`}
+                      className={`flex h-12 w-12 items-center justify-center rounded-full bg-white/8 border border-white/10 text-white/50 hover:text-white hover:border-transparent transition-all duration-300 ${social.color}`}
                     >
-                      <Icon className="h-4 w-4" />
+                      <Icon className="h-5 w-5" />
                     </a>
                   );
                 })}

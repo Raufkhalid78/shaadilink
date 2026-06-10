@@ -127,9 +127,9 @@ export function FAQ() {
         >
           <p className="text-muted-foreground text-base sm:text-lg">
             Still have questions?{" "}
-            <button className="text-gold font-semibold hover:text-gold-light transition-colors underline underline-offset-4 decoration-gold/30">
+            <a href="/contact" className="text-gold font-semibold hover:text-gold-light transition-colors underline underline-offset-4 decoration-gold/30">
               Contact our support team
-            </button>
+            </a>
           </p>
         </motion.div>
       </div>

@@ -150,23 +150,16 @@ export function Pricing({ onSelectPlan }: PricingProps) {
                 variants={cardVariants}
                 onMouseEnter={() => setHovered(plan.id)}
                 onMouseLeave={() => setHovered(null)}
-                className={`relative rounded-2xl overflow-hidden transition-all duration-500 ${
+                className={`relative rounded-2xl overflow-hidden transition-all duration-500 shadow-md ${
                   plan.highlighted
-                    ? "border border-gold/40 shadow-2xl shadow-gold/15"
-                    : "border border-border/20 hover:border-gold/20"
+                    ? "border border-gold/40 shadow-xl shadow-gold/5 hover:shadow-gold/15 hover:shadow-2xl"
+                    : "border border-border/20 hover:border-gold/20 hover:shadow-xl hover:shadow-gold/5"
                 } ${isHovered ? "-translate-y-2" : ""}`}
                 style={{
                   background: plan.highlighted
                     ? "linear-gradient(145deg, oklch(0.16 0.035 80 / 0.7), oklch(0.12 0.025 155 / 0.9))"
                     : "oklch(0.14 0.022 155 / 0.8)",
                   backdropFilter: "blur(20px)",
-                  boxShadow: plan.highlighted
-                    ? isHovered
-                      ? "0 30px 80px rgba(212,168,83,0.2), 0 8px 30px rgba(0,0,0,0.5)"
-                      : "0 20px 60px rgba(212,168,83,0.12), 0 4px 20px rgba(0,0,0,0.4)"
-                    : isHovered
-                      ? "0 20px 50px rgba(0,0,0,0.4), 0 0 0 1px rgba(212,168,83,0.15)"
-                      : "0 4px 20px rgba(0,0,0,0.25)",
                 }}
               >
                 {/* Animated top gradient bar */}

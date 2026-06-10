@@ -1,12 +1,7 @@
 import { MetadataRoute } from 'next'
-import { headers } from 'next/headers'
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const headersList = await headers()
-  const host = headersList.get('host') || 'shaadilink.com.pk'
-  const protocol = host.includes('localhost') ? 'http' : 'https'
-  const baseUrl = `${protocol}://${host}`
-  
+export default function sitemap(): MetadataRoute.Sitemap {
+  const baseUrl = 'https://shaadilink.com.pk'
   const lastModified = new Date()
 
   return [

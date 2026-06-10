@@ -156,16 +156,8 @@ function TransformVisual() {
   return (
     <div className="flex flex-col items-center justify-center py-6">
       {/* Pulsing circle with orbiting sparkle */}
-      <motion.div
-        className="relative w-28 h-28 rounded-full bg-gradient-to-br from-gold/20 to-emerald/20 border-2 border-gold/30 flex items-center justify-center"
-        animate={{
-          boxShadow: [
-            "0 0 20px rgba(180,145,77,0.2)",
-            "0 0 50px rgba(180,145,77,0.4), 0 0 80px rgba(180,145,77,0.15)",
-            "0 0 20px rgba(180,145,77,0.2)",
-          ],
-        }}
-        transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+      <div
+        className="relative w-28 h-28 rounded-full bg-gradient-to-br from-gold/20 to-emerald/20 border-2 border-gold/30 flex items-center justify-center gold-border-pulse"
       >
         {/* Inner sparkle */}
         <motion.div
@@ -208,7 +200,7 @@ function TransformVisual() {
           animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.6, 0.3] }}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
         />
-      </motion.div>
+      </div>
 
       {/* "We handle the magic" text */}
       <motion.p

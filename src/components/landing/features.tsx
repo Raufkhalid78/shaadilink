@@ -175,7 +175,7 @@ export function Features() {
               onClick={() => setActiveTab(tab.key)}
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.97 }}
-              className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-1.5 border ${
+              className={`px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-1.5 border ${
                 activeTab === tab.key
                   ? "bg-emerald text-primary-foreground shadow-lg shadow-emerald/30 border-emerald"
                   : "bg-card/60 text-muted-foreground hover:text-foreground border-border/30 hover:border-gold/30"
@@ -199,19 +199,13 @@ export function Features() {
           >
             {filteredFeatures.map((feature) => {
               const Icon = feature.icon;
-              const isHovered = hoveredId === feature.title;
               return (
                 <motion.div
                   key={feature.title}
                   variants={cardVariants}
                   onMouseEnter={() => setHoveredId(feature.title)}
                   onMouseLeave={() => setHoveredId(null)}
-                  className="group relative rounded-2xl border border-border/20 bg-card/50 backdrop-blur-sm overflow-hidden cursor-default transition-all duration-300 hover:border-gold/30 hover:-translate-y-2 hover:shadow-xl"
-                  style={
-                    isHovered
-                      ? { boxShadow: `0 20px 60px ${feature.glow}, 0 4px 20px rgba(0,0,0,0.4)` }
-                      : { boxShadow: "0 4px 20px rgba(0,0,0,0.2)" }
-                  }
+                  className="group relative rounded-2xl border border-border/20 bg-card/50 backdrop-blur-sm overflow-hidden cursor-default transition-all duration-300 hover:border-gold/30 hover:-translate-y-2 shadow-md hover:shadow-xl hover:shadow-gold/5"
                 >
                   {/* Gradient overlay top-left on hover */}
                   <div
