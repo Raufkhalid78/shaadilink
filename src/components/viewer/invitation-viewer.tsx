@@ -574,6 +574,51 @@ export function getGoogleCalendarLink(event: { name: string; date: string; time:
   return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}`;
 }
 
+export function formatScratchDate(dateStr: string, locale: string = 'en-US'): { date: string; day: string } {
+  try {
+    const d = new Date(dateStr);
+    if (!isNaN(d.getTime())) {
+      const loc = locale === 'ur' ? 'ur-PK' : 'en-US';
+      const dateFormatted = d.toLocaleDateString(loc, {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      });
+      const dayFormatted = d.toLocaleDateString(loc, { weekday: "long" });
+      return { date: dateFormatted, day: dayFormatted };
+    }
+  } catch (e) {
+    console.error("formatScratchDate error", e);
+  }
+  return { date: dateStr, day: "" };
+}
+
+export function formatScratchTime(timeStr: string, locale: string = 'en-US'): string {
+  try {
+    if (/AM|PM|شام|صبح|دوپہر/i.test(timeStr)) return timeStr;
+
+    const parts = timeStr.split(":");
+    if (parts.length >= 2) {
+      let hour = parseInt(parts[0], 10);
+      const minute = parts[1];
+      if (locale === 'ur') {
+        const period = hour >= 12 ? "شام" : "صبح";
+        hour = hour % 12;
+        hour = hour ? hour : 12;
+        return `${period} ${hour}:${minute}`;
+      } else {
+        const ampm = hour >= 12 ? "PM" : "AM";
+        hour = hour % 12;
+        hour = hour ? hour : 12;
+        return `${hour}:${minute} ${ampm}`;
+      }
+    }
+  } catch (e) {
+    console.error("formatScratchTime error", e);
+  }
+  return timeStr;
+}
+
 /* ─── InvitationViewer Props ─── */
 interface InvitationViewerProps {
   templateId?: string
@@ -662,35 +707,53 @@ function RevealSection({ children, className = '', delay = 0 }: { children: Reac
 }
 
 /* ─── Background Floating Particles ─── */
+interface Particle {
+  left: number
+  size: number
+  duration: number
+  delay: number
+  opacity: number
+  drift: number
+}
+
+/* ─── Background Floating Particles ─── */
 function BackgroundParticles({ accentColor }: { accentColor?: string }) {
   const color = accentColor || '#d4a853'
+  const [particles, setParticles] = useState<Particle[]>([])
+
+  useEffect(() => {
+    const generated = Array.from({ length: 18 }).map(() => ({
+      left: Math.random() * 100,
+      size: 1 + Math.random() * 2,
+      duration: 15 + Math.random() * 25,
+      delay: Math.random() * 20,
+      opacity: 0.06 + Math.random() * 0.12,
+      drift: (Math.random() - 0.5) * 50,
+    }))
+    setParticles(generated)
+  }, [])
+
+  if (particles.length === 0) return null
+
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-      {Array.from({ length: 18 }).map((_, i) => {
-        const left = Math.random() * 100
-        const size = 1 + Math.random() * 2
-        const duration = 15 + Math.random() * 25
-        const delay = Math.random() * 20
-        const opacity = 0.06 + Math.random() * 0.12
-        const drift = (Math.random() - 0.5) * 50
-        return (
-          <div
-            key={i}
-            className="absolute rounded-full bg-particle"
-            style={{
-              backgroundColor: color,
-              left: `${left}%`,
-              bottom: '-10px',
-              width: `${size}px`,
-              height: `${size}px`,
-              '--particle-opacity': opacity,
-              '--particle-duration': `${duration}s`,
-              '--particle-delay': `${delay}s`,
-              '--particle-drift': `${drift}px`,
-            } as React.CSSProperties}
-          />
-        )
-      })}
+      {particles.map((p, i) => (
+        <div
+          key={i}
+          className="absolute rounded-full bg-particle"
+          style={{
+            backgroundColor: color,
+            left: `${p.left}%`,
+            bottom: '-10px',
+            width: `${p.size}px`,
+            height: `${p.size}px`,
+            '--particle-opacity': p.opacity,
+            '--particle-duration': `${p.duration}s`,
+            '--particle-delay': `${p.delay}s`,
+            '--particle-drift': `${p.drift}px`,
+          } as React.CSSProperties}
+        />
+      ))}
     </div>
   )
 }
@@ -791,26 +854,59 @@ function FireworksDisplay({ show, colors: propColors }: { show: boolean; colors?
   return <canvas ref={canvasRef} className="fixed inset-0 z-[60] pointer-events-none" style={{ width: '100vw', height: '100vh' }} />
 }
 
+interface ConfettiPiece {
+  left: number
+  width: number
+  height: number
+  color: string
+  delay: number
+  duration: number
+  rotation: number
+}
+
 /* ─── Confetti ─── */
 function ConfettiDisplay({ show, colors: propColors }: { show: boolean; colors?: string[] }) {
-  if (!show) return null
   const colors = propColors || ['#b4914d', '#d4a853', '#e8c66a', '#22c55e', '#f0d78c', '#fff4d0', '#e8a4b8']
+  const [pieces, setPieces] = useState<ConfettiPiece[]>([])
+
+  useEffect(() => {
+    if (show) {
+      const generated = Array.from({ length: 50 }).map(() => {
+        const w = 4 + Math.random() * 8
+        return {
+          left: Math.random() * 100,
+          width: w,
+          height: w * 0.6,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          delay: Math.random() * 0.8,
+          duration: 2 + Math.random() * 2,
+          rotation: Math.random() * 360,
+        }
+      })
+      setPieces(generated)
+    } else {
+      setPieces([])
+    }
+  }, [show])
+
+  if (!show || pieces.length === 0) return null
+
   return (
     <div className="fixed inset-0 z-[70] pointer-events-none overflow-hidden">
-      {Array.from({ length: 50 }).map((_, i) => (
+      {pieces.map((p, i) => (
         <div
           key={i}
           className="absolute confetti-piece"
           style={{
-            left: `${Math.random() * 100}%`,
+            left: `${p.left}%`,
             top: '-10px',
-            width: `${4 + Math.random() * 8}px`,
-            height: `${(4 + Math.random() * 8) * 0.6}px`,
-            backgroundColor: colors[Math.floor(Math.random() * colors.length)],
+            width: `${p.width}px`,
+            height: `${p.height}px`,
+            backgroundColor: p.color,
             borderRadius: '1px',
-            animationDelay: `${Math.random() * 0.8}s`,
-            animationDuration: `${2 + Math.random() * 2}s`,
-            transform: `rotate(${Math.random() * 360}deg)`,
+            animationDelay: `${p.delay}s`,
+            animationDuration: `${p.duration}s`,
+            transform: `rotate(${p.rotation}deg)`,
           }}
         />
       ))}
@@ -1016,7 +1112,23 @@ function GoldDustSplash({ show, colors: propColors }: { show: boolean; colors?: 
 }
 
 /* ─── Scratch Card (v8 - Grid-based tracking + fixed DPR + sparkle trail) ─── */
-function ScratchCard({ revealed, onReveal, theme, language, translations }: { revealed: boolean; onReveal: () => void; theme: TemplateTheme; language: 'en' | 'ur'; translations: Record<string, string> }) {
+function ScratchCard({
+  revealed,
+  onReveal,
+  theme,
+  language,
+  translations,
+  scratchDateInfo,
+  scratchTimeFormatted,
+}: {
+  revealed: boolean;
+  onReveal: () => void;
+  theme: TemplateTheme;
+  language: 'en' | 'ur';
+  translations: Record<string, string>;
+  scratchDateInfo: { date: string; day: string };
+  scratchTimeFormatted: string;
+}) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const isDrawing = useRef(false)
   const revealedRef = useRef(false)
@@ -1024,6 +1136,15 @@ function ScratchCard({ revealed, onReveal, theme, language, translations }: { re
   const onRevealRef = useRef(onReveal)
   const [canvasFading, setCanvasFading] = useState(false)
   const [showCelebration, setShowCelebration] = useState(false)
+  const celebrationSparkles = useMemo(() => {
+    if (!showCelebration) return []
+    return Array.from({ length: 24 }).map((_, i) => {
+      const angle = (Math.PI * 2 * i) / 24
+      const dist = 30 + Math.random() * 50
+      const size = 4 + Math.random() * 6
+      return { angle, dist, size }
+    })
+  }, [showCelebration])
   const [scratchPercent, setScratchPercent] = useState(0)
   const sparkleCanvasRef = useRef<HTMLCanvasElement>(null)
   const sparklesRef = useRef<Array<{ x: number; y: number; vx: number; vy: number; life: number; maxLife: number; size: number; color: string }>>([])
@@ -1175,6 +1296,7 @@ function ScratchCard({ revealed, onReveal, theme, language, translations }: { re
     // Reset grid and percent
     gridRef.current = new Set()
     setScratchPercent(0)
+    revealedRef.current = false
   }, [revealed, theme, language, translations, CARD_W, CARD_H, isRoyal])
 
   // Sparkle trail animation loop
@@ -1447,7 +1569,7 @@ function ScratchCard({ revealed, onReveal, theme, language, translations }: { re
                   className={`${theme.fontDisplay} text-2xl sm:text-3xl font-bold`}
                   style={{ color: theme.textSecondary, textShadow: `0 0 15px rgba(${theme.accentRgb},0.3)` }}
                 >
-                  {language === 'ur' ? (translations.march15 || '15 مارچ 2027') : 'March 15, 2027'}
+                  {scratchDateInfo.date}
                 </motion.p>
                 <motion.p
                   initial={{ y: 10, opacity: 0 }}
@@ -1456,7 +1578,7 @@ function ScratchCard({ revealed, onReveal, theme, language, translations }: { re
                   className={`${theme.fontCalligraphy} text-lg`}
                   style={{ color: theme.accent }}
                 >
-                  {language === 'ur' ? (translations.sunday || 'اتوار') : 'Sunday'}
+                  {scratchDateInfo.day}
                 </motion.p>
                 <motion.p
                   initial={{ y: 10, opacity: 0 }}
@@ -1465,7 +1587,7 @@ function ScratchCard({ revealed, onReveal, theme, language, translations }: { re
                   className="text-sm"
                   style={{ color: theme.accentLight }}
                 >
-                  {language === 'ur' ? (translations.time7pm || 'شام 7 بجے') : '7:00 PM'} <span style={{ color: theme.accentLight, fontWeight: 600 }}>{language === 'ur' ? (translations.pkt || 'پاکستانی وقت') : 'PKT'}</span>
+                  {scratchTimeFormatted} <span style={{ color: theme.accentLight, fontWeight: 600 }}>{language === 'ur' ? 'پاکستانی وقت' : 'PKT'}</span>
                 </motion.p>
               </motion.div>
             ) : (
@@ -1490,19 +1612,19 @@ function ScratchCard({ revealed, onReveal, theme, language, translations }: { re
                   className={`${theme.fontDisplay} text-2xl sm:text-3xl font-bold`}
                   style={{ color: theme.textSecondary, textShadow: `0 0 10px rgba(${theme.accentRgb},0.15)` }}
                 >
-                  {language === 'ur' ? (translations.march15 || '15 مارچ 2027') : 'March 15, 2027'}
+                  {scratchDateInfo.date}
                 </p>
                 <p
                   className={`${theme.fontCalligraphy} text-lg`}
                   style={{ color: theme.accentLight }}
                 >
-                  {language === 'ur' ? (translations.sunday || 'اتوار') : 'Sunday'}
+                  {scratchDateInfo.day}
                 </p>
                 <p
                   className="text-sm"
                   style={{ color: theme.accent }}
                 >
-                  {language === 'ur' ? (translations.time7pm || 'شام 7 بجے') : '7:00 PM'} <span style={{ color: theme.accentLight, fontWeight: 600 }}>{language === 'ur' ? (translations.pkt || 'پاکستانی وقت') : 'PKT'}</span>
+                  {scratchTimeFormatted} <span style={{ color: theme.accentLight, fontWeight: 600 }}>{language === 'ur' ? 'پاکستانی وقت' : 'PKT'}</span>
                 </p>
               </motion.div>
             )}
@@ -1511,9 +1633,7 @@ function ScratchCard({ revealed, onReveal, theme, language, translations }: { re
 
         {/* Celebration sparkles overlay */}
         <AnimatePresence>
-          {showCelebration && Array.from({ length: 24 }).map((_, i) => {
-            const angle = (Math.PI * 2 * i) / 24
-            const dist = 30 + Math.random() * 50
+          {showCelebration && celebrationSparkles.map((sparkle, i) => {
             return (
               <motion.div
                 key={i}
@@ -1521,14 +1641,14 @@ function ScratchCard({ revealed, onReveal, theme, language, translations }: { re
                 animate={{
                   scale: [0, 1.5, 0],
                   opacity: [1, 1, 0],
-                  x: Math.cos(angle) * dist,
-                  y: Math.sin(angle) * dist,
+                  x: Math.cos(sparkle.angle) * sparkle.dist,
+                  y: Math.sin(sparkle.angle) * sparkle.dist,
                 }}
                 transition={{ duration: 1.5, delay: i * 0.04, ease: 'easeOut' }}
                 className="absolute z-30 pointer-events-none"
                 style={{
-                  width: 4 + Math.random() * 6,
-                  height: 4 + Math.random() * 6,
+                  width: sparkle.size,
+                  height: sparkle.size,
                   left: '50%',
                   top: '50%',
                   borderRadius: '50%',
@@ -1570,15 +1690,69 @@ function ScratchCard({ revealed, onReveal, theme, language, translations }: { re
 }
 
 
-/* ─── Countdown Timer ─── */
-const COUNTDOWN_TARGET = new Date('2027-03-15T19:00:00+05:00').getTime()
+function getCountdownTarget(dateStr?: string, timeStr?: string): number {
+  const defaultTarget = new Date('2027-03-15T19:00:00+05:00').getTime()
+  if (!dateStr) return defaultTarget
 
-function CountdownTimer({ theme, translations }: { theme: TemplateTheme; translations?: Record<string, string> }) {
+  try {
+    let hours = 19
+    let minutes = 0
+    if (timeStr) {
+      const timeClean = timeStr.trim().toUpperCase()
+      const isPM = timeClean.includes('PM') || timeClean.includes('شام') || timeClean.includes('دوپہر')
+      const isAM = timeClean.includes('AM') || timeClean.includes('صبح')
+      
+      const digits = timeClean.match(/\d+/g)
+      if (digits && digits.length >= 1) {
+        let h = parseInt(digits[0], 10)
+        let m = digits.length >= 2 ? parseInt(digits[1], 10) : 0
+        if (isPM && h < 12) h += 12
+        if (isAM && h === 12) h = 0
+        hours = h
+        minutes = m
+      }
+    }
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr.trim())) {
+      const [y, m, d] = dateStr.trim().split('-').map(Number)
+      const dateObj = new Date(y, m - 1, d, hours, minutes, 0, 0)
+      if (!isNaN(dateObj.getTime())) {
+        return dateObj.getTime()
+      }
+    }
+
+    const dateObj = new Date(dateStr)
+    if (!isNaN(dateObj.getTime())) {
+      dateObj.setHours(hours, minutes, 0, 0)
+      return dateObj.getTime()
+    }
+  } catch (e) {
+    console.error("Error parsing countdown target date", e)
+  }
+
+  return defaultTarget
+}
+
+function CountdownTimer({
+  theme,
+  translations,
+  targetDate,
+  targetTime,
+}: {
+  theme: TemplateTheme
+  translations?: Record<string, string>
+  targetDate?: string
+  targetTime?: string
+}) {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
+
+  const countdownTarget = useMemo(() => {
+    return getCountdownTarget(targetDate, targetTime)
+  }, [targetDate, targetTime])
 
   useEffect(() => {
     function update() {
-      const diff = Math.max(0, COUNTDOWN_TARGET - Date.now())
+      const diff = Math.max(0, countdownTarget - Date.now())
       setTimeLeft({
         days: Math.floor(diff / (1000 * 60 * 60 * 24)),
         hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
@@ -1589,7 +1763,7 @@ function CountdownTimer({ theme, translations }: { theme: TemplateTheme; transla
     update()
     const interval = setInterval(update, 1000)
     return () => clearInterval(interval)
-  }, [])
+  }, [countdownTarget])
 
   const t = (key: string, fallback: string) => translations?.[key] || fallback
 
@@ -3370,8 +3544,15 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
   const partner1 = flowData?.partner1Name?.trim() || 'Ahmed'
   const partner2 = flowData?.partner2Name?.trim() || 'Fatima'
   const venueName = flowData?.venue?.trim() || 'The Grand Pearl Hall'
-  const venueAddress = flowData?.venueAddress?.trim() || 'Main Boulevard, Gulberg, Lahore'
+  const rawVenueAddress = flowData?.venueAddress?.trim() || 'Main Boulevard, Gulberg, Lahore'
+  const [venueAddress, googleMapsUrl] = rawVenueAddress.includes('|||')
+    ? rawVenueAddress.split('|||')
+    : [rawVenueAddress, '']
   const welcomeMsg = flowData?.welcomeMessage?.trim() || "With hearts full of love and joy, we warmly invite you to share in the celebration of our union. Your presence would mean the world to us as we begin this beautiful journey together."
+
+  const [language, setLanguage] = useState<'en' | 'ur'>('en')
+  const [translations, setTranslations] = useState<Record<string, string>>({})
+  const [isTranslating, setIsTranslating] = useState(false)
 
   const isDemo = !flowData?.invitationId && !flowData?.partner1Name
   const dressCodeWomen = flowData?.dressCodeWomen?.trim() || (isDemo ? "Yellow / Green traditional" : "")
@@ -3397,6 +3578,25 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
       { name: 'Walima', time: '8:00 PM', date: 'March 16, 2027', description: 'The wedding reception hosted by the groom — feast, blessings, and joy.' },
     ]
   }, [flowData?.events])
+
+  const firstEvent = useMemo(() => {
+    if (!dynamicEvents.length) {
+      return { date: 'March 15, 2027', time: '7:00 PM', name: 'Wedding' }
+    }
+    const mainNames = ['baraat', 'nikkah', 'wedding', 'shaadi', 'ruksati']
+    const found = dynamicEvents.find(e => 
+      mainNames.some(name => e.name.toLowerCase().includes(name))
+    )
+    return found || dynamicEvents[0]
+  }, [dynamicEvents])
+
+  const scratchDateInfo = useMemo(() => {
+    return formatScratchDate(firstEvent.date, language)
+  }, [firstEvent.date, language])
+
+  const scratchTimeFormatted = useMemo(() => {
+    return formatScratchTime(firstEvent.time, language)
+  }, [firstEvent.time, language])
 
   const [doorsOpened, setDoorsOpened] = useState(false)
   const [scratchRevealed, setScratchRevealed] = useState(false)
@@ -3458,9 +3658,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
     }
   }, [doorsOpened, musicPlaying])
 
-  const [language, setLanguage] = useState<'en' | 'ur'>('en')
-  const [translations, setTranslations] = useState<Record<string, string>>({})
-  const [isTranslating, setIsTranslating] = useState(false)
+
   const [showConfetti, setShowConfetti] = useState(false)
   const [rsvpHearts, setRsvpHearts] = useState<number[]>([])
   const [heroVisible, setHeroVisible] = useState(false)
@@ -3477,11 +3675,14 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
   const [faqOpen, setFaqOpen] = useState<Record<number, boolean>>({})
   const [wishes, setWishes] = useState<
     Array<{ name: string; message: string; translatedName?: string; translatedMessage?: string }>
-  >([
-    { name: 'Ayesha Khan', message: 'May Allah bless your union with endless love and happiness! 🤲' },
-    { name: 'Omar Farooq', message: 'Wishing you a lifetime of joy and togetherness! 💒' },
-    { name: 'Zainab Malik', message: 'MashaAllah! May your journey be filled with blessings! ✨' },
-  ])
+  >(() => {
+    if (flowData?.invitationId) return []
+    return [
+      { name: 'Ayesha Khan', message: 'May Allah bless your union with endless love and happiness! 🤲' },
+      { name: 'Omar Farooq', message: 'Wishing you a lifetime of joy and togetherness! 💒' },
+      { name: 'Zainab Malik', message: 'MashaAllah! May your journey be filled with blessings! ✨' },
+    ]
+  })
   // Keep a ref to the current wishes so the translation callback can read them without re-creating
   const wishesRef = useRef(wishes)
   wishesRef.current = wishes
@@ -3646,14 +3847,9 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
     baraatDesc: 'شادی کا شان دار جلوس — ڈھول کی تھاپ، رقص اور خوش آمدید',
     nikkahDesc: 'مقدس اسلامی شادی کی تقریب — نکاح نامہ کی دستخط',
     walimaDesc: 'دولہا کی طرف سے ولیمہ — ضیافت، دعائیں اور خوشیاں',
-    welcomeMsg: 'محبت اور خوشی سے بھرے دلوں کے ساتھ، ہم آپ کو اپنے اتحاد کی تقریب میں شریک ہونے کی دعوت دیتے ہیں۔ ہماری اس خوبصورت سفری شروعات میں آپ کی موجودگی ہمارے لیے سب کچھ ہوگی۔',
     at: 'پر',
     joinUs: 'میں شامل ہوں',
     celebration: 'تقریب',
-    partner1: 'احمد',
-    partner2: 'فاطمہ',
-    venueName: 'دی گرانڈ پرل ہال',
-    venueAddress: 'مین بلیوارڈ، گلبرگ، لاہور',
     scratchHere: '✦  یہاں کھرچیں  ✦',
     toReveal: 'دعوت نامہ دیکھنے کے لیے',
     youreInvited: 'آپ مدعو ہیں!',
@@ -3687,20 +3883,26 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
 
     try {
       // Build texts object for AI translation with ALL dynamic content
-      const dynamicTexts: Record<string, string> = {
-        partner1,
-        partner2,
-        venueName,
-        venueAddress,
-        scratchHere: '✦  Scratch Here  ✦',
-        toReveal: 'to reveal your invitation',
-        youreInvited: "You're Invited!",
-        march15: 'March 15, 2027',
-        sunday: 'Sunday',
-        time7pm: '7:00 PM',
-        pkt: 'PKT',
-        scratchReveal: 'Scratch to Reveal',
-      }
+      const dynamicTexts: Record<string, string> = {}
+      if (partner1) dynamicTexts.partner1 = partner1
+      if (partner2) dynamicTexts.partner2 = partner2
+      if (venueName) dynamicTexts.venueName = venueName
+      if (venueAddress) dynamicTexts.venueAddress = venueAddress
+      if (welcomeMsg) dynamicTexts.welcomeMsg = welcomeMsg
+      if (dressCodeWomen) dynamicTexts.dressCodeWomen = dressCodeWomen
+      if (dressCodeMen) dynamicTexts.dressCodeMen = dressCodeMen
+      if (transportation) dynamicTexts.transportation = transportation
+      if (accommodation) dynamicTexts.accommodation = accommodation
+      if (gifts) dynamicTexts.gifts = gifts
+
+      dynamicTexts.scratchHere = '✦  Scratch Here  ✦'
+      dynamicTexts.toReveal = 'to reveal your invitation'
+      dynamicTexts.youreInvited = "You're Invited!"
+      dynamicTexts.march15 = 'March 15, 2027'
+      dynamicTexts.sunday = 'Sunday'
+      dynamicTexts.time7pm = '7:00 PM'
+      dynamicTexts.pkt = 'PKT'
+      dynamicTexts.scratchReveal = 'Scratch to Reveal'
 
       // Add each event
       events.forEach((event, idx) => {
@@ -3753,12 +3955,16 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
     } finally {
       setIsTranslating(false)
     }
-  }, [language, partner1, partner2, venueName, venueAddress, events])
+  }, [language, partner1, partner2, venueName, venueAddress, welcomeMsg, dressCodeWomen, dressCodeMen, transportation, accommodation, gifts, events, translations])
 
   // Update html element lang/dir attributes when language changes
   useEffect(() => {
     document.documentElement.lang = language === 'ur' ? 'ur' : 'en'
     document.documentElement.dir = language === 'ur' ? 'rtl' : 'ltr'
+    return () => {
+      document.documentElement.lang = 'en'
+      document.documentElement.dir = 'ltr'
+    }
   }, [language])
 
   // Trigger translation when language switches to Urdu
@@ -3782,9 +3988,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
               name: w.sender_name ?? '',
               message: w.message ?? '',
             }))
-            if (mapped.length > 0) {
-              setWishes(mapped)
-            }
+            setWishes(mapped)
           }
         }
       } catch (error) {
@@ -3794,6 +3998,53 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
 
     loadDbWishes()
   }, [flowData?.invitationId])
+
+  // Translate wishes on the fly if language switches to Urdu
+  useEffect(() => {
+    if (language !== 'ur' || wishes.length === 0) return
+    
+    // Check if there are any wishes that need translation
+    const needsTranslation = wishes.some(w => !w.translatedName || !w.translatedMessage)
+    if (!needsTranslation) return
+
+    const translateWishes = async () => {
+      try {
+        const wishesToTranslate: Record<string, string> = {}
+        wishes.forEach((wish, idx) => {
+          if (!wish.translatedName || !wish.translatedMessage) {
+            wishesToTranslate[`wish${idx}_name`] = wish.name
+            wishesToTranslate[`wish${idx}_message`] = wish.message
+          }
+        })
+        
+        const response = await fetch('/api/translate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ texts: wishesToTranslate }), // Send the subset
+        })
+        if (response.ok) {
+          const data = await response.json()
+          if (data.translations) {
+            const tMap = data.translations
+            setWishes(prev => prev.map((w, idx) => {
+              if (!w.translatedName || !w.translatedMessage) {
+                return {
+                  ...w,
+                  translatedName: tMap[`wish${idx}_name`] || w.name,
+                  translatedMessage: tMap[`wish${idx}_message`] || w.message,
+                }
+              }
+              return w
+            }))
+          }
+        }
+      } catch (err) {
+        console.error('Failed to translate wishes on the fly:', err)
+      }
+    }
+    
+    translateWishes()
+  }, [language, wishes])
 
   // Helper to get translated text
   const t = useCallback((key: string, fallback: string): string => {
@@ -3817,6 +4068,11 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
 
   // Get translated welcome message
   const translatedWelcomeMsg = language === 'ur' && translations.welcomeMsg ? translations.welcomeMsg : welcomeMsg
+  const translatedDressCodeWomen = language === 'ur' && translations.dressCodeWomen ? translations.dressCodeWomen : dressCodeWomen
+  const translatedDressCodeMen = language === 'ur' && translations.dressCodeMen ? translations.dressCodeMen : dressCodeMen
+  const translatedAccommodation = language === 'ur' && translations.accommodation ? translations.accommodation : accommodation
+  const translatedTransportation = language === 'ur' && translations.transportation ? translations.transportation : transportation
+  const translatedGifts = language === 'ur' && translations.gifts ? translations.gifts : gifts
 
   // Translated dynamic content
   const translatedPartner1 = language === 'ur' && translations.partner1 ? translations.partner1 : partner1
@@ -4007,7 +4263,15 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
         {/* ─── Scratch to Reveal ─── */}
         <RevealSection>
           <section className="py-16 md:py-20 px-6">
-            <ScratchCard revealed={scratchRevealed} onReveal={handleScratchReveal} theme={theme} language={language} translations={translations} />
+            <ScratchCard
+              revealed={scratchRevealed}
+              onReveal={handleScratchReveal}
+              theme={theme}
+              language={language}
+              translations={translations}
+              scratchDateInfo={scratchDateInfo}
+              scratchTimeFormatted={scratchTimeFormatted}
+            />
           </section>
         </RevealSection>
 
@@ -4028,7 +4292,12 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
             <div className="flex flex-col items-center gap-8">
               <h2 className={`${theme.fontCalligraphy} text-3xl sm:text-4xl text-center`} style={{ color: theme.accent }}>{t('countingDown', 'Counting Down to Forever')}</h2>
               <HeartDivider accentColor={theme.accent} />
-              <CountdownTimer theme={theme} translations={language === 'ur' ? translations : undefined} />
+              <CountdownTimer 
+                theme={theme} 
+                translations={language === 'ur' ? translations : undefined} 
+                targetDate={firstEvent?.date}
+                targetTime={firstEvent?.time}
+              />
             </div>
           </section>
         </RevealSection>
@@ -4098,7 +4367,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                   {dressCodeWomen && (
                     <div className="flex flex-col items-center p-5 rounded-xl border text-center backdrop-blur-sm" style={{ backgroundColor: `rgba(${theme.accentRgb},0.03)`, borderColor: theme.borderSubtle }}>
                       <span className={`text-xs tracking-wider uppercase mb-1 ${theme.fontDisplay}`} style={{ color: `rgba(${theme.accentRgb},0.5)` }}>{t('ladies', 'Ladies')}</span>
-                      <p className="text-sm font-semibold mb-4 leading-relaxed" style={{ color: theme.textPrimary }}>{dressCodeWomen}</p>
+                      <p className="text-sm font-semibold mb-4 leading-relaxed" style={{ color: theme.textPrimary }}>{translatedDressCodeWomen}</p>
                       
                       {extractColors(dressCodeWomen).length > 0 && (
                         <div className="flex flex-col items-center gap-1.5">
@@ -4124,7 +4393,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                   {dressCodeMen && (
                     <div className="flex flex-col items-center p-5 rounded-xl border text-center backdrop-blur-sm" style={{ backgroundColor: `rgba(${theme.accentRgb},0.03)`, borderColor: theme.borderSubtle }}>
                       <span className={`text-xs tracking-wider uppercase mb-1 ${theme.fontDisplay}`} style={{ color: `rgba(${theme.accentRgb},0.5)` }}>{t('gentlemen', 'Gentlemen')}</span>
-                      <p className="text-sm font-semibold mb-4 leading-relaxed" style={{ color: theme.textPrimary }}>{dressCodeMen}</p>
+                      <p className="text-sm font-semibold mb-4 leading-relaxed" style={{ color: theme.textPrimary }}>{translatedDressCodeMen}</p>
                       
                       {extractColors(dressCodeMen).length > 0 && (
                         <div className="flex flex-col items-center gap-1.5">
@@ -4169,7 +4438,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                         </div>
                         <div className="flex-1">
                           <h3 className={`${theme.fontDisplay} text-base font-semibold mb-1`} style={{ color: theme.accent }}>{t('hotelBlocks', 'Hotel Accommodations')}</h3>
-                          <p className="text-sm leading-relaxed" style={{ color: `rgba(${theme.accentRgb},0.75)` }}>{accommodation}</p>
+                          <p className="text-sm leading-relaxed" style={{ color: `rgba(${theme.accentRgb},0.75)` }}>{translatedAccommodation}</p>
                         </div>
                       </CardContent>
                     </Card>
@@ -4184,7 +4453,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                         </div>
                         <div className="flex-1">
                           <h3 className={`${theme.fontDisplay} text-base font-semibold mb-1`} style={{ color: theme.accent }}>{t('transportationInfo', 'Transportation Info')}</h3>
-                          <p className="text-sm leading-relaxed" style={{ color: `rgba(${theme.accentRgb},0.75)` }}>{transportation}</p>
+                          <p className="text-sm leading-relaxed" style={{ color: `rgba(${theme.accentRgb},0.75)` }}>{translatedTransportation}</p>
                         </div>
                       </CardContent>
                     </Card>
@@ -4228,7 +4497,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                 style={{ backgroundColor: `rgba(${theme.accentRgb},0.1)`, borderColor: theme.borderSubtle, color: theme.accent }}
                 variant="outline"
               >
-                <a href={`https://maps.google.com/?q=${encodeURIComponent(venueAddress)}`} target="_blank" rel="noopener noreferrer">
+                <a href={googleMapsUrl ? googleMapsUrl : `https://maps.google.com/?q=${encodeURIComponent(venueAddress)}`} target="_blank" rel="noopener noreferrer">
                   <MapPin className="w-4 h-4 mr-2" />
                   {t('viewOnMaps', 'View on Google Maps')}
                 </a>
@@ -4249,7 +4518,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                   {/* General message */}
                   <div className="text-center p-4 border rounded-xl backdrop-blur-sm" style={{ backgroundColor: `rgba(${theme.accentRgb},0.02)`, borderColor: theme.borderSubtle }}>
                     <Gift className="w-6 h-6 mx-auto mb-2" style={{ color: theme.accent }} />
-                    <p className="text-sm leading-relaxed" style={{ color: `rgba(${theme.accentRgb},0.8)` }}>{gifts}</p>
+                    <p className="text-sm leading-relaxed" style={{ color: `rgba(${theme.accentRgb},0.8)` }}>{translatedGifts}</p>
                   </div>
 
                   {/* Parsed Banking Cards */}
@@ -4503,7 +4772,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
 
                 {/* Floating hearts on RSVP accept */}
                 {rsvpHearts.map((h) => (
-                  <div key={h} className="absolute heart-float pointer-events-none" style={{ left: `${20 + Math.random() * 60}%`, top: '40%', animationDelay: `${h * 0.15}s` }}>
+                  <div key={h} className="absolute heart-float pointer-events-none" style={{ left: `${20 + ((h * 13) % 61)}%`, top: '40%', animationDelay: `${h * 0.15}s` }}>
                     <Heart className="w-5 h-5" style={{ color: theme.accent, fill: `rgba(${theme.accentRgb},0.4)` }} />
                   </div>
                 ))}
@@ -4602,29 +4871,36 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
               <HeartDivider accentColor={theme.accent} />
 
               <div className="w-full space-y-3 max-h-72 overflow-y-auto pr-2 custom-scrollbar">
-                {wishes.map((wish, idx) => {
-                  const displayName = language === 'ur' && wish.translatedName ? wish.translatedName : wish.name
-                  const displayMessage = language === 'ur' && wish.translatedMessage ? wish.translatedMessage : wish.message
-                  return (
-                  <motion.div
-                    key={`${wish.name}-${idx}`}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: idx * 0.1 }}
-                    className="border rounded-lg p-4"
-                    style={{ backgroundColor: `rgba(${theme.accentRgb},0.05)`, borderColor: `rgba(${theme.accentRgb},0.15)` }}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-full border flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: `linear-gradient(to bottom right, rgba(${theme.accentRgb},0.3), rgba(${theme.accentRgb},0.1))`, borderColor: theme.borderSubtle }}>
-                        <span className="text-xs font-bold" style={{ color: theme.accent }}>{displayName.charAt(0).toUpperCase()}</span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className={`text-xs ${theme.fontDisplay} mb-1`} style={{ color: `rgba(${theme.accentRgb},0.7)` }}>{displayName}</p>
-                        <p className="text-sm leading-relaxed" style={{ color: `rgba(${theme.accentRgb},0.8)` }}>{displayMessage}</p>
-                      </div>
-                    </div>
-                  </motion.div>
-                )})}
+                {wishes.length === 0 ? (
+                  <div className="text-center py-8 text-sm border border-dashed rounded-lg" style={{ backgroundColor: `rgba(${theme.accentRgb},0.02)`, borderColor: `rgba(${theme.accentRgb},0.15)`, color: `rgba(${theme.accentRgb},0.5)` }}>
+                    {language === 'ur' ? 'ابھی تک کوئی دعا نہیں بھیجی گئی، پہلا پیغام لکھیں!' : 'No blessings yet. Write the first blessing!'}
+                  </div>
+                ) : (
+                  wishes.map((wish, idx) => {
+                    const displayName = language === 'ur' && wish.translatedName ? wish.translatedName : wish.name
+                    const displayMessage = language === 'ur' && wish.translatedMessage ? wish.translatedMessage : wish.message
+                    return (
+                      <motion.div
+                        key={`${wish.name}-${idx}`}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.1 }}
+                        className="border rounded-lg p-4"
+                        style={{ backgroundColor: `rgba(${theme.accentRgb},0.05)`, borderColor: `rgba(${theme.accentRgb},0.15)` }}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="w-8 h-8 rounded-full border flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: `linear-gradient(to bottom right, rgba(${theme.accentRgb},0.3), rgba(${theme.accentRgb},0.1))`, borderColor: theme.borderSubtle }}>
+                            <span className="text-xs font-bold" style={{ color: theme.accent }}>{displayName.charAt(0).toUpperCase()}</span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-xs ${theme.fontDisplay} mb-1`} style={{ color: `rgba(${theme.accentRgb},0.7)` }}>{displayName}</p>
+                            <p className="text-sm leading-relaxed" style={{ color: `rgba(${theme.accentRgb},0.8)` }}>{displayMessage}</p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )
+                  })
+                )}
               </div>
 
               <div className="w-full space-y-3">

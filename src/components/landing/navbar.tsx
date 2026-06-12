@@ -20,11 +20,21 @@ interface NavbarProps {
   onLoginClick?: () => void;
   onAboutClick?: () => void;
   onContactClick?: () => void;
+  isLoggedIn?: boolean;
+  onDashboardClick?: () => void;
 }
 
 const sectionIds = ["features", "how-it-works", "pricing"];
 
-export function Navbar({ onTemplatesClick, onGetStarted, onLoginClick, onAboutClick, onContactClick }: NavbarProps) {
+export function Navbar({
+  onTemplatesClick,
+  onGetStarted,
+  onLoginClick,
+  onAboutClick,
+  onContactClick,
+  isLoggedIn,
+  onDashboardClick,
+}: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -136,13 +146,23 @@ export function Navbar({ onTemplatesClick, onGetStarted, onLoginClick, onAboutCl
 
         {/* Desktop CTA */}
         <div className="hidden lg:flex items-center gap-3">
-          <Button
-            variant="ghost"
-            onClick={onLoginClick}
-            className="text-white/70 hover:text-white hover:bg-white/10 font-medium transition-colors duration-300"
-          >
-            Login
-          </Button>
+          {isLoggedIn ? (
+            <Button
+              variant="ghost"
+              onClick={onDashboardClick}
+              className="text-white/70 hover:text-white hover:bg-white/10 font-medium transition-colors duration-300"
+            >
+              Dashboard
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              onClick={onLoginClick}
+              className="text-white/70 hover:text-white hover:bg-white/10 font-medium transition-colors duration-300"
+            >
+              Login
+            </Button>
+          )}
           <Button
             onClick={onGetStarted}
             className="bg-gold hover:bg-gold-light text-emerald-dark font-bold border-none pulse-glow shadow-lg shadow-gold/20 hover:shadow-gold/40 transition-all duration-300"
@@ -216,14 +236,25 @@ export function Navbar({ onTemplatesClick, onGetStarted, onLoginClick, onAboutCl
               })}
               <div className="mt-6 pt-6 border-t border-gold/10 space-y-3">
                 <SheetClose asChild>
-                  <Button
-                    variant="outline"
-                    onClick={onLoginClick}
-                    className="w-full border-gold/30 text-gold hover:bg-gold/10 font-medium bg-transparent"
-                    size="lg"
-                  >
-                    Login
-                  </Button>
+                  {isLoggedIn ? (
+                    <Button
+                      variant="outline"
+                      onClick={onDashboardClick}
+                      className="w-full border-gold/30 text-gold hover:bg-gold/10 font-medium bg-transparent"
+                      size="lg"
+                    >
+                      Dashboard
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      onClick={onLoginClick}
+                      className="w-full border-gold/30 text-gold hover:bg-gold/10 font-medium bg-transparent"
+                      size="lg"
+                    >
+                      Login
+                    </Button>
+                  )}
                 </SheetClose>
                 <SheetClose asChild>
                   <Button

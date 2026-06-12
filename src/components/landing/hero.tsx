@@ -498,6 +498,7 @@ export function Hero({ onViewTemplates, onGetStarted }: HeroProps) {
                 </div>
               </div>
             </motion.div>
+
           </motion.div>
 
           {/* Right: Floating invitation card mockup */}

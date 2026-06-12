@@ -22,6 +22,31 @@ export function LoginPage({ onBack, onLogin, onSignup }: LoginPageProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isForgotLoading, setIsForgotLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+
+  const handleGoogleLogin = async () => {
+    setIsGoogleLoading(true);
+    try {
+      localStorage.setItem("shaadilink_oauth_in_progress", "true");
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/api/auth/callback`,
+        },
+      });
+      if (error) {
+        toast.error(error.message);
+        localStorage.removeItem("shaadilink_oauth_in_progress");
+      }
+    } catch (err) {
+      console.error("Google login error:", err);
+      toast.error("Could not initialize Google login.");
+      localStorage.removeItem("shaadilink_oauth_in_progress");
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
@@ -228,6 +253,51 @@ export function LoginPage({ onBack, onLogin, onSignup }: LoginPageProps) {
                 ) : (
                   "Login"
                 )}
+              </Button>
+
+              {/* Divider */}
+              <div className="relative my-4 flex items-center justify-center">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-emerald/10"></div>
+                </div>
+                <div className="relative flex justify-center text-xs uppercase z-10">
+                  <span className="bg-background/90 px-3 text-muted-foreground/80 backdrop-blur-xl rounded-full border border-emerald/10 py-0.5">
+                    or
+                  </span>
+                </div>
+              </div>
+
+              {/* Google Button */}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleGoogleLogin}
+                disabled={isLoading || isGoogleLoading}
+                className="w-full h-12 bg-background/40 hover:bg-background/80 border border-emerald/20 hover:border-gold/30 text-foreground font-semibold text-base shadow-md transition-all hover:scale-[1.01] flex items-center justify-center gap-3"
+              >
+                {isGoogleLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin text-emerald" />
+                ) : (
+                  <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
+                    <path
+                      fill="#EA4335"
+                      d="M12 5.04c1.66 0 3.2.57 4.38 1.69l3.27-3.27C17.67 1.53 14.98 1 12 1 7.35 1 3.37 3.67 1.38 7.56l3.85 2.99c.9-2.7 3.42-4.51 6.77-4.51z"
+                    />
+                    <path
+                      fill="#4285F4"
+                      d="M23.49 12.27c0-.81-.07-1.59-.2-2.36H12v4.51h6.46c-.29 1.48-1.14 2.73-2.4 3.58l3.73 2.89c2.18-2.01 3.7-4.99 3.7-8.62z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M5.23 14.45c-.24-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29L1.38 6.88C.5 8.65 0 10.62 0 12.72s.5 4.07 1.38 5.84l3.85-2.99c-.9-2.7-3.42-4.51-6.77-4.51z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M12 23c3.24 0 5.97-1.07 7.96-2.91l-3.73-2.89c-1.1.74-2.5 1.18-4.23 1.18-3.35 0-5.88-2.19-6.78-4.9l-3.84 2.99C3.37 20.33 7.35 23 12 23z"
+                    />
+                  </svg>
+                )}
+                Continue with Google
               </Button>
             </div>
 

@@ -20,6 +20,7 @@ const legalLinks = [
   { label: "Terms & Conditions", href: "/terms" },
   { label: "Privacy Policy", href: "/privacy" },
   { label: "Refund Policy", href: "/refund" },
+  { label: "Shipping Policy", href: "/shipping" },
 ];
 
 const socialLinks = [

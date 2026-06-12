@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServiceClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 
 /* POST /api/invitations/[id]/wishes — submit wish (public) */
 export async function POST(
@@ -60,6 +60,58 @@ export async function GET(
     return NextResponse.json({ wishes })
   } catch (error) {
     console.error('GET /wishes error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
+
+/* DELETE /api/invitations/[id]/wishes — delete wish (owner only) */
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+    const { searchParams } = new URL(request.url)
+    const wishId = searchParams.get('wishId')
+
+    if (!wishId) {
+      return NextResponse.json({ error: 'Wish ID is required' }, { status: 400 })
+    }
+
+    const supabase = await createClient()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const service = createServiceClient()
+
+    // Verify ownership
+    const { data: inv } = await service
+      .from('invitations')
+      .select('user_id')
+      .eq('id', id)
+      .single()
+
+    if (!inv || inv.user_id !== user.id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    // Delete wish
+    const { error: deleteError } = await service
+      .from('wishes')
+      .delete()
+      .eq('id', wishId)
+      .eq('invitation_id', id)
+
+    if (deleteError) {
+      return NextResponse.json({ error: deleteError.message }, { status: 500 })
+    }
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('DELETE /wishes error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

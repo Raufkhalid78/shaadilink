@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowLeft, ArrowRight, Calendar, Heart, MapPin, Music, MessageSquare,
@@ -20,11 +20,56 @@ interface DetailsPageProps {
 }
 
 export function DetailsPage({ flowData, onUpdateData, onBack, onContinue }: DetailsPageProps) {
+  const isEdit = !!flowData.invitationId;
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const heroInputRef = useRef<HTMLInputElement>(null);
   const slideshowInputRef = useRef<HTMLInputElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Play audio preview on selection
+  const handleMusicSelection = (trackId: string) => {
+    onUpdateData({ backgroundMusic: trackId });
+
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+
+    if (trackId === "no-music") return;
+
+    try {
+      const audio = new Audio(`/music/${trackId}.mp3`);
+      audio.volume = 0.4;
+      audio.play().catch((err) => {
+        console.warn("Audio autoplay blocked or failed:", err);
+      });
+      audioRef.current = audio;
+    } catch (err) {
+      console.error("Audio preview failed:", err);
+    }
+  };
+
+  // Stop audio when component unmounts
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
+
+  // Parse address and map URL from venueAddress
+  const [addressPart, mapsUrlPart] = (flowData.venueAddress || "").split("|||");
+  const [addressText, setAddressText] = useState(addressPart || "");
+  const [mapsUrl, setMapsUrl] = useState(mapsUrlPart || "");
+
+  const updateAddressAndMap = (newAddress: string, newMapsUrl: string) => {
+    const combined = newMapsUrl.trim() ? `${newAddress.trim()}|||${newMapsUrl.trim()}` : newAddress.trim();
+    onUpdateData({ venueAddress: combined });
+  };
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
@@ -40,9 +85,12 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue }: Deta
     setIsSaving(true);
 
     try {
-      // Save invitation to Supabase
-      const res = await fetch("/api/invitations", {
-        method: "POST",
+      // Save invitation to Supabase (PUT for editing existing, POST for new)
+      const url = isEdit ? `/api/invitations/${flowData.invitationId}` : "/api/invitations";
+      const method = isEdit ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           templateId: flowData.selectedTemplateId,
@@ -61,6 +109,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue }: Deta
           heroImageUrl: flowData.heroImage,
           slideshowImageUrls: flowData.slideshowImages,
           events: flowData.events,
+          isActive: flowData.paymentDone,
         }),
       });
 
@@ -76,7 +125,9 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue }: Deta
       }
 
       const data = await res.json();
-      onUpdateData({ invitationId: data.invitationId });
+      if (!isEdit && data.invitationId) {
+        onUpdateData({ invitationId: data.invitationId });
+      }
       onContinue();
     } catch (err) {
       console.error("Details save error:", err);
@@ -283,20 +334,40 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue }: Deta
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                    Full Address (for Google Maps)
+                    Full Address
                   </label>
                   <div className="relative">
-                    <Globe className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                    <MapPin className="absolute left-3 top-3.5 w-4 h-4 text-muted-foreground" />
                     <Input
-                      value={flowData.venueAddress}
-                      onChange={(e) => onUpdateData({ venueAddress: e.target.value })}
+                      value={addressText}
+                      onChange={(e) => {
+                        setAddressText(e.target.value);
+                        updateAddressAndMap(e.target.value, mapsUrl);
+                      }}
                       placeholder="e.g. The Grand Palace, MM Alam Road, Gulberg III, Lahore"
                       className="pl-10 h-11"
                     />
                   </div>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                    Google Maps Link (Optional)
+                  </label>
+                  <div className="relative">
+                    <Globe className="absolute left-3 top-3.5 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      value={mapsUrl}
+                      onChange={(e) => {
+                        setMapsUrl(e.target.value);
+                        updateAddressAndMap(addressText, e.target.value);
+                      }}
+                      placeholder="e.g. https://maps.app.goo.gl/..."
+                      className="pl-10 h-11"
+                    />
+                  </div>
                   <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-                    <MapPin className="w-3 h-3" />
-                    Full address enables embedded Google Maps in your invitation
+                    <Globe className="w-3 h-3 text-gold" />
+                    Paste the direct Google Maps share link to your venue so guests can navigate easily.
                   </p>
                 </div>
               </div>
@@ -328,16 +399,31 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue }: Deta
                   <Calendar className="w-4 h-4 text-gold" />
                   <h2 className="font-display text-lg font-semibold text-foreground">Events</h2>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={addEvent}
-                  className="text-gold hover:text-gold-light gap-1"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  Add Event
-                </Button>
+                {!isEdit && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={addEvent}
+                    className="text-gold hover:text-gold-light gap-1"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    Add Event
+                  </Button>
+                )}
               </div>
+
+              {isEdit && (
+                <div className="p-3.5 rounded-xl border border-gold/20 bg-gold/5 flex gap-2.5 text-xs text-gold">
+                  <Calendar className="w-4.5 h-4.5 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold mb-0.5">Marriage Dates Locked</p>
+                    <p className="opacity-90 leading-relaxed">
+                      Marriage event dates cannot be changed after the invitation has been created. All other details (venue, times, dress codes, music, etc.) can be modified freely.
+                    </p>
+                  </div>
+                </div>
+              )}
+
               <div className="space-y-3">
                 {flowData.events.map((event, index) => (
                   <div
@@ -348,7 +434,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue }: Deta
                       <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                         Event {index + 1}
                       </span>
-                      {flowData.events.length > 1 && (
+                      {!isEdit && flowData.events.length > 1 && (
                         <button
                           onClick={() => removeEvent(index)}
                           className="text-muted-foreground hover:text-red-400 transition-colors"
@@ -368,7 +454,8 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue }: Deta
                         type="date"
                         value={event.date}
                         onChange={(e) => updateEvent(index, "date", e.target.value)}
-                        className="h-10"
+                        disabled={isEdit}
+                        className="h-10 disabled:opacity-75 disabled:cursor-not-allowed disabled:bg-muted/50 disabled:border-muted-foreground/35"
                       />
                       <Input
                         type="time"
@@ -473,7 +560,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue }: Deta
                 ].map((option) => (
                   <button
                     key={option.id}
-                    onClick={() => onUpdateData({ backgroundMusic: option.id })}
+                    onClick={() => handleMusicSelection(option.id)}
                     className={`px-3 py-2.5 rounded-lg text-xs font-medium text-left transition-all ${
                       flowData.backgroundMusic === option.id
                         ? "bg-emerald text-primary-foreground border border-emerald shadow-sm"
@@ -597,6 +684,8 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue }: Deta
               >
                 {isSaving ? (
                   <><Loader2 className="w-4 h-4 animate-spin" /> Saving Details...</>
+                ) : flowData.paymentDone ? (
+                  <>Save Changes<Check className="w-4 h-4" /></>
                 ) : (
                   <>Continue to Payment<ArrowRight className="w-4 h-4" /></>
                 )}

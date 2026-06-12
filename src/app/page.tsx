@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
+import { toast } from "sonner";
 import { Navbar } from "@/components/landing/navbar";
 import { Hero } from "@/components/landing/hero";
 import { StatsBar } from "@/components/landing/stats-bar";
@@ -27,7 +28,7 @@ import { LegalPage } from "@/components/flow/legal-page";
 import { DashboardPage } from "@/components/flow/dashboard-page";
 import InvitationViewer from "@/components/viewer/invitation-viewer";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Eye, Sparkles } from "lucide-react";
+import { ArrowLeft, Eye, Sparkles, Shield } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { FlowData, FlowStep } from "@/lib/flow-types";
 import { initialFlowData } from "@/lib/flow-types";
@@ -58,20 +59,64 @@ export default function Home() {
   const [stepBeforeDetails, setStepBeforeDetails] = useState<FlowStep>("signup");
   useScrollReveal();
 
-  // Restore session on mount — if user is already logged in, pre-populate email/userId
+  // Restore session and flowData on mount
   useEffect(() => {
     const supabase = createClient();
+
+    // Check if there is saved flowData in localStorage
+    const savedDataStr = localStorage.getItem("shaadilink_pending_flow_data");
+    let savedData: FlowData | null = null;
+    if (savedDataStr) {
+      try {
+        savedData = JSON.parse(savedDataStr) as FlowData;
+      } catch (e) {
+        console.error("Failed to parse saved flowData:", e);
+      }
+    }
+
+    const oauthInProgress = localStorage.getItem("shaadilink_oauth_in_progress") === "true";
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
-        setFlowData((prev) => ({
-          ...prev,
+        const mergedData: FlowData = {
+          ...(savedData || initialFlowData),
           userId: session.user.id,
-          email: session.user.email ?? prev.email,
-          fullName: session.user.user_metadata?.full_name ?? prev.fullName,
-        }));
+          email: session.user.email ?? (savedData?.email || ""),
+          fullName: session.user.user_metadata?.full_name ?? (savedData?.fullName || ""),
+        };
+        
+        setFlowData(mergedData);
+
+        // If they completed Google OAuth login/signup, advance their step
+        if (oauthInProgress) {
+          if (mergedData.selectedTemplateId) {
+            setStepBeforeDetails("templates");
+            setCurrentStep("details");
+          } else {
+            setCurrentStep("dashboard");
+          }
+          localStorage.removeItem("shaadilink_oauth_in_progress");
+          localStorage.removeItem("shaadilink_pending_flow_data");
+        }
+      } else if (savedData) {
+        // If there's no session, but we have saved flowData, load it so inputs are preserved
+        setFlowData(savedData);
       }
     });
   }, []);
+
+  // Save flowData to localStorage when it changes to preserve progress during OAuth redirect
+  useEffect(() => {
+    if (
+      flowData.selectedPlan ||
+      flowData.selectedTemplateId ||
+      flowData.partner1Name ||
+      flowData.fullName ||
+      flowData.email
+    ) {
+      localStorage.setItem("shaadilink_pending_flow_data", JSON.stringify(flowData));
+    }
+  }, [flowData]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
@@ -115,7 +160,13 @@ export default function Home() {
   };
 
   const handleDetailsComplete = () => {
-    setCurrentStep("payment");
+    // If payment is already done (i.e. editing a live page), save directly back to dashboard
+    if (flowData.paymentDone) {
+      toast.success("Invitation details updated successfully! 🎉");
+      setCurrentStep("dashboard");
+    } else {
+      setCurrentStep("payment");
+    }
   };
 
   const handlePaymentComplete = () => {
@@ -176,13 +227,102 @@ export default function Home() {
     setCurrentStep("dashboard");
   };
 
+  const handleEditInvitation = async (invitationId: string) => {
+    try {
+      const res = await fetch(`/api/invitations/${invitationId}`);
+      if (!res.ok) {
+        toast.error("Failed to fetch invitation details.");
+        return;
+      }
+      const { invitation } = await res.json();
+      if (invitation) {
+        updateFlowData({
+          invitationId: invitation.id,
+          selectedTemplateId: invitation.template_id,
+          partner1Name: invitation.partner1_name,
+          partner2Name: invitation.partner2_name,
+          venue: invitation.venue,
+          venueAddress: invitation.venue_address,
+          welcomeMessage: invitation.welcome_message,
+          backgroundMusic: invitation.background_music,
+          dressCodeWomen: invitation.dress_code_women,
+          dressCodeMen: invitation.dress_code_men,
+          transportation: invitation.transportation,
+          accommodation: invitation.accommodation,
+          gifts: invitation.gifts,
+          heroImage: invitation.hero_image_url,
+          slideshowImages: invitation.slideshow_image_urls || [],
+          events: (invitation.events || []).sort(
+            (a: { order_index: number }, b: { order_index: number }) => a.order_index - b.order_index
+          ).map((e: { name: string; date: string; time: string; venue?: string }) => ({
+            name: e.name, date: e.date, time: e.time, venue: e.venue,
+          })),
+          selectedPlan: invitation.plan,
+          paymentDone: invitation.is_active,
+        });
+        setStepBeforeDetails("dashboard");
+        setCurrentStep("details");
+      }
+    } catch (err) {
+      console.error("Edit fetch error:", err);
+      toast.error("Error loading invitation.");
+    }
+  };
+
+  const handleUpgradeInvitation = async (invitationId: string) => {
+    try {
+      const res = await fetch(`/api/invitations/${invitationId}`);
+      if (!res.ok) {
+        toast.error("Failed to fetch invitation details.");
+        return;
+      }
+      const { invitation } = await res.json();
+      if (invitation) {
+        updateFlowData({
+          invitationId: invitation.id,
+          selectedTemplateId: invitation.template_id,
+          partner1Name: invitation.partner1_name,
+          partner2Name: invitation.partner2_name,
+          venue: invitation.venue,
+          venueAddress: invitation.venue_address,
+          welcomeMessage: invitation.welcome_message,
+          backgroundMusic: invitation.background_music,
+          dressCodeWomen: invitation.dress_code_women,
+          dressCodeMen: invitation.dress_code_men,
+          transportation: invitation.transportation,
+          accommodation: invitation.accommodation,
+          gifts: invitation.gifts,
+          heroImage: invitation.hero_image_url,
+          slideshowImages: invitation.slideshow_image_urls || [],
+          events: (invitation.events || []).sort(
+            (a: { order_index: number }, b: { order_index: number }) => a.order_index - b.order_index
+          ).map((e: { name: string; date: string; time: string; venue?: string }) => ({
+            name: e.name, date: e.date, time: e.time, venue: e.venue,
+          })),
+          selectedPlan: "royal",
+          paymentDone: false,
+        });
+        setStepBeforeDetails("dashboard");
+        setCurrentStep("details");
+        toast.success("Initiated upgrade to Royal Plan. Update details and continue to checkout.");
+      }
+    } catch (err) {
+      console.error("Upgrade fetch error:", err);
+      toast.error("Error loading invitation.");
+    }
+  };
+
   const handleSignOut = () => {
+    localStorage.removeItem("shaadilink_pending_flow_data");
+    localStorage.removeItem("shaadilink_oauth_in_progress");
     setFlowData(initialFlowData);
     setPreviewTemplateId(null);
     setCurrentStep("landing");
   };
 
   const handleCreateNew = () => {
+    localStorage.removeItem("shaadilink_pending_flow_data");
+    localStorage.removeItem("shaadilink_oauth_in_progress");
     // Reset invitation-specific fields, keep user identity
     setFlowData((prev) => ({
       ...initialFlowData,
@@ -342,7 +482,9 @@ export default function Home() {
               flowData={flowData}
               onCreateNew={handleCreateNew}
               onViewInvitation={handleViewInvitationById}
+              onEditInvitation={handleEditInvitation}
               onSignOut={handleSignOut}
+              onUpgradeInvitation={handleUpgradeInvitation}
             />
           </InfoPageWrapper>
         )}
@@ -385,6 +527,8 @@ export default function Home() {
               onLoginClick={handleLoginClick}
               onAboutClick={goToAbout}
               onContactClick={goToContact}
+              isLoggedIn={!!flowData.userId}
+              onDashboardClick={handleGoToDashboard}
             />
             <main className="flex-1">
               <Hero onViewTemplates={goToTemplates} onGetStarted={scrollToPricing} />
@@ -392,6 +536,27 @@ export default function Home() {
               <Features />
               <TemplateShowcase />
               <HowItWorks />
+              {/* Google OAuth & Account Purpose Statement */}
+              <section className="py-6 px-4 bg-background/30 border-y border-border/30 relative overflow-hidden flex justify-center">
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald/2 to-gold/2 pointer-events-none" />
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4 }}
+                  className="max-w-lg w-full p-4 rounded-xl border border-gold/10 bg-background/50 backdrop-blur-md relative z-10 flex gap-3 items-center shadow-md shadow-gold/2 hover:border-gold/20 transition-all duration-300"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-emerald/10 border border-emerald/20 flex items-center justify-center shrink-0">
+                    <Shield className="w-4.5 h-4.5 text-emerald" />
+                  </div>
+                  <div className="space-y-0.5 text-left">
+                    <h4 className="font-display font-semibold text-[10px] sm:text-xs text-gold uppercase tracking-wider">Secure Account Sync &amp; Purpose</h4>
+                    <p className="text-[10px] sm:text-[11px] text-muted-foreground leading-relaxed">
+                      ShaadiLink uses secure Google Sign-In to authenticate couples and generate their personal dashboard. Your Google profile details (name and email) are used solely to store, publish, and allow you to edit your digital wedding invitations and moderate RSVP/guest wishes securely.
+                    </p>
+                  </div>
+                </motion.div>
+              </section>
               <Comparison />
               <Testimonials />
               <Pricing onSelectPlan={handleGetStarted} />

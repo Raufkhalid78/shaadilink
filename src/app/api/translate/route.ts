@@ -13,23 +13,17 @@ export async function POST(request: NextRequest) {
       const ZAI = (await import('z-ai-web-dev-sdk')).default
       const zai = await ZAI.create()
 
-      const textEntries = Object.entries(texts as Record<string, string>)
-      const numberedTexts = textEntries.map(([key, value], i) => `${i + 1}. ${key}: ${value}`).join('\n')
-
       const completion = await zai.chat.completions.create({
         messages: [
           {
             role: 'system',
-            content: `You are a professional Urdu translator specializing in Pakistani wedding invitations. Translate the following English text strings to Urdu. Maintain the elegant, formal tone appropriate for wedding invitations. Use culturally appropriate Pakistani wedding terminology.
+            content: `You are a professional Urdu translator specializing in Pakistani wedding invitations. Translate all text values of the input JSON object to elegant, formal Urdu suitable for wedding invitations. Keep the JSON keys exactly identical. Do not translate names if they are already Urdu names (like Ahmed, Fatima, Ayesha) but write them in beautiful Urdu script. Translate addresses, timeline descriptions, welcome messages, dress codes, and blessings into high-quality, culturally appropriate Urdu.
 
-Return ONLY a valid JSON object where each key maps to its Urdu translation. No additional text, no markdown, just the JSON object.
-
-Example input: {"greeting": "You are invited", "venue": "The Grand Hall"}
-Example output: {"greeting": "آپ مدعو ہیں", "venue": "دی گرانڈ ہال"}`
+Return ONLY a valid JSON object. Do not include markdown (do not wrap in backticks), do not include any explanatory text, just the raw JSON.`
           },
           {
             role: 'user',
-            content: `Translate these text strings to Urdu:\n\n${numberedTexts}`
+            content: JSON.stringify(texts)
           }
         ],
         thinking: { type: 'disabled' }
