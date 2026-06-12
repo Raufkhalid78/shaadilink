@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import type { FlowData } from "@/lib/flow-types";
 import { createClient } from "@/lib/supabase/client";
+import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
 
 interface SignupPageProps {
   flowData: FlowData;
@@ -145,6 +146,15 @@ export function SignupPage({
           </div>
         </div>
       </header>
+
+      {/* Breadcrumb path */}
+      <PageBreadcrumb
+        crumbs={[
+          { label: "Home", onClick: onBack },
+          { label: "Templates", onClick: onBack },
+          { label: "Create Account" },
+        ]}
+      />
 
       <main className="flex-1 flex items-center justify-center px-4 py-12 relative overflow-hidden">
         {/* Background ambient elements */}

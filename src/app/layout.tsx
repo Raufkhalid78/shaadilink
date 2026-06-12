@@ -42,6 +42,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  applicationName: "ShaadiLink",
   title: "ShaadiLink — Premium Digital Wedding Invitations for Pakistani Weddings",
   description:
     "Create stunning digital wedding invitations with premium animations, 3D door reveals, scratch card date reveals, and interactive RSVP. For Mehndi, Baraat, Walima and more — celebrate every moment in cinematic style.",

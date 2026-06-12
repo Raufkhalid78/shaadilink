@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
 
 interface AboutPageProps {
   onBack: () => void;
@@ -86,6 +87,14 @@ export function AboutPage({ onBack }: AboutPageProps) {
           </div>
         </div>
       </header>
+
+      {/* Breadcrumb path */}
+      <PageBreadcrumb
+        crumbs={[
+          { label: "Home", onClick: onBack },
+          { label: "About ShaadiLink" },
+        ]}
+      />
 
       <main className="flex-1">
         {/* Hero */}

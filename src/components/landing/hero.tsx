@@ -328,6 +328,7 @@ export function Hero({ onViewTemplates, onGetStarted }: HeroProps) {
 
   const line1Words = ["Create", "Your", "Dream"];
   const line2Words = ["Wedding", "Invitation"];
+  const appTagline = "Pakistan's #1 Digital Wedding Invitation Platform";
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-emerald-dark">
@@ -390,9 +391,22 @@ export function Hero({ onViewTemplates, onGetStarted }: HeroProps) {
             className="flex-1 text-center lg:text-left"
           >
             {/* Bismillah */}
-            <motion.div variants={itemVariants} className="mb-6">
+            <motion.div variants={itemVariants} className="mb-4">
               <span className="font-calligraphy text-gold/50 text-2xl sm:text-3xl tracking-wider">
                 بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
+              </span>
+            </motion.div>
+
+            {/* App Purpose Badge — ShaadiLink named explicitly for search engines & OAuth review */}
+            <motion.div variants={itemVariants} className="mb-4">
+              <span
+                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-widest uppercase bg-emerald/10 border border-emerald/30 text-emerald"
+                aria-label="ShaadiLink — Pakistan's number one digital wedding invitation platform"
+              >
+                <Sparkles className="w-3 h-3" />
+                <span>ShaadiLink</span>
+                <span className="text-white/30">·</span>
+                <span>{appTagline}</span>
               </span>
             </motion.div>
 
@@ -441,16 +455,16 @@ export function Hero({ onViewTemplates, onGetStarted }: HeroProps) {
               </motion.span>
             </motion.h1>
 
-            {/* Subtitle */}
+            {/* Subtitle — explicitly describes ShaadiLink's purpose for OAuth reviewers */}
             <motion.p
               variants={itemVariants}
               className="mt-6 sm:mt-8 text-base sm:text-lg md:text-xl text-white/70 max-w-2xl mx-auto lg:mx-0 leading-relaxed"
             >
-              Celebrate your special moments with stunning digital invitations — from{" "}
-              <span className="text-gold font-semibold">Mehndi</span> to{" "}
-              <span className="text-gold font-semibold">Baraat</span> to{" "}
-              <span className="text-gold font-semibold">Walima</span>. Premium animations,
-              Islamic art, and interactive experiences that honor Pakistani wedding traditions.
+              <strong className="text-white font-semibold">ShaadiLink</strong> is Pakistan's premium online wedding invitation creator. Design, publish, and share beautiful digital cards for{" "}
+              <span className="text-gold font-semibold">Mehndi</span>,{" "}
+              <span className="text-gold font-semibold">Baraat</span>, and{" "}
+              <span className="text-gold font-semibold">Walima</span> — with real-time RSVPs,
+              animated 3D reveals, live countdowns, and more. Trusted by Pakistani families worldwide.
             </motion.p>
 
             {/* CTA Buttons */}

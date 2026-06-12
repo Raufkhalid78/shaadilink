@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
+import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
 
 interface AffiliatePageProps {
   onBack: () => void;
@@ -100,6 +101,14 @@ export function AffiliatePage({ onBack }: AffiliatePageProps) {
           </div>
         </div>
       </header>
+
+      {/* Breadcrumb path */}
+      <PageBreadcrumb
+        crumbs={[
+          { label: "Home", onClick: onBack },
+          { label: "Affiliate Programme" },
+        ]}
+      />
 
       <main className="flex-1">
         {/* Hero */}

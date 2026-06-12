@@ -35,6 +35,83 @@ import { initialFlowData } from "@/lib/flow-types";
 import { getTheme } from "@/components/viewer/invitation-viewer";
 import { createClient } from "@/lib/supabase/client";
 
+/* ─── What Is ShaadiLink? Section (fulfills Google OAuth homepage purpose requirement) ─── */
+function AppPurposeSection({ onGetStarted }: { onGetStarted?: () => void }) {
+  const features = [
+    { icon: "✨", label: "Digital Invitations", desc: "Beautiful online cards for Mehndi, Baraat & Walima" },
+    { icon: "🎴", label: "Scratch Card Reveals", desc: "Interactive scratch-to-reveal wedding date cards" },
+    { icon: "⏱️", label: "Live Countdown", desc: "Animated timer counting down to the wedding day" },
+    { icon: "💌", label: "RSVP & Guest Wishes", desc: "Collect RSVPs and heartfelt messages from guests" },
+    { icon: "🎵", label: "Background Music", desc: "Romantic music that plays when the invitation opens" },
+    { icon: "🗺️", label: "Maps & Directions", desc: "Embedded Google Maps for easy venue navigation" },
+  ];
+  return (
+    <section id="about-shaadilink" className="py-16 px-4 sm:px-6 bg-gradient-to-b from-emerald-dark/20 to-background relative overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(15,107,78,0.08) 0%, transparent 70%)' }} />
+      <div className="max-w-5xl mx-auto relative z-10">
+        {/* Heading */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-10"
+        >
+          <span className="inline-block px-4 py-1 rounded-full text-[11px] font-semibold tracking-widest uppercase bg-gold/10 border border-gold/20 text-gold mb-4">
+            What is ShaadiLink?
+          </span>
+          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">
+            Pakistan&apos;s Premier{" "}
+            <span className="gold-shimmer">Digital Wedding</span> Invitation Platform
+          </h2>
+          <p className="mt-4 text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
+            <strong className="text-foreground">ShaadiLink</strong> is a web application that lets Pakistani couples create, customise, and share stunning digital wedding invitations. Guests receive a unique link and experience cinematic 3D door reveals, scratch-card date reveals, live countdowns, photo galleries, and one-click RSVP — all without downloading an app.
+          </p>
+        </motion.div>
+
+        {/* Feature grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          {features.map((f, i) => (
+            <motion.div
+              key={f.label}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.07 }}
+              className="flex items-start gap-3 p-4 rounded-xl border border-border/50 bg-card/50 hover:border-gold/20 hover:bg-card/80 transition-all duration-200"
+            >
+              <span className="text-2xl shrink-0" role="img" aria-hidden="true">{f.icon}</span>
+              <div>
+                <p className="text-sm font-semibold text-foreground">{f.label}</p>
+                <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{f.desc}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* CTA */}
+        {onGetStarted && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="mt-10 text-center"
+          >
+            <button
+              onClick={onGetStarted}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-emerald hover:bg-emerald-dark text-primary-foreground font-semibold text-sm transition-all duration-200 shadow-lg shadow-emerald/20 hover:shadow-emerald/30"
+            >
+              <Sparkles className="w-4 h-4" />
+              Create Your Invitation — Starting Rs. 2,499
+            </button>
+          </motion.div>
+        )}
+      </div>
+    </section>
+  );
+}
+
 /* Wrapper for page transitions */
 function InfoPageWrapper({ children, stepKey }: { children: React.ReactNode; stepKey: string }) {
   return (
@@ -144,6 +221,11 @@ export default function Home() {
   };
 
   const handleSignupComplete = () => {
+    // Guard: ensure plan is selected before going to details
+    if (!flowData.selectedPlan) {
+      setCurrentStep("templates");
+      return;
+    }
     setStepBeforeDetails("signup");
     setCurrentStep("details");
   };
@@ -485,6 +567,7 @@ export default function Home() {
               onEditInvitation={handleEditInvitation}
               onSignOut={handleSignOut}
               onUpgradeInvitation={handleUpgradeInvitation}
+              onGoHome={handleBackToLanding}
             />
           </InfoPageWrapper>
         )}
@@ -532,6 +615,8 @@ export default function Home() {
             />
             <main className="flex-1">
               <Hero onViewTemplates={goToTemplates} onGetStarted={scrollToPricing} />
+              {/* Explicit app purpose section — satisfies Google OAuth homepage requirement */}
+              <AppPurposeSection onGetStarted={scrollToPricing} />
               <StatsBar />
               <Features />
               <TemplateShowcase />

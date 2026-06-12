@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import type { FlowData } from "@/lib/flow-types";
+import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
 
 interface DetailsPageProps {
   flowData: FlowData;
@@ -252,6 +253,23 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue }: Deta
           </div>
         </div>
       </header>
+
+      {/* Breadcrumb path — adapts for new vs edit mode */}
+      <PageBreadcrumb
+        crumbs={
+          isEdit
+            ? [
+                { label: "Home", onClick: onBack },
+                { label: "Dashboard", onClick: onBack },
+                { label: "Edit Invitation" },
+              ]
+            : [
+                { label: "Home", onClick: onBack },
+                { label: "Templates", onClick: onBack },
+                { label: "Customise Invitation" },
+              ]
+        }
+      />
 
       <main className="flex-1 px-4 py-8 sm:py-12">
         <motion.div

@@ -847,7 +847,19 @@ function FireworksDisplay({ show, colors: propColors }: { show: boolean; colors?
       if (particles.length > 0) animRef.current = requestAnimationFrame(animate)
     }
     animRef.current = requestAnimationFrame(animate)
-    return () => { cancelAnimationFrame(animRef.current); [t1,t2,t3,t4,t5,t6,t7,t8].forEach(clearTimeout) }
+
+    // Resize handler so canvas stays full-screen on device rotation
+    const handleResize = () => {
+      canvas.width = window.innerWidth
+      canvas.height = window.innerHeight
+    }
+    window.addEventListener('resize', handleResize)
+
+    return () => {
+      cancelAnimationFrame(animRef.current)
+      window.removeEventListener('resize', handleResize)
+      ;[t1,t2,t3,t4,t5,t6,t7,t8].forEach(clearTimeout)
+    }
   }, [show])
 
   if (!show) return null
@@ -1151,7 +1163,9 @@ function ScratchCard({
   const sparkleAnimRef = useRef<number>(0)
 
   const isRoyal = theme.id.includes('royal')
-  const CARD_W = isRoyal ? 320 : 340
+  // Responsive width: never exceed viewport width minus padding (fixes overflow on iPhone SE)
+  const maxWidth = typeof window !== 'undefined' ? window.innerWidth - 32 : 340
+  const CARD_W = isRoyal ? Math.min(320, maxWidth) : Math.min(340, maxWidth)
   const CARD_H = isRoyal ? 300 : 220
 
   // Grid-based scratch tracking (reliable, no getImageData needed)

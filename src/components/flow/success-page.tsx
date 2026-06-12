@@ -8,6 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import type { FlowData } from "@/lib/flow-types";
+import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
 
 interface SuccessPageProps {
   flowData: FlowData;
@@ -63,6 +64,39 @@ export function SuccessPage({ flowData, onViewInvitation, onGoToDashboard }: Suc
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      {/* Compact header */}
+      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <button
+              onClick={onGoToDashboard}
+              className="flex items-center gap-2 text-sm text-foreground/70 hover:text-foreground transition-colors"
+            >
+              <LayoutDashboard className="w-4 h-4" />
+              <span>Dashboard</span>
+            </button>
+            <div className="flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald text-primary-foreground">
+                <PartyPopper className="h-4 w-4" />
+              </div>
+              <span className="font-display text-lg font-bold">
+                Shaadi<span className="text-gold">Link</span>
+              </span>
+            </div>
+            <div className="w-24" />
+          </div>
+        </div>
+      </header>
+
+      {/* Breadcrumb path */}
+      <PageBreadcrumb
+        crumbs={[
+          { label: "Home", onClick: onGoToDashboard },
+          { label: "Dashboard", onClick: onGoToDashboard },
+          { label: "Invitation Ready! 🎉" },
+        ]}
+      />
+
       <main className="flex-1 flex items-center justify-center px-4 py-12">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}

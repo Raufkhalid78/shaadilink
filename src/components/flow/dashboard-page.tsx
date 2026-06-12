@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Heart, Plus, ExternalLink, Trash2, Users, MessageSquare, Calendar,
   Copy, Check, LayoutDashboard, LogOut, Loader2, Crown, Sparkles, X, Lock,
+  ArrowLeft, Share2, Home, Activity,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +13,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import type { FlowData } from "@/lib/flow-types";
+import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
 
 interface Invitation {
   id: string;
@@ -35,6 +37,7 @@ interface DashboardPageProps {
   onEditInvitation: (invitationId: string) => void;
   onSignOut: () => void;
   onUpgradeInvitation?: (invitationId: string) => void;
+  onGoHome?: () => void;
 }
 
 interface RSVP {
@@ -59,6 +62,7 @@ export function DashboardPage({
   onEditInvitation,
   onSignOut,
   onUpgradeInvitation,
+  onGoHome,
 }: DashboardPageProps) {
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -249,20 +253,38 @@ export function DashboardPage({
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald text-primary-foreground">
-                <Heart className="h-4 w-4 fill-current" />
+          <div className="flex items-center justify-between h-16 gap-3">
+            {/* Left: Home button + Logo */}
+            <div className="flex items-center gap-3">
+              {onGoHome && (
+                <button
+                  onClick={onGoHome}
+                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-gold transition-colors duration-200 shrink-0"
+                  aria-label="Go to Home"
+                >
+                  <Home className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline font-medium">Home</span>
+                </button>
+              )}
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald text-primary-foreground">
+                  <Heart className="h-4 w-4 fill-current" />
+                </div>
+                <span className="font-display text-lg font-bold">
+                  Shaadi<span className="text-gold">Link</span>
+                </span>
               </div>
-              <span className="font-display text-lg font-bold">
-                Shaadi<span className="text-gold">Link</span>
-              </span>
             </div>
 
+            {/* Right: user info + sign out */}
             <div className="flex items-center gap-2">
-              <div className="hidden sm:flex items-center gap-2 text-sm text-muted-foreground">
-                <LayoutDashboard className="w-4 h-4" />
-                <span>{flowData.email || "My Dashboard"}</span>
+              <div className="hidden sm:flex flex-col items-end">
+                {flowData.fullName && (
+                  <span className="text-xs font-semibold text-foreground leading-none">{flowData.fullName}</span>
+                )}
+                <span className="text-[11px] text-muted-foreground leading-none mt-0.5 max-w-[160px] truncate">
+                  {flowData.email || "My Dashboard"}
+                </span>
               </div>
               <Button
                 variant="ghost"
@@ -277,6 +299,14 @@ export function DashboardPage({
           </div>
         </div>
       </header>
+
+      {/* Breadcrumb */}
+      <PageBreadcrumb
+        crumbs={[
+          { label: "Home", onClick: onGoHome },
+          { label: "My Dashboard" },
+        ]}
+      />
 
       <main className="flex-1 px-4 py-8 sm:py-12">
         <div className="mx-auto max-w-6xl">
@@ -304,13 +334,13 @@ export function DashboardPage({
             </Button>
           </motion.div>
 
-          {/* Stats row */}
+          {/* Stats row — 4 cards: 2×2 on mobile, 4-col on lg */}
           {!isLoading && invitations.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.1 }}
-              className="grid grid-cols-3 gap-4 mb-8"
+              className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8"
             >
               {[
                 {
@@ -318,30 +348,40 @@ export function DashboardPage({
                   value: invitations.length,
                   icon: Heart,
                   color: "text-emerald",
+                  bg: "bg-emerald/5 border-emerald/10",
+                },
+                {
+                  label: "Live Now",
+                  value: invitations.filter((i) => i.is_active).length,
+                  icon: Activity,
+                  color: "text-gold",
+                  bg: "bg-gold/5 border-gold/10",
                 },
                 {
                   label: "Total RSVPs",
                   value: invitations.reduce((sum, inv) => sum + (inv.rsvps?.length || 0), 0),
                   icon: Users,
-                  color: "text-gold",
+                  color: "text-blue-400",
+                  bg: "bg-blue-400/5 border-blue-400/10",
                 },
                 {
                   label: "Total Wishes",
                   value: invitations.reduce((sum, inv) => sum + (inv.wishes?.length || 0), 0),
                   icon: MessageSquare,
-                  color: "text-blue-400",
+                  color: "text-pink-400",
+                  bg: "bg-pink-400/5 border-pink-400/10",
                 },
               ].map((stat) => {
                 const Icon = stat.icon;
                 return (
-                  <Card key={stat.label} className="border-border/50">
-                    <CardContent className="p-4 flex items-center gap-3">
-                      <div className={`${stat.color}`}>
+                  <Card key={stat.label} className={`border ${stat.bg}`}>
+                    <CardContent className="p-3 sm:p-4 flex items-center gap-3">
+                      <div className={`${stat.color} shrink-0`}>
                         <Icon className="w-5 h-5" />
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <p className="font-display text-xl font-bold text-foreground">{stat.value}</p>
-                        <p className="text-xs text-muted-foreground">{stat.label}</p>
+                        <p className="text-[10px] text-muted-foreground leading-tight">{stat.label}</p>
                       </div>
                     </CardContent>
                   </Card>
@@ -358,13 +398,13 @@ export function DashboardPage({
             </div>
           )}
 
-          {/* Empty state */}
+          {/* Empty state — 3-step getting started guide */}
           {!isLoading && invitations.length === 0 && (
             <motion.div
               initial={{ opacity: 0, scale: 0.97 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.4 }}
-              className="flex flex-col items-center justify-center py-20 gap-4 text-center"
+              className="flex flex-col items-center justify-center py-16 gap-6 text-center"
             >
               <div className="w-16 h-16 rounded-2xl bg-gold/10 flex items-center justify-center">
                 <Sparkles className="w-8 h-8 text-gold" />
@@ -375,9 +415,26 @@ export function DashboardPage({
                   Create your first beautiful digital wedding invitation and share it with your guests.
                 </p>
               </div>
+
+              {/* 3-step guide */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-xl mt-2">
+                {[
+                  { step: "1", icon: "🎨", title: "Pick a Template", desc: "Choose from Classic or Royal designs" },
+                  { step: "2", icon: "✏️", title: "Add Your Details", desc: "Names, venue, events & photos" },
+                  { step: "3", icon: "💌", title: "Share the Link", desc: "Send to unlimited guests instantly" },
+                ].map((s) => (
+                  <div key={s.step} className="flex flex-col items-center gap-2 p-4 rounded-xl border border-border/50 bg-card/50">
+                    <span className="text-2xl">{s.icon}</span>
+                    <span className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground">Step {s.step}</span>
+                    <p className="text-sm font-semibold text-foreground">{s.title}</p>
+                    <p className="text-xs text-muted-foreground">{s.desc}</p>
+                  </div>
+                ))}
+              </div>
+
               <Button
                 onClick={onCreateNew}
-                className="bg-emerald hover:bg-emerald-dark text-primary-foreground font-semibold gap-2"
+                className="bg-emerald hover:bg-emerald-dark text-primary-foreground font-semibold gap-2 mt-2"
               >
                 <Plus className="w-4 h-4" />
                 Create Your First Invitation
@@ -458,12 +515,18 @@ export function DashboardPage({
                       </div>
 
                       <CardContent className="p-4 space-y-3">
-                        {/* Names */}
+                        {/* Names & template */}
                         <div>
                           <h3 className="font-display font-bold text-foreground leading-tight">
                             {inv.partner1_name || "Partner 1"} &amp; {inv.partner2_name || "Partner 2"}
                           </h3>
                           <p className="text-xs text-muted-foreground mt-0.5">{templateName}</p>
+                          {/* Shareable URL for live invitations */}
+                          {inv.is_active && (
+                            <p className="text-[10px] text-emerald/70 font-mono mt-1 truncate">
+                              shaadilink.com/inv/{inv.id.slice(0, 8)}…
+                            </p>
+                          )}
                         </div>
 
                         {/* Stats row */}
@@ -486,13 +549,33 @@ export function DashboardPage({
                           </button>
                         </div>
 
+                        {/* Event pills */}
+                        {inv.events && inv.events.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {inv.events.slice(0, 3).map((ev, ei) => (
+                              <span
+                                key={ei}
+                                className="inline-flex items-center gap-1 text-[9px] px-2 py-0.5 rounded-full bg-muted border border-border/30 text-muted-foreground"
+                              >
+                                <Calendar className="w-2.5 h-2.5" />
+                                {ev.name || "Event"}{ev.date ? ` · ${formatDate(ev.date)}` : ""}
+                              </span>
+                            ))}
+                            {inv.events.length > 3 && (
+                              <span className="text-[9px] px-2 py-0.5 rounded-full bg-muted border border-border/30 text-muted-foreground">
+                                +{inv.events.length - 3} more
+                              </span>
+                            )}
+                          </div>
+                        )}
+
                         {/* Next event */}
                         <div className="flex items-center gap-1 text-xs text-muted-foreground">
                           <Calendar className="w-3 h-3" />
                           <span>Next: {getNextEventDate(inv.events || [])}</span>
                         </div>
 
-                        {/* Created date */}
+                        {/* Created + updated dates */}
                         <p className="text-[10px] text-muted-foreground/60">
                           Created {formatDate(inv.created_at)}
                         </p>
@@ -522,6 +605,20 @@ export function DashboardPage({
                             ) : (
                               inv.is_active ? "Edit" : "Publish"
                             )}
+                          </Button>
+                          {/* Share button */}
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              const link = `${window.location.origin}/inv/${inv.id}`;
+                              const text = encodeURIComponent(`You're invited! 🎉 View our wedding invitation: ${link}`);
+                              window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");
+                            }}
+                            className="h-8 px-2.5 border-emerald/30 text-emerald hover:bg-emerald/10"
+                            aria-label="Share via WhatsApp"
+                          >
+                            <Share2 className="w-3.5 h-3.5" />
                           </Button>
                           <Button
                             size="sm"

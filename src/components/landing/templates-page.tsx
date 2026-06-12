@@ -2,23 +2,12 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  ArrowLeft,
-  Eye,
-  Heart,
-  Sparkles,
-  Star,
-  Search,
-  X,
-  Check,
-  Crown,
-  Gem,
-  Shield,
-} from "lucide-react";
+import { ArrowLeft, Eye, Heart, Sparkles, Star, Search, X, Check, Crown, Gem, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
 
 /* ---------- Template Data ---------- */
 const classicTemplates = [
@@ -306,6 +295,14 @@ export function TemplatesPage({
           </div>
         </div>
       </header>
+
+      {/* Breadcrumb path */}
+      <PageBreadcrumb
+        crumbs={[
+          { label: "Home", onClick: onBack },
+          { label: "Choose Your Template" },
+        ]}
+      />
 
       <main className="flex-1">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8">

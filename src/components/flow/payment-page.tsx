@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import type { FlowData } from "@/lib/flow-types";
 import { planDetails } from "@/lib/flow-types";
+import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
 
 interface PaymentPageProps {
   flowData: FlowData;
@@ -134,6 +135,16 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue }: Paym
           </div>
         </div>
       </header>
+
+      {/* Breadcrumb path */}
+      <PageBreadcrumb
+        crumbs={[
+          { label: "Home", onClick: onBack },
+          { label: "Templates", onClick: onBack },
+          { label: "Details", onClick: onBack },
+          { label: "Complete Payment" },
+        ]}
+      />
 
       <main className="flex-1 px-4 py-8 sm:py-12">
         <motion.div

@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import type { FlowData } from "@/lib/flow-types";
+import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
 
 interface LoginPageProps {
   onBack: () => void;
@@ -144,6 +145,14 @@ export function LoginPage({ onBack, onLogin, onSignup }: LoginPageProps) {
           </div>
         </div>
       </header>
+
+      {/* Breadcrumb path */}
+      <PageBreadcrumb
+        crumbs={[
+          { label: "Home", onClick: onBack },
+          { label: "Log In" },
+        ]}
+      />
 
       <main className="flex-1 flex items-center justify-center px-4 py-12 relative overflow-hidden">
         {/* Background ambient elements */}

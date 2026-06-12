@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Heart, FileText, Shield, RotateCcw, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CONTACT_CONFIG } from "@/lib/config";
+import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
 
 type LegalType = "terms" | "privacy" | "refund" | "shipping";
 
@@ -213,6 +214,14 @@ export function LegalPage({ type, onBack }: LegalPageProps) {
           </div>
         </div>
       </header>
+
+      {/* Breadcrumb path — title adapts to the legal page type */}
+      <PageBreadcrumb
+        crumbs={[
+          { label: "Home", onClick: onBack },
+          { label: data.title },
+        ]}
+      />
 
       <main className="flex-1 py-12 sm:py-16 px-4">
         <motion.div

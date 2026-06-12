@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
+import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
 
 interface ContactPageProps {
   onBack: () => void;
@@ -88,12 +89,20 @@ export function ContactPage({ onBack }: ContactPageProps) {
               </span>
             </div>
 
-            <div className="w-16" />
+            <div className="w-24" />
           </div>
         </div>
       </header>
 
-      <main className="flex-1">
+      {/* Breadcrumb path */}
+      <PageBreadcrumb
+        crumbs={[
+          { label: "Home", onClick: onBack },
+          { label: "Contact Us" },
+        ]}
+      />
+
+      <main className="flex-1 py-12 sm:py-16 px-4">
         {/* Hero */}
         <section className="relative py-16 sm:py-20 px-4 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-emerald-dark/5 to-transparent" />
