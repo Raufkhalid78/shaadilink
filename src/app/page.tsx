@@ -170,8 +170,25 @@ function HomeInner() {
                 ...prev,
                 invitationId: invitation.id,
                 selectedTemplateId: invitation.template_id,
+                partner1Name: invitation.partner1_name ?? "",
+                partner2Name: invitation.partner2_name ?? "",
+                venue: invitation.venue ?? "",
+                venueAddress: invitation.venue_address ?? "",
+                welcomeMessage: invitation.welcome_message ?? "",
+                backgroundMusic: invitation.background_music ?? "no-music",
+                dressCodeWomen: invitation.dress_code_women ?? "",
+                dressCodeMen: invitation.dress_code_men ?? "",
+                transportation: invitation.transportation ?? "",
+                accommodation: invitation.accommodation ?? "",
+                gifts: invitation.gifts ?? "",
+                heroImage: invitation.hero_image_url ?? "",
+                slideshowImages: invitation.slideshow_image_urls ?? [],
+                events: ((invitation.events as { name: string; date: string; time: string; venue?: string; order_index: number }[]) || [])
+                  .sort((a, b) => a.order_index - b.order_index)
+                  .map((e) => ({ name: e.name, date: e.date, time: e.time, venue: e.venue })),
                 selectedPlan: invitation.plan,
-                paymentDone: true,
+                paymentDone: invitation.is_active,
+                showBismillah: invitation.show_bismillah ?? true,
               }));
               setStepBeforeDetails("dashboard");
               setCurrentStep("details");
@@ -186,10 +203,28 @@ function HomeInner() {
                 ...prev,
                 invitationId: invitation.id,
                 selectedTemplateId: invitation.template_id,
+                partner1Name: invitation.partner1_name ?? "",
+                partner2Name: invitation.partner2_name ?? "",
+                venue: invitation.venue ?? "",
+                venueAddress: invitation.venue_address ?? "",
+                welcomeMessage: invitation.welcome_message ?? "",
+                backgroundMusic: invitation.background_music ?? "no-music",
+                dressCodeWomen: invitation.dress_code_women ?? "",
+                dressCodeMen: invitation.dress_code_men ?? "",
+                transportation: invitation.transportation ?? "",
+                accommodation: invitation.accommodation ?? "",
+                gifts: invitation.gifts ?? "",
+                heroImage: invitation.hero_image_url ?? "",
+                slideshowImages: invitation.slideshow_image_urls ?? [],
+                events: ((invitation.events as { name: string; date: string; time: string; venue?: string; order_index: number }[]) || [])
+                  .sort((a, b) => a.order_index - b.order_index)
+                  .map((e) => ({ name: e.name, date: e.date, time: e.time, venue: e.venue })),
                 selectedPlan: "royal",
                 paymentDone: false,
+                showBismillah: invitation.show_bismillah ?? true,
               }));
-              setCurrentStep("payment");
+              setStepBeforeDetails("dashboard");
+              setCurrentStep("details");
             }
           });
       }
@@ -199,6 +234,11 @@ function HomeInner() {
 
   // Restore session and flowData on mount
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("edit") || params.get("upgrade") || params.get("start") === "create") {
+      return;
+    }
+
     const supabase = createClient();
 
     // Check if there is saved flowData in localStorage
