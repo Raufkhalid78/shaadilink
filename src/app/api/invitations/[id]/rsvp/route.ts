@@ -7,7 +7,8 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params
+    const { id: rawId } = await params
+    const id = rawId.replace(/%20| /g, "-")
     const body = await request.json()
     const { guestName, guestEmail, status } = body
 
@@ -64,7 +65,8 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params
+    const { id: rawId } = await params
+    const id = rawId.replace(/%20| /g, "-")
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 

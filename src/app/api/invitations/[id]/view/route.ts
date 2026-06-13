@@ -7,11 +7,12 @@ export async function POST(
 ) {
   try {
     const { id } = await params
+    const cleanId = id.replace(/%20| /g, "-")
     const service = createServiceClient()
     // Increment view_count atomically using a raw update
-    const { data: inv } = await service.from('invitations').select('view_count').eq('id', id).single()
+    const { data: inv } = await service.from('invitations').select('view_count').eq('id', cleanId).single()
     if (inv) {
-      await service.from('invitations').update({ view_count: (inv.view_count || 0) + 1 }).eq('id', id)
+      await service.from('invitations').update({ view_count: (inv.view_count || 0) + 1 }).eq('id', cleanId)
     }
     return NextResponse.json({ success: true })
   } catch {

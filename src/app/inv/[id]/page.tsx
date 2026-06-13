@@ -9,12 +9,13 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
+  const cleanId = id.replace(/%20| /g, "-");
   const supabase = await createClient();
 
   const { data } = await supabase
     .from("invitations")
     .select("partner1_name, partner2_name, venue, hero_image_url")
-    .eq("id", id)
+    .eq("id", cleanId)
     .single();
 
   if (!data) {
@@ -44,6 +45,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function InvitationPage({ params }: Props) {
   const { id } = await params;
+  const cleanId = id.replace(/%20| /g, "-");
   const supabase = await createClient();
 
   const { data: invitation, error } = await supabase
@@ -54,7 +56,7 @@ export default async function InvitationPage({ params }: Props) {
         id, name, date, time, venue, order_index
       )
     `)
-    .eq("id", id)
+    .eq("id", cleanId)
     .single();
 
   if (error || !invitation) {

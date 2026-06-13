@@ -7,7 +7,8 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params
+    const { id: rawId } = await params
+    const id = rawId.replace(/%20| /g, "-")
     const body = await request.json()
     const { senderName, message } = body
 
@@ -46,7 +47,8 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params
+    const { id: rawId } = await params
+    const id = rawId.replace(/%20| /g, "-")
     const service = createServiceClient()
 
     const { data: wishes, error } = await service
@@ -70,7 +72,8 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params
+    const { id: rawId } = await params
+    const id = rawId.replace(/%20| /g, "-")
     const { searchParams } = new URL(request.url)
     const wishId = searchParams.get('wishId')
 
