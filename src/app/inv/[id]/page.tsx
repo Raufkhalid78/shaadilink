@@ -85,6 +85,7 @@ export default async function InvitationPage({ params }: Props) {
     userId: invitation.user_id,
     email: "",
     fullName: "",
+    showBismillah: (invitation as { show_bismillah?: boolean }).show_bismillah ?? true,
     paymentDone: true,
   };
 

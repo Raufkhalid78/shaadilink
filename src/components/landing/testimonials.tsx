@@ -1,107 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Star, Quote, ChevronLeft, ChevronRight } from "lucide-react";
-
-const testimonials = [
-  {
-    name: "Aisha & Omar",
-    event: "Baraat — Lahore",
-    quote:
-      "Our guests were absolutely blown away! The scratch card reveal had everyone excited, and the door animation set the perfect tone for our celebration.",
-    rating: 5,
-    template: "Crimson Royale",
-    color: "from-rose-600 to-red-700",
-    initials: "AO",
-  },
-  {
-    name: "Fatima & Hassan",
-    event: "Walima — Karachi",
-    quote:
-      "We saved so much money compared to paper cards, and the digital invitation was 100x more impressive. The countdown timer built so much excitement!",
-    rating: 5,
-    template: "Emerald Noir",
-    color: "from-emerald-600 to-teal-700",
-    initials: "FH",
-  },
-  {
-    name: "Zara & Bilal",
-    event: "Mehndi — Islamabad",
-    quote:
-      "The RSVP feature was a lifesaver — we could track exactly who was coming. And WhatsApp sharing made distribution completely effortless.",
-    rating: 5,
-    template: "Garden Romance",
-    color: "from-pink-500 to-rose-600",
-    initials: "ZB",
-  },
-  {
-    name: "Maryam & Ahmed",
-    event: "Nikkah — Faisalabad",
-    quote:
-      "Our families in Saudi Arabia and the UK could see the invitation instantly. The map integration helped international guests find the venue so easily.",
-    rating: 5,
-    template: "Mughal Emerald",
-    color: "from-teal-500 to-cyan-600",
-    initials: "MA",
-  },
-  {
-    name: "Sana & Rizwan",
-    event: "Reception — Multan",
-    quote:
-      "The background music and animations made it feel so luxurious. Our guests kept asking how we made such an amazing invitation — worth every rupee!",
-    rating: 5,
-    template: "Royal Imperial",
-    color: "from-amber-500 to-yellow-600",
-    initials: "SR",
-  },
-  {
-    name: "Hina & Kamran",
-    event: "Dholki — Peshawar",
-    quote:
-      "Absolutely worth every rupee. The Royal plan's fireworks and effects added that extra magic to our invitation. Highly recommended for every couple!",
-    rating: 5,
-    template: "Royal Elegance",
-    color: "from-violet-500 to-purple-600",
-    initials: "HK",
-  },
-];
-
-function StarRating({ count }: { count: number }) {
-  return (
-    <div className="flex items-center gap-0.5">
-      {Array.from({ length: count }).map((_, i) => (
-        <Star key={i} className="w-4 h-4 text-gold fill-gold" />
-      ))}
-    </div>
-  );
-}
+import { Star } from "lucide-react";
 
 export function Testimonials() {
-  const [activeIdx, setActiveIdx] = useState(0);
-  const [autoPlay, setAutoPlay] = useState(true);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  const next = () => setActiveIdx((i) => (i + 1) % testimonials.length);
-  const prev = () => setActiveIdx((i) => (i - 1 + testimonials.length) % testimonials.length);
-
-  useEffect(() => {
-    if (!autoPlay) return;
-    intervalRef.current = setInterval(next, 4500);
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [autoPlay, activeIdx]);
-
-  const pauseAutoPlay = () => {
-    setAutoPlay(false);
-    setTimeout(() => setAutoPlay(true), 10000);
-  };
-
-  // Show 3 cards: prev, active, next
-  const visible = [-1, 0, 1].map((offset) => {
-    const idx = (activeIdx + offset + testimonials.length) % testimonials.length;
-    return { ...testimonials[idx], offset };
-  });
-
   return (
     <section className="py-24 sm:py-32 relative overflow-hidden">
       {/* Background */}
@@ -123,7 +25,7 @@ export function Testimonials() {
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-gold/20 bg-gold/10 text-gold text-sm font-medium mb-4"
           >
             <Star className="w-3.5 h-3.5 fill-gold" />
-            5,000+ Happy Families
+            Be Our First Reviewer
           </motion.span>
           <motion.h2
             initial={{ opacity: 0, y: 16 }}
@@ -146,140 +48,40 @@ export function Testimonials() {
             transition={{ delay: 0.2 }}
             className="mt-5 text-muted-foreground max-w-xl mx-auto text-base sm:text-lg"
           >
-            Join thousands of happy Pakistani families who chose ShaadiLink for their special day.
+            We&apos;re new — and we&apos;d love to hear from you.
           </motion.p>
         </div>
 
-        {/* Carousel */}
-        <div className="relative">
-          {/* Cards */}
-          <div className="flex items-center justify-center gap-4 lg:gap-6 min-h-[320px]">
-            {visible.map(({ offset, ...testimonial }) => {
-              const isCenter = offset === 0;
-              return (
-                <motion.div
-                  key={`${testimonial.name}-${offset}`}
-                  initial={false}
-                  animate={{
-                    scale: isCenter ? 1 : 0.88,
-                    opacity: isCenter ? 1 : 0.45,
-                    y: isCenter ? 0 : 24,
-                  }}
-                  transition={{ duration: 0.5, ease: "easeInOut" }}
-                  onClick={() => {
-                    if (!isCenter) {
-                      pauseAutoPlay();
-                      if (offset === -1) prev();
-                      else next();
-                    }
-                  }}
-                  className={`relative rounded-2xl border overflow-hidden transition-shadow duration-500 ${
-                    isCenter
-                      ? "w-full max-w-md border-gold/30 shadow-2xl shadow-gold/10 cursor-default"
-                      : "hidden lg:block w-72 border-border/20 cursor-pointer hover:opacity-60"
-                  }`}
-                  style={{
-                    background: isCenter
-                      ? "linear-gradient(145deg, oklch(0.16 0.03 155 / 0.95), oklch(0.12 0.02 155 / 0.9))"
-                      : "oklch(0.14 0.02 155 / 0.6)",
-                    backdropFilter: "blur(20px)",
-                  }}
-                >
-                  {/* Gold top border on active */}
-                  {isCenter && (
-                    <div className="h-0.5 w-full bg-gradient-to-r from-transparent via-gold/60 to-transparent" />
-                  )}
-
-                  <div className="p-6 sm:p-8">
-                    {/* Quote icon */}
-                    <Quote className="w-10 h-10 text-gold/15 mb-4" />
-
-                    {/* Stars */}
-                    <StarRating count={testimonial.rating} />
-
-                    {/* Text */}
-                    <p className="mt-4 text-sm sm:text-base text-muted-foreground italic leading-relaxed">
-                      &ldquo;{testimonial.quote}&rdquo;
-                    </p>
-
-                    {/* Author */}
-                    <div className="mt-6 pt-5 border-t border-border/20 flex items-center gap-3">
-                      <div
-                        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${testimonial.color} text-white font-display text-sm font-bold shadow-lg`}
-                      >
-                        {testimonial.initials}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="font-display text-sm font-semibold text-foreground">
-                          {testimonial.name}
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-0.5">{testimonial.event}</p>
-                      </div>
-                      <span className="text-[10px] px-2.5 py-1 rounded-full bg-gold/10 border border-gold/20 text-gold font-medium whitespace-nowrap shrink-0">
-                        {testimonial.template}
-                      </span>
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
+        {/* Honest empty state */}
+        <div className="text-center py-12 px-6">
+          {/* 5 stars */}
+          <div className="flex justify-center gap-1 mb-6">
+            {[...Array(5)].map((_, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.1 * i }}
+              >
+                <svg className="w-8 h-8 text-gold" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+              </motion.div>
+            ))}
           </div>
-
-          {/* Nav Buttons */}
-          <div className="flex items-center justify-center gap-2 mt-8">
-            <button
-              onClick={() => { pauseAutoPlay(); prev(); }}
-              className="flex items-center justify-center w-12 h-12 rounded-full border border-gold/20 bg-card/60 text-muted-foreground hover:text-gold hover:border-gold/50 transition-all duration-300"
-              aria-label="Previous testimonial"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-
-            {/* Dots */}
-            <div className="flex items-center gap-1">
-              {testimonials.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => { pauseAutoPlay(); setActiveIdx(i); }}
-                  className="w-8 h-8 flex items-center justify-center rounded-full focus:outline-none"
-                  aria-label={`Go to testimonial slide ${i + 1}`}
-                >
-                  <div className={`rounded-full transition-all duration-300 ${
-                    i === activeIdx ? "w-5 h-2 bg-gold" : "w-2 h-2 bg-muted-foreground/30 hover:bg-gold/40"
-                  }`} />
-                </button>
-              ))}
-            </div>
-
-            <button
-              onClick={() => { pauseAutoPlay(); next(); }}
-              className="flex items-center justify-center w-12 h-12 rounded-full border border-gold/20 bg-card/60 text-muted-foreground hover:text-gold hover:border-gold/50 transition-all duration-300"
-              aria-label="Next testimonial"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </div>
+          <h3 className="text-2xl font-display font-bold mb-3">Be Our First Reviewer!</h3>
+          <p className="text-muted-foreground max-w-md mx-auto mb-8">
+            We&apos;re a brand new platform crafted with love for Pakistani couples. Create your invitation and be the first to share your experience.
+          </p>
+          <a
+            href="https://wa.me/+447517879333?text=I%20want%20to%20share%20my%20ShaadiLink%20review"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-emerald text-white font-semibold hover:bg-emerald-dark transition-colors"
+          >
+            💬 Share Your Review on WhatsApp
+          </a>
         </div>
-
-        {/* Trust badges */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mt-16 flex flex-wrap items-center justify-center gap-6 sm:gap-10"
-        >
-          {[
-            { value: "5,000+", label: "Families served" },
-            { value: "4.9 / 5", label: "Average rating" },
-            { value: "30+ countries", label: "Global reach" },
-            { value: "98%", label: "Satisfaction rate" },
-          ].map((badge) => (
-            <div key={badge.label} className="text-center">
-              <p className="font-display text-2xl font-bold text-gold text-glow-gold">{badge.value}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">{badge.label}</p>
-            </div>
-          ))}
-        </motion.div>
       </div>
     </section>
   );

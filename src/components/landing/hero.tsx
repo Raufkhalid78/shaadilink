@@ -328,7 +328,7 @@ export function Hero({ onViewTemplates, onGetStarted }: HeroProps) {
 
   const line1Words = ["Create", "Your", "Dream"];
   const line2Words = ["Wedding", "Invitation"];
-  const appTagline = "Pakistan's #1 Digital Wedding Invitation Platform";
+  const appTagline = "Pakistan's Premier Digital Wedding Invitation Platform";
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-emerald-dark">
@@ -477,7 +477,7 @@ export function Hero({ onViewTemplates, onGetStarted }: HeroProps) {
                 onClick={onGetStarted}
                 className="bg-gold hover:bg-gold-light text-emerald-dark font-bold text-base px-8 h-12 pulse-glow border-none shadow-lg shadow-gold/20 hover:shadow-gold/40 transition-all duration-300"
               >
-                Get Started
+                Create My Invitation
               </Button>
               <Button
                 size="lg"
@@ -494,21 +494,15 @@ export function Hero({ onViewTemplates, onGetStarted }: HeroProps) {
               variants={itemVariants}
               className="mt-6 flex flex-col items-center lg:items-start gap-3"
             >
-              <p className="text-sm text-white/40">
-                Trusted by 5,000+ Pakistani families worldwide
-              </p>
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1.5">
-                  <Shield className="h-4 w-4 text-emerald/60" />
-                  <span className="text-xs text-white/30">Secure</span>
+                  <span className="text-xs text-white/50">🎉 New &amp; Growing</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Star className="h-4 w-4 text-gold/60" />
-                  <span className="text-xs text-white/30">4.9/5 Rating</span>
+                  <span className="text-xs text-white/50">❤️ Crafted with Love</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Heart className="h-4 w-4 text-red-400/60" />
-                  <span className="text-xs text-white/30">Made in Pakistan</span>
+                  <span className="text-xs text-white/50">🇵🇰 Made in Pakistan</span>
                 </div>
               </div>
             </motion.div>

@@ -22,10 +22,10 @@ interface ComparisonRow {
 const comparisonRows: ComparisonRow[] = [
   {
     feature: "Cost per invite",
-    printed: "Rs. 50-200",
+    printed: "Rs. 50–200 / card",
     photo: "Rs. 1,000",
     video: "Rs. 4,000",
-    shaadilink: "Rs. 2,499",
+    shaadilink: "Rs. 3,499 (∞ guests)",
   },
   {
     feature: "RSVP tracking",
@@ -130,7 +130,7 @@ export function Comparison() {
         {/* Section Header */}
         <div className="text-center mb-14 sm:mb-20 reveal-on-scroll">
           <span className="inline-block font-calligraphy text-gold text-lg mb-3">
-            ✦ How We Compare ✦
+            ✦ vs. Paper Invites ✦
           </span>
           <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">
             How We Compare

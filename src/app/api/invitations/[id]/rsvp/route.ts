@@ -19,6 +19,23 @@ export async function POST(
     }
 
     const service = createServiceClient()
+
+    // Check invitation exists and is active
+    const { data: inv } = await service.from('invitations').select('is_active').eq('id', id).single()
+    if (!inv?.is_active) return NextResponse.json({ error: 'This invitation is not yet published' }, { status: 403 })
+
+    // Check for existing RSVP
+    let query = service.from('rsvps').select('id').eq('invitation_id', id)
+    if (guestEmail?.trim()) {
+      query = query.eq('guest_email', guestEmail.trim())
+    } else {
+      query = query.eq('guest_name', guestName.trim())
+    }
+    const { data: existingRsvp } = await query.limit(1).maybeSingle()
+    if (existingRsvp) {
+      return NextResponse.json({ error: 'You have already submitted an RSVP for this invitation.' }, { status: 409 })
+    }
+
     const { data, error } = await service
       .from('rsvps')
       .insert({

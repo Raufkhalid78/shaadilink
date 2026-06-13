@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 
 const PLAN_AMOUNTS: Record<string, number> = {
-  classic: 2499,
-  royal: 3999,
+  classic: 3499,
+  royal: 5799,
 }
 
 /* POST /api/orders — create order and activate invitation */

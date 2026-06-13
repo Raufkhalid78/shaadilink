@@ -37,13 +37,31 @@ const faqs = [
     icon: "💳",
     question: "What payment methods are accepted?",
     answer:
-      "We accept all major credit/debit cards (Visa, Mastercard), JazzCash, EasyPaisa, and bank transfers. All payments are processed securely with SSL encryption.",
+      "We currently accept all major credit and debit cards (Visa, Mastercard) via our secure checkout. All payments are processed securely with SSL encryption.",
   },
   {
     icon: "🔄",
     question: "Can I get a refund?",
     answer:
       "We offer a full refund within 24 hours of purchase if you haven't shared the invitation link yet. After that, we provide credit for future purchases. Please see our Refund Policy for complete details.",
+  },
+  {
+    icon: "🎙️",
+    question: "Can I add Urdu text to my invitation?",
+    answer:
+      "Yes! ShaadiLink fully supports Urdu (and Arabic script) in all text fields — names, venue, welcome message, and event titles. Our AI translation feature can also auto-translate your invitation into Urdu for guests.",
+  },
+  {
+    icon: "⏳",
+    question: "How long does my invitation stay live?",
+    answer:
+      "Your invitation stays fully live and accessible until 30 days after your last wedding event date. After that, it auto-privatises for your privacy. You can always extend or download a copy from your dashboard.",
+  },
+  {
+    icon: "💒",
+    question: "Can I create separate invitations for Mehndi, Baraat, and Walima?",
+    answer:
+      "Absolutely! Each purchase gives you one invitation, but you can add multiple events (Mehndi, Baraat, Walima, Dholki) within a single invitation — each with its own date, time, and venue. Or you can purchase separate invitations for each event.",
   },
 ];
 
@@ -64,7 +82,7 @@ const itemVariants = {
   },
 };
 
-export function FAQ() {
+export function FAQ({ onContactClick }: { onContactClick?: () => void }) {
   return (
     <section id="faq" className="py-24 sm:py-32 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-background via-emerald-dark/10 to-background" />
@@ -127,9 +145,18 @@ export function FAQ() {
         >
           <p className="text-muted-foreground text-base sm:text-lg">
             Still have questions?{" "}
-            <a href="/contact" className="text-gold font-semibold hover:text-gold-light transition-colors underline underline-offset-4 decoration-gold/30">
-              Contact our support team
-            </a>
+            {onContactClick ? (
+              <button
+                onClick={onContactClick}
+                className="text-gold font-semibold hover:text-gold-light transition-colors underline underline-offset-4 decoration-gold/30"
+              >
+                Contact our support team
+              </button>
+            ) : (
+              <a href="/contact" className="text-gold font-semibold hover:text-gold-light transition-colors underline underline-offset-4 decoration-gold/30">
+                Contact our support team
+              </a>
+            )}
           </p>
         </motion.div>
       </div>

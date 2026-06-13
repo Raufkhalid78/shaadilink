@@ -77,9 +77,9 @@ function FormMockup() {
   const fields = [
     { label: "VENUE", value: "The Grand Palace, Lahore", icon: MapPin },
     { label: "WELCOME MESSAGE", value: "With the blessings of our families...", icon: Heart },
-    { label: "MEHNDI EVENT", value: "12 Feb · 6:00 PM", icon: Calendar },
-    { label: "BARAAT EVENT", value: "14 Feb · 8:00 PM", icon: Calendar },
-    { label: "WALIMA EVENT", value: "15 Feb · 7:00 PM", icon: Calendar },
+    { label: "MEHNDI EVENT", value: "12 Mar 2027 · 6:00 PM", icon: Calendar },
+    { label: "BARAAT EVENT", value: "14 Mar 2027 · 8:00 PM", icon: Calendar },
+    { label: "WALIMA EVENT", value: "15 Mar 2027 · 7:00 PM", icon: Calendar },
     { label: "BACKGROUND MUSIC", value: "Soft Sitar Melody", icon: Music },
   ];
 
@@ -287,7 +287,7 @@ function InvitationPreview() {
 
           {/* Date */}
           <p className="text-white/70 font-display text-sm tracking-wider">
-            14 · FEBRUARY · 2026
+            14 · MARCH · 2027
           </p>
 
           {/* Venue */}
@@ -415,7 +415,7 @@ export function HowItWorks() {
               <StepBadge number="02" label="We Transform" />
               <TransformVisual />
               <p className="text-center text-sm text-muted-foreground mt-4 max-w-xs mx-auto">
-                Our system crafts a stunning, animated invitation with premium effects.
+                Our platform applies your details to a stunning animated template — complete with music, live countdown, venue maps, and RSVP collection.
               </p>
             </motion.div>
 
@@ -450,7 +450,7 @@ export function HowItWorks() {
               <StepBadge number="02" label="We Transform" />
               <TransformVisual />
               <p className="text-center text-sm text-muted-foreground mt-4 max-w-xs mx-auto">
-                Our system crafts a stunning, animated invitation with premium effects.
+                Our platform applies your details to a stunning animated template — complete with music, live countdown, venue maps, and RSVP collection.
               </p>
             </motion.div>
 

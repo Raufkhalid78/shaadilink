@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 import { toast } from "sonner";
 import { Navbar } from "@/components/landing/navbar";
@@ -103,7 +104,7 @@ function AppPurposeSection({ onGetStarted }: { onGetStarted?: () => void }) {
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-emerald hover:bg-emerald-dark text-primary-foreground font-semibold text-sm transition-all duration-200 shadow-lg shadow-emerald/20 hover:shadow-emerald/30"
             >
               <Sparkles className="w-4 h-4" />
-              Create Your Invitation — Starting Rs. 2,499
+              Create Your Invitation — Starting Rs. 3,499
             </button>
           </motion.div>
         )}
@@ -128,13 +129,73 @@ function InfoPageWrapper({ children, stepKey }: { children: React.ReactNode; ste
   );
 }
 
-export default function Home() {
+function HomeInner() {
   const [currentStep, setCurrentStep] = useState<FlowStep>("landing");
   const [flowData, setFlowData] = useState<FlowData>(initialFlowData);
   const [previewTemplateId, setPreviewTemplateId] = useState<string | null>(null);
   // Track previous step so Details → Back works correctly
   const [stepBeforeDetails, setStepBeforeDetails] = useState<FlowStep>("signup");
   useScrollReveal();
+  const router = useRouter();
+
+  const searchParams = useSearchParams();
+
+  // Handle query params from /dashboard route (?start=create, ?edit=ID, ?upgrade=ID)
+  useEffect(() => {
+    const start = searchParams.get("start");
+    const editId = searchParams.get("edit");
+    const upgradeId = searchParams.get("upgrade");
+    if (!start && !editId && !upgradeId) return;
+
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session?.user) return;
+      const mergedData: FlowData = {
+        ...initialFlowData,
+        userId: session.user.id,
+        email: session.user.email ?? "",
+        fullName: session.user.user_metadata?.full_name ?? "",
+      };
+      setFlowData(mergedData);
+
+      if (start === "create") {
+        setCurrentStep("templates");
+      } else if (editId) {
+        // Load the invitation then go to details
+        fetch(`/api/invitations/${editId}`)
+          .then((r) => r.json())
+          .then(({ invitation }) => {
+            if (invitation) {
+              setFlowData((prev) => ({
+                ...prev,
+                invitationId: invitation.id,
+                selectedTemplateId: invitation.template_id,
+                selectedPlan: invitation.plan,
+                paymentDone: true,
+              }));
+              setStepBeforeDetails("dashboard");
+              setCurrentStep("details");
+            }
+          });
+      } else if (upgradeId) {
+        fetch(`/api/invitations/${upgradeId}`)
+          .then((r) => r.json())
+          .then(({ invitation }) => {
+            if (invitation) {
+              setFlowData((prev) => ({
+                ...prev,
+                invitationId: invitation.id,
+                selectedTemplateId: invitation.template_id,
+                selectedPlan: "royal",
+                paymentDone: false,
+              }));
+              setCurrentStep("payment");
+            }
+          });
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Restore session and flowData on mount
   useEffect(() => {
@@ -232,12 +293,12 @@ export default function Home() {
 
   const handleLoginComplete = (userId: string, email: string) => {
     updateFlowData({ userId, email });
-    // If a template was already selected, go to details; otherwise go to dashboard
+    // If a template was already selected, go to details; otherwise redirect to /dashboard
     if (flowData.selectedTemplateId) {
       setStepBeforeDetails("login");
       setCurrentStep("details");
     } else {
-      setCurrentStep("dashboard");
+      router.push("/dashboard");
     }
   };
 
@@ -306,7 +367,7 @@ export default function Home() {
   };
 
   const handleGoToDashboard = () => {
-    setCurrentStep("dashboard");
+    router.push("/dashboard");
   };
 
   const handleEditInvitation = async (invitationId: string) => {
@@ -437,8 +498,7 @@ export default function Home() {
   const goToAbout = () => setCurrentStep("about");
   const goToContact = () => setCurrentStep("contact");
   const goToAffiliate = () => setCurrentStep("affiliate");
-  // Removed "shipping" — irrelevant for a digital product
-  const goToLegal = (type: "terms" | "privacy" | "refund") => setCurrentStep(type);
+  const goToLegal = (type: "terms" | "privacy" | "refund" | "shipping") => setCurrentStep(type as FlowStep);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -588,7 +648,7 @@ export default function Home() {
             <AffiliatePage onBack={handleBackToLanding} />
           </InfoPageWrapper>
         )}
-        {(currentStep === "terms" || currentStep === "privacy" || currentStep === "refund") && (
+        {(currentStep === "terms" || currentStep === "privacy" || currentStep === "refund" || currentStep === "shipping") && (
           <InfoPageWrapper stepKey={currentStep}>
             <LegalPage type={currentStep} onBack={handleBackToLanding} />
           </InfoPageWrapper>
@@ -619,7 +679,7 @@ export default function Home() {
               <AppPurposeSection onGetStarted={scrollToPricing} />
               <StatsBar />
               <Features />
-              <TemplateShowcase />
+              <TemplateShowcase onViewAllClick={goToTemplates} />
               <HowItWorks />
               {/* Google OAuth & Account Purpose Statement */}
               <section className="py-6 px-4 bg-background/30 border-y border-border/30 relative overflow-hidden flex justify-center">
@@ -645,7 +705,7 @@ export default function Home() {
               <Comparison />
               <Testimonials />
               <Pricing onSelectPlan={handleGetStarted} />
-              <FAQ />
+              <FAQ onContactClick={goToContact} />
 
               {/* Live Demo CTA Section */}
               <section id="live-demo" className="py-24 px-6 bg-gradient-to-b from-background to-emerald-dark/10 relative overflow-hidden">
@@ -708,5 +768,13 @@ export default function Home() {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-background" />}>
+      <HomeInner />
+    </Suspense>
   );
 }

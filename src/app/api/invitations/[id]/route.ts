@@ -23,6 +23,13 @@ export async function GET(
       return NextResponse.json({ error: 'Invitation not found' }, { status: 404 })
     }
 
+    // Check auth for inactive invitations
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!invitation.is_active && invitation.user_id !== user?.id) {
+      return NextResponse.json({ error: 'Invitation not found' }, { status: 404 })
+    }
+
     return NextResponse.json({ invitation })
   } catch (error) {
     console.error('GET /api/invitations/[id] error:', error)
@@ -67,6 +74,7 @@ export async function PUT(
       transportation: 'transportation', accommodation: 'accommodation',
       gifts: 'gifts', heroImageUrl: 'hero_image_url',
       slideshowImageUrls: 'slideshow_image_urls', isActive: 'is_active',
+      showBismillah: 'show_bismillah',
     }
     for (const [jsKey, dbKey] of Object.entries(fieldMap)) {
       if (body[jsKey] !== undefined) updateData[dbKey] = body[jsKey]

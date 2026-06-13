@@ -1,60 +1,60 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
+import { GoogleGenAI } from '@google/genai'
 
 export async function POST(request: NextRequest) {
   try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
     const { texts } = await request.json()
 
     if (!texts || typeof texts !== 'object') {
       return NextResponse.json({ error: 'texts object is required' }, { status: 400 })
     }
 
-    // Try to use ZAI — but fall back gracefully if config not found
     try {
-      const ZAI = (await import('z-ai-web-dev-sdk')).default
-      const zai = await ZAI.create()
+      const apiKey = process.env.GEMINI_API_KEY
+      if (!apiKey || apiKey === 'your_gemini_api_key_here') {
+        throw new Error('GEMINI_API_KEY is not configured')
+      }
 
-      const completion = await zai.chat.completions.create({
-        messages: [
-          {
-            role: 'system',
-            content: `You are a professional Urdu translator specializing in Pakistani wedding invitations. Translate all text values of the input JSON object to elegant, formal Urdu suitable for wedding invitations. Keep the JSON keys exactly identical. Do not translate names if they are already Urdu names (like Ahmed, Fatima, Ayesha) but write them in beautiful Urdu script. Translate addresses, timeline descriptions, welcome messages, dress codes, and blessings into high-quality, culturally appropriate Urdu.
+      const ai = new GoogleGenAI({ apiKey })
 
-Return ONLY a valid JSON object. Do not include markdown (do not wrap in backticks), do not include any explanatory text, just the raw JSON.`
-          },
-          {
-            role: 'user',
-            content: JSON.stringify(texts)
-          }
-        ],
-        thinking: { type: 'disabled' }
+      const prompt = `You are a professional Urdu translator specializing in Pakistani wedding invitations. Translate all text values of the input JSON object to elegant, formal Urdu suitable for wedding invitations. Keep the JSON keys exactly identical. Do not translate names if they are already Urdu names (like Ahmed, Fatima, Ayesha) but write them in beautiful Urdu script. Translate addresses, timeline descriptions, welcome messages, dress codes, and blessings into high-quality, culturally appropriate Urdu.
+
+Return ONLY a valid JSON object. Do not include markdown (do not wrap in backticks), do not include any explanatory text, just the raw JSON.
+
+Input JSON to translate:
+${JSON.stringify(texts)}`
+
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: prompt,
+        config: {
+          responseMimeType: 'application/json',
+        }
       })
 
-      const responseText = completion.choices[0]?.message?.content || ''
+      const responseText = response.text || ''
 
       let translations: Record<string, string> = {}
       try {
-        const jsonMatch = responseText.match(/\{[\s\S]*\}/)
-        if (jsonMatch) {
-          const parsed = JSON.parse(jsonMatch[0])
-          for (const [key, value] of Object.entries(parsed)) {
-            const cleanKey = key.replace(/^\[(.+)\]$/, '$1')
-            translations[cleanKey] = value as string
-          }
-        }
+        translations = JSON.parse(responseText)
       } catch {
-        // Fallback: return original texts
+        // Fallback gracefully if parsing fails
         translations = texts as Record<string, string>
       }
 
       return NextResponse.json({ translations })
-    } catch (zaiError) {
-      // ZAI not configured — silently return original texts so the invitation still works
-      console.warn('Translation service unavailable (ZAI config missing), returning originals:', (zaiError as Error).message)
+
+    } catch (aiError) {
+      console.warn('Translation service unavailable, returning originals:', (aiError as Error).message)
       return NextResponse.json({ translations: texts })
     }
   } catch (error) {
     console.error('Translation error:', error)
-    // Always return originals as fallback — never crash the invitation viewer
     return NextResponse.json({ translations: {} }, { status: 500 })
   }
 }

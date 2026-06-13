@@ -174,7 +174,7 @@ export function CTASection({ onGetStarted }: CTASectionProps) {
           </motion.div>
 
           <p className="mt-6 text-sm text-white/30">
-            Starting from Rs. 2,499 · One-time payment
+            Starting from Rs. 3,499 • One-time payment
           </p>
         </motion.div>
       </div>

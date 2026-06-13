@@ -65,11 +65,19 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_PK",
     siteName: "ShaadiLink",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "ShaadiLink - Premium Digital Wedding Invitations",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "ShaadiLink — Premium Digital Wedding Invitations",
-    description: "Cinematic digital invitations for Pakistani weddings. Starting Rs. 2,499.",
+    description: "Cinematic digital invitations for Pakistani weddings. Starting Rs. 3,499.",
   },
   robots: {
     index: true,
@@ -99,20 +107,20 @@ export default function RootLayout({
         "offers": {
           "@type": "AggregateOffer",
           "priceCurrency": "PKR",
-          "lowPrice": "2499",
-          "highPrice": "3999",
+          "lowPrice": "3499",
+          "highPrice": "5799",
           "offerCount": "2",
           "offers": [
             {
               "@type": "Offer",
               "name": "Classic Plan",
-              "price": "2499",
+              "price": "3499",
               "priceCurrency": "PKR"
             },
             {
               "@type": "Offer",
               "name": "Royal Plan",
-              "price": "3999",
+              "price": "5799",
               "priceCurrency": "PKR"
             }
           ]
@@ -142,7 +150,7 @@ export default function RootLayout({
             "name": "How much does a digital wedding card cost in Pakistan?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "ShaadiLink offers two plans: the Classic Plan for Rs. 2,499 (featuring 8 elegant templates and core features) and the Royal Plan for Rs. 3,999 (unlocking 18 premium templates, 3D door reveals, scratch cards, travel details, and digital shagun)."
+              "text": "ShaadiLink offers two plans: the Classic Plan for Rs. 3,499 (featuring 8 elegant templates and core features) and the Royal Plan for Rs. 5,799 (unlocking 18 premium templates, 3D door reveals, scratch cards, travel details, and digital shagun)."
             }
           },
           {

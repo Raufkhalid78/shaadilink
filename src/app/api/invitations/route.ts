@@ -42,6 +42,7 @@ export async function POST(request: NextRequest) {
         hero_image_url: heroImageUrl || '',
         slideshow_image_urls: slideshowImageUrls || [],
         is_active: false,
+        show_bismillah: body.showBismillah ?? true,
       })
       .select()
       .single()
@@ -66,7 +67,14 @@ export async function POST(request: NextRequest) {
 
       if (eventRows.length > 0) {
         const { error: evErr } = await service.from('events').insert(eventRows)
-        if (evErr) console.error('Events insert error:', evErr)
+        if (evErr) {
+          console.error('Events insert error:', evErr)
+          // Return the invitation ID but signal a partial failure
+          return NextResponse.json(
+            { invitationId: invitation.id, warning: 'Invitation created but events could not be saved: ' + evErr.message },
+            { status: 201 }
+          )
+        }
       }
     }
 

@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import {
-  Check, Copy, ExternalLink, Share2, Sparkles, PartyPopper, LayoutDashboard,
+  Check, Copy, ExternalLink, Share2, Sparkles, PartyPopper, LayoutDashboard, QrCode
 } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import type { FlowData } from "@/lib/flow-types";
@@ -166,6 +167,15 @@ export function SuccessPage({ flowData, onViewInvitation, onGoToDashboard }: Suc
             <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase mb-2 block">
               Your Invitation Link
             </label>
+            <div className="flex flex-col items-center gap-4 max-w-md mx-auto mb-4">
+              <div className="p-3 bg-white rounded-xl shadow-inner inline-block">
+                <QRCodeSVG value={invitationLink} size={140} bgColor="#ffffff" fgColor="#1a1a2e" level="M" />
+              </div>
+              <p className="text-xs text-muted-foreground text-center flex items-center gap-1">
+                <QrCode className="w-3.5 h-3.5" />
+                Scan to preview or save to your phone
+              </p>
+            </div>
             <div className="flex items-center gap-2 max-w-md mx-auto">
               <div className="flex-1 px-4 py-3 bg-muted/50 rounded-lg border border-border/50 text-sm text-foreground truncate text-left font-mono">
                 {invitationLink}

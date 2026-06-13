@@ -169,6 +169,19 @@
 .font-royal-script {
   font-family: var(--font-pinyon), var(--font-amiri), cursive, serif;
 }
+.font-arabic {
+  font-family: var(--font-amiri), 'Noto Nastaliq Urdu', 'Traditional Arabic', serif;
+  font-feature-settings: 'liga' 1, 'calt' 1;
+}
+
+/* Bismillah Banner Shimmer */
+@keyframes bismillahGlow {
+  0%, 100% { text-shadow: 0 0 20px rgba(212,168,83,0.3), 0 0 40px rgba(212,168,83,0.15); }
+  50% { text-shadow: 0 0 35px rgba(212,168,83,0.6), 0 0 70px rgba(212,168,83,0.3), 0 0 100px rgba(212,168,83,0.15); }
+}
+.bismillah-glow {
+  animation: bismillahGlow 3s ease-in-out infinite;
+}
 
 /* ═══════════════════════════════════
    SHIMMER ANIMATIONS

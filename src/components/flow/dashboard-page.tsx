@@ -5,8 +5,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Heart, Plus, ExternalLink, Trash2, Users, MessageSquare, Calendar,
   Copy, Check, LayoutDashboard, LogOut, Loader2, Crown, Sparkles, X, Lock,
-  ArrowLeft, Share2, Home, Activity,
+  ArrowLeft, Share2, Home, Activity, QrCode, Eye, Download,
 } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -28,6 +29,7 @@ interface Invitation {
   events: { id: string; name: string; date: string; time: string; order_index: number }[];
   rsvps: { id: string; status: string }[];
   wishes: { id: string }[];
+  view_count?: number;
 }
 
 interface DashboardPageProps {
@@ -68,6 +70,7 @@ export function DashboardPage({
   const [isLoading, setIsLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [qrInvUrl, setQrInvUrl] = useState<string | null>(null);
 
   // RSVP Drawer State
   const [rsvpDrawerOpen, setRsvpDrawerOpen] = useState(false);
@@ -334,13 +337,13 @@ export function DashboardPage({
             </Button>
           </motion.div>
 
-          {/* Stats row — 4 cards: 2×2 on mobile, 4-col on lg */}
+          {/* Stats row — 4 cards: 2×2 on mobile, 5-col on lg */}
           {!isLoading && invitations.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.1 }}
-              className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8"
+              className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-8"
             >
               {[
                 {
@@ -370,6 +373,13 @@ export function DashboardPage({
                   icon: MessageSquare,
                   color: "text-pink-400",
                   bg: "bg-pink-400/5 border-pink-400/10",
+                },
+                {
+                  label: "Total Views",
+                  value: invitations.reduce((sum, inv) => sum + (inv.view_count || 0), 0),
+                  icon: Eye,
+                  color: "text-indigo-400",
+                  bg: "bg-indigo-400/5 border-indigo-400/10",
                 },
               ].map((stat) => {
                 const Icon = stat.icon;
@@ -603,7 +613,7 @@ export function DashboardPage({
                                 Locked
                               </>
                             ) : (
-                              inv.is_active ? "Edit" : "Publish"
+                              inv.is_active ? "Edit" : "Complete Setup"
                             )}
                           </Button>
                           {/* Share button */}
@@ -620,6 +630,17 @@ export function DashboardPage({
                           >
                             <Share2 className="w-3.5 h-3.5" />
                           </Button>
+                          {inv.is_active && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setQrInvUrl(`${window.location.origin}/inv/${inv.id}`)}
+                              className="h-8 px-2.5 border-indigo-400/30 text-indigo-400 hover:bg-indigo-400/10"
+                              aria-label="Show QR Code"
+                            >
+                              <QrCode className="w-3.5 h-3.5" />
+                            </Button>
+                          )}
                           <Button
                             size="sm"
                             variant="outline"
@@ -709,6 +730,17 @@ export function DashboardPage({
                   </span>
                   <span className="text-[10px] text-muted-foreground uppercase font-semibold">Declined</span>
                 </div>
+              </div>
+
+              <div className="flex justify-start mb-4">
+                <a
+                  href={`/api/invitations/${rsvpInvId}/export-rsvp`}
+                  download
+                  className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-emerald/30 text-emerald hover:bg-emerald/10 transition-colors"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  Export CSV
+                </a>
               </div>
 
               {/* Content */}
@@ -842,6 +874,37 @@ export function DashboardPage({
                   ))
                 )}
               </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* QR Code Modal */}
+      <AnimatePresence>
+        {qrInvUrl && (
+          <div
+            className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            onClick={() => setQrInvUrl(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="bg-card border border-border rounded-2xl p-6 flex flex-col items-center gap-4 max-w-xs w-full"
+              onClick={e => e.stopPropagation()}
+            >
+              <h3 className="font-display font-semibold text-lg text-foreground">QR Code</h3>
+              <div className="p-3 bg-white rounded-xl shadow-inner">
+                <QRCodeSVG value={qrInvUrl} size={180} bgColor="#ffffff" fgColor="#1a1a2e" level="M" />
+              </div>
+              <p className="text-xs text-muted-foreground text-center">Scan to open the invitation. Share on printed cards!</p>
+              <Button
+                variant="outline"
+                onClick={() => setQrInvUrl(null)}
+                className="w-full mt-2"
+              >
+                Close
+              </Button>
             </motion.div>
           </div>
         )}

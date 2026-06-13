@@ -33,6 +33,8 @@ export interface FlowData {
   // Backend IDs — set after API calls
   userId?: string;
   invitationId?: string;
+  // Islamic opening — shown at top of invitation
+  showBismillah: boolean;
 }
 
 export const initialFlowData: FlowData = {
@@ -58,6 +60,7 @@ export const initialFlowData: FlowData = {
   gifts: "",
   heroImage: "",
   slideshowImages: [],
+  showBismillah: true,
   paymentDone: false,
 };
 
@@ -76,12 +79,13 @@ export type FlowStep =
   | "terms"
   | "privacy"
   | "refund"
+  | "shipping"
   | "dashboard";
 
 export const planDetails = {
   classic: {
     name: "Classic",
-    price: "2,499",
+    price: "3,499",
     priceNote: "One-time payment",
     features: [
       "1 Invitation Webpage",
@@ -100,7 +104,7 @@ export const planDetails = {
   },
   royal: {
     name: "Royal",
-    price: "3,999",
+    price: "5,799",
     priceNote: "One-time payment",
     features: [
       "Everything in Classic",

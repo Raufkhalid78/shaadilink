@@ -551,27 +551,98 @@ export function parseGiftDetails(text?: string): ParsedGiftBank | null {
   return details;
 }
 
-export function getGoogleCalendarLink(event: { name: string; date: string; time: string; description: string }, partner1: string, partner2: string): string {
+export function getCalendarDates(event: { date: string; time: string }): { startISO: string; endISO: string } | null {
   try {
-    const dateStr = event.date.replace(/,/g, ''); // e.g. "March 15 2027"
-    const timeStr = event.time.replace(/PKT|PST/gi, '').trim(); // e.g. "7:00 PM"
-    const combinedStr = `${dateStr} ${timeStr}`;
-    const parsedDate = new Date(combinedStr);
+    const dateStr = event.date.replace(/,/g, '');
+    const timeStr = event.time.replace(/PKT|PST/gi, '').trim();
+    const parsedDate = new Date(`${dateStr} ${timeStr}`);
     if (!isNaN(parsedDate.getTime())) {
       const startISO = parsedDate.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-      const endDate = new Date(parsedDate.getTime() + 2 * 60 * 60 * 1000); // default to 2 hours duration
-      const endISO = endDate.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-      
-      const text = encodeURIComponent(`${partner1} & ${partner2}'s ${event.name}`);
-      const details = encodeURIComponent(`${event.description}`);
-      return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${startISO}/${endISO}&details=${details}`;
+      const endISO = new Date(parsedDate.getTime() + 2 * 60 * 60 * 1000).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+      return { startISO, endISO };
     }
-  } catch (e) {
-    console.error("Calendar parsing error", e);
+  } catch { /* ignore */ }
+  return null;
+}
+
+export function getGoogleCalendarLink(
+  event: { name: string; date: string; time: string; description: string; venue?: string },
+  partner1: string, partner2: string,
+  location?: string
+): string {
+  const title = encodeURIComponent(`${partner1} & ${partner2}'s ${event.name}`);
+  const dates = getCalendarDates(event);
+  const loc = location || event.venue || '';
+  if (dates) {
+    const params = new URLSearchParams({
+      action: 'TEMPLATE',
+      text: `${partner1} & ${partner2}'s ${event.name}`,
+      dates: `${dates.startISO}/${dates.endISO}`,
+      details: event.description,
+      ...(loc ? { location: loc } : {}),
+    });
+    return `https://calendar.google.com/calendar/render?${params.toString()}`;
   }
-  
-  const text = encodeURIComponent(`${partner1} & ${partner2}'s ${event.name}`);
-  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}`;
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}`;
+}
+
+export function generateICSContent(
+  event: { name: string; date: string; time: string; description: string; venue?: string },
+  partner1: string, partner2: string,
+  location?: string
+): string {
+  const title = `${partner1} & ${partner2}'s ${event.name}`;
+  const dates = getCalendarDates(event);
+  const now = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+  const start = dates?.startISO || now;
+  const end = dates?.endISO || now;
+  const loc = location || event.venue || '';
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//ShaadiLink//Wedding Invitation//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'BEGIN:VEVENT',
+    `DTSTART:${start}`,
+    `DTEND:${end}`,
+    `DTSTAMP:${now}`,
+    `UID:${start}-${event.name.replace(/\s+/g, '-')}@shaadilink`,
+    `SUMMARY:${title}`,
+    `DESCRIPTION:${event.description.replace(/\n/g, '\\n')}`,
+    ...(loc ? [`LOCATION:${loc}`] : []),
+    'STATUS:CONFIRMED',
+    'END:VEVENT',
+    'END:VCALENDAR',
+  ];
+  return lines.join('\r\n');
+}
+
+export function getOutlookWebLink(
+  event: { name: string; date: string; time: string; description: string; venue?: string },
+  partner1: string, partner2: string,
+  location?: string
+): string {
+  const title = encodeURIComponent(`${partner1} & ${partner2}'s ${event.name}`);
+  const body = encodeURIComponent(event.description);
+  const loc = location || event.venue || '';
+  const dates = getCalendarDates(event);
+  if (dates) {
+    try {
+      const toFullISO = (compact: string) =>
+        compact.replace(
+          /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/,
+          '$1-$2-$3T$4:$5:$6.000Z'
+        );
+      const startParam = encodeURIComponent(toFullISO(dates.startISO));
+      const endParam = encodeURIComponent(toFullISO(dates.endISO));
+      const locParam = loc ? `&location=${encodeURIComponent(loc)}` : '';
+      return `https://outlook.live.com/calendar/0/action/compose?subject=${title}&startdt=${startParam}&enddt=${endParam}&body=${body}${locParam}&allday=false`;
+    } catch {
+      /* fall through */
+    }
+  }
+  return `https://outlook.live.com/calendar/0/action/compose?subject=${title}&body=${body}`;
 }
 
 export function formatScratchDate(dateStr: string, locale: string = 'en-US'): { date: string; day: string } {
@@ -672,6 +743,134 @@ function HeartDivider({ accentColor }: { accentColor?: string }) {
       <div className="w-16 h-px" style={{ backgroundColor: `${color}4d` }} />
       <Heart className="w-3 h-3" style={{ color, fill: `${color}33` }} />
       <div className="w-16 h-px" style={{ backgroundColor: `${color}4d` }} />
+    </div>
+  )
+}
+
+/* ─── Add to Calendar Dropdown ─── */
+function AddToCalendarDropdown({
+  event, partner1, partner2, theme, label, location
+}: {
+  event: { name: string; date: string; time: string; description: string; venue?: string };
+  partner1: string; partner2: string; theme: TemplateTheme; label: string; location?: string;
+}) {
+  const [open, setOpen] = React.useState(false)
+  const ref = React.useRef<HTMLDivElement>(null)
+
+  React.useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    if (open) document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [open])
+
+  const handleAppleCalendar = () => {
+    const ics = generateICSContent(event, partner1, partner2, location)
+    const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${event.name.replace(/\s+/g, '-')}-shaadilink.ics`
+    a.click()
+    URL.revokeObjectURL(url)
+    setOpen(false)
+  }
+
+  const options = [
+    {
+      label: 'Google Calendar',
+      icon: (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+          <text x="12" y="19" textAnchor="middle" fontSize="7" fill="currentColor" fontWeight="bold">G</text>
+        </svg>
+      ),
+      href: getGoogleCalendarLink(event, partner1, partner2, location),
+      external: true,
+    },
+    {
+      label: 'Apple Calendar',
+      icon: (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+          <path d="M12 14.5 a2.5 2.5 0 1 1 0-.01z" fill="currentColor"/>
+        </svg>
+      ),
+      onClick: handleAppleCalendar,
+    },
+    {
+      label: 'Outlook / iCal',
+      icon: (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+          <text x="12" y="19" textAnchor="middle" fontSize="6" fill="currentColor" fontWeight="bold">OL</text>
+        </svg>
+      ),
+      href: getOutlookWebLink(event, partner1, partner2, location),
+      external: true,
+    },
+  ]
+
+  return (
+    <div ref={ref} className="relative inline-block">
+      <button
+        onClick={() => setOpen(!open)}
+        className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded border transition-all duration-300 hover:scale-[1.02] ${theme.fontDisplay} hover:opacity-90`}
+        style={{
+          backgroundColor: `rgba(${theme.accentRgb}, 0.05)`,
+          borderColor: theme.borderSubtle,
+          color: theme.accent,
+        }}
+      >
+        <Calendar className="w-3.5 h-3.5" />
+        {label}
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style={{ marginLeft: 1 }}>
+          <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+        </svg>
+      </button>
+
+      {open && (
+        <div
+          className="absolute bottom-full mb-1.5 left-0 z-50 rounded-xl border backdrop-blur-md shadow-2xl overflow-hidden min-w-[170px]"
+          style={{
+            backgroundColor: `rgba(${theme.accentRgb},0.04)`,
+            borderColor: theme.borderSubtle,
+            backdropFilter: 'blur(16px)',
+            boxShadow: `0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(${theme.accentRgb},0.08)`,
+          }}
+        >
+          {options.map((opt) => (
+            <React.Fragment key={opt.label}>
+              {opt.href ? (
+                <a
+                  href={opt.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-medium transition-colors duration-150 hover:bg-white/5"
+                  style={{ color: theme.textPrimary }}
+                >
+                  <span style={{ color: theme.accent, opacity: 0.8 }}>{opt.icon}</span>
+                  {opt.label}
+                </a>
+              ) : (
+                <button
+                  onClick={opt.onClick}
+                  className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-medium transition-colors duration-150 hover:bg-white/5 text-left"
+                  style={{ color: theme.textPrimary }}
+                >
+                  <span style={{ color: theme.accent, opacity: 0.8 }}>{opt.icon}</span>
+                  {opt.label}
+                </button>
+              )}
+            </React.Fragment>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -3184,6 +3383,22 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
   const ds = theme.doorStyle
   const a = theme.accentRgb
 
+  // Pre-generate star positions deterministically
+  const stars = [
+    { left: 8, top: 12, size: 1.5, opacity: 0.6, delay: 0 },
+    { left: 22, top: 8, size: 1, opacity: 0.4, delay: 0.3 },
+    { left: 35, top: 18, size: 2, opacity: 0.5, delay: 0.8 },
+    { left: 72, top: 6, size: 1.5, opacity: 0.55, delay: 0.2 },
+    { left: 85, top: 15, size: 1, opacity: 0.45, delay: 0.6 },
+    { left: 92, top: 9, size: 2, opacity: 0.4, delay: 1.1 },
+    { left: 12, top: 85, size: 1.5, opacity: 0.35, delay: 0.7 },
+    { left: 88, top: 82, size: 1, opacity: 0.4, delay: 0.4 },
+    { left: 48, top: 4, size: 1.2, opacity: 0.5, delay: 0.9 },
+    { left: 60, top: 88, size: 1.8, opacity: 0.3, delay: 1.4 },
+    { left: 25, top: 90, size: 1.2, opacity: 0.35, delay: 0.5 },
+    { left: 75, top: 92, size: 1, opacity: 0.3, delay: 1.0 },
+  ]
+
   const getAnimClasses = () => {
     if (!doorsOpened) return { left: '', right: '' }
     switch (ds.type) {
@@ -3435,15 +3650,69 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
 
   return (
     <>
-      {/* Background behind doors */}
+      {/* ─── ENHANCED CINEMATIC BACKGROUND ─── */}
       <div className="absolute inset-0" style={{ backgroundColor: theme.bgSecondary }}>
+        {/* Deep radial sky glow */}
+        <div className="absolute inset-0" style={{
+          background: `radial-gradient(ellipse at 50% 40%, rgba(${a},0.18) 0%, rgba(${a},0.06) 30%, transparent 65%)`
+        }} />
+        {/* Starfield */}
+        {stars.map((star, i) => (
+          <motion.div
+            key={i}
+            className="absolute rounded-full"
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: [0, star.opacity, star.opacity * 0.6, star.opacity], scale: 1 }}
+            transition={{ delay: star.delay, duration: 1.5, repeat: Infinity, repeatType: 'reverse', repeatDelay: 2 + star.delay }}
+            style={{
+              left: `${star.left}%`,
+              top: `${star.top}%`,
+              width: `${star.size}px`,
+              height: `${star.size}px`,
+              backgroundColor: theme.accent,
+              boxShadow: `0 0 ${star.size * 3}px ${theme.accent}`,
+            }}
+          />
+        ))}
+        {/* Crescent moon & star motif in top-right */}
+        <svg className="absolute top-6 right-8 opacity-20" width="48" height="48" viewBox="0 0 48 48" fill="none">
+          <path d="M32 8 Q22 14 22 24 Q22 34 32 40 Q18 40 12 30 Q6 20 12 12 Q18 4 32 8Z" stroke={theme.accent} strokeWidth="1" fill="none" />
+          <polygon points="38,8 40,14 46,14 41,18 43,24 38,20 33,24 35,18 30,14 36,14" stroke={theme.accent} strokeWidth="0.5" fill="none" opacity="0.8" />
+        </svg>
+        {/* Bismillah text visible BEHIND the doors (revealed as doors open) */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none" style={{ zIndex: 1 }}>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: doorsOpened ? 1 : 0.12 }}
+            transition={{ duration: 2 }}
+            className="font-arabic text-4xl sm:text-5xl md:text-6xl text-center"
+            dir="rtl"
+            style={{ 
+              color: theme.accent,
+              textShadow: `0 0 40px rgba(${a},0.6), 0 0 80px rgba(${a},0.3)`,
+              lineHeight: '1.8'
+            }}
+          >
+            بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
+          </motion.p>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: doorsOpened ? 0.5 : 0.05 }}
+            transition={{ duration: 2, delay: 0.5 }}
+            className="mt-2 text-xs tracking-widest uppercase"
+            style={{ color: `rgba(${a},0.6)` }}
+          >
+            In the name of Allah
+          </motion.p>
+        </div>
+        {/* Door glow animation background */}
         {!doorsOpened && (
           <div className="absolute inset-0 animate-door-glow">
-            <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse at center, rgba(${theme.accentRgb},0.1) 0%, rgba(${theme.accentRgb},0.04) 40%, transparent 70%)` }} />
+            <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse at center, rgba(${a},0.12) 0%, rgba(${a},0.04) 40%, transparent 70%)` }} />
           </div>
         )}
         {doorsOpened && (
-          <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.2 }} className="absolute inset-0" style={{ background: `radial-gradient(ellipse at center, rgba(${theme.accentRgb},0.18) 0%, rgba(${theme.accentRgb},0.06) 40%, transparent 70%)` }} />
+          <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.2 }} className="absolute inset-0" style={{ background: `radial-gradient(ellipse at center, rgba(${a},0.22) 0%, rgba(${a},0.08) 40%, transparent 70%)` }} />
         )}
       </div>
 
@@ -3569,6 +3838,18 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
   const [isTranslating, setIsTranslating] = useState(false)
 
   const isDemo = !flowData?.invitationId && !flowData?.partner1Name
+
+  // Track page view
+  useEffect(() => {
+    if (flowData?.invitationId && !isDemo) {
+      // Small delay to ensure we only track real views, not quick bounces
+      const timer = setTimeout(() => {
+        fetch(`/api/invitations/${flowData.invitationId}/view`, { method: 'POST' }).catch(() => {});
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [flowData?.invitationId, isDemo]);
+
   const dressCodeWomen = flowData?.dressCodeWomen?.trim() || (isDemo ? "Yellow / Green traditional" : "")
   const dressCodeMen = flowData?.dressCodeMen?.trim() || (isDemo ? "Gold / Maroon formal" : "")
   const accommodation = flowData?.accommodation?.trim() || (isDemo ? "Rooms blocked at Leela Palace & Pearl Continental. Mention 'Ahmed & Fatima' for discounts." : "")
@@ -3624,6 +3905,17 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
   const [wishMessage, setWishMessage] = useState('')
   const [musicPlaying, setMusicPlaying] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+
+  // Check if user already RSVP'd in this browser
+  useEffect(() => {
+    if (typeof window !== 'undefined' && flowData?.invitationId) {
+      const savedStatus = localStorage.getItem(`shaadilink_rsvp_${flowData.invitationId}`)
+      if (savedStatus) {
+        setRsvpSubmitted(true)
+        setRsvpStatus(savedStatus as 'accept' | 'decline')
+      }
+    }
+  }, [flowData?.invitationId])
 
   // Preload and warm up audio track
   useEffect(() => {
@@ -3741,6 +4033,11 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
           const errData = await response.json()
           toast.error(errData.error || 'Failed to submit RSVP. Please try again.')
           return
+        }
+
+        // Save to local storage to prevent duplicate submissions
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(`shaadilink_rsvp_${flowData.invitationId}`, status)
         }
       } catch (err) {
         console.error('RSVP submit error:', err)
@@ -4167,6 +4464,59 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
         }}
       >
 
+        {/* ─── Bismillah Banner (shown only if enabled) ─── */}
+        {flowData?.showBismillah !== false && (
+          <RevealSection delay={0.2}>
+            <div className="relative flex flex-col items-center justify-center py-10 px-6 overflow-hidden"
+              style={{ borderBottom: `1px solid rgba(${theme.accentRgb},0.15)` }}
+            >
+              {/* Ambient background glow */}
+              <div className="absolute inset-0 pointer-events-none" style={{
+                background: `radial-gradient(ellipse at 50% 50%, rgba(${theme.accentRgb},0.07) 0%, transparent 70%)`
+              }} />
+              {/* Top ornamental line */}
+              <div className="flex items-center gap-4 w-full max-w-sm mb-5">
+                <div className="flex-1 h-px" style={{ background: `linear-gradient(to right, transparent, rgba(${theme.accentRgb},0.5))` }} />
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                  <polygon points="11,1 13.5,8.5 21,8.5 15,13.5 17,21 11,16.5 5,21 7,13.5 1,8.5 8.5,8.5" 
+                    stroke={theme.accent} strokeWidth="0.8" fill="none" opacity="0.7" />
+                </svg>
+                <div className="flex-1 h-px" style={{ background: `linear-gradient(to left, transparent, rgba(${theme.accentRgb},0.5))` }} />
+              </div>
+
+              {/* Bismillah calligraphy */}
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1.2, ease: 'easeOut' }}
+                className="font-arabic bismillah-glow text-3xl sm:text-4xl md:text-5xl text-center leading-loose"
+                dir="rtl"
+                style={{ color: theme.accent }}
+              >
+                بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
+              </motion.p>
+
+              {/* Translation */}
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6, duration: 1 }}
+                className="mt-3 text-xs sm:text-sm tracking-[0.25em] uppercase"
+                style={{ color: `rgba(${theme.accentRgb},0.45)` }}
+              >
+                In the name of Allah, the Most Gracious, the Most Merciful
+              </motion.p>
+
+              {/* Bottom ornamental line */}
+              <div className="flex items-center gap-4 w-full max-w-sm mt-5">
+                <div className="flex-1 h-px" style={{ background: `linear-gradient(to right, transparent, rgba(${theme.accentRgb},0.5))` }} />
+                <div className="w-2 h-2 rotate-45" style={{ border: `1px solid rgba(${theme.accentRgb},0.6)` }} />
+                <div className="flex-1 h-px" style={{ background: `linear-gradient(to left, transparent, rgba(${theme.accentRgb},0.5))` }} />
+              </div>
+            </div>
+          </RevealSection>
+        )}
+
         {/* ─── Hero Section ─── */}
         <section className="relative min-h-screen flex flex-col items-center justify-center px-6 py-20 overflow-hidden">
           {/* Background */}
@@ -4343,20 +4693,14 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                           </div>
                           <h3 className={`${theme.fontDisplay} text-xl font-semibold mb-1`} style={{ color: theme.accent }}>{te.name}</h3>
                           <p className="text-sm leading-relaxed mb-3" style={{ color: `rgba(${theme.accentRgb},0.5)` }}>{te.description}</p>
-                          <a
-                            href={getGoogleCalendarLink(event, partner1, partner2)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded border transition-all duration-300 hover:scale-[1.02] ${theme.fontDisplay} hover:opacity-90`}
-                            style={{
-                              backgroundColor: `rgba(${theme.accentRgb}, 0.05)`,
-                              borderColor: theme.borderSubtle,
-                              color: theme.accent
-                            }}
-                          >
-                            <Calendar className="w-3.5 h-3.5" />
-                            {t('addToCalendar', 'Add to Calendar')}
-                          </a>
+                          <AddToCalendarDropdown
+                            event={event}
+                            partner1={partner1}
+                            partner2={partner2}
+                            theme={theme}
+                            label={t('addToCalendar', 'Add to Calendar')}
+                            location={[(event as {venue?: string}).venue, venueName, rawVenueAddress].filter(Boolean).join(', ')}
+                          />
                         </div>
                       </div>
                     </RevealSection>

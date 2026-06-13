@@ -104,7 +104,6 @@ const cardVariants = {
 
 export function Features() {
   const [activeTab, setActiveTab] = useState<FeatureCategory>("all");
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const filteredFeatures =
     activeTab === "all" ? features : features.filter((f) => f.category === activeTab);
@@ -203,8 +202,8 @@ export function Features() {
                 <motion.div
                   key={feature.title}
                   variants={cardVariants}
-                  onMouseEnter={() => setHoveredId(feature.title)}
-                  onMouseLeave={() => setHoveredId(null)}
+                  onMouseEnter={() => {}}
+                  onMouseLeave={() => {}}
                   className="group relative rounded-2xl border border-border/20 bg-card/50 backdrop-blur-sm overflow-hidden cursor-default transition-all duration-300 hover:border-gold/30 hover:-translate-y-2 shadow-md hover:shadow-xl hover:shadow-gold/5"
                 >
                   {/* Gradient overlay top-left on hover */}
@@ -243,6 +242,26 @@ export function Features() {
             })}
           </motion.div>
         </AnimatePresence>
+
+        {/* Bottom CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.3, duration: 0.5 }}
+          className="mt-14 flex flex-col sm:flex-row items-center justify-center gap-3"
+        >
+          <p className="text-muted-foreground text-sm sm:text-base">
+            Impressed by the features?
+          </p>
+          <a
+            href="#pricing"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-gold hover:text-gold-light underline underline-offset-4 decoration-gold/30 transition-colors duration-200"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            See pricing →
+          </a>
+        </motion.div>
       </div>
     </section>
   );

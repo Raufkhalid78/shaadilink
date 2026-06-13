@@ -2,40 +2,38 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
-import { Heart, Users, Star, Globe } from "lucide-react";
+import { Heart, Users, MessageCircle } from "lucide-react";
 
-const stats = [
+interface StatsData {
+  invitations: number;
+  rsvps: number;
+  wishes: number;
+}
+
+const statConfig = [
   {
+    key: "invitations" as const,
     icon: Users,
-    value: 5000,
-    suffix: "+",
-    label: "Families Served",
+    suffix: "",
+    label: "Invitations Live",
     color: "text-emerald",
     glow: "0 0 20px rgba(82, 170, 120, 0.4)",
   },
   {
+    key: "rsvps" as const,
     icon: Heart,
-    value: 98,
-    suffix: "%",
-    label: "Satisfaction Rate",
+    suffix: "",
+    label: "RSVPs Collected",
     color: "text-rose-400",
     glow: "0 0 20px rgba(251, 113, 133, 0.4)",
   },
   {
-    icon: Star,
-    value: 4.9,
-    suffix: "/5",
-    label: "Average Rating",
+    key: "wishes" as const,
+    icon: MessageCircle,
+    suffix: "",
+    label: "Wishes Sent",
     color: "text-gold",
     glow: "0 0 20px rgba(212, 168, 83, 0.5)",
-  },
-  {
-    icon: Globe,
-    value: 30,
-    suffix: "+",
-    label: "Countries Reached",
-    color: "text-blue-400",
-    glow: "0 0 20px rgba(96, 165, 250, 0.4)",
   },
 ];
 
@@ -79,6 +77,26 @@ function CountUp({
 }
 
 export function StatsBar() {
+  const [statsData, setStatsData] = useState<StatsData>({
+    invitations: 0,
+    rsvps: 0,
+    wishes: 0,
+  });
+
+  useEffect(() => {
+    fetch("/api/stats")
+      .then((res) => res.json())
+      .then((data: StatsData) => setStatsData(data))
+      .catch(() => {
+        // silently fail — keep zeros
+      });
+  }, []);
+
+  const allZero =
+    statsData.invitations === 0 &&
+    statsData.rsvps === 0 &&
+    statsData.wishes === 0;
+
   return (
     <section className="relative py-16 overflow-hidden">
       {/* Top & bottom gradient fade */}
@@ -95,9 +113,28 @@ export function StatsBar() {
       />
 
       <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-gold/10 rounded-2xl overflow-hidden border border-gold/10 shadow-lg shadow-black/30">
-          {stats.map((stat, i) => {
+        {/* Heading + subtitle */}
+        <div className="text-center mb-8">
+          <p className="text-xs sm:text-sm text-muted-foreground font-medium">
+            Every number is live — updated automatically
+          </p>
+        </div>
+
+        {/* Zero-state banner */}
+        {allZero && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 mx-auto max-w-xl rounded-xl border border-gold/20 bg-gold/5 px-5 py-3 text-center text-sm text-gold/80"
+          >
+            We&apos;re just getting started — every number here is real and growing!
+          </motion.div>
+        )}
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-gold/10 rounded-2xl overflow-hidden border border-gold/10 shadow-lg shadow-black/30">
+          {statConfig.map((stat, i) => {
             const Icon = stat.icon;
+            const value = statsData[stat.key];
             return (
               <motion.div
                 key={stat.label}
@@ -128,9 +165,9 @@ export function StatsBar() {
                   style={{ textShadow: stat.glow }}
                 >
                   <CountUp
-                    target={stat.value}
+                    target={value}
                     suffix={stat.suffix}
-                    isDecimal={stat.value !== Math.floor(stat.value)}
+                    isDecimal={value !== Math.floor(value)}
                   />
                 </p>
 

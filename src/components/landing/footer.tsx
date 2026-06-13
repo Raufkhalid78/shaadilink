@@ -13,7 +13,8 @@ const quickLinks = [
   { label: "How It Works", href: "#how-it-works", action: undefined },
   { label: "Templates", href: undefined, action: "templates" },
   { label: "Pricing", href: "#pricing", action: undefined },
-  { label: "About", href: "/about", action: undefined },
+  { label: "About", href: undefined, action: "about" },
+  { label: "Contact", href: undefined, action: "contact" },
 ];
 
 const legalLinks = [
@@ -33,7 +34,7 @@ interface FooterProps {
   onTemplatesClick?: () => void;
   onAboutClick?: () => void;
   onContactClick?: () => void;
-  onLegalClick?: (type: "terms" | "privacy" | "refund") => void;
+  onLegalClick?: (type: "terms" | "privacy" | "refund" | "shipping") => void;
   onAffiliateClick?: () => void;
 }
 
@@ -44,21 +45,34 @@ export function Footer({
   onLegalClick,
   onAffiliateClick,
 }: FooterProps) {
-  const [email, setEmail] = useState("");
+  const [newsletterEmail, setNewsletterEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
   const handleQuickLink = (link: (typeof quickLinks)[0]) => {
     if (link.action === "about" && onAboutClick) onAboutClick();
     else if (link.action === "templates" && onTemplatesClick) onTemplatesClick();
+    else if (link.action === "contact" && onContactClick) onContactClick();
   };
 
-  const handleNewsletterSubmit = (e: React.FormEvent) => {
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) return;
-    setSubmitted(true);
-    setEmail("");
-    toast.success("You're on the list! 🎉", { description: "We'll keep you updated on new templates & features." });
-    setTimeout(() => setSubmitted(false), 5000);
+    if (!newsletterEmail.trim()) return;
+    try {
+      const res = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: newsletterEmail }),
+      })
+      if (res.ok) {
+        setSubmitted(true);
+        toast.success('You\'re subscribed! We\'ll keep you updated.');
+        setNewsletterEmail('');
+      } else {
+        toast.error('Could not subscribe. Please try again.');
+      }
+    } catch {
+      toast.error('Network error. Please try again.');
+    }
   };
 
   return (
@@ -191,22 +205,22 @@ export function Footer({
               <ul className="space-y-3">
                 {legalLinks.map((link) => (
                   <li key={link.label}>
-                    <a
-                      href={link.href}
+                    <button
+                      onClick={() => onLegalClick?.(link.href.replace("/", "") as any)}
                       className="text-sm text-white/50 hover:text-gold transition-colors duration-200 text-left block"
                     >
                       {link.label}
-                    </a>
+                    </button>
                   </li>
                 ))}
                 <li>
-                  <a
-                    href="/affiliate"
-                    className="text-sm text-gold/60 hover:text-gold transition-colors duration-200 flex items-center gap-1.5 font-medium"
+                  <button
+                    onClick={() => onAffiliateClick?.()}
+                    className="text-sm text-gold/60 hover:text-gold transition-colors duration-200 flex items-center gap-1.5 font-medium text-left"
                   >
                     <Sparkles className="w-3 h-3" />
                     Affiliate Program
-                  </a>
+                  </button>
                 </li>
               </ul>
             </motion.div>
@@ -228,8 +242,8 @@ export function Footer({
                 <Input
                   type="email"
                   placeholder="Your email address"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={newsletterEmail}
+                  onChange={(e) => setNewsletterEmail(e.target.value)}
                   className="h-10 bg-white/8 border-white/10 text-white placeholder:text-white/25 text-sm focus:border-gold/50 focus:ring-0 rounded-xl"
                 />
                 <Button
@@ -243,13 +257,13 @@ export function Footer({
               </form>
 
               <div className="mt-6 space-y-2.5">
-                <a
-                  href="/contact"
-                  className="text-sm text-white/50 hover:text-gold transition-colors flex items-center gap-2"
+                <button
+                  onClick={() => onContactClick?.()}
+                  className="text-sm text-white/50 hover:text-gold transition-colors flex items-center gap-2 text-left"
                 >
                   <Mail className="w-3.5 h-3.5 shrink-0" />
                   Contact Us
-                </a>
+                </button>
                 <a
                   href={`mailto:${CONTACT_CONFIG.email}`}
                   className="text-sm text-white/50 hover:text-gold transition-colors flex items-center gap-2"

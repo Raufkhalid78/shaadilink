@@ -10,8 +10,8 @@ const plans = [
   {
     id: "classic" as const,
     name: "Classic",
-    price: "2,499",
-    originalPrice: "3,499",
+    price: "3,499",
+    originalPrice: "5,500",
     period: "/ invitation",
     description: "Elegant classic invitations — everything you need for a beautiful digital celebration.",
     features: [
@@ -26,19 +26,19 @@ const plans = [
     ],
     cta: "Start with Classic",
     highlighted: false,
-    badgeText: "POPULAR",
+    badgeText: "STARTER",
     savings: null,
   },
   {
     id: "royal" as const,
     name: "Royal",
-    price: "3,999",
-    originalPrice: "5,499",
+    price: "5,799",
+    originalPrice: "7,299",
     period: "/ invitation",
     description: "Premium cinematic experience — unlock every feature for the grandest celebration.",
     features: [
       "Everything in Classic, Plus:",
-      "All 18 Classic + Royal Templates",
+      "All 10 Templates (Classic + Royal)",
       "Cinematic 3D Door & Curtain Reveals",
       "Scratch Card Date Reveal + Fireworks",
       "Add to Calendar Integration",
@@ -51,7 +51,7 @@ const plans = [
     ],
     cta: "Unlock Royal Experience",
     highlighted: true,
-    badgeText: "PREMIUM",
+    badgeText: "POPULAR",
     savings: "Save Rs. 1,500",
   },
 ];
@@ -263,12 +263,13 @@ export function Pricing({ onSelectPlan }: PricingProps) {
                     className={`w-full font-bold text-base h-13 rounded-xl transition-all duration-300 ${
                       plan.highlighted
                         ? "bg-gold hover:bg-gold-light text-emerald-dark pulse-glow border-none shadow-lg shadow-gold/25"
-                        : "bg-emerald/10 hover:bg-emerald text-emerald hover:text-primary-foreground border border-emerald/30"
+                        : "bg-card border border-emerald/60 text-emerald hover:bg-emerald hover:text-primary-foreground hover:border-emerald shadow-sm"
                     }`}
                   >
                     {plan.highlighted && <Crown className="w-4 h-4 mr-2" />}
                     {plan.cta}
                   </Button>
+                  <p className="text-xs text-muted-foreground mt-2 text-center">✓ 24-Hour Money-Back Guarantee</p>
                 </div>
               </motion.div>
             );

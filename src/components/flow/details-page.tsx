@@ -77,6 +77,19 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue }: Deta
     if (!flowData.partner1Name.trim()) newErrors.partner1Name = "Name is required";
     if (!flowData.partner2Name.trim()) newErrors.partner2Name = "Name is required";
     if (!flowData.venue.trim()) newErrors.venue = "Venue is required";
+
+    const eventWithNameButNoDate = flowData.events.find(e => e.name.trim() && !e.date.trim());
+    if (eventWithNameButNoDate) {
+      newErrors.events = `Please add a date for "${eventWithNameButNoDate.name}"`;
+    }
+
+    if (flowData.venueAddress && flowData.venueAddress.includes('|||')) {
+      const mapsUrl = flowData.venueAddress.split('|||')[1]?.trim();
+      if (mapsUrl && !mapsUrl.startsWith('https://maps.') && !mapsUrl.startsWith('https://goo.gl/') && !mapsUrl.startsWith('https://maps.app.goo.gl/')) {
+        newErrors.mapsUrl = 'Please enter a valid Google Maps URL';
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -111,6 +124,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue }: Deta
           slideshowImageUrls: flowData.slideshowImages,
           events: flowData.events,
           isActive: flowData.paymentDone,
+          showBismillah: flowData.showBismillah,
         }),
       });
 
@@ -132,10 +146,9 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue }: Deta
       onContinue();
     } catch (err) {
       console.error("Details save error:", err);
-      // Network error — still let them proceed
-      onContinue();
-    } finally {
       setIsSaving(false);
+      toast.error("Network error — please check your connection and try again.");
+      return;
     }
   };
 
@@ -151,6 +164,39 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue }: Deta
 
   const removeEvent = (index: number) => {
     onUpdateData({ events: flowData.events.filter((_, i) => i !== index) });
+  };
+
+  /** Build/update the gifts string from structured fields */
+  const updateGiftsField = (field: 'bankName' | 'accountTitle' | 'accountNumber' | 'iban' | 'raastId' | 'easyPaisa' | 'jazzCash', value: string) => {
+    const raw = flowData.gifts || '';
+    // Extract current blessing (first sentence/clause)
+    const blessingMatch = raw.match(/^(.*?)(?:\.\s*For\s+Shagun|,\s*For\s+Shagun|$)/i);
+    const blessing = blessingMatch?.[1]?.trim() || '';
+
+    // Extract current structured values
+    const get = (pattern: RegExp) => { const m = raw.match(pattern); return m?.[1]?.trim() || ''; };
+    const fields = {
+      bankName:      field === 'bankName'      ? value : get(/(?:Bank\s*(?:Name)?|Bank)\s*[:\-\s]+\s*([a-zA-Z\s.]+?)(?:,|\n|Account|Title|IBAN|$)/i),
+      accountTitle:  field === 'accountTitle'  ? value : get(/(?:Account\s*Title|Acc\s*Title|Title)\s*[:\-\s]+\s*([a-zA-Z\s.()]+?)(?:,|Account|IBAN|Raast|$)/i),
+      accountNumber: field === 'accountNumber' ? value : get(/(?:Account\s*(?:Number|No\.?)|Acc\s*(?:Number|No\.?))\s*[:\-\s]+\s*([0-9\-]+)/i),
+      iban:          field === 'iban'          ? value : (() => { const m = raw.match(/IBAN\s*[:\-\s]+\s*([A-Z]{2}[0-9]{2}[A-Z0-9\s]{16,30})/i); return m?.[1]?.replace(/\s+/g,'').trim() || ''; })(),
+      raastId:       field === 'raastId'       ? value : get(/(?:Raast\s*(?:ID)?|Raast)\s*[:\-\s]+\s*([0-9+]+)/i),
+      easyPaisa:     field === 'easyPaisa'     ? value : get(/(?:EasyPaisa|Easy\s*Paisa)\s*[:\-\s]+\s*([0-9+]+)/i),
+      jazzCash:      field === 'jazzCash'      ? value : get(/(?:JazzCash|Jazz\s*Cash)\s*[:\-\s]+\s*([0-9+]+)/i),
+    };
+
+    // Build banking details string in parseGiftDetails-compatible format
+    const parts: string[] = [];
+    if (fields.bankName)      parts.push(`Bank: ${fields.bankName}`);
+    if (fields.accountTitle)  parts.push(`Title: ${fields.accountTitle}`);
+    if (fields.accountNumber) parts.push(`Account Number: ${fields.accountNumber}`);
+    if (fields.iban)          parts.push(`IBAN: ${fields.iban}`);
+    if (fields.raastId)       parts.push(`Raast ID: ${fields.raastId}`);
+    if (fields.easyPaisa)     parts.push(`EasyPaisa: ${fields.easyPaisa}`);
+    if (fields.jazzCash)      parts.push(`JazzCash: ${fields.jazzCash}`);
+
+    const bankDetails = parts.length > 0 ? `. For Shagun, you may transfer to ${parts.join(', ')}` : '';
+    onUpdateData({ gifts: blessing + bankDetails });
   };
 
   /** Upload files to Supabase Storage via /api/upload */
@@ -326,6 +372,41 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue }: Deta
                   {errors.partner2Name && <p className="text-xs text-red-500">{errors.partner2Name}</p>}
                 </div>
               </div>
+            </section>
+
+            {/* Bismillah Banner Toggle */}
+            <section className="space-y-3">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-base">☪️</span>
+                <h2 className="font-display text-lg font-semibold text-foreground">Bismillah Banner</h2>
+              </div>
+              <div
+                className="flex items-center justify-between rounded-xl border border-border p-4 cursor-pointer hover:bg-muted/30 transition-colors"
+                onClick={() => onUpdateData({ showBismillah: !flowData.showBismillah })}
+              >
+                <div className="flex-1 pr-4">
+                  <p className="text-sm font-medium text-foreground">Show Bismillah at the top</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Displays <span className="font-arabic text-gold" dir="rtl">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</span> as a beautiful header on your invitation.
+                  </p>
+                </div>
+                {/* Toggle switch */}
+                <div
+                  className={`relative flex-shrink-0 w-12 h-6 rounded-full transition-colors duration-300 ${flowData.showBismillah ? "bg-gold" : "bg-muted"}`}
+                >
+                  <div
+                    className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-300 ${flowData.showBismillah ? "translate-x-7" : "translate-x-1"}`}
+                  />
+                </div>
+              </div>
+              {flowData.showBismillah && (
+                <div className="text-center py-3 rounded-lg border border-gold/20 bg-gold/5">
+                  <p className="font-arabic text-2xl leading-loose tracking-wide" style={{ color: 'hsl(40 60% 55%)' }} dir="rtl">
+                    بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">In the name of Allah, the Most Gracious, the Most Merciful</p>
+                </div>
+              )}
             </section>
 
             {/* Venue */}
@@ -547,18 +628,126 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue }: Deta
               />
             </section>
 
-            {/* Gifts */}
+            {/* Digital Shagun & Registry */}
             <section className="space-y-4">
-              <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center gap-2 mb-1">
                 <Gift className="w-4 h-4 text-gold" />
-                <h2 className="font-display text-lg font-semibold text-foreground">Gifts</h2>
+                <h2 className="font-display text-lg font-semibold text-foreground">Digital Shagun &amp; Registry</h2>
               </div>
-              <Textarea
-                value={flowData.gifts}
-                onChange={(e) => onUpdateData({ gifts: e.target.value })}
-                placeholder="e.g. Your love and blessings are the greatest gifts."
-                className="min-h-[70px] resize-none"
-              />
+              <p className="text-xs text-muted-foreground leading-relaxed -mt-1">
+                Add your bank and mobile wallet details so guests can send shagun digitally. All fields are optional.
+              </p>
+
+              {/* Blessing / Personal Message */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                  Blessing Message (shown to guests)
+                </label>
+                <Textarea
+                  value={(() => {
+                    // Extract just the blessing line (before bank details)
+                    const raw = flowData.gifts || '';
+                    const blessingMatch = raw.match(/^([^,\n]+?)(?:\.|,\s*(?:Bank|For\s+Shagun|Transfer)|$)/i);
+                    return blessingMatch ? blessingMatch[1].trim() : raw.split(/[,\n]/)[0].trim();
+                  })()}
+                  onChange={(e) => {
+                    // Rebuild gifts string preserving banking details
+                    const blessing = e.target.value;
+                    const raw = flowData.gifts || '';
+                    const bankPart = raw.replace(/^[^,\n]*[,.]?\s*/, '');
+                    onUpdateData({ gifts: blessing + (bankPart ? '. For Shagun, you may transfer to ' + bankPart : '') });
+                  }}
+                  placeholder="e.g. Your prayers are our greatest gift."
+                  className="min-h-[60px] resize-none"
+                />
+              </div>
+
+              {/* Bank Details Card */}
+              <div className="rounded-xl border border-border/50 bg-muted/20 overflow-hidden">
+                <div className="px-4 py-2.5 border-b border-border/30 bg-muted/30">
+                  <span className="text-xs font-semibold text-foreground tracking-wide">🏦 Bank Account</span>
+                </div>
+                <div className="p-4 space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">Bank Name</label>
+                      <Input
+                        value={(() => { const m = (flowData.gifts||'').match(/(?:Bank\s*(?:Name)?|Bank)\s*[:\-\s]+\s*([a-zA-Z\s.]+?)(?:,|\n|Account|Title|IBAN|$)/i); return m?.[1]?.trim()||''; })()}
+                        onChange={(e) => updateGiftsField('bankName', e.target.value)}
+                        placeholder="e.g. Meezan Bank"
+                        className="h-9 text-sm"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">Account Title</label>
+                      <Input
+                        value={(() => { const m = (flowData.gifts||'').match(/(?:Account\s*Title|Acc\s*Title|Title)\s*[:\-\s]+\s*([a-zA-Z\s.()]+?)(?:,|Account|IBAN|Raast|$)/i); return m?.[1]?.trim()||''; })()}
+                        onChange={(e) => updateGiftsField('accountTitle', e.target.value)}
+                        placeholder="e.g. Ahmed Khan"
+                        className="h-9 text-sm"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">Account Number</label>
+                      <Input
+                        value={(() => { const m = (flowData.gifts||'').match(/(?:Account\s*(?:Number|No\.?)|Acc\s*(?:Number|No\.?))\s*[:\-\s]+\s*([0-9\-]+)/i); return m?.[1]?.trim()||''; })()}
+                        onChange={(e) => updateGiftsField('accountNumber', e.target.value)}
+                        placeholder="e.g. 028102384"
+                        className="h-9 text-sm font-mono"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">IBAN</label>
+                      <Input
+                        value={(() => { const m = (flowData.gifts||'').match(/IBAN\s*[:\-\s]+\s*([A-Z]{2}[0-9]{2}[A-Z0-9\s]{16,30})/i); return m?.[1]?.replace(/\s+/g,'').trim()||''; })()}
+                        onChange={(e) => updateGiftsField('iban', e.target.value.toUpperCase().replace(/\s/g,''))}
+                        placeholder="e.g. PK45MEZN00028102384"
+                        className="h-9 text-sm font-mono"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Mobile Wallets Card */}
+              <div className="rounded-xl border border-border/50 bg-muted/20 overflow-hidden">
+                <div className="px-4 py-2.5 border-b border-border/30 bg-muted/30">
+                  <span className="text-xs font-semibold text-foreground tracking-wide">📱 Mobile Wallets</span>
+                </div>
+                <div className="p-4 space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">Raast ID</label>
+                      <Input
+                        value={(() => { const m = (flowData.gifts||'').match(/(?:Raast\s*(?:ID)?|Raast)\s*[:\-\s]+\s*([0-9+]+)/i); return m?.[1]?.trim()||''; })()}
+                        onChange={(e) => updateGiftsField('raastId', e.target.value)}
+                        placeholder="03xxxxxxxxx"
+                        className="h-9 text-sm font-mono"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">EasyPaisa</label>
+                      <Input
+                        value={(() => { const m = (flowData.gifts||'').match(/(?:EasyPaisa|Easy\s*Paisa)\s*[:\-\s]+\s*([0-9+]+)/i); return m?.[1]?.trim()||''; })()}
+                        onChange={(e) => updateGiftsField('easyPaisa', e.target.value)}
+                        placeholder="03xxxxxxxxx"
+                        className="h-9 text-sm font-mono"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">JazzCash</label>
+                      <Input
+                        value={(() => { const m = (flowData.gifts||'').match(/(?:JazzCash|Jazz\s*Cash)\s*[:\-\s]+\s*([0-9+]+)/i); return m?.[1]?.trim()||''; })()}
+                        onChange={(e) => updateGiftsField('jazzCash', e.target.value)}
+                        placeholder="03xxxxxxxxx"
+                        className="h-9 text-sm font-mono"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </section>
 
             {/* Background Music */}

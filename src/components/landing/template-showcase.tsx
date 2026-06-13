@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 
 interface Template {
   name: string;
@@ -64,7 +64,7 @@ const templates: Template[] = [
   },
 ];
 
-export function TemplateShowcase() {
+export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => void }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -295,7 +295,7 @@ export function TemplateShowcase() {
 
                     {/* Simulated date - improved contrast */}
                     <p className="font-display text-white/60 text-[10px] tracking-[0.25em] uppercase mt-5">
-                      14 · February · 2026
+                      14 · March · 2027
                     </p>
 
                     {/* Simulated venue - improved contrast */}
@@ -352,6 +352,17 @@ export function TemplateShowcase() {
                 }`} />
               </button>
             ))}
+          </div>
+
+          {/* View All CTA */}
+          <div className="flex justify-center mt-8">
+            <button
+              onClick={onViewAllClick}
+              className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-gold/10 border border-gold/25 text-gold font-semibold text-sm hover:bg-gold/20 hover:border-gold/40 transition-all duration-200 group"
+            >
+              View All Templates &amp; Live Demos
+              <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
+            </button>
           </div>
         </div>
       </div>

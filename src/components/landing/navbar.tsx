@@ -59,12 +59,12 @@ export function Navbar({
   }, []);
 
   const navLinks = [
-    { label: "Features", href: "#features", action: undefined, sectionId: "features" },
-    { label: "How It Works", href: "#how-it-works", action: undefined, sectionId: "how-it-works" },
-    { label: "Templates", href: undefined, action: onTemplatesClick, sectionId: undefined },
-    { label: "About", href: "/about", action: undefined, sectionId: undefined },
-    { label: "Contact", href: "/contact", action: undefined, sectionId: undefined },
-    { label: "Pricing", href: "#pricing", action: undefined, sectionId: "pricing" },
+    { label: "Features", href: "#features", action: undefined as (() => void) | undefined, sectionId: "features" },
+    { label: "How It Works", href: "#how-it-works", action: undefined as (() => void) | undefined, sectionId: "how-it-works" },
+    { label: "Templates", href: undefined as string | undefined, action: onTemplatesClick, sectionId: undefined },
+    { label: "About", href: undefined as string | undefined, action: onAboutClick, sectionId: undefined },
+    { label: "Contact", href: undefined as string | undefined, action: onContactClick, sectionId: undefined },
+    { label: "Pricing", href: "#pricing", action: undefined as (() => void) | undefined, sectionId: "pricing" },
   ];
 
   const handleNavClick = useCallback((link: typeof navLinks[number]) => {
@@ -136,11 +136,14 @@ export function Navbar({
                 </button>
               );
             }
-            return (
-              <a key={link.label} href={link.href} className="relative">
-                {linkContent}
-              </a>
-            );
+            if (link.href) {
+              return (
+                <a key={link.label} href={link.href} className="relative">
+                  {linkContent}
+                </a>
+              );
+            }
+            return null;
           })}
         </div>
 
@@ -168,7 +171,7 @@ export function Navbar({
             className="bg-gold hover:bg-gold-light text-emerald-dark font-bold border-none pulse-glow shadow-lg shadow-gold/20 hover:shadow-gold/40 transition-all duration-300"
             size="lg"
           >
-            Get Started
+            Create Invitation
           </Button>
         </div>
 
@@ -226,11 +229,11 @@ export function Navbar({
                           {linkEl}
                         </button>
                       </SheetClose>
-                    ) : (
+                    ) : link.href ? (
                       <SheetClose asChild>
                         <a href={link.href}>{linkEl}</a>
                       </SheetClose>
-                    )}
+                    ) : null}
                   </motion.div>
                 );
               })}
