@@ -244,15 +244,23 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue }: Paym
               </div>
 
               {/* Security badges */}
-              <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
-                <div className="flex items-center gap-1">
-                  <Shield className="w-3.5 h-3.5 text-emerald" />
-                  SSL Encrypted
+              <div className="flex flex-col items-center justify-center gap-2 text-xs text-muted-foreground text-center">
+                <div className="flex items-center justify-center gap-4">
+                  <div className="flex items-center gap-1">
+                    <Shield className="w-3.5 h-3.5 text-emerald" />
+                    SSL Encrypted
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Lock className="w-3.5 h-3.5 text-emerald" />
+                    Secure Payment
+                  </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Lock className="w-3.5 h-3.5 text-emerald" />
-                  Secure Payment
-                </div>
+                <p className="text-muted-foreground/85">
+                  Payments are securely processed by our parent company, TechyDez.
+                </p>
+                <p className="text-muted-foreground/60 text-[10px]">
+                  ShaadiLink is owned and operated by TechyDez.
+                </p>
               </div>
 
               {/* Pay button */}

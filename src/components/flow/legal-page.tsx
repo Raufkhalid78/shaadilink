@@ -30,7 +30,7 @@ const legalData: Record<
       {
         heading: "1. Introduction",
         content:
-          "Welcome to ShaadiLink. By accessing and using our services, you agree to be bound by these Terms and Conditions. ShaadiLink provides premium digital wedding invitation webpages for Pakistani weddings.",
+          "Welcome to ShaadiLink. ShaadiLink is owned and operated by TechyDez. By accessing and using our services, you agree to be bound by these Terms and Conditions. ShaadiLink provides premium digital wedding invitation webpages for Pakistani weddings.",
       },
       {
         heading: "2. Eligibility",
