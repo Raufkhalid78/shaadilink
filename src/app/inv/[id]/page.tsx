@@ -10,13 +10,13 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const cleanId = id.replace(/%20| /g, "-");
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanId);
   const supabase = await createClient();
 
-  const { data } = await supabase
-    .from("invitations")
-    .select("partner1_name, partner2_name, venue, hero_image_url")
-    .eq("id", cleanId)
-    .single();
+  const { data } = await (isUuid
+    ? supabase.from("invitations").select("partner1_name, partner2_name, venue, hero_image_url").eq("id", cleanId)
+    : supabase.from("invitations").select("partner1_name, partner2_name, venue, hero_image_url").eq("slug", cleanId)
+  ).single();
 
   if (!data) {
     return { title: "Wedding Invitation | ShaadiLink" };
@@ -46,18 +46,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function InvitationPage({ params }: Props) {
   const { id } = await params;
   const cleanId = id.replace(/%20| /g, "-");
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanId);
   const supabase = await createClient();
 
-  const { data: invitation, error } = await supabase
+  const query = supabase
     .from("invitations")
     .select(`
       *,
       events (
         id, name, date, time, venue, order_index
       )
-    `)
-    .eq("id", cleanId)
-    .single();
+    `);
+
+  const { data: invitation, error } = await (isUuid
+    ? query.eq("id", cleanId)
+    : query.eq("slug", cleanId)
+  ).single();
 
   if (error || !invitation) {
     notFound();
@@ -81,6 +85,7 @@ export default async function InvitationPage({ params }: Props) {
     gifts: invitation.gifts ?? "",
     heroImage: invitation.hero_image_url ?? "",
     slideshowImages: invitation.slideshow_image_urls ?? [],
+    youtubeVideoId: (invitation as { youtube_video_id?: string }).youtube_video_id ?? "",
     events: ((invitation.events as { id: string; name: string; date: string; time: string; venue?: string; order_index: number }[]) || [])
       .sort((a, b) => a.order_index - b.order_index)
       .map((e) => ({ name: e.name, date: e.date, time: e.time, venue: e.venue })),
@@ -88,7 +93,10 @@ export default async function InvitationPage({ params }: Props) {
     email: "",
     fullName: "",
     showBismillah: (invitation as { show_bismillah?: boolean }).show_bismillah ?? true,
+    showQuranVerse: (invitation as { show_quran_verse?: boolean }).show_quran_verse ?? true,
     paymentDone: true,
+    personalizedGuestLinks: (invitation as { personalized_guest_links?: boolean }).personalized_guest_links ?? false,
+    slug: invitation.slug ?? "",
   };
 
   return <InvitationViewerWrapper templateId={invitation.template_id} flowData={flowData} />;

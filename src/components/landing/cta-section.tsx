@@ -103,7 +103,7 @@ export function CTASection({ onGetStarted }: CTASectionProps) {
             <div className="h-px w-12 sm:w-16 bg-gradient-to-l from-transparent to-gold/50" />
           </div>
 
-          {/* Rating badge */}
+          {/* Premium badge */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -112,12 +112,10 @@ export function CTASection({ onGetStarted }: CTASectionProps) {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gold/20 bg-gold/5 mb-6"
           >
             <div className="flex items-center gap-0.5">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <Star key={i} className="w-3.5 h-3.5 text-gold fill-gold" />
-              ))}
+              <Sparkles className="w-4 h-4 text-gold" />
             </div>
-            <span className="text-sm text-gold font-semibold">4.9/5</span>
-            <span className="text-xs text-white/40">from 5,000+ families</span>
+            <span className="text-sm text-gold font-semibold">Premium Quality</span>
+            <span className="text-xs text-white/40">Handcrafted digital designs</span>
           </motion.div>
 
           <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight">
@@ -126,7 +124,7 @@ export function CTASection({ onGetStarted }: CTASectionProps) {
           </h2>
 
           <p className="mt-6 text-base sm:text-lg text-white/70 max-w-xl mx-auto leading-relaxed">
-            Join thousands of Pakistani families who have already made their
+            Join our growing community of Pakistani couples making their
             wedding celebrations unforgettable with ShaadiLink.
           </p>
 

@@ -74,7 +74,7 @@ export function Testimonials() {
             We&apos;re a brand new platform crafted with love for Pakistani couples. Create your invitation and be the first to share your experience.
           </p>
           <a
-            href="https://wa.me/+447517879333?text=I%20want%20to%20share%20my%20ShaadiLink%20review"
+            href="https://wa.me/447517879333?text=I%20want%20to%20share%20my%20ShaadiLink%20review"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-emerald text-white font-semibold hover:bg-emerald-dark transition-colors"

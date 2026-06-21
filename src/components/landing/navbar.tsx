@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, Heart } from "lucide-react";
+import { Menu, Heart, ChevronDown, LayoutDashboard, LogOut, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -13,6 +13,15 @@ import {
   SheetClose,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface NavbarProps {
   onTemplatesClick?: () => void;
@@ -22,6 +31,9 @@ interface NavbarProps {
   onContactClick?: () => void;
   isLoggedIn?: boolean;
   onDashboardClick?: () => void;
+  userEmail?: string;
+  userFullName?: string;
+  onSignOut?: () => void;
 }
 
 const sectionIds = ["features", "how-it-works", "pricing"];
@@ -34,25 +46,35 @@ export function Navbar({
   onContactClick,
   isLoggedIn,
   onDashboardClick,
+  userEmail,
+  userFullName,
+  onSignOut,
 }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setScrolled(window.scrollY > 20);
 
-      // Active section detection
-      const scrollPos = window.scrollY + 120;
-      let current: string | null = null;
-      for (const id of sectionIds) {
-        const el = document.getElementById(id);
-        if (el && el.offsetTop <= scrollPos) {
-          current = id;
-        }
+          // Active section detection
+          const scrollPos = window.scrollY + 120;
+          let current: string | null = null;
+          for (const id of sectionIds) {
+            const el = document.getElementById(id);
+            if (el && el.offsetTop <= scrollPos) {
+              current = id;
+            }
+          }
+          setActiveSection(current);
+          ticking = false;
+        });
+        ticking = true;
       }
-      setActiveSection(current);
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
@@ -150,13 +172,42 @@ export function Navbar({
         {/* Desktop CTA */}
         <div className="hidden lg:flex items-center gap-3">
           {isLoggedIn ? (
-            <Button
-              variant="ghost"
-              onClick={onDashboardClick}
-              className="text-white/70 hover:text-white hover:bg-white/10 font-medium transition-colors duration-300"
-            >
-              Dashboard
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-gold/20 bg-emerald-dark/40 hover:bg-emerald-dark/80 text-white transition-all cursor-pointer select-none">
+                  <Avatar className="h-7 w-7 border border-gold/10">
+                    <AvatarFallback className="bg-gold/10 text-gold font-bold text-[10px]">
+                      {userFullName ? userFullName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : (userEmail ? userEmail.slice(0, 2).toUpperCase() : "U")}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-sm font-medium max-w-[120px] truncate">
+                    {userFullName || userEmail?.split('@')[0] || "Profile"}
+                  </span>
+                  <ChevronDown className="w-3.5 h-3.5 text-white/70" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 bg-emerald-dark/95 border border-gold/20 text-white">
+                <DropdownMenuLabel className="font-normal border-b border-white/10 pb-2">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-semibold truncate text-white">{userFullName || "User Profile"}</p>
+                    <p className="text-xs leading-none text-white/60 truncate">{userEmail}</p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuItem onClick={onDashboardClick} className="hover:bg-white/10 cursor-pointer gap-2 mt-1">
+                  <LayoutDashboard className="w-4 h-4 text-gold" />
+                  <span>My Dashboard</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onGetStarted} className="hover:bg-white/10 cursor-pointer gap-2">
+                  <Plus className="w-4 h-4 text-gold" />
+                  <span>Create Invitation</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-white/10" />
+                <DropdownMenuItem onClick={onSignOut} className="hover:bg-red-500/20 text-red-400 focus:text-red-400 cursor-pointer gap-2">
+                  <LogOut className="w-4 h-4" />
+                  <span>Sign Out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <Button
               variant="ghost"
@@ -238,16 +289,33 @@ export function Navbar({
                 );
               })}
               <div className="mt-6 pt-6 border-t border-gold/10 space-y-3">
+                {isLoggedIn && (
+                  <div className="px-4 py-2 bg-emerald/10 border border-gold/20 rounded-xl mb-4">
+                    <p className="text-xs font-semibold text-gold uppercase tracking-wider">Logged In As</p>
+                    <p className="text-sm font-bold text-white mt-1 truncate">{userFullName || "User"}</p>
+                    <p className="text-xs text-white/60 truncate">{userEmail}</p>
+                  </div>
+                )}
                 <SheetClose asChild>
                   {isLoggedIn ? (
-                    <Button
-                      variant="outline"
-                      onClick={onDashboardClick}
-                      className="w-full border-gold/30 text-gold hover:bg-gold/10 font-medium bg-transparent"
-                      size="lg"
-                    >
-                      Dashboard
-                    </Button>
+                    <div className="space-y-3 w-full">
+                      <Button
+                        variant="outline"
+                        onClick={onDashboardClick}
+                        className="w-full border-gold/30 text-gold hover:bg-gold/10 font-medium bg-transparent"
+                        size="lg"
+                      >
+                        Dashboard
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        onClick={onSignOut}
+                        className="w-full bg-red-600/20 text-red-400 hover:bg-red-600/30 border border-red-500/30 font-medium"
+                        size="lg"
+                      >
+                        Sign Out
+                      </Button>
+                    </div>
                   ) : (
                     <Button
                       variant="outline"

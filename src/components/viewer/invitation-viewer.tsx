@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence, useInView } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -29,6 +30,10 @@ import {
   Gift,
   HelpCircle,
   Info,
+  ChevronLeft,
+  ChevronRight,
+  Maximize,
+  Share2,
 } from 'lucide-react'
 import type { FlowData } from '@/lib/flow-types'
 
@@ -78,9 +83,11 @@ export interface TemplateTheme {
   }
   fontDisplay?: string
   fontCalligraphy?: string
+  isLight?: boolean
+  getOpacityStyle: (type: 'text' | 'bg' | 'border', defaultOpacity: number) => string
 }
 
-const TEMPLATE_THEMES: Record<string, TemplateTheme> = {
+const TEMPLATE_THEMES: Record<string, Omit<TemplateTheme, 'getOpacityStyle'>> = {
   'emerald-noir': {
     id: 'emerald-noir',
     name: 'Emerald Noir',
@@ -300,23 +307,24 @@ const TEMPLATE_THEMES: Record<string, TemplateTheme> = {
   'rose-gold-blush': {
     id: 'rose-gold-blush',
     name: 'Rose Gold Blush',
-    bgPrimary: '#1a0a12',
-    bgSecondary: '#12080e',
-    bgDoor: '#2a1018',
-    bgDoorGradient: 'linear-gradient(135deg, #2a1018 0%, #3d1828 50%, #1f0e16 100%)',
-    accent: '#fb7185',
-    accentLight: '#fda4af',
-    accentDark: '#e11d48',
-    accentRgb: '251,113,133',
-    textPrimary: '#f5c6d0',
-    textSecondary: '#d4a0b0',
-    textMuted: '#8b5e6e',
-    borderAccent: 'rgba(251,113,133,0.4)',
-    borderSubtle: 'rgba(251,113,133,0.15)',
-    scratchBg: ['#2a1018', '#1f0e16', '#3d1828'],
-    scratchAccent: '#fb7185',
-    fireworkColors: ['#fb7185', '#fda4af', '#e11d48', '#be123c', '#ffd700', '#d4a853', '#fecdd3'],
-    confettiColors: ['#fb7185', '#fda4af', '#e11d48', '#ffd700', '#d4a853', '#fecdd3', '#e8c66a'],
+    isLight: true,
+    bgPrimary: '#fff1f2',
+    bgSecondary: '#ffffff',
+    bgDoor: '#ffe4e6',
+    bgDoorGradient: 'linear-gradient(135deg, #ffe4e6 0%, #ffffff 50%, #fecdd3 100%)',
+    accent: '#be185d',
+    accentLight: '#db2777',
+    accentDark: '#9d174d',
+    accentRgb: '190,24,93',
+    textPrimary: '#881337',
+    textSecondary: '#9d174d',
+    textMuted: '#db2777',
+    borderAccent: 'rgba(190,24,93,0.2)',
+    borderSubtle: 'rgba(190,24,93,0.08)',
+    scratchBg: ['#fecdd3', '#fda4af', '#fff1f2'],
+    scratchAccent: '#be185d',
+    fireworkColors: ['#be185d', '#db2777', '#9d174d', '#fda4af', '#fecdd3', '#ffffff'],
+    confettiColors: ['#be185d', '#db2777', '#9d174d', '#fda4af', '#fecdd3', '#ffffff'],
     doorStyle: {
       type: 'lotus',
       doorMaterial: 'painted',
@@ -332,27 +340,30 @@ const TEMPLATE_THEMES: Record<string, TemplateTheme> = {
       animationClass: 'door-open',
       buttonStyle: 'diamond',
     },
+    fontDisplay: 'font-display',
+    fontCalligraphy: 'font-calligraphy',
   },
   'ivory-dream': {
     id: 'ivory-dream',
     name: 'Ivory Dream',
-    bgPrimary: '#1a1610',
-    bgSecondary: '#12100c',
-    bgDoor: '#2a2418',
-    bgDoorGradient: 'linear-gradient(135deg, #2a2418 0%, #3d3528 50%, #1f1a10 100%)',
-    accent: '#a8a29e',
-    accentLight: '#d6d3d1',
-    accentDark: '#78716c',
-    accentRgb: '168,162,158',
-    textPrimary: '#e7e5e4',
-    textSecondary: '#c8c4c0',
-    textMuted: '#78716c',
-    borderAccent: 'rgba(168,162,158,0.4)',
-    borderSubtle: 'rgba(168,162,158,0.15)',
-    scratchBg: ['#2a2418', '#1f1a10', '#3d3528'],
-    scratchAccent: '#a8a29e',
-    fireworkColors: ['#a8a29e', '#d6d3d1', '#78716c', '#57534e', '#ffd700', '#d4a853', '#e7e5e4'],
-    confettiColors: ['#a8a29e', '#d6d3d1', '#78716c', '#ffd700', '#d4a853', '#e7e5e4', '#e8c66a'],
+    isLight: true,
+    bgPrimary: '#fafaf9',
+    bgSecondary: '#ffffff',
+    bgDoor: '#f5f5f4',
+    bgDoorGradient: 'linear-gradient(135deg, #f5f5f4 0%, #ffffff 50%, #e7e5e4 100%)',
+    accent: '#78350f',
+    accentLight: '#b45309',
+    accentDark: '#451a03',
+    accentRgb: '120,53,15',
+    textPrimary: '#451a03',
+    textSecondary: '#78350f',
+    textMuted: '#a16207',
+    borderAccent: 'rgba(120,53,15,0.25)',
+    borderSubtle: 'rgba(120,53,15,0.1)',
+    scratchBg: ['#e7e5e4', '#d6d3d1', '#fafaf9'],
+    scratchAccent: '#78350f',
+    fireworkColors: ['#78350f', '#b45309', '#451a03', '#d6d3d1', '#fafaf9', '#ffffff'],
+    confettiColors: ['#78350f', '#b45309', '#451a03', '#d6d3d1', '#fafaf9', '#ffffff'],
     doorStyle: {
       type: 'curtains',
       doorMaterial: 'painted',
@@ -368,6 +379,8 @@ const TEMPLATE_THEMES: Record<string, TemplateTheme> = {
       animationClass: 'door-open',
       buttonStyle: 'diamond',
     },
+    fontDisplay: 'font-display',
+    fontCalligraphy: 'font-calligraphy',
   },
   'royal-imperial': {
     id: 'royal-imperial',
@@ -436,23 +449,249 @@ const TEMPLATE_THEMES: Record<string, TemplateTheme> = {
       leftTextLang: 'en',
       rightTextLang: 'en',
       svgPattern: 'star',
-      centerIcon: '⭐',
+      centerIcon: '✨',
       animationClass: 'door-open',
-      buttonStyle: 'star',
+      buttonStyle: 'circle',
     },
   },
+  'watercolor-peach': {
+    id: 'watercolor-peach',
+    name: 'Watercolor Peach',
+    isLight: true,
+    bgPrimary: '#fff7ed',
+    bgSecondary: '#ffffff',
+    bgDoor: '#ffedd5',
+    bgDoorGradient: 'linear-gradient(135deg, #ffedd5 0%, #ffffff 50%, #fed7aa 100%)',
+    accent: '#c2410c',
+    accentLight: '#ea580c',
+    accentDark: '#9a3412',
+    accentRgb: '194,65,12',
+    textPrimary: '#7c2d12',
+    textSecondary: '#9a3412',
+    textMuted: '#ea580c',
+    borderAccent: 'rgba(194,65,12,0.2)',
+    borderSubtle: 'rgba(194,65,12,0.08)',
+    scratchBg: ['#ffedd5', '#fed7aa', '#fff7ed'],
+    scratchAccent: '#c2410c',
+    fireworkColors: ['#c2410c', '#ea580c', '#9a3412', '#ffedd5', '#fed7aa', '#ffffff'],
+    confettiColors: ['#c2410c', '#ea580c', '#9a3412', '#ffedd5', '#fed7aa', '#ffffff'],
+    doorStyle: {
+      type: 'petals',
+      doorMaterial: 'painted',
+      panelLayout: 'flat',
+      handleType: 'none',
+      frameStyle: 'painted-rosettes',
+      leftText: 'Watercolor',
+      rightText: 'Peach',
+      leftTextLang: 'en',
+      rightTextLang: 'en',
+      svgPattern: 'floral',
+      centerIcon: '🍑',
+      animationClass: 'door-open',
+      buttonStyle: 'circle',
+    },
+    fontDisplay: 'font-display',
+    fontCalligraphy: 'font-calligraphy',
+  },
+  'geometric-gold': {
+    id: 'geometric-gold',
+    name: 'Geometric Gold',
+    bgPrimary: '#111827',
+    bgSecondary: '#0f172a',
+    bgDoor: '#1e293b',
+    bgDoorGradient: 'linear-gradient(135deg, #1e293b 0%, #334155 50%, #0f172a 100%)',
+    accent: '#f59e0b',
+    accentLight: '#fbbf24',
+    accentDark: '#b45309',
+    accentRgb: '245,158,11',
+    textPrimary: '#fef3c7',
+    textSecondary: '#fde68a',
+    textMuted: '#78716c',
+    borderAccent: 'rgba(245,158,11,0.5)',
+    borderSubtle: 'rgba(245,158,11,0.2)',
+    scratchBg: ['#1e293b', '#0f172a', '#334155'],
+    scratchAccent: '#f59e0b',
+    fireworkColors: ['#f59e0b', '#fbbf24', '#b45309', '#d97706', '#ffd700', '#fff4d0', '#fde68a'],
+    confettiColors: ['#f59e0b', '#fbbf24', '#b45309', '#ffd700', '#fff4d0', '#fde68a', '#e8c66a'],
+    doorStyle: {
+      type: 'geometric',
+      doorMaterial: 'glass',
+      panelLayout: 'glass-grid',
+      handleType: 'none',
+      frameStyle: 'modern',
+      leftText: 'Geometric',
+      rightText: 'Gold',
+      leftTextLang: 'en',
+      rightTextLang: 'en',
+      svgPattern: 'geometric',
+      centerIcon: '⬡',
+      animationClass: 'door-open',
+      buttonStyle: 'hexagon',
+    },
+  },
+  'dark-velvet': {
+    id: 'dark-velvet',
+    name: 'Dark Velvet',
+    bgPrimary: '#020617',
+    bgSecondary: '#0f172a',
+    bgDoor: '#1e293b',
+    bgDoorGradient: 'linear-gradient(135deg, #1e293b 0%, #334155 50%, #020617 100%)',
+    accent: '#8b5cf6',
+    accentLight: '#a78bfa',
+    accentDark: '#5b21b6',
+    accentRgb: '139,92,246',
+    textPrimary: '#ddd6fe',
+    textSecondary: '#c4b5fd',
+    textMuted: '#4c1d95',
+    borderAccent: 'rgba(139,92,246,0.5)',
+    borderSubtle: 'rgba(139,92,246,0.2)',
+    scratchBg: ['#1e293b', '#0f172a', '#334155'],
+    scratchAccent: '#8b5cf6',
+    fireworkColors: ['#8b5cf6', '#a78bfa', '#5b21b6', '#7c3aed', '#ffd700', '#d8b4fe', '#f3e8ff'],
+    confettiColors: ['#8b5cf6', '#a78bfa', '#5b21b6', '#ffd700', '#d8b4fe', '#f3e8ff', '#e8c66a'],
+    doorStyle: {
+      type: 'classic-doors',
+      doorMaterial: 'painted',
+      panelLayout: 'flat',
+      handleType: 'ring-knocker',
+      frameStyle: 'simple',
+      leftText: 'Dark',
+      rightText: 'Velvet',
+      leftTextLang: 'en',
+      rightTextLang: 'en',
+      svgPattern: 'diamond',
+      centerIcon: '✦',
+      animationClass: 'door-open',
+      buttonStyle: 'circle',
+    },
+  },
+  'pastel-floral': {
+    id: 'pastel-floral',
+    name: 'Pastel Floral',
+    isLight: true,
+    bgPrimary: '#fdf2f8',
+    bgSecondary: '#ffffff',
+    bgDoor: '#fbcfe8',
+    bgDoorGradient: 'linear-gradient(135deg, #fbcfe8 0%, #ffffff 50%, #f9a8d4 100%)',
+    accent: '#be185d',
+    accentLight: '#db2777',
+    accentDark: '#9d174d',
+    accentRgb: '190,24,93',
+    textPrimary: '#831843',
+    textSecondary: '#9d174d',
+    textMuted: '#db2777',
+    borderAccent: 'rgba(190,24,93,0.2)',
+    borderSubtle: 'rgba(190,24,93,0.08)',
+    scratchBg: ['#fbcfe8', '#f9a8d4', '#fdf2f8'],
+    scratchAccent: '#be185d',
+    fireworkColors: ['#be185d', '#db2777', '#9d174d', '#fbcfe8', '#f9a8d4', '#ffffff'],
+    confettiColors: ['#be185d', '#db2777', '#9d174d', '#fbcfe8', '#f9a8d4', '#ffffff'],
+    doorStyle: {
+      type: 'curtains',
+      doorMaterial: 'painted',
+      panelLayout: 'flat',
+      handleType: 'none',
+      frameStyle: 'painted-rosettes',
+      leftText: 'Pastel',
+      rightText: 'Floral',
+      leftTextLang: 'en',
+      rightTextLang: 'en',
+      svgPattern: 'floral',
+      centerIcon: '🌸',
+      animationClass: 'door-open',
+      buttonStyle: 'circle',
+    },
+    fontDisplay: 'font-display',
+    fontCalligraphy: 'font-calligraphy',
+  },
+  'minimal-white': {
+    id: 'minimal-white',
+    name: 'Minimal White',
+    isLight: true,
+    bgPrimary: '#f8fafc',
+    bgSecondary: '#ffffff',
+    bgDoor: '#f1f5f9',
+    bgDoorGradient: 'linear-gradient(135deg, #e2e8f0 0%, #ffffff 50%, #cbd5e1 100%)',
+    accent: '#0f172a',
+    accentLight: '#475569',
+    accentDark: '#020617',
+    accentRgb: '15,23,42',
+    textPrimary: '#0f172a',
+    textSecondary: '#334155',
+    textMuted: '#64748b',
+    borderAccent: 'rgba(15,23,42,0.15)',
+    borderSubtle: 'rgba(15,23,42,0.06)',
+    scratchBg: ['#0f172a', '#1e293b', '#334155'],
+    scratchAccent: '#ffffff',
+    fireworkColors: ['#0f172a', '#334155', '#475569', '#64748b', '#cbd5e1', '#ffffff'],
+    confettiColors: ['#0f172a', '#334155', '#475569', '#cbd5e1', '#ffffff'],
+    doorStyle: {
+      type: 'split-screen',
+      doorMaterial: 'glass',
+      panelLayout: 'flat',
+      handleType: 'none',
+      frameStyle: 'modern',
+      leftText: 'Save',
+      rightText: 'Date',
+      leftTextLang: 'en',
+      rightTextLang: 'en',
+      svgPattern: 'minimal',
+      centerIcon: '🤍',
+      animationClass: 'door-open',
+      buttonStyle: 'circle',
+    },
+    fontDisplay: 'font-display',
+    fontCalligraphy: 'font-sans',
+  }
 }
 
 const DEFAULT_THEME = TEMPLATE_THEMES['emerald-noir']
 
+function hexToRgb(hex: string): string {
+  const cleanHex = hex.replace('#', '')
+  if (cleanHex.length === 3) {
+    const r = parseInt(cleanHex[0] + cleanHex[0], 16)
+    const g = parseInt(cleanHex[1] + cleanHex[1], 16)
+    const b = parseInt(cleanHex[2] + cleanHex[2], 16)
+    return `${r},${g},${b}`
+  }
+  const r = parseInt(cleanHex.substring(0, 2), 16)
+  const g = parseInt(cleanHex.substring(2, 4), 16)
+  const b = parseInt(cleanHex.substring(4, 6), 16)
+  return `${r},${g},${b}`
+}
+
 export function getTheme(templateId?: string | null): TemplateTheme {
-  if (!templateId) return { ...DEFAULT_THEME, fontDisplay: 'font-display', fontCalligraphy: 'font-calligraphy' }
-  const theme = TEMPLATE_THEMES[templateId] || DEFAULT_THEME
-  const isRoyal = templateId.includes('royal') || ['crimson-royale', 'majestic-love', 'royal-imperial', 'royal-elegance'].includes(templateId)
+  const theme = !templateId ? DEFAULT_THEME : (TEMPLATE_THEMES[templateId] || DEFAULT_THEME)
+  const isRoyal = templateId ? (templateId.includes('royal') || ['crimson-royale', 'majestic-love', 'royal-imperial', 'royal-elegance'].includes(templateId)) : false
+  
+  const getOpacityStyle = (type: 'text' | 'bg' | 'border', defaultOpacity: number) => {
+    if (!theme.isLight) {
+      return `rgba(${theme.accentRgb},${defaultOpacity})`
+    }
+    if (type === 'text') {
+      const textRgb = hexToRgb(theme.textPrimary)
+      if (defaultOpacity <= 0.3) return `rgba(${textRgb},0.65)`
+      if (defaultOpacity <= 0.5) return `rgba(${textRgb},0.82)`
+      if (defaultOpacity <= 0.7) return `rgba(${textRgb},0.95)`
+      return `rgba(${textRgb},1)`
+    }
+    if (type === 'bg') {
+      if (defaultOpacity <= 0.03) return `rgba(${theme.accentRgb},0.07)`
+      if (defaultOpacity <= 0.05) return `rgba(${theme.accentRgb},0.1)`
+      if (defaultOpacity <= 0.1) return `rgba(${theme.accentRgb},0.15)`
+      return `rgba(${theme.accentRgb},${defaultOpacity * 1.5})`
+    }
+    if (defaultOpacity <= 0.1) return `rgba(${theme.accentRgb},0.25)`
+    if (defaultOpacity <= 0.25) return `rgba(${theme.accentRgb},0.45)`
+    return `rgba(${theme.accentRgb},0.55)`
+  }
+
   return {
     ...theme,
     fontDisplay: theme.fontDisplay || (isRoyal ? 'font-royal-display' : 'font-display'),
     fontCalligraphy: theme.fontCalligraphy || (isRoyal ? 'font-royal-script' : 'font-calligraphy'),
+    getOpacityStyle,
   }
 }
 
@@ -697,7 +936,20 @@ interface InvitationViewerProps {
 }
 
 /* ─── Corner Ornament SVG (Zareqia-style) ─── */
-function CornerOrnament({ position, accentColor }: { position: 'tl' | 'tr' | 'bl' | 'br'; accentColor?: string }) {
+function CornerOrnament({ 
+  position, 
+  themeId,
+  accentColor 
+}: { 
+  position: 'tl' | 'tr' | 'bl' | 'br'; 
+  themeId?: string;
+  accentColor?: string 
+}) {
+  if (themeId === 'minimal-white') {
+    // Clean modern minimalism has no corner ornaments
+    return null
+  }
+  
   const color = accentColor || 'hsl(40, 50%, 55%)'
   const transforms: Record<string, string> = {
     tl: '',
@@ -711,6 +963,53 @@ function CornerOrnament({ position, accentColor }: { position: 'tl' | 'tr' | 'bl
     bl: 'bottom-4 left-4',
     br: 'bottom-4 right-4',
   }
+
+  // Geometric style
+  if (themeId === 'geometric-gold') {
+    return (
+      <svg
+        className={`absolute ${classes[position]} w-12 h-12 sm:w-16 sm:h-16 opacity-35 z-10 ${transforms[position]}`}
+        viewBox="0 0 60 60"
+        fill="none"
+      >
+        <path d="M5 5 L5 40 L12 40 L12 12 L40 12 L40 5 Z" fill={color} opacity="0.12" />
+        <path d="M5 5 L5 45 M5 5 L45 5" stroke={color} strokeWidth="1.5" />
+        <path d="M10 10 L10 25 M10 10 L25 10" stroke={color} strokeWidth="0.8" opacity="0.5" />
+      </svg>
+    )
+  }
+
+  // Modern Minimal style
+  if (themeId === 'modern-minimal') {
+    return (
+      <svg
+        className={`absolute ${classes[position]} w-8 h-8 sm:w-10 sm:h-10 opacity-40 z-10 ${transforms[position]}`}
+        viewBox="0 0 40 40"
+        fill="none"
+      >
+        <path d="M2 2 L2 20 M2 2 L20 2" stroke={color} strokeWidth="1.2" strokeLinecap="round" />
+      </svg>
+    )
+  }
+
+  // Pastel/Watercolor/Floral style
+  if (themeId === 'pastel-floral' || themeId === 'watercolor-peach' || themeId === 'garden-romance') {
+    return (
+      <svg
+        className={`absolute ${classes[position]} w-16 h-16 sm:w-20 sm:h-20 opacity-30 z-10 ${transforms[position]}`}
+        viewBox="0 0 80 80"
+        fill="none"
+      >
+        <path d="M5 5 C 5 20, 10 30, 25 35 C 40 40, 50 35, 55 50" stroke={color} strokeWidth="0.8" fill="none" strokeLinecap="round" />
+        <path d="M5 5 C 20 5, 30 10, 35 25" stroke={color} strokeWidth="0.6" fill="none" strokeLinecap="round" opacity="0.7" />
+        <path d="M15 17 Q 18 12, 22 15 Q 18 20, 15 17 Z" fill={color} opacity="0.4" />
+        <path d="M28 28 Q 32 24, 35 28 Q 30 33, 28 28 Z" fill={color} opacity="0.4" />
+        <circle cx="5" cy="5" r="2.5" fill={color} opacity="0.6" />
+      </svg>
+    )
+  }
+
+  // Default: Royal/Traditional Ornate Zareqia scroll
   return (
     <svg
       className={`absolute ${classes[position]} w-16 h-16 sm:w-20 sm:h-20 opacity-25 z-10 ${transforms[position]}`}
@@ -725,8 +1024,55 @@ function CornerOrnament({ position, accentColor }: { position: 'tl' | 'tr' | 'bl
 }
 
 /* ─── Decorative Divider ─── */
-function GoldDivider({ className = '', accentColor }: { className?: string; accentColor?: string }) {
+function GoldDivider({ 
+  className = '', 
+  themeId,
+  accentColor 
+}: { 
+  className?: string; 
+  themeId?: string;
+  accentColor?: string 
+}) {
   const color = accentColor || 'var(--gold)'
+  
+  if (themeId === 'minimal-white') {
+    return (
+      <div className={`flex items-center justify-center gap-2 ${className}`}>
+        <div className="h-[1px] w-12" style={{ backgroundColor: `${color}40` }} />
+        <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color }} />
+        <div className="h-[1px] w-12" style={{ backgroundColor: `${color}40` }} />
+      </div>
+    )
+  }
+  
+  if (themeId === 'modern-minimal') {
+    return (
+      <div className={`flex items-center justify-center gap-2 ${className}`}>
+        <div className="h-[1px] w-16" style={{ backgroundColor: `${color}50` }} />
+      </div>
+    )
+  }
+
+  if (themeId === 'geometric-gold') {
+    return (
+      <div className={`flex items-center justify-center gap-3 ${className}`}>
+        <div className="h-px flex-1" style={{ background: `linear-gradient(to right, transparent, ${color}80, transparent)` }} />
+        <div className="w-2 h-2 border transform rotate-45" style={{ borderColor: color }} />
+        <div className="h-px flex-1" style={{ background: `linear-gradient(to right, transparent, ${color}80, transparent)` }} />
+      </div>
+    )
+  }
+
+  if (themeId === 'pastel-floral' || themeId === 'watercolor-peach' || themeId === 'garden-romance') {
+    return (
+      <div className={`flex items-center justify-center gap-3 ${className}`}>
+        <div className="h-px flex-1 opacity-40" style={{ background: `linear-gradient(to right, transparent, ${color}, transparent)` }} />
+        <span className="text-xs" style={{ color }}>✿</span>
+        <div className="h-px flex-1 opacity-40" style={{ background: `linear-gradient(to right, transparent, ${color}, transparent)` }} />
+      </div>
+    )
+  }
+
   return (
     <div className={`flex items-center justify-center gap-3 ${className}`}>
       <div className="h-px flex-1" style={{ background: `linear-gradient(to right, transparent, ${color}80, transparent)` }} />
@@ -736,8 +1082,55 @@ function GoldDivider({ className = '', accentColor }: { className?: string; acce
   )
 }
 
-function HeartDivider({ accentColor }: { accentColor?: string }) {
+function HeartDivider({ 
+  themeId,
+  accentColor 
+}: { 
+  themeId?: string;
+  accentColor?: string 
+}) {
   const color = accentColor || 'var(--gold)'
+  
+  if (themeId === 'minimal-white') {
+    return (
+      <div className="flex items-center justify-center gap-2 my-5">
+        <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: `${color}40` }} />
+        <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color }} />
+        <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: `${color}40` }} />
+      </div>
+    )
+  }
+  
+  if (themeId === 'modern-minimal') {
+    return (
+      <div className="flex items-center justify-center gap-2 my-5">
+        <div className="w-10 h-[1px]" style={{ backgroundColor: `${color}40` }} />
+        <span className="text-[10px] tracking-widest uppercase font-sans font-medium" style={{ color }}>✦</span>
+        <div className="w-10 h-[1px]" style={{ backgroundColor: `${color}40` }} />
+      </div>
+    )
+  }
+
+  if (themeId === 'geometric-gold') {
+    return (
+      <div className="flex items-center justify-center gap-3 my-6">
+        <div className="w-12 h-px" style={{ background: `linear-gradient(to right, transparent, ${color})` }} />
+        <div className="w-2 h-2 rotate-45 border" style={{ borderColor: color, backgroundColor: `${color}20` }} />
+        <div className="w-12 h-px" style={{ background: `linear-gradient(to left, transparent, ${color})` }} />
+      </div>
+    )
+  }
+
+  if (themeId === 'pastel-floral' || themeId === 'watercolor-peach' || themeId === 'garden-romance') {
+    return (
+      <div className="flex items-center justify-center gap-3 my-6">
+        <div className="w-12 h-px" style={{ backgroundColor: `${color}33` }} />
+        <span className="text-sm font-light select-none" style={{ color }}>🌸</span>
+        <div className="w-12 h-px" style={{ backgroundColor: `${color}33` }} />
+      </div>
+    )
+  }
+
   return (
     <div className="flex items-center justify-center gap-3 my-6">
       <div className="w-16 h-px" style={{ backgroundColor: `${color}4d` }} />
@@ -821,7 +1214,7 @@ function AddToCalendarDropdown({
         onClick={() => setOpen(!open)}
         className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded border transition-all duration-300 hover:scale-[1.02] ${theme.fontDisplay} hover:opacity-90`}
         style={{
-          backgroundColor: `rgba(${theme.accentRgb}, 0.05)`,
+          backgroundColor: theme.getOpacityStyle('bg', 0.05),
           borderColor: theme.borderSubtle,
           color: theme.accent,
         }}
@@ -837,10 +1230,10 @@ function AddToCalendarDropdown({
         <div
           className="absolute bottom-full mb-1.5 left-0 z-50 rounded-xl border backdrop-blur-md shadow-2xl overflow-hidden min-w-[170px]"
           style={{
-            backgroundColor: `rgba(${theme.accentRgb},0.04)`,
+            backgroundColor: theme.getOpacityStyle('bg', 0.04),
             borderColor: theme.borderSubtle,
             backdropFilter: 'blur(16px)',
-            boxShadow: `0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(${theme.accentRgb},0.08)`,
+            boxShadow: `0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px ${theme.getOpacityStyle('border', 0.08)}`,
           }}
         >
           {options.map((opt) => (
@@ -1407,9 +1800,9 @@ function ScratchCard({
 
     // Metallic sheen overlay (theme-aware)
     const sheenGrad = ctx.createLinearGradient(0, 0, CARD_W, CARD_H * 0.5)
-    sheenGrad.addColorStop(0, `rgba(${theme.accentRgb}, 0.15)`)
-    sheenGrad.addColorStop(0.5, `rgba(${theme.accentRgb}, 0.22)`)
-    sheenGrad.addColorStop(1, `rgba(${theme.accentRgb}, 0.15)`)
+    sheenGrad.addColorStop(0, theme.getOpacityStyle('border', 0.15))
+    sheenGrad.addColorStop(0.5, theme.getOpacityStyle('border', 0.22))
+    sheenGrad.addColorStop(1, theme.getOpacityStyle('border', 0.15))
     ctx.fillStyle = sheenGrad
     ctx.fillRect(0, 0, CARD_W, CARD_H)
 
@@ -1443,27 +1836,27 @@ function ScratchCard({
 
     // Double border (theme-aware)
     if (isRoyal) {
-      ctx.strokeStyle = `rgba(${theme.accentRgb}, 0.6)`
+      ctx.strokeStyle = theme.getOpacityStyle('text', 0.6)
       ctx.lineWidth = 2.5
       drawHeartPath(ctx, 4, 4, CARD_W - 8, CARD_H - 8)
       ctx.stroke()
 
-      ctx.strokeStyle = `rgba(${theme.accentRgb}, 0.25)`
+      ctx.strokeStyle = theme.getOpacityStyle('border', 0.25)
       ctx.lineWidth = 1
       drawHeartPath(ctx, 10, 10, CARD_W - 20, CARD_H - 20)
       ctx.stroke()
     } else {
-      ctx.strokeStyle = `rgba(${theme.accentRgb}, 0.6)`
+      ctx.strokeStyle = theme.getOpacityStyle('text', 0.6)
       ctx.lineWidth = 2.5
       ctx.strokeRect(4, 4, CARD_W - 8, CARD_H - 8)
-      ctx.strokeStyle = `rgba(${theme.accentRgb}, 0.25)`
+      ctx.strokeStyle = theme.getOpacityStyle('border', 0.25)
       ctx.lineWidth = 1
       ctx.strokeRect(10, 10, CARD_W - 20, CARD_H - 20)
 
       // Corner decorations
       const cornerSize = 20
       const cornerOffset = 14
-      ctx.strokeStyle = `rgba(${theme.accentRgb}, 0.5)`
+      ctx.strokeStyle = theme.getOpacityStyle('text', 0.5)
       ctx.lineWidth = 1.5
       ctx.beginPath()
       ctx.moveTo(cornerOffset, cornerOffset + cornerSize)
@@ -1488,21 +1881,21 @@ function ScratchCard({
     }
 
     // "Scratch Here" text with glow (theme-aware)
-    ctx.shadowColor = `rgba(${theme.accentRgb}, 0.5)`
+    ctx.shadowColor = theme.getOpacityStyle('text', 0.5)
     ctx.shadowBlur = 12
-    ctx.fillStyle = `rgba(${theme.accentRgb}, 0.85)`
+    ctx.fillStyle = theme.getOpacityStyle('text', 0.85)
     ctx.font = language === 'ur' ? 'bold 18px Noto Nastaliq Urdu, serif' : 'bold 18px serif'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
     const cyOffset = isRoyal ? -12 : 0
     ctx.fillText(language === 'ur' ? (translations.scratchHere || '✦  یہاں کھرچیں  ✦') : '✦  Scratch Here  ✦', cx, cy + cyOffset - 8)
     ctx.shadowBlur = 0
-    ctx.fillStyle = `rgba(${theme.accentRgb}, 0.5)`
+    ctx.fillStyle = theme.getOpacityStyle('text', 0.5)
     ctx.font = language === 'ur' ? '11px Noto Nastaliq Urdu, serif' : '11px serif'
     ctx.fillText(language === 'ur' ? (translations.toReveal || 'دعوت نامہ دیکھنے کے لیے') : 'to reveal your invitation', cx, cy + cyOffset + 14)
 
     // Finger icon hint
-    ctx.fillStyle = `rgba(${theme.accentRgb}, 0.25)`
+    ctx.fillStyle = theme.getOpacityStyle('border', 0.25)
     ctx.font = '22px serif'
     ctx.fillText('👆', cx, cy + cyOffset + 42)
 
@@ -1695,9 +2088,9 @@ function ScratchCard({
       >
         {language === 'ur' ? (translations.scratchReveal || 'دعوت نامہ دیکھنے کے لیے') : 'Scratch to Reveal'}
       </motion.h2>
-      <HeartDivider accentColor={theme.accent} />
+      <HeartDivider themeId={theme.id} accentColor={theme.accent} />
       {!revealed && scratchPercent > 5 && (
-        <div className="w-48 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: `rgba(${theme.accentRgb},0.1)` }}>
+        <div className="w-48 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: theme.getOpacityStyle('bg', 0.1) }}>
           <motion.div
             className="h-full rounded-full"
             style={{ background: `linear-gradient(90deg, ${theme.accentDark}, ${theme.accentLight})` }}
@@ -1712,8 +2105,8 @@ function ScratchCard({
           width: CARD_W,
           height: CARD_H,
           boxShadow: revealed
-            ? `0 0 50px rgba(${theme.accentRgb},0.5), 0 0 100px rgba(${theme.accentRgb},0.2), rgba(0,0,0,0.3) 0px 4px 12px`
-            : `rgba(${theme.accentRgb}, 0.3) 0px 8px 40px, rgba(0,0,0,0.3) 0px 4px 12px`,
+            ? `0 0 50px ${theme.getOpacityStyle('text', 0.5)}, 0 0 100px ${theme.getOpacityStyle('border', 0.2)}, rgba(0,0,0,0.3) 0px 4px 12px`
+            : `${theme.getOpacityStyle('text', 0.3)} 0px 8px 40px, rgba(0,0,0,0.3) 0px 4px 12px`,
           clipPath: isRoyal ? 'url(#heart-clip)' : undefined,
         }}
       >
@@ -1723,15 +2116,15 @@ function ScratchCard({
             background: `linear-gradient(135deg, ${theme.scratchBg[1]} 0%, ${theme.bgDoor} 30%, ${theme.scratchBg[2]} 50%, ${theme.bgDoor} 70%, ${theme.scratchBg[1]} 100%)`,
             border: isRoyal 
               ? 'none' 
-              : revealed ? `2px solid rgba(${theme.accentRgb}, 0.8)` : `2px solid rgba(${theme.accentRgb}, 0.4)`,
+              : revealed ? `2px solid ${theme.getOpacityStyle('text', 0.8)}` : `2px solid ${theme.getOpacityStyle('text', 0.4)}`,
             boxShadow: revealed
-              ? `0 0 40px rgba(${theme.accentRgb},0.5), 0 0 80px rgba(${theme.accentRgb},0.2), inset 0 0 40px rgba(${theme.accentRgb},0.12)`
-              : `inset 0 0 30px rgba(${theme.accentRgb},0.05)`,
+              ? `0 0 40px ${theme.getOpacityStyle('text', 0.5)}, 0 0 80px ${theme.getOpacityStyle('border', 0.2)}, inset 0 0 40px ${theme.getOpacityStyle('border', 0.12)}`
+              : `inset 0 0 30px ${theme.getOpacityStyle('bg', 0.05)}`,
           }}
         >
           {isRoyal ? (
             <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox={`0 0 ${CARD_W} ${CARD_H}`} fill="none">
-              <path d={getHeartSvgPath(CARD_W, CARD_H, 4)} stroke={`rgba(${theme.accentRgb}, 0.8)`} strokeWidth="2.5" />
+              <path d={getHeartSvgPath(CARD_W, CARD_H, 4)} stroke={theme.getOpacityStyle('text', 0.8)} strokeWidth="2.5" />
               <path d={getHeartSvgPath(CARD_W, CARD_H, 10)} stroke={theme.scratchAccent} strokeWidth="1" opacity="0.5" />
             </svg>
           ) : (
@@ -1764,7 +2157,7 @@ function ScratchCard({
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.3, duration: 0.5 }}
                   className={`${theme.fontCalligraphy} text-2xl sm:text-3xl font-bold`}
-                  style={{ color: theme.accentLight, textShadow: `0 0 25px rgba(${theme.accentRgb},0.4), 0 0 50px rgba(${theme.accentRgb},0.2)` }}
+                  style={{ color: theme.accentLight, textShadow: `0 0 25px ${theme.getOpacityStyle('text', 0.4)}, 0 0 50px ${theme.getOpacityStyle('text', 0.2)}` }}
                 >
                   {language === 'ur' ? (translations.youreInvited || 'آپ مدعو ہیں!') : "You're Invited!"}
                 </motion.p>
@@ -1780,7 +2173,7 @@ function ScratchCard({
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.6, duration: 0.5 }}
                   className={`${theme.fontDisplay} text-2xl sm:text-3xl font-bold`}
-                  style={{ color: theme.textSecondary, textShadow: `0 0 15px rgba(${theme.accentRgb},0.3)` }}
+                  style={{ color: theme.textSecondary, textShadow: `0 0 15px ${theme.getOpacityStyle('text', 0.3)}` }}
                 >
                   {scratchDateInfo.date}
                 </motion.p>
@@ -1813,7 +2206,7 @@ function ScratchCard({
                 <Sparkles className="w-5 h-5 mx-auto mb-0.5" style={{ color: theme.accent }} />
                 <p
                   className={`${theme.fontCalligraphy} text-2xl sm:text-3xl font-bold`}
-                  style={{ color: theme.accentLight, textShadow: `0 0 15px rgba(${theme.accentRgb},0.25)` }}
+                  style={{ color: theme.accentLight, textShadow: `0 0 15px ${theme.getOpacityStyle('text', 0.25)}` }}
                 >
                   {language === 'ur' ? (translations.youreInvited || 'آپ مدعو ہیں!') : "You're Invited!"}
                 </p>
@@ -1823,7 +2216,7 @@ function ScratchCard({
                 />
                 <p
                   className={`${theme.fontDisplay} text-2xl sm:text-3xl font-bold`}
-                  style={{ color: theme.textSecondary, textShadow: `0 0 10px rgba(${theme.accentRgb},0.15)` }}
+                  style={{ color: theme.textSecondary, textShadow: `0 0 10px ${theme.getOpacityStyle('text', 0.15)}` }}
                 >
                   {scratchDateInfo.date}
                 </p>
@@ -1992,8 +2385,8 @@ function CountdownTimer({
       {units.map((unit, idx) => (
         <React.Fragment key={unit.label}>
           <div className="flex flex-col items-center">
-            <div className="rounded-lg backdrop-blur-sm w-16 sm:w-20 h-16 sm:h-20 flex items-center justify-center countdown-pulse relative overflow-hidden" style={{ border: `1px solid rgba(${theme.accentRgb},0.25)`, backgroundColor: `rgba(${theme.accentRgb},0.08)` }}>
-              <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, rgba(${theme.accentRgb},0.05), transparent)` }} />
+            <div className="rounded-lg backdrop-blur-sm w-16 sm:w-20 h-16 sm:h-20 flex items-center justify-center countdown-pulse relative overflow-hidden" style={{ border: `1px solid ${theme.getOpacityStyle('border', 0.25)}`, backgroundColor: theme.getOpacityStyle('border', 0.08) }}>
+              <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, ${theme.getOpacityStyle('text', 0.05)}, transparent)` }} />
               <AnimatePresence mode="popLayout">
                 <motion.span
                   key={unit.value}
@@ -2008,13 +2401,10 @@ function CountdownTimer({
                 </motion.span>
               </AnimatePresence>
             </div>
-            <span className="text-[10px] sm:text-xs uppercase tracking-wider mt-2" style={{ color: `rgba(${theme.accentRgb},0.5)` }}>{unit.label}</span>
+            <span className="text-[10px] sm:text-xs uppercase tracking-widest mt-2" style={{ color: theme.accent }}>{unit.label}</span>
           </div>
           {idx < units.length - 1 && (
-            <div className="flex flex-col items-center gap-1 mb-5">
-              <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: `rgba(${theme.accentRgb},0.35)` }} />
-              <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: `rgba(${theme.accentRgb},0.25)` }} />
-            </div>
+            <div className="text-2xl font-light pb-6" style={{ color: theme.getOpacityStyle('text', 0.3) }}>:</div>
           )}
         </React.Fragment>
       ))}
@@ -2022,7 +2412,6 @@ function CountdownTimer({
   )
 }
 
-/* ─── Photo Gallery ─── */
 function PhotoGallery({ theme, images: propImages }: { theme: TemplateTheme; images?: string[] }) {
   const defaultImages = [
     { src: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=800&h=500&fit=crop', alt: 'Wedding couple' },
@@ -2035,48 +2424,118 @@ function PhotoGallery({ theme, images: propImages }: { theme: TemplateTheme; ima
     : defaultImages
 
   const [activeIndex, setActiveIndex] = useState(0)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     setActiveIndex(0)
   }, [images.length])
 
   useEffect(() => {
+    if (lightboxOpen) return;
     const interval = setInterval(() => setActiveIndex((p) => (p + 1) % images.length), 4000)
     return () => clearInterval(interval)
-  }, [images.length])
+  }, [images.length, lightboxOpen])
 
   return (
-    <div className="w-full max-w-3xl mx-auto">
-      <div className="relative overflow-hidden rounded-xl aspect-[16/9] sm:aspect-[2/1] group shadow-lg" style={{ border: `1px solid rgba(${theme.accentRgb}, 0.2)`, boxShadow: `0 10px 15px -3px rgba(${theme.accentRgb}, 0.05)` }}>
-        {images.map((img, idx) => (
-          <motion.img
-            key={idx}
-            src={img.src}
-            alt={img.alt}
-            initial={false}
-            animate={{ opacity: idx === activeIndex ? 1 : 0 }}
-            transition={{ duration: 1.2, ease: 'easeInOut' }}
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-        ))}
-        <div className="absolute inset-x-0 bottom-0 h-1/4" style={{ background: `linear-gradient(to top, ${theme.bgPrimary}cc, transparent)` }} />
-        <div className="absolute inset-0 rounded-xl transition-all duration-500" style={{ boxShadow: `inset 0 0 0 1px rgba(${theme.accentRgb}, 0.1)` }} />
+    <>
+      <div className="w-full max-w-3xl mx-auto">
+        <div 
+          className="relative overflow-hidden rounded-xl aspect-[16/9] sm:aspect-[2/1] group shadow-lg cursor-pointer" 
+          onClick={() => setLightboxOpen(true)}
+          style={{ border: `1px solid ${theme.getOpacityStyle('border', 0.2)}`, boxShadow: `0 10px 15px -3px ${theme.getOpacityStyle('border', 0.05)}` }}
+        >
+          {images.map((img, idx) => (
+            <motion.img
+              key={idx}
+              src={img.src}
+              alt={img.alt}
+              initial={false}
+              animate={{ opacity: idx === activeIndex ? 1 : 0, scale: idx === activeIndex ? 1.05 : 1 }}
+              transition={{ duration: 1.2, ease: 'easeInOut' }}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          ))}
+          <div className="absolute inset-x-0 bottom-0 h-1/4" style={{ background: `linear-gradient(to top, ${theme.bgPrimary}cc, transparent)` }} />
+          <div className="absolute inset-0 rounded-xl transition-all duration-500 group-hover:bg-black/20" style={{ boxShadow: `inset 0 0 0 1px ${theme.getOpacityStyle('border', 0.1)}` }} />
+          
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="w-12 h-12 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white">
+              <Maximize className="w-5 h-5" />
+            </div>
+          </div>
+        </div>
+        <div className="flex justify-center gap-2 mt-4">
+          {images.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setActiveIndex(idx)}
+              className={`rounded-full transition-all duration-500 ${idx === activeIndex ? 'w-7 h-2.5' : 'w-2.5 h-2.5'}`}
+              style={idx === activeIndex 
+                ? { backgroundColor: theme.accent, boxShadow: `0 0 8px ${theme.getOpacityStyle('border', 0.4)}` } 
+                : { backgroundColor: theme.getOpacityStyle('bg', 0.25) }
+              }
+              aria-label={`Go to image ${idx + 1}`}
+            />
+          ))}
+        </div>
       </div>
-      <div className="flex justify-center gap-2 mt-4">
-        {images.map((_, idx) => (
-          <button
-            key={idx}
-            onClick={() => setActiveIndex(idx)}
-            className={`rounded-full transition-all duration-500 ${idx === activeIndex ? 'w-7 h-2.5' : 'w-2.5 h-2.5'}`}
-            style={idx === activeIndex 
-              ? { backgroundColor: theme.accent, boxShadow: `0 0 8px rgba(${theme.accentRgb}, 0.4)` } 
-              : { backgroundColor: `rgba(${theme.accentRgb}, 0.25)` }
-            }
-            aria-label={`Go to image ${idx + 1}`}
-          />
-        ))}
-      </div>
-    </div>
+
+      {mounted && createPortal(
+        <AnimatePresence>
+          {lightboxOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 backdrop-blur-md"
+            >
+              <button
+                onClick={() => setLightboxOpen(false)}
+                className="absolute top-4 right-4 sm:top-6 sm:right-6 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors z-[10000]"
+              >
+                <X className="w-6 h-6" />
+              </button>
+
+              <button
+                onClick={(e) => { e.stopPropagation(); setActiveIndex((p) => (p - 1 + images.length) % images.length); }}
+                className="absolute left-4 sm:left-10 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors z-[10000]"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+
+              <div className="relative w-full max-w-5xl px-4 sm:px-16 aspect-[16/9] sm:aspect-auto sm:h-[80vh] flex flex-col items-center justify-center" onClick={(e) => e.stopPropagation()}>
+                <motion.img
+                  key={activeIndex}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 1.05 }}
+                  transition={{ duration: 0.3 }}
+                  src={images[activeIndex].src}
+                  alt={images[activeIndex].alt}
+                  className="max-w-full max-h-full object-contain rounded-lg"
+                />
+                <p className="mt-4 text-white/70 text-sm tracking-widest uppercase font-display">
+                  {activeIndex + 1} / {images.length}
+                </p>
+              </div>
+
+              <button
+                onClick={(e) => { e.stopPropagation(); setActiveIndex((p) => (p + 1) % images.length); }}
+                className="absolute right-4 sm:right-10 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors z-[10000]"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
+    </>
   )
 }
 
@@ -2086,30 +2545,30 @@ function MusicToggle({ isPlaying, onToggle, theme }: { isPlaying: boolean; onTog
     <button
       onClick={onToggle}
       className={`w-10 h-10 rounded-full backdrop-blur-sm flex items-center justify-center transition-all duration-300 ${isPlaying ? 'music-pulse' : ''}`}
-      style={{ border: `1px solid rgba(${theme.accentRgb},0.3)`, backgroundColor: `${theme.bgPrimary}cc` }}
+      style={{ border: `1px solid ${theme.getOpacityStyle('border', 0.3)}`, backgroundColor: `${theme.bgPrimary}cc` }}
       aria-label={isPlaying ? 'Mute music' : 'Play music'}
     >
-      {isPlaying ? <Music2 className="w-4 h-4" style={{ color: theme.accent }} /> : <Music className="w-4 h-4" style={{ color: `rgba(${theme.accentRgb},0.5)` }} />}
+      {isPlaying ? <Music2 className="w-4 h-4" style={{ color: theme.accent }} /> : <Music className="w-4 h-4" style={{ color: theme.getOpacityStyle('text', 0.5) }} />}
     </button>
   )
 }
 
 /* ─── Realistic Door Surface Material ─── */
-function DoorSurface({ theme }: { theme: TemplateTheme }) {
+function DoorSurface({ theme, side }: { theme: TemplateTheme; side: 'left' | 'right' }) {
   const ds = theme.doorStyle
   const a = theme.accentRgb
 
   const escapedAccent = theme.accent.replace('#', '%23')
-  const boardSeamsPattern = `url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='${escapedAccent}' stop-opacity='0.03'/%3E%3Cstop offset='0.5' stop-color='${escapedAccent}' stop-opacity='0.06'/%3E%3Cstop offset='1' stop-color='${escapedAccent}' stop-opacity='0.02'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill='url(%23g)' width='200' height='200'/%3E%3Cpath d='M0 20h200M0 45h200M0 70h200M0 95h200M0 120h200M0 145h200M0 170h200' stroke='${escapedAccent}' stroke-width='0.15' opacity='0.15'/%3E%3C/svg%3E")`
+  const boardSeamsPattern = `url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='${escapedAccent}' stop-opacity='0.03'/%3E%3Cstop offset='0.5' stop-color='${escapedAccent}' stop-opacity='0.06'/%3E%3Cstop offset='1' stop-color='${escapedAccent}' stop-opacity='0.02'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill='url(%23g)' width='200' height='200'/%3E%3Cpath d='M25 0v200M55 0v200M85 0v200M115 0v200M145 0v200M175 0v200' stroke='${escapedAccent}' stroke-width='0.4' opacity='0.25'/%3E%3C/svg%3E")`
 
   // Material-specific CSS background textures
   const materialStyles: Record<string, React.CSSProperties> = {
     wood: {
       backgroundImage: `
         ${boardSeamsPattern},
-        repeating-linear-gradient(87deg, transparent 0px, rgba(${a},0.03) 1px, transparent 2px, transparent 8px),
-        repeating-linear-gradient(2deg, rgba(${a},0.015) 0px, transparent 2px, transparent 20px),
-        linear-gradient(160deg, ${theme.bgDoor} 0%, ${theme.id === 'emerald-noir' ? '#1f4337' : '#3d2614'} 35%, ${theme.bgDoor} 60%, ${theme.bgSecondary} 100%)
+        repeating-linear-gradient(90deg, transparent 0px, rgba(${a},0.02) 1px, transparent 2px, transparent 8px),
+        repeating-linear-gradient(180deg, rgba(${a},0.015) 0px, transparent 2px, transparent 20px),
+        linear-gradient(160deg, ${theme.bgDoor} 0%, ${(theme.id === 'emerald-noir' || theme.id === 'mughal-emerald') ? '#183d35' : '#3d2614'} 35%, ${theme.bgDoor} 60%, ${theme.bgSecondary} 100%)
       `,
     },
     lacquer: {
@@ -2120,24 +2579,25 @@ function DoorSurface({ theme }: { theme: TemplateTheme }) {
       boxShadow: `inset 0 1px 3px rgba(255,255,255,0.15), inset 0 -1px 2px rgba(0,0,0,0.2)`,
     },
     glass: {
-      backgroundImage: `
-        linear-gradient(155deg, rgba(255,255,255,0.08) 0%, transparent 40%, rgba(255,255,255,0.04) 60%, transparent 100%),
-        linear-gradient(180deg, ${theme.bgDoor}, ${theme.bgSecondary})
-      `,
-      backdropFilter: 'blur(2px)',
+      background: `linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.03) 100%)`,
+      backgroundColor: theme.isLight ? 'rgba(248, 250, 252, 0.65)' : 'rgba(10, 14, 26, 0.65)',
+      backdropFilter: 'blur(16px) saturate(120%)',
+      border: `1.5px solid rgba(${a}, 0.35)`,
+      boxShadow: `inset 0 1px 2px rgba(255,255,255,0.2), inset 0 0 15px rgba(${a}, 0.1), 0 8px 32px 0 rgba(0, 0, 0, 0.35)`,
     },
     stone: {
       backgroundImage: `
-        repeating-linear-gradient(0deg, transparent 0px, rgba(${a},0.015) 15px, transparent 16px, transparent 30px),
-        repeating-linear-gradient(90deg, transparent 0px, rgba(${a},0.01) 20px, transparent 21px, transparent 40px),
-        radial-gradient(ellipse at 30% 20%, rgba(${a},0.04), transparent 50%),
-        radial-gradient(ellipse at 70% 80%, rgba(${a},0.03), transparent 50%),
+        repeating-linear-gradient(180deg, transparent 0px, rgba(0,0,0,0.15) 1px, transparent 2px, transparent 90px),
+        repeating-linear-gradient(90deg, transparent 0px, rgba(0,0,0,0.15) 1px, transparent 2px, transparent 110px),
+        radial-gradient(ellipse at 30% 20%, rgba(${a},0.08), transparent 50%),
+        radial-gradient(ellipse at 70% 80%, rgba(${a},0.06), transparent 50%),
         linear-gradient(180deg, ${theme.bgDoor}, ${theme.bgSecondary})
       `,
     },
     painted: {
       backgroundImage: `
-        repeating-linear-gradient(175deg, transparent 0px, rgba(255,255,255,0.01) 3px, transparent 6px, transparent 30px),
+        ${boardSeamsPattern},
+        repeating-linear-gradient(90deg, rgba(0,0,0,0.03) 0px, transparent 1px, transparent 20px, rgba(255,255,255,0.02) 21px, transparent 40px),
         linear-gradient(180deg, ${theme.bgDoor}, ${theme.bgSecondary})
       `,
     },
@@ -2256,6 +2716,294 @@ function DoorSurface({ theme }: { theme: TemplateTheme }) {
     )
   }
 
+  const renderMughalEmeraldDetails = () => {
+    if (theme.id !== 'mughal-emerald') return null
+    const isLeft = side === 'left'
+    const gold = '#dfba73'
+    const goldLight = '#fbeaa8'
+    const rosettesY = [16, 46, 76, 106, 136, 166]
+
+    return (
+      <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 2 }}>
+        <svg className="absolute inset-0 w-full h-full opacity-90" viewBox="0 0 100 200" preserveAspectRatio="none">
+          {/* Side Border Area (Hinge side) */}
+          <line 
+            x1={isLeft ? '14' : '86'} 
+            y1='0' 
+            x2={isLeft ? '14' : '86'} 
+            y2='200' 
+            stroke={gold} 
+            strokeWidth='0.8' 
+          />
+          
+          {/* Scalloped Medallions in Side Border */}
+          {rosettesY.map((y, i) => {
+            const rx = isLeft ? 7 : 93
+            return (
+              <g key={i}>
+                {/* Scalloped Frame */}
+                <path 
+                  d={`
+                    M ${rx} ${y - 9} 
+                    Q ${rx + 5} ${y - 9} ${rx + 5} ${y - 5}
+                    Q ${rx + 5} ${y} ${rx + 5} ${y + 5}
+                    Q ${rx + 5} ${y + 9} ${rx} ${y + 9}
+                    Q ${rx - 5} ${y + 9} ${rx - 5} ${y + 5}
+                    Q ${rx - 5} ${y} ${rx - 5} ${y - 5}
+                    Q ${rx - 5} ${y - 9} ${rx} ${y - 9}
+                  `} 
+                  fill="none" 
+                  stroke={gold} 
+                  strokeWidth="0.6" 
+                />
+                {/* Inner rosette flower */}
+                <circle cx={rx} cy={y} r="1.5" fill={goldLight} />
+                {[0, 45, 90, 135, 180, 225, 270, 315].map(deg => {
+                  const rad = (deg * Math.PI) / 180
+                  const x2 = rx + Math.cos(rad) * 4
+                  const y2 = y + Math.sin(rad) * 4
+                  return (
+                    <line key={deg} x1={rx} y1={y} x2={x2} y2={y2} stroke={gold} strokeWidth="0.4" />
+                  )
+                })}
+              </g>
+            )
+          })}
+
+          {/* Climbing Wavy Vine Border */}
+          <path 
+            d={isLeft 
+              ? "M 19 0 Q 16 16 19 32 Q 22 48 19 64 Q 16 80 19 96 Q 22 112 19 128 Q 16 144 19 160 Q 22 176 19 192 L 19 200" 
+              : "M 81 0 Q 78 16 81 32 Q 84 48 81 64 Q 78 80 81 96 Q 84 112 81 128 Q 78 144 81 160 Q 84 176 81 192 L 81 200"}
+            fill="none" 
+            stroke={gold} 
+            strokeWidth="0.5" 
+          />
+          {/* Leaves along the vine */}
+          {[10, 30, 50, 70, 90, 110, 130, 150, 170, 190].map(y => {
+            const vx = isLeft ? 19 : 81
+            const dir = y % 20 === 0 ? 1.5 : -1.5
+            return (
+              <circle key={y} cx={vx + dir} cy={y} r="0.8" fill={goldLight} />
+            )
+          })}
+
+          {/* Central Panel Layout (Spanning from side-border to center seam) */}
+          
+          {/* 1. Upper Arched Panel (Y = 8 to Y = 32) */}
+          <path 
+            d={isLeft 
+              ? "M 24 32 L 24 24 Q 24 16 35 14 Q 45 12 55 10 L 100 10 L 100 32 Z" 
+              : "M 76 32 L 76 24 Q 76 16 65 14 Q 55 12 45 10 L 0 10 L 0 32 Z"} 
+            fill="none" 
+            stroke={gold} 
+            strokeWidth="0.8" 
+          />
+          {/* Inner details for upper arched panel */}
+          <path 
+            d={isLeft 
+              ? "M 27 30 L 27 25 Q 27 18 36 16 Q 46 14 56 12 L 100 12" 
+              : "M 73 30 L 73 25 Q 73 18 64 16 Q 54 14 44 12 L 0 12"} 
+            fill="none" 
+            stroke={gold} 
+            strokeWidth="0.4" 
+            strokeDasharray="1.5,1.5" 
+          />
+          {/* Branching bouquet inside upper arched panel */}
+          <path 
+            d={isLeft 
+              ? "M 100 32 Q 85 28 85 22 Q 85 16 93 14" 
+              : "M 0 32 Q 15 28 15 22 Q 15 16 7 14"} 
+            fill="none" 
+            stroke={gold} 
+            strokeWidth="0.6" 
+          />
+          <path 
+            d={isLeft 
+              ? "M 100 28 Q 78 26 75 18" 
+              : "M 0 28 Q 22 26 25 18"} 
+            fill="none" 
+            stroke={gold} 
+            strokeWidth="0.5" 
+          />
+          <circle cx={isLeft ? 85 : 15} cy="22" r="1.5" fill={goldLight} />
+          <circle cx={isLeft ? 75 : 25} cy="18" r="1.5" fill={goldLight} />
+          <circle cx={isLeft ? 93 : 7} cy="14" r="1" fill={goldLight} />
+
+          {/* 2. Middle Panel (Y = 35 to Y = 135) */}
+          <rect 
+            x={isLeft ? '24' : '0'} 
+            y='35' 
+            width='76' 
+            height='100' 
+            fill='none' 
+            stroke={gold} 
+            strokeWidth='0.8' 
+          />
+          <rect 
+            x={isLeft ? '26' : '2'} 
+            y='37' 
+            width='72' 
+            height='96' 
+            fill='none' 
+            stroke={gold} 
+            strokeWidth='0.4' 
+            strokeDasharray="2,2" 
+          />
+
+          {/* Oval Medallion inside Middle Panel */}
+          <path 
+            d={isLeft 
+              ? "M 100 45 C 55 45 38 65 38 85 C 38 105 55 125 100 125" 
+              : "M 0 45 C 45 45 62 65 62 85 C 62 105 45 125 0 125"} 
+            fill="none" 
+            stroke={gold} 
+            strokeWidth="1.2" 
+          />
+          {/* Inner bead border of Oval */}
+          <path 
+            d={isLeft 
+              ? "M 100 48 C 58 48 41 67 41 85 C 41 103 58 122 100 122" 
+              : "M 0 48 C 42 48 59 67 59 85 C 59 103 42 122 0 122"} 
+            fill="none" 
+            stroke={gold} 
+            strokeWidth="0.4" 
+            strokeDasharray="1,2" 
+          />
+
+          {/* Tree of Life Inside Oval */}
+          {/* Main trunk along center seam */}
+          <line 
+            x1={isLeft ? '100' : '0'} 
+            y1='122' 
+            x2={isLeft ? '100' : '0'} 
+            y2='50' 
+            stroke={gold} 
+            strokeWidth='2' 
+          />
+          
+          {/* Branches curving out from trunk */}
+          {/* Lower branch */}
+          <path 
+            d={isLeft 
+              ? "M 100 110 Q 75 108 65 95 C 55 82 72 75 75 88" 
+              : "M 0 110 Q 25 108 35 95 C 45 82 28 75 25 88"} 
+            fill="none" 
+            stroke={gold} 
+            strokeWidth="0.8" 
+          />
+          <circle cx={isLeft ? 75 : 25} cy="88" r="2.2" fill={goldLight} />
+          
+          {/* Middle branch */}
+          <path 
+            d={isLeft 
+              ? "M 100 90 Q 70 85 58 72 C 48 60 62 55 64 65" 
+              : "M 0 90 Q 30 85 42 72 C 52 60 38 55 36 65"} 
+            fill="none" 
+            stroke={gold} 
+            strokeWidth="0.8" 
+          />
+          <circle cx={isLeft ? 64 : 36} cy="65" r="2" fill={goldLight} />
+
+          {/* Upper branch */}
+          <path 
+            d={isLeft 
+              ? "M 100 70 Q 78 65 70 54 C 65 45 74 42 76 50" 
+              : "M 0 70 Q 22 65 30 54 C 35 45 26 42 24 50"} 
+            fill="none" 
+            stroke={gold} 
+            strokeWidth="0.6" 
+          />
+          <circle cx={isLeft ? 76 : 24} cy="50" r="1.8" fill={goldLight} />
+
+          {/* Top branching shoots */}
+          <path 
+            d={isLeft 
+              ? "M 100 58 Q 88 52 86 44" 
+              : "M 0 58 Q 12 52 14 44"} 
+            fill="none" 
+            stroke={gold} 
+            strokeWidth="0.5" 
+          />
+          <circle cx={isLeft ? 86 : 14} cy="44" r="1" fill={goldLight} />
+
+          {/* Corner Scrolls (Outside Oval, inside middle panel) */}
+          {/* Top Corner Scroll */}
+          <path 
+            d={isLeft 
+              ? "M 28 40 Q 38 40 38 48 C 38 54 30 54 33 46" 
+              : "M 72 40 Q 62 40 62 48 C 62 54 70 54 67 46"} 
+            fill="none" 
+            stroke={gold} 
+            strokeWidth="0.5" 
+          />
+          <circle cx={isLeft ? 33 : 67} cy="46" r="1" fill={goldLight} />
+          {/* Bottom Corner Scroll */}
+          <path 
+            d={isLeft 
+              ? "M 28 130 Q 38 130 38 122 C 38 116 30 116 33 124" 
+              : "M 72 130 Q 62 130 62 122 C 62 116 70 116 67 124"} 
+            fill="none" 
+            stroke={gold} 
+            strokeWidth="0.5" 
+          />
+          <circle cx={isLeft ? 33 : 67} cy="124" r="1" fill={goldLight} />
+
+
+          {/* 3. Bottom Panel (Y = 138 to Y = 192) */}
+          <rect 
+            x={isLeft ? '24' : '0'} 
+            y='138' 
+            width='76' 
+            height='54' 
+            fill='none' 
+            stroke={gold} 
+            strokeWidth='0.8' 
+          />
+          <rect 
+            x={isLeft ? '26' : '2'} 
+            y='140' 
+            width='72' 
+            height='50' 
+            fill='none' 
+            stroke={gold} 
+            strokeWidth='0.4' 
+            strokeDasharray="2,2" 
+          />
+
+          {/* Bottom Horizontal Oval Medallion */}
+          <path 
+            d={isLeft 
+              ? "M 100 148 C 50 148 34 154 34 165 C 34 176 50 182 100 182" 
+              : "M 0 148 C 50 148 66 154 66 165 C 66 176 50 182 0 182"} 
+            fill="none" 
+            stroke={gold} 
+            strokeWidth="1" 
+          />
+          {/* Flowering branch inside Bottom Oval */}
+          <path 
+            d={isLeft 
+              ? "M 100 165 Q 65 160 55 165 C 45 170 58 178 66 174" 
+              : "M 0 165 Q 35 160 45 165 C 55 170 42 178 34 174"} 
+            fill="none" 
+            stroke={gold} 
+            strokeWidth="0.6" 
+          />
+          <circle cx={isLeft ? 66 : 34} cy="174" r="1.8" fill={goldLight} />
+          <path 
+            d={isLeft 
+              ? "M 85 163 Q 75 152 78 156" 
+              : "M 15 163 Q 25 152 22 156"} 
+            fill="none" 
+            stroke={gold} 
+            strokeWidth="0.5" 
+          />
+          <circle cx={isLeft ? 78 : 22} cy="156" r="1.2" fill={goldLight} />
+        </svg>
+      </div>
+    )
+  }
+
   let baseStyle = materialStyles[ds.doorMaterial] || materialStyles.wood;
 
   if (ds.type === 'curtains') {
@@ -2331,11 +3079,21 @@ function DoorSurface({ theme }: { theme: TemplateTheme }) {
     <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1 }}>
       {/* Material base texture */}
       <div className="absolute inset-0" style={baseStyle} />
-      {/* Glass-specific frosted overlay */}
-      {ds.doorMaterial === 'glass' && ds.type !== 'lantern' && (
-        <div className="absolute inset-0" style={{
-          background: `radial-gradient(ellipse at 40% 30%, rgba(255,255,255,0.06), transparent 60%)`,
-        }} />
+      {/* Glass-specific frosted overlay & sheen reflection */}
+      {ds.doorMaterial === 'glass' && (
+        <>
+          <div className="absolute inset-0" style={{
+            background: `radial-gradient(ellipse at 40% 30%, rgba(255,255,255,0.06), transparent 60%)`,
+          }} />
+          <div 
+            className="absolute inset-y-0 w-1/2 opacity-20" 
+            style={{
+              background: `linear-gradient(90deg, transparent, rgba(255,255,255,0.4) 50%, transparent)`,
+              animation: 'doorShimmerComposited 6s ease-in-out infinite',
+            }} 
+          />
+          <div className="absolute inset-0 shadow-[inset_0_0_20px_rgba(0,0,0,0.18)]" />
+        </>
       )}
       {/* Stone marble veining */}
       {ds.doorMaterial === 'stone' && (
@@ -2355,6 +3113,8 @@ function DoorSurface({ theme }: { theme: TemplateTheme }) {
       {renderInlay()}
       {/* Glass grid panes */}
       {renderGlassGrid()}
+      {/* Mughal Emerald custom ornaments */}
+      {renderMughalEmeraldDetails()}
     </div>
   )
 }
@@ -2444,11 +3204,11 @@ function DoorPanelContent({ theme, text, textLang }: { theme: TemplateTheme; tex
         <span
           className={`${theme.fontCalligraphy} text-3xl sm:text-4xl leading-relaxed`}
           dir={isRtl ? 'rtl' : 'ltr'}
-          style={{ color: `rgba(${theme.accentRgb},0.8)` }}
+          style={{ color: theme.getOpacityStyle('text', 0.8) }}
         >
           {text}
         </span>
-        <div className="w-12 h-px" style={{ backgroundColor: `rgba(${theme.accentRgb},0.3)` }} />
+        <div className="w-12 h-px" style={{ backgroundColor: theme.getOpacityStyle('bg', 0.3) }} />
       </div>
     </div>
   )
@@ -2693,7 +3453,7 @@ function CenterButton({ theme, onClick }: { theme: TemplateTheme; onClick: () =>
           borderRadius: '48% 52% 51% 49% / 51% 48% 52% 49%',
           background: `radial-gradient(circle at 35% 35%, ${sealHighlight}, ${sealColor})`,
           boxShadow: '0 10px 30px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.18), inset 0 -3px 8px rgba(0,0,0,0.45)',
-          border: `1px solid rgba(${theme.accentRgb}, 0.12)`
+          border: `1px solid ${theme.getOpacityStyle('border', 0.12)}`
         }}
       />
       {/* Inner wax stamp stamp-recess */}
@@ -2703,7 +3463,7 @@ function CenterButton({ theme, onClick }: { theme: TemplateTheme; onClick: () =>
           borderRadius: '50% 50% 48% 52% / 48% 52% 50% 50%',
           background: `radial-gradient(circle at 40% 30%, ${sealHighlight}, ${sealColor})`,
           boxShadow: 'inset 2px 3px 6px rgba(0,0,0,0.45), inset -2px -2px 4px rgba(255,255,255,0.08), 0 1px 2px rgba(0,0,0,0.2)',
-          border: `0.5px solid rgba(${theme.accentRgb}, 0.08)`
+          border: `0.5px solid ${theme.getOpacityStyle('border', 0.08)}`
         }}
       />
       {/* Gold monogram circle border inside seal */}
@@ -2831,10 +3591,14 @@ function DoorPanelInset({ x, y, w, h, accent, accentRgb, arched }: { x: string; 
   return (
     <div className="absolute" style={{
       left: x, top: y, width: w, height: h,
-      background: `linear-gradient(145deg, rgba(${accentRgb},0.08), rgba(${accentRgb},0.16))`,
-      border: `1.5px solid rgba(${accentRgb},0.25)`,
+      background: `linear-gradient(145deg, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.4) 100%)`,
+      border: `1.5px solid rgba(${accentRgb},0.35)`,
+      borderTopColor: `rgba(${accentRgb},0.55)`,
+      borderLeftColor: `rgba(${accentRgb},0.45)`,
+      borderBottomColor: `rgba(${accentRgb},0.15)`,
+      borderRightColor: `rgba(${accentRgb},0.15)`,
       borderRadius: arched ? '8px 8px 3px 3px' : '3px',
-      boxShadow: `inset 2px 2px 6px rgba(0,0,0,0.25), inset -2px -2px 4px rgba(${accentRgb},0.1), 0 1px 3px rgba(${accentRgb},0.15)`,
+      boxShadow: `inset 3px 3px 8px rgba(0,0,0,0.65), inset -3px -3px 8px rgba(255,255,255,0.06), 0 2px 4px rgba(0,0,0,0.35)`,
     }}>
       {/* Inner recess border - gives raised panel effect */}
       <div className="absolute" style={{
@@ -2846,7 +3610,7 @@ function DoorPanelInset({ x, y, w, h, accent, accentRgb, arched }: { x: string; 
       {/* Subtle inner highlight - simulates light catching the panel edge */}
       <div className="absolute" style={{
         left: '1px', top: '1px', right: '60%', bottom: '85%',
-        background: `linear-gradient(135deg, rgba(${accentRgb},0.12), transparent)`,
+        background: `linear-gradient(135deg, rgba(${accentRgb},0.2), transparent)`,
         borderRadius: arched ? '6px 0 0 0' : '2px 0 0 0',
       }} />
       {/* Arched top detail */}
@@ -3053,9 +3817,9 @@ function DoorFrame({ theme }: { theme: TemplateTheme }) {
         <div className="absolute inset-0 pointer-events-none z-[1]">
           {/* Arch shape at top */}
           <svg className="absolute top-0 left-0 w-full h-[35%]" viewBox="0 0 400 150" preserveAspectRatio="none" fill="none">
-            {/* Outer arch */}
-            <path d="M0 150 L0 80 Q0 0 200 0 Q400 0 400 80 L400 150" fill={fc} stroke={`rgba(${a},0.4)`} strokeWidth="2" />
-            {/* Inner arch */}
+            {/* Outer arch spandrel frame (hollow archway) */}
+            <path d="M 0 150 L 0 0 L 400 0 L 400 150 L 400 80 Q 400 0 200 0 Q 0 0 0 80 Z" fill={fc} stroke={`rgba(${a},0.4)`} strokeWidth="2" />
+            {/* Inner arch outline */}
             <path d="M15 150 L15 85 Q15 15 200 15 Q385 15 385 85 L385 150" fill="none" stroke={`rgba(${a},0.25)`} strokeWidth="1.5" />
             {/* Keystone */}
             <path d="M190 0 L200 -10 L210 0" stroke={`rgba(${a},0.5)`} strokeWidth="1.5" fill="none" />
@@ -3378,10 +4142,46 @@ function DoorSvgPattern({ pattern, accent, accentRgb }: { pattern: string; accen
   )
 }
 
+export function getMapEmbedQuery(googleMapsUrl?: string, address?: string, fallback?: string): string {
+  if (!googleMapsUrl) {
+    return address || fallback || 'Pakistan';
+  }
+
+  try {
+    // 1. Check for coordinates in URL path: e.g. /@31.5204,74.3587,17z
+    const coordMatch = googleMapsUrl.match(/@(-?[0-9\.]+),(-?[0-9\.]+)/);
+    if (coordMatch) {
+      return `${coordMatch[1]},${coordMatch[2]}`;
+    }
+
+    // 2. Check for standard query parameters (q or query)
+    const urlObj = new URL(googleMapsUrl);
+    const qParam = urlObj.searchParams.get('q') || urlObj.searchParams.get('query');
+    if (qParam) {
+      return qParam;
+    }
+
+    // 3. Check for place name in path: e.g. /place/Grand+Palace/
+    const placeMatch = googleMapsUrl.match(/\/place\/([^/]+)/);
+    if (placeMatch) {
+      return decodeURIComponent(placeMatch[1].replace(/\+/g, ' '));
+    }
+  } catch (e) {
+    // Fail-safe: if URL parser fails, fallback to regex or address
+  }
+
+  // Fallback to text address
+  return address || fallback || 'Pakistan';
+}
+
 /* ─── Door Overlay Component ─── */
 function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doorsOpened: boolean; onOpen: () => void }) {
   const ds = theme.doorStyle
   const a = theme.accentRgb
+
+  const [isHovered, setIsHovered] = useState(false)
+  const [isPressed, setIsPressed] = useState(false)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
 
   // Pre-generate star positions deterministically
   const stars = [
@@ -3398,6 +4198,144 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
     { left: 25, top: 90, size: 1.2, opacity: 0.35, delay: 0.5 },
     { left: 75, top: 92, size: 1, opacity: 0.3, delay: 1.0 },
   ]
+
+  // Canvas particle simulation (ambient floating stars & opening explosion)
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    let animationFrameId: number
+    let width = (canvas.width = window.innerWidth)
+    let height = (canvas.height = window.innerHeight)
+
+    const handleResize = () => {
+      width = canvas.width = window.innerWidth
+      height = canvas.height = window.innerHeight
+    }
+    window.addEventListener('resize', handleResize)
+
+    interface Particle {
+      x: number
+      y: number
+      vx: number
+      vy: number
+      radius: number
+      color: string
+      alpha: number
+      decay: number
+      gravity: number
+      spin: number
+      spinSpeed: number
+    }
+
+    let particles: Particle[] = []
+
+    // Ambient floating dust particles
+    const createAmbientParticle = () => {
+      return {
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: -0.2 - Math.random() * 0.5,
+        radius: Math.random() * 1.5 + 0.5,
+        color: `rgba(${a}, ${Math.random() * 0.4 + 0.2})`,
+        alpha: Math.random() * 0.6 + 0.2,
+        decay: 0.001 + Math.random() * 0.002,
+        gravity: 0,
+        spin: Math.random() * Math.PI * 2,
+        spinSpeed: (Math.random() - 0.5) * 0.02,
+      }
+    }
+
+    // Populate ambient particles
+    for (let i = 0; i < 25; i++) {
+      particles.push(createAmbientParticle())
+    }
+
+    let burstTriggered = false
+
+    const draw = () => {
+      ctx.clearRect(0, 0, width, height)
+
+      // Maintain ambient particle count
+      if (particles.filter(p => p.gravity === 0).length < 25 && Math.random() < 0.1) {
+        particles.push(createAmbientParticle())
+      }
+
+      // Trigger gold dust explosion when doors part
+      if (doorsOpened && !burstTriggered) {
+        burstTriggered = true
+        const centerX = width / 2
+        const centerY = height / 2
+        for (let i = 0; i < 60; i++) {
+          const angle = Math.random() * Math.PI * 2
+          const speed = Math.random() * 6 + 2
+          particles.push({
+            x: centerX,
+            y: centerY,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed - 1, // upward bias
+            radius: Math.random() * 3 + 1,
+            color: Math.random() > 0.35 ? 'rgba(212, 168, 83, 1)' : 'rgba(255, 244, 208, 1)',
+            alpha: 1,
+            decay: 0.015 + Math.random() * 0.02,
+            gravity: 0.08, // drop down
+            spin: Math.random() * Math.PI * 2,
+            spinSpeed: (Math.random() - 0.5) * 0.1,
+          })
+        }
+      }
+
+      // Render loop
+      particles = particles.filter(p => {
+        p.x += p.vx
+        p.y += p.vy
+        p.vy += p.gravity
+        p.alpha -= p.decay
+        p.spin += p.spinSpeed
+
+        if (p.alpha <= 0) return false
+
+        ctx.save()
+        ctx.translate(p.x, p.y)
+        ctx.rotate(p.spin)
+        ctx.globalAlpha = p.alpha
+
+        ctx.fillStyle = p.color
+        ctx.beginPath()
+        if (p.gravity > 0) {
+          // Sparkle four-point star shape for burst particles
+          ctx.moveTo(0, -p.radius * 2)
+          ctx.lineTo(p.radius * 0.5, -p.radius * 0.5)
+          ctx.lineTo(p.radius * 2, 0)
+          ctx.lineTo(p.radius * 0.5, p.radius * 0.5)
+          ctx.lineTo(0, p.radius * 2)
+          ctx.lineTo(-p.radius * 0.5, p.radius * 0.5)
+          ctx.lineTo(-p.radius * 2, 0)
+          ctx.lineTo(-p.radius * 0.5, -p.radius * 0.5)
+        } else {
+          // Soft ambient circular drift
+          ctx.arc(0, 0, p.radius, 0, Math.PI * 2)
+        }
+        ctx.closePath()
+        ctx.fill()
+        ctx.restore()
+
+        return true
+      })
+
+      animationFrameId = requestAnimationFrame(draw)
+    }
+
+    draw()
+
+    return () => {
+      window.removeEventListener('resize', handleResize)
+      cancelAnimationFrame(animationFrameId)
+    }
+  }, [doorsOpened, a])
 
   const getAnimClasses = () => {
     if (!doorsOpened) return { left: '', right: '' }
@@ -3454,8 +4392,8 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
   const getPanelGradient = (isLeft: boolean): string => {
     if (ds.doorMaterial === 'glass') {
       return isLeft
-        ? `linear-gradient(90deg, ${theme.bgDoor} 0%, ${theme.bgSecondary} 100%)`
-        : `linear-gradient(270deg, ${theme.bgDoor} 0%, ${theme.bgSecondary} 100%)`
+        ? `linear-gradient(90deg, rgba(${theme.accentRgb}, 0.12) 0%, rgba(${theme.accentRgb}, 0.03) 100%)`
+        : `linear-gradient(270deg, rgba(${theme.accentRgb}, 0.12) 0%, rgba(${theme.accentRgb}, 0.03) 100%)`
     }
     if (ds.doorMaterial === 'stone') {
       return `linear-gradient(180deg, ${theme.bgDoor} 0%, ${theme.bgSecondary} 60%, ${theme.bgDoor} 100%)`
@@ -3469,7 +4407,6 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
 
   // Render 3D edge face (door thickness)
   const renderEdgeFace = (side: 'left' | 'right') => {
-    // Only render thickness for classic doors, arches, and domes
     if (!['classic-doors', 'archway', 'dome'].includes(ds.type)) return null
 
     const edgeStyle: React.CSSProperties = side === 'left'
@@ -3483,7 +4420,7 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
           transform: 'rotateY(90deg)',
           transformOrigin: 'left center',
           boxShadow: `3px 0 8px rgba(0,0,0,0.4), inset 0 0 3px rgba(0,0,0,0.15)`,
-          borderLeft: `1px solid rgba(${theme.accentRgb},0.15)`,
+          borderLeft: `1px solid ${theme.getOpacityStyle('border', 0.15)}`,
           borderRight: `1px solid rgba(0,0,0,0.2)`,
         }
       : {
@@ -3496,18 +4433,16 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
           transform: 'rotateY(-90deg)',
           transformOrigin: 'right center',
           boxShadow: `-3px 0 8px rgba(0,0,0,0.4), inset 0 0 3px rgba(0,0,0,0.15)`,
-          borderRight: `1px solid rgba(${theme.accentRgb},0.15)`,
+          borderRight: `1px solid ${theme.getOpacityStyle('border', 0.15)}`,
           borderLeft: `1px solid rgba(0,0,0,0.2)`,
         }
     return (
       <div style={edgeStyle}>
-        {/* Edge grain lines */}
         <div className="absolute inset-0" style={{
-          backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 12px, rgba(${theme.accentRgb},0.08) 12px, rgba(${theme.accentRgb},0.08) 13px)`,
+          backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 12px, ${theme.getOpacityStyle('text', 0.08)} 12px, ${theme.getOpacityStyle('text', 0.08)} 13px)`,
         }} />
-        {/* Light highlight on inner edge */}
         <div className="absolute inset-0" style={{
-          background: `linear-gradient(${side === 'left' ? '270deg' : '90deg'}, rgba(${theme.accentRgb},0.12), transparent 60%)`,
+          background: `linear-gradient(${side === 'left' ? '270deg' : '90deg'}, ${theme.getOpacityStyle('text', 0.12)}, transparent 60%)`,
         }} />
       </div>
     )
@@ -3517,14 +4452,28 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
     if (ds.type === 'curtains') {
       return (
         <div className="absolute inset-0 pointer-events-none shadow-inner" style={{ zIndex: 3 }}>
-          {/* Gold curtain trim fringe */}
-          <div className="absolute top-0 left-0 w-full h-2.5 bg-gradient-to-b from-gold via-gold-light to-amber-700/80 border-b border-gold/40" />
-          <div className="absolute bottom-0 left-0 w-full h-5 bg-gradient-to-t from-gold via-gold-light to-amber-700/80 border-t border-gold/40" style={{
+          {/* Real curtain fabric pleats/folds */}
+          <div 
+            className="absolute inset-0 opacity-45" 
+            style={{
+              backgroundImage: `repeating-linear-gradient(90deg, 
+                rgba(0,0,0,0.35) 0px, 
+                rgba(0,0,0,0.15) 15px, 
+                transparent 35px, 
+                rgba(255,255,255,0.06) 55px, 
+                transparent 75px, 
+                rgba(0,0,0,0.15) 95px, 
+                rgba(0,0,0,0.35) 110px
+              )`,
+              backgroundSize: '120px 100%',
+            }} 
+          />
+          <div className="absolute top-0 left-0 w-full h-3.5 bg-gradient-to-b from-gold via-gold-light to-amber-700/80 border-b border-gold/40" />
+          <div className="absolute bottom-0 left-0 w-full h-6 bg-gradient-to-t from-gold via-gold-light to-amber-700/80 border-t border-gold/40" style={{
             backgroundImage: `repeating-linear-gradient(90deg, ${theme.accent} 0px, ${theme.accent} 3px, transparent 3px, transparent 6px)`
           }} />
-          {/* Soft curtain fold shadow overlay */}
           <div className="absolute inset-0" style={{
-            background: `linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, transparent 20%, transparent 80%, rgba(0,0,0,0.3) 100%)`
+            background: `linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, transparent 25%, transparent 75%, rgba(0,0,0,0.35) 100%)`
           }} />
         </div>
       )
@@ -3534,21 +4483,24 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
         <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 4 }}>
           {/* Roller tube representing wood bar */}
           <div 
-            className="absolute top-0 w-6 h-full bg-gradient-to-r from-amber-950 via-amber-700 to-amber-950 border-amber-950 shadow-md"
+            className={`absolute top-0 w-6 h-full bg-gradient-to-r from-amber-950 via-amber-700 to-amber-950 border-amber-950 shadow-md ${
+              doorsOpened 
+                ? (side === 'left' ? 'scroll-roll-left-cylinder' : 'scroll-roll-right-cylinder') 
+                : ''
+            }`}
             style={{
-              left: side === 'left' ? '0' : 'auto',
-              right: side === 'right' ? '0' : 'auto',
-              boxShadow: side === 'left' ? '3px 0 8px rgba(0,0,0,0.5)' : '-3px 0 8px rgba(0,0,0,0.5)'
+              left: side === 'left' ? 'auto' : '-12px',
+              right: side === 'left' ? '-12px' : 'auto',
+              boxShadow: side === 'left' ? '-3px 0 8px rgba(0,0,0,0.5)' : '3px 0 8px rgba(0,0,0,0.5)'
             }}
           >
-            {/* Gold Caps for Cylinders */}
+             {/* Gold Caps for Cylinders */}
             <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-8 h-3.5 rounded-sm bg-gradient-to-r from-gold-light via-gold to-amber-700 border border-gold/40" />
             <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-8 h-3.5 rounded-sm bg-gradient-to-r from-gold-light via-gold to-amber-700 border border-gold/40" />
           </div>
-          {/* Gold scroll side borders */}
           <div className="absolute top-0 bottom-0 w-0.5 bg-gold/40" style={{
-            left: side === 'left' ? '15px' : 'auto',
-            right: side === 'right' ? '15px' : 'auto',
+            left: side === 'left' ? 'auto' : '15px',
+            right: side === 'left' ? '15px' : 'auto',
           }} />
         </div>
       )
@@ -3556,7 +4508,6 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
     if (ds.type === 'petals' || ds.type === 'lotus') {
       return (
         <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 3 }}>
-          {/* Petal vein lines */}
           <svg className="absolute inset-0 w-full h-full opacity-35" viewBox="0 0 100 100" preserveAspectRatio="none">
             <path 
               d={side === 'left' 
@@ -3570,12 +4521,11 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
               d={side === 'left' 
                 ? "M0,30 Q50,40 100,35 M0,70 Q50,60 100,75" 
                 : "M100,30 Q50,40 0,35 M100,70 Q50,60 0,75"} 
-              stroke={`rgba(${theme.accentRgb}, 0.4)`} 
+              stroke={theme.getOpacityStyle('text', 0.4)} 
               strokeWidth="0.3" 
               fill="none" 
             />
           </svg>
-          {/* Glowing center blossom overlay */}
           <div className="absolute w-24 h-24 rounded-full bg-pink-500/5 blur-xl top-1/2 -translate-y-1/2" style={{
             left: side === 'left' ? 'auto' : '-48px',
             right: side === 'right' ? 'auto' : '-48px',
@@ -3586,24 +4536,25 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
     if (ds.type === 'archway') {
       return (
         <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 3 }}>
-          {/* Mughal pointed arch layout */}
-          <svg className="absolute top-0 left-0 w-full h-full opacity-40" viewBox="0 0 100 200" preserveAspectRatio="none">
+          <svg className="absolute top-0 left-0 w-full h-full opacity-60" viewBox="0 0 100 200" preserveAspectRatio="none">
+            {/* Main elegant arch outline */}
             <path 
               d={side === 'left' 
-                ? "M 0 0 L 100 0 L 100 20 Q 95 30 75 45 Q 60 55 50 75 L 50 200 L 0 200 Z" 
-                : "M 100 0 L 0 0 L 0 20 Q 5 30 25 45 Q 40 55 50 75 L 50 200 L 100 200 Z"} 
+                ? "M 7.5 70 L 7.5 45 Q 7.5 38 12 35 Q 15 28 25 25 Q 32 19 45 17 Q 55 13 70 11 Q 82 8 100 7" 
+                : "M 92.5 70 L 92.5 45 Q 92.5 38 88 35 Q 85 28 75 25 Q 68 19 55 17 Q 45 13 30 11 Q 18 8 0 7"} 
               fill="none" 
               stroke={theme.accent} 
-              strokeWidth="0.8" 
+              strokeWidth="1.2" 
+              filter="drop-shadow(0px 1px 2px rgba(0,0,0,0.5))"
             />
-            {/* Fine carvings */}
+            {/* Parallel inner detail line */}
             <path 
-              d={side === 'left'
-                ? "M 90 22 C 85 28 75 35 68 45 C 62 52 58 60 56 70"
-                : "M 10 22 C 15 28 25 35 32 45 C 38 52 42 60 44 70"}
-              stroke={`rgba(${theme.accentRgb}, 0.5)`}
-              strokeWidth="0.4"
-              fill="none"
+              d={side === 'left' 
+                ? "M 11.5 70 L 11.5 45 Q 11.5 39 16 38 Q 19 31.5 28.5 29 Q 35 23 48 21 Q 57.5 17 72 15 Q 83.5 12 100 11" 
+                : "M 88.5 70 L 88.5 45 Q 88.5 39 84 38 Q 81 31.5 71.5 29 Q 65 23 52 21 Q 42.5 17 28 15 Q 16.5 12 0 11"} 
+              fill="none" 
+              stroke={theme.getOpacityStyle('text', 0.45)} 
+              strokeWidth="0.6" 
             />
           </svg>
         </div>
@@ -3612,11 +4563,9 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
     if (ds.type === 'lantern') {
       return (
         <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 3 }}>
-          {/* Brass lattice frame */}
           <div className="absolute inset-3 border border-gold/30 rounded-sm">
             <div className="absolute inset-1 border border-gold/15" />
           </div>
-          {/* Geometric panel dividers for lantern glass pane effect */}
           <svg className="absolute inset-0 w-full h-full opacity-35" viewBox="0 0 100 100" preserveAspectRatio="none">
             <line x1="0" y1="0" x2="100" y2="100" stroke={theme.accent} strokeWidth="0.4" />
             <line x1="0" y1="100" x2="100" y2="0" stroke={theme.accent} strokeWidth="0.4" />
@@ -3629,7 +4578,6 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
     if (ds.type === 'dome') {
       return (
         <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 3 }}>
-          {/* Onion dome silhouette border */}
           <svg className="absolute top-0 left-0 w-full h-full opacity-40" viewBox="0 0 100 200" preserveAspectRatio="none">
             <path 
               d={side === 'left' 
@@ -3644,6 +4592,108 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
       )
     }
     return null
+  }
+
+  // Render splitting wax seal half
+  const renderWaxSealHalf = (side: 'left' | 'right') => {
+    const sealColor = theme.id === 'emerald-noir' || theme.id === 'mughal-emerald'
+      ? '#09251c'
+      : theme.id === 'crimson-royale' || theme.id === 'royal-elegance'
+      ? '#420d14'
+      : theme.id === 'rose-gold-blush' || theme.id === 'rose-gold-blush-royal'
+      ? '#5c222e'
+      : theme.id === 'majestic-love'
+      ? '#3b250d'
+      : '#1e1a14'
+
+    const sealHighlight = theme.id === 'emerald-noir' || theme.id === 'mughal-emerald'
+      ? '#184b3b'
+      : theme.id === 'crimson-royale' || theme.id === 'royal-elegance'
+      ? '#7c1c27'
+      : theme.id === 'rose-gold-blush' || theme.id === 'rose-gold-blush-royal'
+      ? '#993f51'
+      : theme.id === 'majestic-love'
+      ? '#6b4822'
+      : '#483f36'
+
+    const accent = theme.accent
+
+    return (
+      <div 
+        className={`absolute top-1/2 -translate-y-1/2 w-14 h-28 md:w-18 md:h-36 overflow-hidden pointer-events-none z-30 transition-transform duration-300 ${
+          side === 'left' ? 'right-0 origin-right' : 'left-0 origin-left'
+        }`}
+        style={{
+          transform: isPressed ? 'translateY(-50%) scale(0.95)' : isHovered ? 'translateY(-50%) scale(1.08)' : 'translateY(-50%) scale(1)',
+        }}
+      >
+        {/* Full wax seal container shifted so only one half is visible */}
+        <div 
+          className={`absolute top-0 w-28 h-28 md:w-36 md:h-36 ${
+            side === 'left' ? 'left-0' : 'left-[-3.5rem] md:left-[-4.5rem]'
+          }`}
+        >
+          {/* Outer irregular melted wax overflow */}
+          <div 
+            className="absolute inset-0 shadow-2xl transition-all duration-300"
+            style={{
+              borderRadius: '48% 52% 51% 49% / 51% 48% 52% 49%',
+              background: `radial-gradient(circle at 35% 35%, ${sealHighlight}, ${sealColor})`,
+              boxShadow: '0 10px 30px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.18), inset 0 -3px 8px rgba(0,0,0,0.45)',
+              border: `1px solid ${theme.getOpacityStyle('border', 0.12)}`
+            }}
+          />
+          {/* Inner wax stamp stamp-recess */}
+          <div 
+            className="absolute inset-2.5"
+            style={{
+              borderRadius: '50% 50% 48% 52% / 48% 52% 50% 50%',
+              background: `radial-gradient(circle at 40% 30%, ${sealHighlight}, ${sealColor})`,
+              boxShadow: 'inset 2px 3px 6px rgba(0,0,0,0.45), inset -2px -2px 4px rgba(255,255,255,0.08), 0 1px 2px rgba(0,0,0,0.2)',
+              border: `0.5px solid ${theme.getOpacityStyle('border', 0.08)}`
+            }}
+          />
+          {/* Gold monogram circle border inside seal */}
+          <div 
+            className="absolute inset-5 opacity-30 border border-dashed"
+            style={{ 
+              borderColor: accent,
+              borderRadius: '50% 48% 51% 49% / 51% 49% 50% 50%',
+            }} 
+          />
+          {/* Embossed symbol / letter in the center */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span 
+              className={`text-3xl md:text-4xl font-semibold select-none filter drop-shadow-[0_2px_2px_rgba(0,0,0,0.55)] ${theme.fontDisplay}`} 
+              style={{ 
+                color: accent,
+              }}
+            >
+              {ds.centerIcon || '❦'}
+            </span>
+            <span 
+              className={`text-[7px] md:text-[9px] tracking-[0.25em] uppercase mt-0.5 select-none opacity-70 ${theme.fontDisplay}`} 
+              style={{ 
+                color: accent,
+                textShadow: '0 1px 2px rgba(0,0,0,0.4)'
+              }}
+            >
+              open
+            </span>
+          </div>
+          {/* Melty wax outer ripple shadow ring - only render on the left side to prevent double animation */}
+          {side === 'left' && (
+            <div 
+              className="absolute inset-[-6px] border animate-ping opacity-15" 
+              style={{ 
+                borderColor: theme.accent, 
+                borderRadius: '50%' 
+              }} 
+            />
+          )}
+        </div>
+      </div>
+    )
   }
 
   const shouldRenderHingesAndHandle = ['classic-doors', 'archway', 'dome'].includes(ds.type);
@@ -3679,32 +4729,7 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
           <path d="M32 8 Q22 14 22 24 Q22 34 32 40 Q18 40 12 30 Q6 20 12 12 Q18 4 32 8Z" stroke={theme.accent} strokeWidth="1" fill="none" />
           <polygon points="38,8 40,14 46,14 41,18 43,24 38,20 33,24 35,18 30,14 36,14" stroke={theme.accent} strokeWidth="0.5" fill="none" opacity="0.8" />
         </svg>
-        {/* Bismillah text visible BEHIND the doors (revealed as doors open) */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none" style={{ zIndex: 1 }}>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: doorsOpened ? 1 : 0.12 }}
-            transition={{ duration: 2 }}
-            className="font-arabic text-4xl sm:text-5xl md:text-6xl text-center"
-            dir="rtl"
-            style={{ 
-              color: theme.accent,
-              textShadow: `0 0 40px rgba(${a},0.6), 0 0 80px rgba(${a},0.3)`,
-              lineHeight: '1.8'
-            }}
-          >
-            بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
-          </motion.p>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: doorsOpened ? 0.5 : 0.05 }}
-            transition={{ duration: 2, delay: 0.5 }}
-            className="mt-2 text-xs tracking-widest uppercase"
-            style={{ color: `rgba(${a},0.6)` }}
-          >
-            In the name of Allah
-          </motion.p>
-        </div>
+
         {/* Door glow animation background */}
         {!doorsOpened && (
           <div className="absolute inset-0 animate-door-glow">
@@ -3737,10 +4762,10 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
             backfaceVisibility: 'hidden',
           }}
         >
-          <DoorSurface theme={theme} />
+          <DoorSurface theme={theme} side="left" />
           {renderDoorTypeOverlays('left')}
           <div className="absolute inset-0 door-shimmer" />
-          <div className="absolute inset-0" style={{ background: `linear-gradient(to right, transparent, rgba(${theme.accentRgb},0.05))` }} />
+          <div className="absolute inset-0" style={{ background: `linear-gradient(to right, transparent, ${theme.getOpacityStyle('text', 0.05)})` }} />
           {/* Vignette shadow overlay - fades out as door opens */}
           <div 
             className="absolute inset-0 transition-opacity duration-[3200ms] pointer-events-none z-10"
@@ -3755,10 +4780,12 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
           {shouldRenderHingesAndHandle && <DoorHandle theme={theme} side="left" />}
           {/* Center seam vertical golden divider */}
           <div className="absolute right-0 top-0 bottom-0 w-[3px] z-20" style={{
-            background: `linear-gradient(to bottom, rgba(${theme.accentRgb}, 0.1), rgba(${theme.accentRgb}, 0.6), rgba(${theme.accentRgb}, 0.1))`
+            background: `linear-gradient(to bottom, ${theme.getOpacityStyle('text', 0.1)}, ${theme.getOpacityStyle('text', 0.6)}, ${theme.getOpacityStyle('text', 0.1)})`
           }} />
           {/* Hinges on hinge side (left) */}
           {shouldRenderHingesAndHandle && <DoorHinges side="left" accent={theme.accent} accentRgb={theme.accentRgb} />}
+          {/* Left half of breaking wax seal */}
+          {renderWaxSealHalf('left')}
         </div>
         {/* 3D Edge face (door thickness) */}
         {renderEdgeFace('left')}
@@ -3777,10 +4804,10 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
             backfaceVisibility: 'hidden',
           }}
         >
-          <DoorSurface theme={theme} />
+          <DoorSurface theme={theme} side="right" />
           {renderDoorTypeOverlays('right')}
           <div className="absolute inset-0 door-shimmer" />
-          <div className="absolute inset-0" style={{ background: `linear-gradient(to left, transparent, rgba(${theme.accentRgb},0.05))` }} />
+          <div className="absolute inset-0" style={{ background: `linear-gradient(to left, transparent, ${theme.getOpacityStyle('text', 0.05)})` }} />
           {/* Vignette shadow overlay - fades out as door opens */}
           <div 
             className="absolute inset-0 transition-opacity duration-[3200ms] pointer-events-none z-10"
@@ -3795,26 +4822,42 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
           {shouldRenderHingesAndHandle && <DoorHandle theme={theme} side="right" />}
           {/* Center seam vertical golden divider */}
           <div className="absolute left-0 top-0 bottom-0 w-[3px] z-20" style={{
-            background: `linear-gradient(to bottom, rgba(${theme.accentRgb}, 0.1), rgba(${theme.accentRgb}, 0.6), rgba(${theme.accentRgb}, 0.1))`
+            background: `linear-gradient(to bottom, ${theme.getOpacityStyle('text', 0.1)}, ${theme.getOpacityStyle('text', 0.6)}, ${theme.getOpacityStyle('text', 0.1)})`
           }} />
           {/* Hinges on hinge side (right) */}
           {shouldRenderHingesAndHandle && <DoorHinges side="right" accent={theme.accent} accentRgb={theme.accentRgb} />}
+          {/* Right half of breaking wax seal */}
+          {renderWaxSealHalf('right')}
         </div>
         {/* 3D Edge face (door thickness) */}
         {renderEdgeFace('right')}
       </div>
 
-      {/* Center tap-to-open button */}
+      {/* Center tap-to-open button (invisible click target) */}
       {!doorsOpened && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.5, duration: 0.6 }}
-          className="absolute inset-0 flex items-center justify-center z-10"
-        >
-          <CenterButton theme={theme} onClick={onOpen} />
-        </motion.div>
+        <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none">
+          <button
+            onClick={onOpen}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => {
+              setIsHovered(false)
+              setIsPressed(false)
+            }}
+            onMouseDown={() => setIsPressed(true)}
+            onMouseUp={() => setIsPressed(false)}
+            onTouchStart={() => setIsPressed(true)}
+            onTouchEnd={() => {
+              setIsPressed(false)
+              setIsHovered(false)
+            }}
+            className="w-28 h-28 md:w-36 md:h-36 cursor-pointer rounded-full focus:outline-none select-none pointer-events-auto bg-transparent border-none"
+            aria-label="Open invitation"
+          />
+        </div>
       )}
+
+      {/* Particle Canvas Emitter */}
+      <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none z-50" />
     </>
   )
 }
@@ -3822,6 +4865,28 @@ function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doo
 /* ─── Main Invitation Viewer ─── */
 export default function InvitationViewer({ templateId, flowData }: InvitationViewerProps) {
   const theme = useMemo(() => getTheme(templateId), [templateId])
+
+  const getOpacityStyle = useCallback((type: 'text' | 'bg' | 'border', defaultOpacity: number) => {
+    if (!theme.isLight) {
+      return `rgba(${theme.accentRgb},${defaultOpacity})`
+    }
+    if (type === 'text') {
+      const textRgb = hexToRgb(theme.textPrimary)
+      if (defaultOpacity <= 0.3) return `rgba(${textRgb},0.65)`
+      if (defaultOpacity <= 0.5) return `rgba(${textRgb},0.82)`
+      if (defaultOpacity <= 0.7) return `rgba(${textRgb},0.95)`
+      return `rgba(${textRgb},1)`
+    }
+    if (type === 'bg') {
+      if (defaultOpacity <= 0.03) return `rgba(${theme.accentRgb},0.07)`
+      if (defaultOpacity <= 0.05) return `rgba(${theme.accentRgb},0.1)`
+      if (defaultOpacity <= 0.1) return `rgba(${theme.accentRgb},0.15)`
+      return `rgba(${theme.accentRgb},${defaultOpacity * 1.5})`
+    }
+    if (defaultOpacity <= 0.1) return `rgba(${theme.accentRgb},0.25)`
+    if (defaultOpacity <= 0.25) return `rgba(${theme.accentRgb},0.45)`
+    return `rgba(${theme.accentRgb},0.55)`
+  }, [theme.accentRgb, theme.isLight])
 
   // Use flowData for dynamic content, fall back to demo defaults
   const partner1 = flowData?.partner1Name?.trim() || 'Ahmed'
@@ -3831,6 +4896,9 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
   const [venueAddress, googleMapsUrl] = rawVenueAddress.includes('|||')
     ? rawVenueAddress.split('|||')
     : [rawVenueAddress, '']
+  const mapQuery = useMemo(() => {
+    return getMapEmbedQuery(googleMapsUrl, venueAddress, venueName)
+  }, [googleMapsUrl, venueAddress, venueName])
   const welcomeMsg = flowData?.welcomeMessage?.trim() || "With hearts full of love and joy, we warmly invite you to share in the celebration of our union. Your presence would mean the world to us as we begin this beautiful journey together."
 
   const [language, setLanguage] = useState<'en' | 'ur'>('en')
@@ -4011,8 +5079,8 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
     if (flowData?.backgroundMusic && flowData.backgroundMusic !== 'no-music') {
       setMusicPlaying(true)
     }
-    setTimeout(() => setDoorOverlayVisible(false), 2200)
-    setTimeout(() => setHeroVisible(true), 1800)
+    setTimeout(() => setDoorOverlayVisible(false), 2800)
+    setTimeout(() => setHeroVisible(true), 2400)
   }, [doorsOpened, theme.id, flowData?.backgroundMusic])
 
   const handleRSVP = useCallback(async (status: 'accept' | 'decline') => {
@@ -4363,6 +5431,45 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
     return translations[key] || fallback
   }, [language, translations])
 
+  const copyToClipboard = useCallback((text: string) => {
+    try {
+      navigator.clipboard.writeText(text)
+      toast.success(t('linkCopied', 'Invitation link copied to clipboard!'))
+    } catch {
+      const el = document.createElement('textarea')
+      el.value = text
+      document.body.appendChild(el)
+      el.select()
+      document.execCommand('copy')
+      document.body.removeChild(el)
+      toast.success(t('linkCopied', 'Invitation link copied to clipboard!'))
+    }
+  }, [t])
+
+  const handleShare = useCallback(async () => {
+    if (typeof window === 'undefined') return
+    const shareUrl = window.location.href
+    const names = `${partner1} & ${partner2}`
+    const shareTitle = `${names}'s Wedding Invitation`
+    const shareText = `You are warmly invited to the wedding celebration of ${names}. Click to view details:`
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: shareUrl,
+        })
+      } catch (err) {
+        if ((err as Error).name !== 'AbortError') {
+          copyToClipboard(shareUrl)
+        }
+      }
+    } else {
+      copyToClipboard(shareUrl)
+    }
+  }, [partner1, partner2, copyToClipboard])
+
   // Get translated event description
   const getEventDescription = useCallback((eventName: string, originalDesc: string): string => {
     if (language === 'en') return originalDesc
@@ -4414,7 +5521,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
             exit={{ opacity: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
             className="fixed inset-0 z-50"
-            style={{ perspective: ['classic-doors', 'archway', 'lantern'].includes(theme.doorStyle.type) ? '1600px' : undefined }}
+            style={{ perspective: ['classic-doors', 'archway', 'lantern'].includes(theme.doorStyle.type) ? '1200px' : undefined }}
           >
             <DoorOverlay theme={theme} doorsOpened={doorsOpened} onOpen={handleDoorOpen} />
           </motion.div>
@@ -4436,7 +5543,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
             setLanguage(newLang)
           }}
           className="w-10 h-10 rounded-full border backdrop-blur-sm flex items-center justify-center transition-all duration-300 text-xs font-bold relative"
-          style={{ backgroundColor: theme.bgPrimary + 'cc', borderColor: theme.borderSubtle, color: `rgba(${theme.accentRgb},0.7)` }}
+          style={{ backgroundColor: theme.bgPrimary + 'cc', borderColor: theme.borderSubtle, color: getOpacityStyle('text', 0.7) }}
           aria-label="Toggle language"
           disabled={isTranslating}
         >
@@ -4446,8 +5553,92 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
             language === 'en' ? 'اردو' : 'EN'
           )}
         </button>
+        {/* Floating Share Button */}
+        <button
+          onClick={handleShare}
+          className="w-10 h-10 rounded-full border backdrop-blur-sm flex items-center justify-center transition-all duration-300 relative hover:scale-105 active:scale-95"
+          style={{ backgroundColor: theme.bgPrimary + 'cc', borderColor: theme.borderSubtle }}
+          aria-label="Share Invitation"
+          title="Share Invitation"
+        >
+          <Share2 className="w-4 h-4" style={{ color: theme.accent }} />
+        </button>
         <MusicToggle isPlaying={musicPlaying} onToggle={() => setMusicPlaying(!musicPlaying)} theme={theme} />
       </div>
+
+      {/* ─── Bismillah Banner (shown only if enabled) ─── */}
+      {flowData?.showBismillah !== false && (
+        <motion.div
+          initial={{ borderColor: 'transparent' }}
+          animate={doorsOpened ? { borderColor: getOpacityStyle('border', 0.15) } : { borderColor: 'transparent' }}
+          transition={{ delay: 2.2, duration: 1.0 }}
+          className="relative flex flex-col items-center justify-center py-10 px-6 overflow-hidden border-b"
+        >
+          {/* Ambient background glow */}
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={doorsOpened ? { opacity: 1 } : { opacity: 0 }}
+            transition={{ delay: 2.2, duration: 1.0 }}
+            className="absolute inset-0 pointer-events-none" 
+            style={{
+              background: `radial-gradient(ellipse at 50% 50%, ${getOpacityStyle('bg', 0.07)} 0%, transparent 70%)`
+            }} 
+          />
+          {/* Top ornamental line */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={doorsOpened ? { opacity: 1 } : { opacity: 0 }}
+            transition={{ delay: 2.2, duration: 1.0 }}
+            className="flex items-center gap-4 w-full max-w-sm mb-5"
+          >
+            <div className="flex-1 h-px" style={{ background: `linear-gradient(to right, transparent, ${getOpacityStyle('text', 0.5)})` }} />
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <polygon points="11,1 13.5,8.5 21,8.5 15,13.5 17,21 11,16.5 5,21 7,13.5 1,8.5 8.5,8.5" 
+                stroke={theme.accent} strokeWidth="0.8" fill="none" opacity="0.7" />
+            </svg>
+            <div className="flex-1 h-px" style={{ background: `linear-gradient(to left, transparent, ${getOpacityStyle('text', 0.5)})` }} />
+          </motion.div>
+
+          {/* Calligraphy & Translation Wrapper */}
+          <motion.div
+            initial={{ opacity: 0, y: '38vh', scale: 1.2 }}
+            animate={doorsOpened ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: '38vh', scale: 1.2 }}
+            transition={{
+              opacity: { duration: 1.0, delay: 0.2 },
+              y: { duration: 1.5, delay: 1.2, ease: [0.25, 1, 0.5, 1] },
+              scale: { duration: 1.5, delay: 1.2, ease: [0.25, 1, 0.5, 1] },
+            }}
+            className="flex flex-col items-center justify-center z-10"
+          >
+            {/* Bismillah calligraphy */}
+            <p className="font-arabic bismillah-glow text-3xl sm:text-4xl md:text-5xl text-center leading-loose"
+              dir="rtl"
+              style={{ color: theme.accent }}
+            >
+              بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
+            </p>
+
+            {/* Translation */}
+            <p className="mt-3 text-xs sm:text-sm tracking-[0.25em] uppercase text-center"
+              style={{ color: getOpacityStyle('text', 0.45) }}
+            >
+              In the name of Allah, the Most Gracious, the Most Merciful
+            </p>
+          </motion.div>
+
+          {/* Bottom ornamental line */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={doorsOpened ? { opacity: 1 } : { opacity: 0 }}
+            transition={{ delay: 2.2, duration: 1.0 }}
+            className="flex items-center gap-4 w-full max-w-sm mt-5"
+          >
+            <div className="flex-1 h-px" style={{ background: `linear-gradient(to right, transparent, ${getOpacityStyle('text', 0.5)})` }} />
+            <div className="w-2 h-2 rotate-45" style={{ border: `1px solid ${getOpacityStyle('border', 0.6)}` }} />
+            <div className="flex-1 h-px" style={{ background: `linear-gradient(to left, transparent, ${getOpacityStyle('text', 0.5)})` }} />
+          </motion.div>
+        </motion.div>
+      )}
 
       {/* ═══ Main Content ═══ */}
       <motion.div
@@ -4464,73 +5655,20 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
         }}
       >
 
-        {/* ─── Bismillah Banner (shown only if enabled) ─── */}
-        {flowData?.showBismillah !== false && (
-          <RevealSection delay={0.2}>
-            <div className="relative flex flex-col items-center justify-center py-10 px-6 overflow-hidden"
-              style={{ borderBottom: `1px solid rgba(${theme.accentRgb},0.15)` }}
-            >
-              {/* Ambient background glow */}
-              <div className="absolute inset-0 pointer-events-none" style={{
-                background: `radial-gradient(ellipse at 50% 50%, rgba(${theme.accentRgb},0.07) 0%, transparent 70%)`
-              }} />
-              {/* Top ornamental line */}
-              <div className="flex items-center gap-4 w-full max-w-sm mb-5">
-                <div className="flex-1 h-px" style={{ background: `linear-gradient(to right, transparent, rgba(${theme.accentRgb},0.5))` }} />
-                <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-                  <polygon points="11,1 13.5,8.5 21,8.5 15,13.5 17,21 11,16.5 5,21 7,13.5 1,8.5 8.5,8.5" 
-                    stroke={theme.accent} strokeWidth="0.8" fill="none" opacity="0.7" />
-                </svg>
-                <div className="flex-1 h-px" style={{ background: `linear-gradient(to left, transparent, rgba(${theme.accentRgb},0.5))` }} />
-              </div>
-
-              {/* Bismillah calligraphy */}
-              <motion.p
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1.2, ease: 'easeOut' }}
-                className="font-arabic bismillah-glow text-3xl sm:text-4xl md:text-5xl text-center leading-loose"
-                dir="rtl"
-                style={{ color: theme.accent }}
-              >
-                بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
-              </motion.p>
-
-              {/* Translation */}
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.6, duration: 1 }}
-                className="mt-3 text-xs sm:text-sm tracking-[0.25em] uppercase"
-                style={{ color: `rgba(${theme.accentRgb},0.45)` }}
-              >
-                In the name of Allah, the Most Gracious, the Most Merciful
-              </motion.p>
-
-              {/* Bottom ornamental line */}
-              <div className="flex items-center gap-4 w-full max-w-sm mt-5">
-                <div className="flex-1 h-px" style={{ background: `linear-gradient(to right, transparent, rgba(${theme.accentRgb},0.5))` }} />
-                <div className="w-2 h-2 rotate-45" style={{ border: `1px solid rgba(${theme.accentRgb},0.6)` }} />
-                <div className="flex-1 h-px" style={{ background: `linear-gradient(to left, transparent, rgba(${theme.accentRgb},0.5))` }} />
-              </div>
-            </div>
-          </RevealSection>
-        )}
-
         {/* ─── Hero Section ─── */}
         <section className="relative min-h-screen flex flex-col items-center justify-center px-6 py-20 overflow-hidden">
           {/* Background */}
           <div className="absolute inset-0" style={{ backgroundColor: theme.bgPrimary }}>
-            <div className="absolute inset-0" style={{ background: `radial-gradient(at 50% 40%, rgba(${theme.accentRgb},0.06), transparent 60%)` }} />
+            <div className="absolute inset-0" style={{ background: `radial-gradient(at 50% 40%, ${getOpacityStyle('bg', 0.06)}, transparent 60%)` }} />
           </div>
           {/* Corner ornaments */}
-          <CornerOrnament position="tl" accentColor={theme.accent} />
-          <CornerOrnament position="tr" accentColor={theme.accent} />
-          <CornerOrnament position="bl" accentColor={theme.accent} />
-          <CornerOrnament position="br" accentColor={theme.accent} />
+          <CornerOrnament position="tl" themeId={theme.id} accentColor={theme.accent} />
+          <CornerOrnament position="tr" themeId={theme.id} accentColor={theme.accent} />
+          <CornerOrnament position="bl" themeId={theme.id} accentColor={theme.accent} />
+          <CornerOrnament position="br" themeId={theme.id} accentColor={theme.accent} />
           {/* Top gold line */}
           <div className="absolute top-16 md:top-20 left-1/2 -translate-x-1/2 w-64 md:w-80 z-10">
-            <GoldDivider accentColor={theme.accent} />
+            <GoldDivider themeId={theme.id} accentColor={theme.accent} />
           </div>
 
           <div className="relative z-10 max-w-lg text-center">
@@ -4599,7 +5737,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
 
           {/* Bottom gold line */}
           <div className="absolute bottom-16 md:bottom-20 left-1/2 -translate-x-1/2 w-64 md:w-80 z-10">
-            <GoldDivider accentColor={theme.accent} />
+            <GoldDivider themeId={theme.id} accentColor={theme.accent} />
           </div>
 
           {/* Scroll indicator */}
@@ -4616,7 +5754,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
           <section className="py-16 md:py-20 px-6">
             <div className="max-w-lg mx-auto text-center">
               <WaveDivider accentColor={theme.accent} />
-              <p className={`${theme.fontCalligraphy} text-xl md:text-2xl leading-relaxed italic whitespace-pre-wrap break-words my-8`} style={{ color: theme.accentLight, textShadow: `0 0 15px rgba(${theme.accentRgb},0.2)` }}>
+              <p className={`${theme.fontCalligraphy} text-xl md:text-2xl leading-relaxed italic whitespace-pre-wrap break-words my-8`} style={{ color: theme.accentLight, textShadow: `0 0 15px ${getOpacityStyle('text', 0.2)}` }}>
                 {translatedWelcomeMsg}
               </p>
               <WaveDivider accentColor={theme.accent} />
@@ -4639,23 +5777,114 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
           </section>
         </RevealSection>
 
+        {/* ─── Quranic Verse ─── */}
+        {flowData?.showQuranVerse && (
+          <RevealSection>
+            <section className="py-16 md:py-20 px-6">
+              <div 
+                className="max-w-2xl mx-auto text-center space-y-6 md:space-y-8 py-10 px-6 md:px-10 rounded-2xl border backdrop-blur-md relative overflow-hidden transition-all duration-500 shadow-xl"
+                style={{ 
+                  borderColor: getOpacityStyle('border', 0.15), 
+                  backgroundColor: getOpacityStyle('bg', 0.3) || 'rgba(0,0,0,0.15)',
+                  boxShadow: `0 10px 30px -10px ${getOpacityStyle('border', 0.1)}`
+                }}
+              >
+                {/* Subtle elegant Islamic geometric / design flourish */}
+                <div className="flex justify-center items-center gap-4 mb-2">
+                  <div className="w-8 h-px" style={{ background: `linear-gradient(90deg, transparent, ${theme.accent})` }} />
+                  <span className="text-gold opacity-80 text-2xl font-arabic">﷽</span>
+                  <div className="w-8 h-px" style={{ background: `linear-gradient(-90deg, transparent, ${theme.accent})` }} />
+                </div>
+
+                {/* Arabic Calligraphy Verse */}
+                <p 
+                  className="font-arabic text-2xl md:text-3xl leading-loose text-gold px-2 bismillah-glow" 
+                  dir="rtl"
+                  style={{ color: theme.accentLight || '#d4af37', textShadow: `0 0 15px ${getOpacityStyle('text', 0.2)}` }}
+                >
+                  وَمِنْ ءَايَـٰتِهِۦٓ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَٰجًا لِّتَسْکُنُوٓا۟ إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً ۚ إِنَّ فِى ذَٰلِكَ لَـَٔايَـٰتٍ لِّقَوْمٍ يَتَفَكَّرُونَ
+                </p>
+
+                <div className="flex justify-center items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: getOpacityStyle('border', 0.3) }} />
+                  <div className="w-16 h-px" style={{ backgroundColor: getOpacityStyle('border', 0.2) }} />
+                  <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: getOpacityStyle('border', 0.3) }} />
+                </div>
+
+                {/* English Translation */}
+                <p 
+                  className="text-sm md:text-base italic leading-relaxed max-w-xl mx-auto px-4"
+                  style={{ color: theme.textSecondary || 'rgba(255,255,255,0.8)' }}
+                >
+                  &ldquo;And of His signs is that He created for you from yourselves mates that you may find tranquility in them; and He placed between you affection and mercy. Indeed in that are signs for a people who give thought.&rdquo;
+                  <span className="block text-xs mt-2 font-semibold not-italic" style={{ color: theme.accent }}>— Surah Ar-Rum [30:21]</span>
+                </p>
+
+                <div className="flex justify-center items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: getOpacityStyle('border', 0.3) }} />
+                  <div className="w-16 h-px" style={{ backgroundColor: getOpacityStyle('border', 0.2) }} />
+                  <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: getOpacityStyle('border', 0.3) }} />
+                </div>
+
+                {/* Urdu Translation */}
+                <p 
+                  className="font-arabic text-lg md:text-xl leading-loose max-w-xl mx-auto px-4" 
+                  dir="rtl"
+                  style={{ color: theme.textPrimary || '#ffffff' }}
+                >
+                  &ldquo;اور اس کی نشانیوں میں سے ہے کہ اس نے تمہارے لیے تمہاری ہی جنس سے جوڑے پیدا کیے تاکہ تم ان سے آرام پاؤ اور اس نے تمہارے درمیان محبت اور رحمت پیدا کر دی، یقیناً اس میں غور و فکر کرنے والوں کے لیے نشانیاں ہیں۔&rdquo;
+                  <span className="block text-xs mt-2 font-sans not-italic opacity-85" style={{ color: theme.accent }}>— سورہ روم [30:21]</span>
+                </p>
+              </div>
+            </section>
+          </RevealSection>
+        )}
+
         {/* ─── Photo Gallery ─── */}
         <RevealSection>
           <section className="py-16 md:py-20 px-6">
             <div className="flex flex-col items-center gap-6">
               <h2 className={`${theme.fontCalligraphy} text-3xl sm:text-4xl text-center`} style={{ color: theme.accent }}>{t('ourMoments', 'Our Moments')}</h2>
-              <HeartDivider accentColor={theme.accent} />
+              <HeartDivider themeId={theme.id} accentColor={theme.accent} />
               <PhotoGallery theme={theme} images={flowData?.slideshowImages} />
             </div>
           </section>
         </RevealSection>
+
+          {/* 🎥 Video Section (Royal Plan / Video Feature) 🎥 */}
+          {flowData?.youtubeVideoId && (flowData.selectedPlan === 'royal' || theme.id.includes('royal') || ['crimson-royale', 'majestic-love', 'royal-imperial', 'royal-elegance'].includes(theme.id)) && (
+            <RevealSection>
+              <section className="py-16 md:py-20 px-6">
+                <div className="flex flex-col items-center gap-6">
+                  <h2 className={`${theme.fontCalligraphy} text-3xl sm:text-4xl text-center`} style={{ color: theme.accent }}>Our Story</h2>
+                  <HeartDivider themeId={theme.id} accentColor={theme.accent} />
+                  <div className="w-full max-w-3xl mx-auto">
+                    <div 
+                      className="relative overflow-hidden rounded-xl aspect-video shadow-lg"
+                      style={{ border: `1px solid ${getOpacityStyle('border', 0.2)}`, boxShadow: `0 10px 15px -3px ${getOpacityStyle('border', 0.05)}` }}
+                    >
+                      <iframe 
+                        className="w-full h-full"
+                        src={`https://www.youtube.com/embed/${flowData.youtubeVideoId}?rel=0&modestbranding=1`} 
+                        title="YouTube video player" 
+                        frameBorder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowFullScreen
+                      ></iframe>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </RevealSection>
+          )}
+
 
         {/* ─── Countdown Timer ─── */}
         <RevealSection>
           <section className="py-16 md:py-20 px-6">
             <div className="flex flex-col items-center gap-8">
               <h2 className={`${theme.fontCalligraphy} text-3xl sm:text-4xl text-center`} style={{ color: theme.accent }}>{t('countingDown', 'Counting Down to Forever')}</h2>
-              <HeartDivider accentColor={theme.accent} />
+              <HeartDivider themeId={theme.id} accentColor={theme.accent} />
               <CountdownTimer 
                 theme={theme} 
                 translations={language === 'ur' ? translations : undefined} 
@@ -4671,10 +5900,10 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
           <section className="py-16 md:py-20 px-6">
             <div className="flex flex-col items-center gap-8 max-w-md mx-auto">
               <h2 className={`${theme.fontCalligraphy} text-3xl sm:text-4xl text-center`} style={{ color: theme.accent }}>{t('programTimeline', 'Program Timeline')}</h2>
-              <HeartDivider accentColor={theme.accent} />
+              <HeartDivider themeId={theme.id} accentColor={theme.accent} />
 
               <div className="relative w-full">
-                <div className="absolute left-5 top-0 bottom-0 w-px" style={{ background: `linear-gradient(to bottom, rgba(${theme.accentRgb},0.4), rgba(${theme.accentRgb},0.2), rgba(${theme.accentRgb},0.4))` }} />
+                <div className="absolute left-5 top-0 bottom-0 w-px" style={{ background: `linear-gradient(to bottom, ${getOpacityStyle('text', 0.4)}, ${getOpacityStyle('text', 0.2)}, ${getOpacityStyle('text', 0.4)})` }} />
                 <div className="flex flex-col gap-8">
                   {events.map((event, idx) => {
                     const te = getTranslatedEvent(event, idx)
@@ -4682,17 +5911,17 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                     <RevealSection key={event.name} delay={idx * 0.12}>
                       <div className="flex gap-5 items-start">
                         <div className="relative z-10 flex-shrink-0">
-                          <div className="w-[10px] h-[10px] rounded-full mt-1.5" style={{ backgroundColor: theme.accent, boxShadow: `0 0 8px rgba(${theme.accentRgb},0.5)` }} />
+                          <div className="w-[10px] h-[10px] rounded-full mt-1.5" style={{ backgroundColor: theme.accent, boxShadow: `0 0 8px ${getOpacityStyle('border', 0.5)}` }} />
                         </div>
                         <div className="flex-1 pb-2">
                           <div className="flex items-center gap-2 mb-1">
-                            <Calendar className="w-3.5 h-3.5" style={{ color: `rgba(${theme.accentRgb},0.5)` }} />
-                            <span className="text-xs" style={{ color: `rgba(${theme.accentRgb},0.5)` }}>{te.date}</span>
-                            <Clock className="w-3.5 h-3.5 ml-2" style={{ color: `rgba(${theme.accentRgb},0.5)` }} />
-                            <span className="text-xs" style={{ color: `rgba(${theme.accentRgb},0.5)` }}>{te.time}</span>
+                            <Calendar className="w-3.5 h-3.5" style={{ color: getOpacityStyle('text', 0.5) }} />
+                            <span className="text-xs" style={{ color: getOpacityStyle('text', 0.5) }}>{te.date}</span>
+                            <Clock className="w-3.5 h-3.5 ml-2" style={{ color: getOpacityStyle('text', 0.5) }} />
+                            <span className="text-xs" style={{ color: getOpacityStyle('text', 0.5) }}>{te.time}</span>
                           </div>
                           <h3 className={`${theme.fontDisplay} text-xl font-semibold mb-1`} style={{ color: theme.accent }}>{te.name}</h3>
-                          <p className="text-sm leading-relaxed mb-3" style={{ color: `rgba(${theme.accentRgb},0.5)` }}>{te.description}</p>
+                          <p className="text-sm leading-relaxed mb-3" style={{ color: getOpacityStyle('text', 0.5) }}>{te.description}</p>
                           <AddToCalendarDropdown
                             event={event}
                             partner1={partner1}
@@ -4718,27 +5947,27 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
             <section className="py-16 md:py-20 px-6">
               <div className="flex flex-col items-center gap-8 max-w-md mx-auto">
                 <h2 className={`${theme.fontCalligraphy} text-3xl sm:text-4xl text-center`} style={{ color: theme.accent }}>{t('dressCode', 'Dress Code')}</h2>
-                <HeartDivider accentColor={theme.accent} />
+                <HeartDivider themeId={theme.id} accentColor={theme.accent} />
                 
                 <div className="grid grid-cols-2 gap-6 w-full">
                   {/* Women's Dress Code */}
                   {dressCodeWomen && (
-                    <div className="flex flex-col items-center p-5 rounded-xl border text-center backdrop-blur-sm" style={{ backgroundColor: `rgba(${theme.accentRgb},0.03)`, borderColor: theme.borderSubtle }}>
-                      <span className={`text-xs tracking-wider uppercase mb-1 ${theme.fontDisplay}`} style={{ color: `rgba(${theme.accentRgb},0.5)` }}>{t('ladies', 'Ladies')}</span>
+                    <div className="flex flex-col items-center p-5 rounded-xl border text-center backdrop-blur-sm" style={{ backgroundColor: getOpacityStyle('text', 0.03), borderColor: theme.borderSubtle }}>
+                      <span className={`text-xs tracking-wider uppercase mb-1 ${theme.fontDisplay}`} style={{ color: getOpacityStyle('text', 0.5) }}>{t('ladies', 'Ladies')}</span>
                       <p className="text-sm font-semibold mb-4 leading-relaxed" style={{ color: theme.textPrimary }}>{translatedDressCodeWomen}</p>
                       
                       {extractColors(dressCodeWomen).length > 0 && (
                         <div className="flex flex-col items-center gap-1.5">
-                          <span className="text-[10px] uppercase tracking-wider" style={{ color: `rgba(${theme.accentRgb},0.4)` }}>{t('recommendedColors', 'Themes')}</span>
+                          <span className="text-[10px] uppercase tracking-wider" style={{ color: getOpacityStyle('text', 0.4) }}>{t('recommendedColors', 'Themes')}</span>
                           <div className="flex gap-2.5 justify-center flex-wrap">
                             {extractColors(dressCodeWomen).map((color, i) => (
                               <div key={i} className="flex flex-col items-center gap-1">
                                 <div 
                                   className="w-6 h-6 rounded-full border shadow-sm cursor-help hover:scale-105 transition-transform" 
-                                  style={{ backgroundColor: color.hex, borderColor: `rgba(${theme.accentRgb},0.3)` }} 
+                                  style={{ backgroundColor: color.hex, borderColor: getOpacityStyle('border', 0.3) }} 
                                   title={color.name}
                                 />
-                                <span className="text-[9px]" style={{ color: `rgba(${theme.accentRgb},0.45)` }}>{color.name}</span>
+                                <span className="text-[9px]" style={{ color: getOpacityStyle('text', 0.45) }}>{color.name}</span>
                               </div>
                             ))}
                           </div>
@@ -4749,22 +5978,22 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
 
                   {/* Men's Dress Code */}
                   {dressCodeMen && (
-                    <div className="flex flex-col items-center p-5 rounded-xl border text-center backdrop-blur-sm" style={{ backgroundColor: `rgba(${theme.accentRgb},0.03)`, borderColor: theme.borderSubtle }}>
-                      <span className={`text-xs tracking-wider uppercase mb-1 ${theme.fontDisplay}`} style={{ color: `rgba(${theme.accentRgb},0.5)` }}>{t('gentlemen', 'Gentlemen')}</span>
+                    <div className="flex flex-col items-center p-5 rounded-xl border text-center backdrop-blur-sm" style={{ backgroundColor: getOpacityStyle('text', 0.03), borderColor: theme.borderSubtle }}>
+                      <span className={`text-xs tracking-wider uppercase mb-1 ${theme.fontDisplay}`} style={{ color: getOpacityStyle('text', 0.5) }}>{t('gentlemen', 'Gentlemen')}</span>
                       <p className="text-sm font-semibold mb-4 leading-relaxed" style={{ color: theme.textPrimary }}>{translatedDressCodeMen}</p>
                       
                       {extractColors(dressCodeMen).length > 0 && (
                         <div className="flex flex-col items-center gap-1.5">
-                          <span className="text-[10px] uppercase tracking-wider" style={{ color: `rgba(${theme.accentRgb},0.4)` }}>{t('recommendedColors', 'Themes')}</span>
+                          <span className="text-[10px] uppercase tracking-wider" style={{ color: getOpacityStyle('text', 0.4) }}>{t('recommendedColors', 'Themes')}</span>
                           <div className="flex gap-2.5 justify-center flex-wrap">
                             {extractColors(dressCodeMen).map((color, i) => (
                               <div key={i} className="flex flex-col items-center gap-1">
                                 <div 
                                   className="w-6 h-6 rounded-full border shadow-sm cursor-help hover:scale-105 transition-transform" 
-                                  style={{ backgroundColor: color.hex, borderColor: `rgba(${theme.accentRgb},0.3)` }} 
+                                  style={{ backgroundColor: color.hex, borderColor: getOpacityStyle('border', 0.3) }} 
                                   title={color.name}
                                 />
-                                <span className="text-[9px]" style={{ color: `rgba(${theme.accentRgb},0.45)` }}>{color.name}</span>
+                                <span className="text-[9px]" style={{ color: getOpacityStyle('text', 0.45) }}>{color.name}</span>
                               </div>
                             ))}
                           </div>
@@ -4784,19 +6013,19 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
             <section className="py-16 md:py-20 px-6">
               <div className="flex flex-col items-center gap-8 max-w-md mx-auto">
                 <h2 className={`${theme.fontCalligraphy} text-3xl sm:text-4xl text-center`} style={{ color: theme.accent }}>{t('travelAccommodations', 'Travel & Accommodations')}</h2>
-                <HeartDivider accentColor={theme.accent} />
+                <HeartDivider themeId={theme.id} accentColor={theme.accent} />
                 
                 <div className="flex flex-col gap-5 w-full">
                   {/* Hotel Blocks / Accommodation */}
                   {accommodation && (
-                    <Card className="backdrop-blur-sm w-full" style={{ backgroundColor: `rgba(${theme.accentRgb},0.03)`, borderColor: theme.borderSubtle }}>
+                    <Card className="backdrop-blur-sm w-full" style={{ backgroundColor: getOpacityStyle('bg', 0.03), borderColor: theme.borderSubtle }}>
                       <CardContent className="flex gap-4 p-5 items-start">
-                        <div className="w-10 h-10 rounded-full border flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `rgba(${theme.accentRgb},0.05)`, borderColor: theme.borderSubtle }}>
+                        <div className="w-10 h-10 rounded-full border flex items-center justify-center flex-shrink-0" style={{ backgroundColor: getOpacityStyle('bg', 0.05), borderColor: theme.borderSubtle }}>
                           <Hotel className="w-5 h-5" style={{ color: theme.accent }} />
                         </div>
                         <div className="flex-1">
                           <h3 className={`${theme.fontDisplay} text-base font-semibold mb-1`} style={{ color: theme.accent }}>{t('hotelBlocks', 'Hotel Accommodations')}</h3>
-                          <p className="text-sm leading-relaxed" style={{ color: `rgba(${theme.accentRgb},0.75)` }}>{translatedAccommodation}</p>
+                          <p className="text-sm leading-relaxed" style={{ color: getOpacityStyle('text', 0.75) }}>{translatedAccommodation}</p>
                         </div>
                       </CardContent>
                     </Card>
@@ -4804,14 +6033,14 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
 
                   {/* Travel / Transportation */}
                   {transportation && (
-                    <Card className="backdrop-blur-sm w-full" style={{ backgroundColor: `rgba(${theme.accentRgb},0.03)`, borderColor: theme.borderSubtle }}>
+                    <Card className="backdrop-blur-sm w-full" style={{ backgroundColor: getOpacityStyle('bg', 0.03), borderColor: theme.borderSubtle }}>
                       <CardContent className="flex gap-4 p-5 items-start">
-                        <div className="w-10 h-10 rounded-full border flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `rgba(${theme.accentRgb},0.05)`, borderColor: theme.borderSubtle }}>
+                        <div className="w-10 h-10 rounded-full border flex items-center justify-center flex-shrink-0" style={{ backgroundColor: getOpacityStyle('bg', 0.05), borderColor: theme.borderSubtle }}>
                           <Car className="w-5 h-5" style={{ color: theme.accent }} />
                         </div>
                         <div className="flex-1">
                           <h3 className={`${theme.fontDisplay} text-base font-semibold mb-1`} style={{ color: theme.accent }}>{t('transportationInfo', 'Transportation Info')}</h3>
-                          <p className="text-sm leading-relaxed" style={{ color: `rgba(${theme.accentRgb},0.75)` }}>{translatedTransportation}</p>
+                          <p className="text-sm leading-relaxed" style={{ color: getOpacityStyle('text', 0.75) }}>{translatedTransportation}</p>
                         </div>
                       </CardContent>
                     </Card>
@@ -4827,32 +6056,40 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
           <section className="py-16 md:py-20 px-6">
             <div className="flex flex-col items-center gap-6 max-w-md mx-auto">
               <h2 className={`${theme.fontCalligraphy} text-3xl sm:text-4xl text-center flex items-center gap-3`} style={{ color: theme.accent }}>
-                <MapPin className="w-7 h-7" style={{ color: `rgba(${theme.accentRgb},0.7)` }} />
+                <MapPin className="w-7 h-7" style={{ color: getOpacityStyle('text', 0.7) }} />
                 {t('venue', 'Venue')}
               </h2>
-              <HeartDivider accentColor={theme.accent} />
-
-              {/* Venue illustration */}
-              <svg viewBox="0 0 200 140" fill="none" className="w-40 h-28 mx-auto opacity-50">
-                <rect x="40" y="50" width="120" height="70" fill={theme.accent} opacity="0.15" stroke={theme.accent} strokeWidth="0.8" />
-                <path d="M30 55 L100 20 L170 55" fill="none" stroke={theme.accent} strokeWidth="1" opacity="0.6" />
-                <path d="M35 52 L100 25 L165 52" fill={theme.accent} opacity="0.08" />
-                <rect x="82" y="80" width="36" height="40" rx="18" fill={theme.accent} opacity="0.1" stroke={theme.accent} strokeWidth="0.5" />
-                <circle cx="113" cy="100" r="2" fill={theme.accent} opacity="0.4" />
-                <rect x="52" y="65" width="20" height="20" rx="2" fill={theme.accent} opacity="0.08" stroke={theme.accent} strokeWidth="0.5" />
-                <rect x="128" y="65" width="20" height="20" rx="2" fill={theme.accent} opacity="0.08" stroke={theme.accent} strokeWidth="0.5" />
-                <line x1="20" y1="120" x2="180" y2="120" stroke={theme.accent} strokeWidth="0.5" opacity="0.3" />
-              </svg>
+              <HeartDivider themeId={theme.id} accentColor={theme.accent} />
 
               <div className="text-center space-y-2">
                 <h3 className={`${theme.fontDisplay} text-2xl`} style={{ color: theme.accent }}>{translatedVenueName}</h3>
-                <p className="text-sm" style={{ color: `rgba(${theme.accentRgb},0.6)` }}>{translatedVenueAddress}</p>
+                <p className="text-sm" style={{ color: getOpacityStyle('text', 0.6) }}>{translatedVenueAddress}</p>
+              </div>
+
+              {/* Real Map Embed */}
+              <div 
+                className="w-full rounded-2xl overflow-hidden shadow-lg border mt-2 mb-4 transition-all duration-300"
+                style={{ 
+                  borderColor: theme.borderSubtle,
+                  boxShadow: `0 10px 25px -5px rgba(${theme.accentRgb}, 0.1), 0 8px 10px -6px rgba(${theme.accentRgb}, 0.1)`
+                }}
+              >
+                <iframe
+                  title="Venue Location Map"
+                  width="100%"
+                  height="220"
+                  style={{ border: 0, filter: theme.isLight ? 'none' : 'invert(90%) hue-rotate(180deg) grayscale(10%)' }}
+                  src={`https://maps.google.com/maps?q=${encodeURIComponent(mapQuery)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                ></iframe>
               </div>
 
               <Button
                 asChild
                 className={`border rounded-lg px-6 py-2.5 h-auto ${theme.fontDisplay} transition-all duration-300`}
-                style={{ backgroundColor: `rgba(${theme.accentRgb},0.1)`, borderColor: theme.borderSubtle, color: theme.accent }}
+                style={{ backgroundColor: getOpacityStyle('bg', 0.1), borderColor: theme.borderSubtle, color: theme.accent }}
                 variant="outline"
               >
                 <a href={googleMapsUrl ? googleMapsUrl : `https://maps.google.com/?q=${encodeURIComponent(venueAddress)}`} target="_blank" rel="noopener noreferrer">
@@ -4870,13 +6107,13 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
             <section className="py-16 md:py-20 px-6">
               <div className="flex flex-col items-center gap-8 max-w-md mx-auto">
                 <h2 className={`${theme.fontCalligraphy} text-3xl sm:text-4xl text-center`} style={{ color: theme.accent }}>{t('giftsShagun', 'Digital Shagun & Registry')}</h2>
-                <HeartDivider accentColor={theme.accent} />
+                <HeartDivider themeId={theme.id} accentColor={theme.accent} />
                 
                 <div className="w-full flex flex-col gap-6">
                   {/* General message */}
-                  <div className="text-center p-4 border rounded-xl backdrop-blur-sm" style={{ backgroundColor: `rgba(${theme.accentRgb},0.02)`, borderColor: theme.borderSubtle }}>
+                  <div className="text-center p-4 border rounded-xl backdrop-blur-sm" style={{ backgroundColor: getOpacityStyle('bg', 0.02), borderColor: theme.borderSubtle }}>
                     <Gift className="w-6 h-6 mx-auto mb-2" style={{ color: theme.accent }} />
-                    <p className="text-sm leading-relaxed" style={{ color: `rgba(${theme.accentRgb},0.8)` }}>{translatedGifts}</p>
+                    <p className="text-sm leading-relaxed" style={{ color: getOpacityStyle('text', 0.8) }}>{translatedGifts}</p>
                   </div>
 
                   {/* Parsed Banking Cards */}
@@ -4886,12 +6123,12 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
 
                     return (
                       <div className="flex flex-col gap-4">
-                        <span className={`text-xs uppercase tracking-wider text-center ${theme.fontDisplay}`} style={{ color: `rgba(${theme.accentRgb},0.5)` }}>{t('shagunDetails', 'Quick Copy details')}</span>
+                        <span className={`text-xs uppercase tracking-wider text-center ${theme.fontDisplay}`} style={{ color: getOpacityStyle('text', 0.5) }}>{t('shagunDetails', 'Quick Copy details')}</span>
                         
                         {/* Bank Card */}
                         {(parsed.accountNumber || parsed.iban) && (
                           <div className="relative p-5 rounded-2xl border backdrop-blur-md overflow-hidden" style={{ 
-                            background: `linear-gradient(135deg, rgba(${theme.accentRgb},0.06) 0%, rgba(${theme.accentRgb},0.02) 100%)`, 
+                            background: `linear-gradient(135deg, ${getOpacityStyle('bg', 0.06)} 0%, ${getOpacityStyle('bg', 0.02)} 100%)`, 
                             borderColor: theme.borderSubtle,
                             boxShadow: `0 8px 32px 0 rgba(0,0,0,0.37)`
                           }}>
@@ -4909,7 +6146,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                               {/* Account Title */}
                               {parsed.accountTitle && (
                                 <div>
-                                  <span className="text-[10px] uppercase tracking-wider block" style={{ color: `rgba(${theme.accentRgb},0.45)` }}>Account Title</span>
+                                  <span className="text-[10px] uppercase tracking-wider block" style={{ color: getOpacityStyle('text', 0.45) }}>Account Title</span>
                                   <span className="text-sm font-semibold" style={{ color: theme.textPrimary }}>{parsed.accountTitle}</span>
                                 </div>
                               )}
@@ -4918,7 +6155,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                               {parsed.accountNumber && (
                                 <div className="flex justify-between items-center">
                                   <div>
-                                    <span className="text-[10px] uppercase tracking-wider block" style={{ color: `rgba(${theme.accentRgb},0.45)` }}>Account Number</span>
+                                    <span className="text-[10px] uppercase tracking-wider block" style={{ color: getOpacityStyle('text', 0.45) }}>Account Number</span>
                                     <span className="text-base font-mono tracking-wider" style={{ color: theme.textPrimary }}>{parsed.accountNumber}</span>
                                   </div>
                                   <Button
@@ -4935,9 +6172,9 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
 
                               {/* IBAN */}
                               {parsed.iban && (
-                                <div className="flex justify-between items-center border-t pt-3" style={{ borderColor: `rgba(${theme.accentRgb},0.1)` }}>
+                                <div className="flex justify-between items-center border-t pt-3" style={{ borderColor: getOpacityStyle('border', 0.1) }}>
                                   <div className="min-w-0 flex-1">
-                                    <span className="text-[10px] uppercase tracking-wider block" style={{ color: `rgba(${theme.accentRgb},0.45)` }}>IBAN</span>
+                                    <span className="text-[10px] uppercase tracking-wider block" style={{ color: getOpacityStyle('text', 0.45) }}>IBAN</span>
                                     <span className="text-xs font-mono tracking-wider block truncate" style={{ color: theme.textPrimary }}>{parsed.iban}</span>
                                   </div>
                                   <Button
@@ -4960,11 +6197,11 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                           <div className="grid grid-cols-1 gap-3">
                             {/* Raast ID Card */}
                             {parsed.raastId && (
-                              <div className="flex justify-between items-center p-4 rounded-xl border backdrop-blur-sm" style={{ backgroundColor: `rgba(${theme.accentRgb},0.03)`, borderColor: theme.borderSubtle }}>
+                              <div className="flex justify-between items-center p-4 rounded-xl border backdrop-blur-sm" style={{ backgroundColor: getOpacityStyle('bg', 0.03), borderColor: theme.borderSubtle }}>
                                 <div className="flex gap-3 items-center">
                                   <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center font-bold text-xs" style={{ color: '#f97316' }}>R</div>
                                   <div>
-                                    <span className="text-[9px] uppercase tracking-wider block" style={{ color: `rgba(${theme.accentRgb},0.45)` }}>Raast ID</span>
+                                    <span className="text-[9px] uppercase tracking-wider block" style={{ color: getOpacityStyle('text', 0.45) }}>Raast ID</span>
                                     <span className="text-sm font-mono" style={{ color: theme.textPrimary }}>{parsed.raastId}</span>
                                   </div>
                                 </div>
@@ -4982,11 +6219,11 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
 
                             {/* EasyPaisa Card */}
                             {parsed.easyPaisa && (
-                              <div className="flex justify-between items-center p-4 rounded-xl border backdrop-blur-sm" style={{ backgroundColor: `rgba(${theme.accentRgb},0.03)`, borderColor: theme.borderSubtle }}>
+                              <div className="flex justify-between items-center p-4 rounded-xl border backdrop-blur-sm" style={{ backgroundColor: getOpacityStyle('bg', 0.03), borderColor: theme.borderSubtle }}>
                                 <div className="flex gap-3 items-center">
                                   <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center font-bold text-xs" style={{ color: '#22c55e' }}>EP</div>
                                   <div>
-                                    <span className="text-[9px] uppercase tracking-wider block" style={{ color: `rgba(${theme.accentRgb},0.45)` }}>EasyPaisa</span>
+                                    <span className="text-[9px] uppercase tracking-wider block" style={{ color: getOpacityStyle('text', 0.45) }}>EasyPaisa</span>
                                     <span className="text-sm font-mono" style={{ color: theme.textPrimary }}>{parsed.easyPaisa}</span>
                                   </div>
                                 </div>
@@ -5004,11 +6241,11 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
 
                             {/* JazzCash Card */}
                             {parsed.jazzCash && (
-                              <div className="flex justify-between items-center p-4 rounded-xl border backdrop-blur-sm" style={{ backgroundColor: `rgba(${theme.accentRgb},0.03)`, borderColor: theme.borderSubtle }}>
+                              <div className="flex justify-between items-center p-4 rounded-xl border backdrop-blur-sm" style={{ backgroundColor: getOpacityStyle('bg', 0.03), borderColor: theme.borderSubtle }}>
                                 <div className="flex gap-3 items-center">
                                   <div className="w-8 h-8 rounded-lg bg-yellow-500/10 flex items-center justify-center font-bold text-xs" style={{ color: '#eab308' }}>JC</div>
                                   <div>
-                                    <span className="text-[9px] uppercase tracking-wider block" style={{ color: `rgba(${theme.accentRgb},0.45)` }}>JazzCash</span>
+                                    <span className="text-[9px] uppercase tracking-wider block" style={{ color: getOpacityStyle('text', 0.45) }}>JazzCash</span>
                                     <span className="text-sm font-mono" style={{ color: theme.textPrimary }}>{parsed.jazzCash}</span>
                                   </div>
                                 </div>
@@ -5039,7 +6276,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
           <section className="py-16 md:py-20 px-6">
             <div className="flex flex-col items-center gap-8 max-w-md mx-auto">
               <h2 className={`${theme.fontCalligraphy} text-3xl sm:text-4xl text-center`} style={{ color: theme.accent }}>{t('faq', 'Frequently Asked Questions')}</h2>
-              <HeartDivider accentColor={theme.accent} />
+              <HeartDivider themeId={theme.id} accentColor={theme.accent} />
               
               <div className="w-full flex flex-col gap-4">
                 {[
@@ -5076,7 +6313,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                     <div 
                       key={idx}
                       className="border rounded-xl overflow-hidden transition-all duration-300"
-                      style={{ backgroundColor: `rgba(${theme.accentRgb}, 0.02)`, borderColor: theme.borderSubtle }}
+                      style={{ backgroundColor: getOpacityStyle('bg', 0.02), borderColor: theme.borderSubtle }}
                     >
                       <button
                         onClick={() => setFaqOpen(prev => ({ ...prev, [idx]: !prev[idx] }))}
@@ -5087,7 +6324,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                         <ChevronDown 
                           className="w-4 h-4 flex-shrink-0 transition-transform duration-300" 
                           style={{ 
-                            color: `rgba(${theme.accentRgb},0.5)`,
+                            color: getOpacityStyle('text', 0.5),
                             transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'
                           }} 
                         />
@@ -5100,7 +6337,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                             exit={{ height: 0, opacity: 0 }}
                             transition={{ duration: 0.3 }}
                           >
-                            <div className="p-4 pt-0 border-t text-sm leading-relaxed" style={{ borderColor: `rgba(${theme.accentRgb},0.1)`, color: `rgba(${theme.accentRgb},0.8)` }}>
+                            <div className="p-4 pt-0 border-t text-sm leading-relaxed" style={{ borderColor: getOpacityStyle('text', 0.1), color: getOpacityStyle('text', 0.8) }}>
                               {answer}
                             </div>
                           </motion.div>
@@ -5119,7 +6356,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
           <section className="py-16 md:py-20 px-6">
             <div className="flex flex-col items-center gap-8 max-w-md mx-auto">
               <h2 className={`${theme.fontCalligraphy} text-3xl sm:text-4xl text-center`} style={{ color: theme.accent }}>{t('willYouAttend', 'Will You Attend?')}</h2>
-              <HeartDivider accentColor={theme.accent} />
+              <HeartDivider themeId={theme.id} accentColor={theme.accent} />
 
               <div className="relative w-full">
                 {/* Decorative corner borders */}
@@ -5131,7 +6368,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                 {/* Floating hearts on RSVP accept */}
                 {rsvpHearts.map((h) => (
                   <div key={h} className="absolute heart-float pointer-events-none" style={{ left: `${20 + ((h * 13) % 61)}%`, top: '40%', animationDelay: `${h * 0.15}s` }}>
-                    <Heart className="w-5 h-5" style={{ color: theme.accent, fill: `rgba(${theme.accentRgb},0.4)` }} />
+                    <Heart className="w-5 h-5" style={{ color: theme.accent, fill: getOpacityStyle('text', 0.4) }} />
                   </div>
                 ))}
 
@@ -5139,7 +6376,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                   <Card className="w-full backdrop-blur-sm" style={{ backgroundColor: theme.bgPrimary + 'cc', borderColor: theme.borderSubtle }}>
                     <CardContent className="flex flex-col gap-5 pt-6">
                       <div className="space-y-2">
-                        <label className={`text-sm ${theme.fontDisplay}`} style={{ color: `rgba(${theme.accentRgb},0.7)` }}>{t('yourName', 'Your Name')}</label>
+                        <label className={`text-sm ${theme.fontDisplay}`} style={{ color: getOpacityStyle('text', 0.7) }}>{t('yourName', 'Your Name')}</label>
                         <Input
                           value={rsvpName}
                           onChange={(e) => setRsvpName(e.target.value)}
@@ -5149,7 +6386,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className={`text-sm ${theme.fontDisplay}`} style={{ color: `rgba(${theme.accentRgb},0.7)` }}>{t('email', 'Email')} <span style={{ color: `rgba(${theme.accentRgb},0.3)` }}>{t('emailOptional', '(optional)')}</span></label>
+                        <label className={`text-sm ${theme.fontDisplay}`} style={{ color: getOpacityStyle('text', 0.7) }}>{t('email', 'Email')} <span style={{ color: getOpacityStyle('text', 0.3) }}>{t('emailOptional', '(optional)')}</span></label>
                         <Input
                           type="email"
                           value={rsvpEmail}
@@ -5160,7 +6397,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className={`text-sm ${theme.fontDisplay}`} style={{ color: `rgba(${theme.accentRgb},0.7)` }}>{t('willYouBeAttending', 'Will you be attending?')}</label>
+                        <label className={`text-sm ${theme.fontDisplay}`} style={{ color: getOpacityStyle('text', 0.7) }}>{t('willYouBeAttending', 'Will you be attending?')}</label>
                         <select
                           value={rsvpStatus || ''}
                           onChange={(e) => setRsvpStatus(e.target.value as 'accept' | 'decline' | null || null)}
@@ -5176,7 +6413,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                         <Button 
                           onClick={() => handleRSVP('accept')} 
                           className={`flex-1 text-white border rounded-lg h-11 ${theme.fontDisplay} green-glow transition-all duration-300 hover:scale-[1.02]`}
-                          style={{ backgroundColor: `rgba(${theme.accentRgb},0.8)`, borderColor: theme.borderSubtle }}
+                          style={{ backgroundColor: theme.accent, borderColor: theme.accent }}
                         >
                           <Check className="w-4 h-4 mr-1.5" />
                           {t('joyfullyAccept', 'Joyfully Accept')}
@@ -5184,7 +6421,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                         <Button 
                           onClick={() => handleRSVP('decline')} 
                           className={`flex-1 border rounded-lg h-11 ${theme.fontDisplay} transition-all duration-300`} 
-                          style={{ backgroundColor: 'transparent', borderColor: theme.borderSubtle, color: `rgba(${theme.accentRgb},0.7)` }}
+                          style={{ backgroundColor: 'transparent', borderColor: theme.borderSubtle, color: getOpacityStyle('text', 0.7) }}
                           variant="outline"
                         >
                           <X className="w-4 h-4 mr-1.5" />
@@ -5197,11 +6434,11 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                   <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 200 }} className="text-center py-10">
                     <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2, type: 'spring', stiffness: 300 }} className="mb-4">
                       {rsvpStatus === 'accept' ? (
-                        <div className="w-16 h-16 rounded-full border flex items-center justify-center mx-auto" style={{ backgroundColor: `rgba(${theme.accentRgb},0.2)`, borderColor: `rgba(${theme.accentRgb},0.4)` }}>
+                        <div className="w-16 h-16 rounded-full border flex items-center justify-center mx-auto" style={{ backgroundColor: getOpacityStyle('border', 0.2), borderColor: getOpacityStyle('border', 0.4) }}>
                           <Check className="w-8 h-8" style={{ color: theme.accent }} />
                         </div>
                       ) : (
-                        <div className="w-16 h-16 rounded-full border flex items-center justify-center mx-auto" style={{ backgroundColor: `rgba(${theme.accentRgb},0.1)`, borderColor: theme.borderSubtle }}>
+                        <div className="w-16 h-16 rounded-full border flex items-center justify-center mx-auto" style={{ backgroundColor: getOpacityStyle('border', 0.1), borderColor: theme.borderSubtle }}>
                           <Heart className="w-8 h-8" style={{ color: theme.accent }} />
                         </div>
                       )}
@@ -5209,7 +6446,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                     <h3 className={`${theme.fontDisplay} text-xl mb-2`} style={{ color: theme.accent }}>
                       {rsvpStatus === 'accept' ? t('joyfullyAccepted', 'Joyfully Accepted!') : t('thankYou', 'Thank You!')}
                     </h3>
-                    <p className="text-sm" style={{ color: `rgba(${theme.accentRgb},0.6)` }}>
+                    <p className="text-sm" style={{ color: getOpacityStyle('text', 0.6) }}>
                       {rsvpStatus === 'accept'
                         ? `We can't wait to celebrate with you, ${rsvpName}! 🎉`
                         : `We'll miss you, ${rsvpName}. You'll be in our hearts! 💌`}
@@ -5226,11 +6463,11 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
           <section className="py-16 md:py-20 px-6">
             <div className="flex flex-col items-center gap-8 max-w-md mx-auto">
               <h2 className={`${theme.fontCalligraphy} text-3xl sm:text-4xl text-center`} style={{ color: theme.accent }}>{t('blessingsWishes', 'Blessings & Wishes')}</h2>
-              <HeartDivider accentColor={theme.accent} />
+              <HeartDivider themeId={theme.id} accentColor={theme.accent} />
 
               <div className="w-full space-y-3 max-h-72 overflow-y-auto pr-2 custom-scrollbar">
                 {wishes.length === 0 ? (
-                  <div className="text-center py-8 text-sm border border-dashed rounded-lg" style={{ backgroundColor: `rgba(${theme.accentRgb},0.02)`, borderColor: `rgba(${theme.accentRgb},0.15)`, color: `rgba(${theme.accentRgb},0.5)` }}>
+                  <div className="text-center py-8 text-sm border border-dashed rounded-lg" style={{ backgroundColor: getOpacityStyle('bg', 0.02), borderColor: getOpacityStyle('border', 0.15), color: getOpacityStyle('text', 0.5) }}>
                     {language === 'ur' ? 'ابھی تک کوئی دعا نہیں بھیجی گئی، پہلا پیغام لکھیں!' : 'No blessings yet. Write the first blessing!'}
                   </div>
                 ) : (
@@ -5244,15 +6481,15 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: idx * 0.1 }}
                         className="border rounded-lg p-4"
-                        style={{ backgroundColor: `rgba(${theme.accentRgb},0.05)`, borderColor: `rgba(${theme.accentRgb},0.15)` }}
+                        style={{ backgroundColor: getOpacityStyle('bg', 0.05), borderColor: getOpacityStyle('border', 0.15) }}
                       >
                         <div className="flex items-start gap-3">
-                          <div className="w-8 h-8 rounded-full border flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: `linear-gradient(to bottom right, rgba(${theme.accentRgb},0.3), rgba(${theme.accentRgb},0.1))`, borderColor: theme.borderSubtle }}>
+                          <div className="w-8 h-8 rounded-full border flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: `linear-gradient(to bottom right, ${getOpacityStyle('bg', 0.1)}, ${getOpacityStyle('bg', 0.03)})`, borderColor: theme.borderSubtle }}>
                             <span className="text-xs font-bold" style={{ color: theme.accent }}>{displayName.charAt(0).toUpperCase()}</span>
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className={`text-xs ${theme.fontDisplay} mb-1`} style={{ color: `rgba(${theme.accentRgb},0.7)` }}>{displayName}</p>
-                            <p className="text-sm leading-relaxed" style={{ color: `rgba(${theme.accentRgb},0.8)` }}>{displayMessage}</p>
+                            <p className={`text-xs ${theme.fontDisplay} mb-1`} style={{ color: getOpacityStyle('text', 0.7) }}>{displayName}</p>
+                            <p className="text-sm leading-relaxed" style={{ color: getOpacityStyle('text', 0.8) }}>{displayMessage}</p>
                           </div>
                         </div>
                       </motion.div>
@@ -5263,8 +6500,8 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
 
               <div className="w-full space-y-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full border flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `rgba(${theme.accentRgb},0.1)`, borderColor: theme.borderSubtle }}>
-                    <User className="w-3.5 h-3.5" style={{ color: `rgba(${theme.accentRgb},0.5)` }} />
+                  <div className="w-8 h-8 rounded-full border flex items-center justify-center flex-shrink-0" style={{ backgroundColor: getOpacityStyle('bg', 0.1), borderColor: theme.borderSubtle }}>
+                    <User className="w-3.5 h-3.5" style={{ color: getOpacityStyle('text', 0.5) }} />
                   </div>
                   <Input
                     value={wishName}
@@ -5285,7 +6522,7 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
                       rows={2}
                     />
                   </div>
-                  <Button onClick={handleSendWish} className={`border h-auto px-4 rounded-lg ${theme.fontDisplay} transition-all duration-300 flex-shrink-0 self-end`} style={{ backgroundColor: `rgba(${theme.accentRgb},0.2)`, borderColor: theme.borderSubtle, color: theme.accent }}>
+                  <Button onClick={handleSendWish} className={`border h-auto px-4 rounded-lg ${theme.fontDisplay} transition-all duration-300 flex-shrink-0 self-end`} style={{ backgroundColor: getOpacityStyle('bg', 0.2), borderColor: theme.borderSubtle, color: theme.accent }}>
                     <Send className="w-4 h-4" />
                   </Button>
                 </div>
@@ -5295,13 +6532,13 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
         </RevealSection>
 
         {/* ─── Footer ─── */}
-        <div className="py-10 text-center border-t" style={{ borderColor: `rgba(${theme.accentRgb},0.1)` }}>
+        <div className="py-10 text-center border-t" style={{ borderColor: getOpacityStyle('border', 0.1) }}>
           <div className="flex items-center justify-center gap-3 mb-3">
-            <div className="w-8 h-px" style={{ backgroundColor: `rgba(${theme.accentRgb},0.2)` }} />
-            <Heart className="w-3 h-3" style={{ color: `rgba(${theme.accentRgb},0.3)` }} />
-            <div className="w-8 h-px" style={{ backgroundColor: `rgba(${theme.accentRgb},0.2)` }} />
+            <div className="w-8 h-px" style={{ backgroundColor: getOpacityStyle('bg', 0.2) }} />
+            <Heart className="w-3 h-3" style={{ color: getOpacityStyle('text', 0.3) }} />
+            <div className="w-8 h-px" style={{ backgroundColor: getOpacityStyle('bg', 0.2) }} />
           </div>
-          <p className="text-xs tracking-wider" style={{ color: `rgba(${theme.accentRgb},0.3)` }}>{t('madeWithLove', 'Made with love by ShaadiLink')}</p>
+          <p className="text-xs tracking-wider" style={{ color: getOpacityStyle('text', 0.3) }}>{t('madeWithLove', 'Made with love by ShaadiLink')}</p>
         </div>
       </motion.div>
 

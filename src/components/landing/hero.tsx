@@ -158,12 +158,12 @@ function InvitationCardMockup() {
       initial={{ opacity: 0, x: 60, rotateY: -15 }}
       animate={{ opacity: 1, x: 0, rotateY: 0 }}
       transition={{ duration: 1.2, delay: 0.8, ease: [0.25, 0.4, 0.25, 1] }}
-      className="relative hidden lg:block"
+      className="relative mt-10 lg:mt-0 w-full flex justify-center lg:w-auto lg:block"
     >
       <motion.div
         animate={{ y: [0, -10, 0] }}
         transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-        className="relative"
+        className="relative scale-90 sm:scale-100 transform-origin-top"
       >
         {/* Main Card */}
         <div className="relative w-[320px] h-[440px] rounded-2xl overflow-hidden shadow-2xl shadow-gold/20 border border-gold/20"
@@ -465,6 +465,14 @@ export function Hero({ onViewTemplates, onGetStarted }: HeroProps) {
               <span className="text-gold font-semibold">Baraat</span>, and{" "}
               <span className="text-gold font-semibold">Walima</span> — with real-time RSVPs,
               animated 3D reveals, live countdowns, and more. Trusted by Pakistani families worldwide.
+            </motion.p>
+
+            {/* Google OAuth Purpose Notice (required for Google Verification) */}
+            <motion.p
+              variants={itemVariants}
+              className="mt-4 text-xs text-white/60 max-w-2xl mx-auto lg:mx-0 leading-relaxed border-l border-gold/40 pl-3 italic"
+            >
+              🔐 <strong>Sign-In Purpose:</strong> We use Google Sign-In exclusively to authenticate your identity, giving you secure access to your private dashboard to create, edit, and manage your digital wedding invitations and track RSVP lists.
             </motion.p>
 
             {/* CTA Buttons */}

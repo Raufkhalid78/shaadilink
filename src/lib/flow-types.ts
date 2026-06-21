@@ -28,13 +28,18 @@ export interface FlowData {
   // Photos (real Supabase Storage URLs after upload)
   heroImage: string;
   slideshowImages: string[];
+  youtubeVideoId: string;
   // Step 5: Payment (simulated)
   paymentDone: boolean;
+  // Add-ons
+  personalizedGuestLinks: boolean;
   // Backend IDs — set after API calls
   userId?: string;
   invitationId?: string;
   // Islamic opening — shown at top of invitation
   showBismillah: boolean;
+  showQuranVerse: boolean;
+  slug?: string;
 }
 
 export const initialFlowData: FlowData = {
@@ -60,8 +65,12 @@ export const initialFlowData: FlowData = {
   gifts: "",
   heroImage: "",
   slideshowImages: [],
+  youtubeVideoId: "",
   showBismillah: true,
+  showQuranVerse: true,
   paymentDone: false,
+  personalizedGuestLinks: false,
+  slug: "",
 };
 
 export type FlowStep =

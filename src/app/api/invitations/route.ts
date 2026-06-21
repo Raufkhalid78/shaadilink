@@ -16,8 +16,23 @@ export async function POST(request: NextRequest) {
       templateId, plan, partner1Name, partner2Name, venue, venueAddress,
       welcomeMessage, backgroundMusic, dressCodeWomen, dressCodeMen,
       transportation, accommodation, gifts, heroImageUrl, slideshowImageUrls,
-      events,
+      youtubeVideoId, personalizedGuestLinks, events, slug,
     } = body
+
+    let finalSlug = slug?.trim()
+    if (!finalSlug) {
+      const p1 = (partner1Name || 'groom')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '')
+      const p2 = (partner2Name || 'bride')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '')
+      let baseSlug = `${p1}-${p2}`
+      if (baseSlug === '-') baseSlug = 'wedding'
+      finalSlug = `${baseSlug}-${Math.floor(1000 + Math.random() * 9000)}`
+    }
 
     // Use service client to bypass RLS for reliable insert
     const service = createServiceClient()
@@ -41,14 +56,21 @@ export async function POST(request: NextRequest) {
         gifts: gifts || '',
         hero_image_url: heroImageUrl || '',
         slideshow_image_urls: slideshowImageUrls || [],
+        youtube_video_id: youtubeVideoId || '',
+        personalized_guest_links: personalizedGuestLinks ?? false,
         is_active: false,
         show_bismillah: body.showBismillah ?? true,
+        show_quran_verse: body.showQuranVerse ?? true,
+        slug: finalSlug,
       })
       .select()
       .single()
 
     if (invErr) {
       console.error('Invitation insert error:', invErr)
+      if (invErr.code === '23505') {
+        return NextResponse.json({ error: 'This custom link slug is already taken. Please try another one.' }, { status: 400 })
+      }
       return NextResponse.json({ error: invErr.message }, { status: 500 })
     }
 
@@ -101,7 +123,7 @@ export async function GET() {
       .from('invitations')
       .select(`
         id, template_id, plan, partner1_name, partner2_name, venue,
-        hero_image_url, is_active, created_at, updated_at,
+        hero_image_url, is_active, created_at, updated_at, slug,
         events(id, name, date, time, order_index),
         rsvps(id, status),
         wishes(id)

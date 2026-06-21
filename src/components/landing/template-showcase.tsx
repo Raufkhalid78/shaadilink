@@ -17,50 +17,90 @@ const templates: Template[] = [
   {
     name: "Emerald Noir",
     badge: "Classic",
-    gradient: "from-[#0a1f1a] via-[#0f2e24] to-[#071510]",
+    gradient: "from-[#0f1a16] via-[#152822] to-[#0a1210]",
     pattern: "radial-gradient(circle at 30% 40%, rgba(15,107,78,0.3) 0%, transparent 50%), radial-gradient(circle at 70% 70%, rgba(180,145,77,0.15) 0%, transparent 40%)",
-    accentColor: "#2dd4a8",
-    accentGlow: "rgba(45,212,168,0.15)",
+    accentColor: "#d4a853",
+    accentGlow: "rgba(212,168,83,0.15)",
   },
   {
     name: "Crimson Royale",
-    badge: "Royal",
-    gradient: "from-[#1a0a0a] via-[#2a0f0f] to-[#150808]",
+    badge: "Classic",
+    gradient: "from-[#1a0a0e] via-[#2a1018] to-[#120810]",
     pattern: "radial-gradient(circle at 50% 30%, rgba(180,40,40,0.25) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(180,145,77,0.2) 0%, transparent 40%)",
-    accentColor: "#ef4444",
-    accentGlow: "rgba(239,68,68,0.15)",
+    accentColor: "#dc2626",
+    accentGlow: "rgba(220,38,38,0.15)",
   },
   {
-    name: "Rose Gold Blush",
+    name: "Majestic Love",
     badge: "Classic",
-    gradient: "from-[#1a1215] via-[#2a1a1e] to-[#150e11]",
-    pattern: "radial-gradient(circle at 40% 50%, rgba(212,168,83,0.2) 0%, transparent 50%), radial-gradient(circle at 60% 30%, rgba(200,130,130,0.18) 0%, transparent 40%)",
-    accentColor: "#f0b4a0",
-    accentGlow: "rgba(240,180,160,0.12)",
+    gradient: "from-[#1a1408] via-[#2a2010] to-[#12100a]",
+    pattern: "radial-gradient(circle at 40% 50%, rgba(245,158,11,0.2) 0%, transparent 50%)",
+    accentColor: "#f59e0b",
+    accentGlow: "rgba(245,158,11,0.12)",
   },
   {
     name: "Mughal Emerald",
-    badge: "Royal",
-    gradient: "from-[#071a14] via-[#0d2e22] to-[#0a1f18]",
-    pattern: "radial-gradient(circle at 25% 25%, rgba(180,145,77,0.25) 0%, transparent 40%), radial-gradient(circle at 75% 75%, rgba(15,107,78,0.3) 0%, transparent 45%), repeating-conic-gradient(from 0deg at 50% 50%, rgba(180,145,77,0.04) 0deg 30deg, transparent 30deg 60deg)",
-    accentColor: "#34d399",
-    accentGlow: "rgba(52,211,153,0.15)",
+    badge: "Classic",
+    gradient: "from-[#0f1a16] via-[#152822] to-[#0a1210]",
+    pattern: "radial-gradient(circle at 25% 25%, rgba(180,145,77,0.25) 0%, transparent 40%), radial-gradient(circle at 75% 75%, rgba(15,107,78,0.3) 0%, transparent 45%)",
+    accentColor: "#d4a853",
+    accentGlow: "rgba(212,168,83,0.15)",
   },
   {
-    name: "Midnight Royal",
+    name: "Royal Imperial",
     badge: "Royal",
-    gradient: "from-[#080a1a] via-[#0f1228] to-[#0a0c18]",
-    pattern: "radial-gradient(circle at 60% 40%, rgba(100,100,200,0.2) 0%, transparent 50%), radial-gradient(circle at 30% 70%, rgba(180,145,77,0.15) 0%, transparent 40%)",
-    accentColor: "#818cf8",
-    accentGlow: "rgba(129,140,248,0.12)",
+    gradient: "from-[#1a100a] via-[#2a1a10] to-[#120c08]",
+    pattern: "radial-gradient(circle at 60% 40%, rgba(245,158,11,0.2) 0%, transparent 50%)",
+    accentColor: "#f59e0b",
+    accentGlow: "rgba(245,158,11,0.15)",
   },
   {
-    name: "Golden Nawab",
+    name: "Royal Elegance",
     badge: "Royal",
-    gradient: "from-[#1a0f08] via-[#281a0e] to-[#150c06]",
-    pattern: "radial-gradient(circle at 50% 50%, rgba(180,145,77,0.25) 0%, transparent 50%), radial-gradient(circle at 20% 30%, rgba(140,30,30,0.2) 0%, transparent 40%)",
-    accentColor: "#fbbf24",
-    accentGlow: "rgba(251,191,36,0.15)",
+    gradient: "from-[#1a080e] via-[#2a1018] to-[#12060a]",
+    pattern: "radial-gradient(circle at 50% 50%, rgba(244,63,94,0.25) 0%, transparent 50%)",
+    accentColor: "#f43f5e",
+    accentGlow: "rgba(244,63,94,0.15)",
+  },
+  {
+    name: "Watercolor Peach",
+    badge: "Classic",
+    gradient: "from-[#1a100c] via-[#2a1a15] to-[#120b08]",
+    pattern: "radial-gradient(circle at 30% 40%, rgba(249,115,22,0.2) 0%, transparent 50%)",
+    accentColor: "#f97316",
+    accentGlow: "rgba(249,115,22,0.15)",
+  },
+  {
+    name: "Geometric Gold",
+    badge: "Royal",
+    gradient: "from-[#111827] via-[#1e293b] to-[#0f172a]",
+    pattern: "radial-gradient(circle at 50% 50%, rgba(245,158,11,0.2) 0%, transparent 50%)",
+    accentColor: "#f59e0b",
+    accentGlow: "rgba(245,158,11,0.15)",
+  },
+  {
+    name: "Dark Velvet",
+    badge: "Royal",
+    gradient: "from-[#020617] via-[#1e293b] to-[#0f172a]",
+    pattern: "radial-gradient(circle at 40% 60%, rgba(139,92,246,0.2) 0%, transparent 50%)",
+    accentColor: "#8b5cf6",
+    accentGlow: "rgba(139,92,246,0.15)",
+  },
+  {
+    name: "Pastel Floral",
+    badge: "Classic",
+    gradient: "from-[#1a1018] via-[#2a1a2a] to-[#120b12]",
+    pattern: "radial-gradient(circle at 60% 30%, rgba(244,114,182,0.2) 0%, transparent 50%)",
+    accentColor: "#f472b6",
+    accentGlow: "rgba(244,114,182,0.15)",
+  },
+  {
+    name: "Minimal White",
+    badge: "Classic",
+    gradient: "from-[#f8fafc] via-[#f1f5f9] to-[#e2e8f0]",
+    pattern: "radial-gradient(circle at 50% 50%, rgba(148,163,184,0.2) 0%, transparent 50%)",
+    accentColor: "#94a3b8",
+    accentGlow: "rgba(148,163,184,0.15)",
   },
 ];
 
@@ -91,13 +131,20 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
     const el = scrollRef.current;
     if (!el) return;
 
+    let ticking = false;
     const handleScroll = () => {
-      setCanScrollLeft(el.scrollLeft > 10);
-      setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 10);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setCanScrollLeft(el.scrollLeft > 10);
+          setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 10);
 
-      const newIndex = Math.round(el.scrollLeft / (CARD_WIDTH + CARD_GAP));
-      if (newIndex !== currentIndex && newIndex >= 0 && newIndex <= maxIndex) {
-        setCurrentIndex(newIndex);
+          const newIndex = Math.round(el.scrollLeft / (CARD_WIDTH + CARD_GAP));
+          if (newIndex !== currentIndex && newIndex >= 0 && newIndex <= maxIndex) {
+            setCurrentIndex(newIndex);
+          }
+          ticking = false;
+        });
+        ticking = true;
       }
     };
 

@@ -25,7 +25,7 @@ const legalData: Record<
   terms: {
     title: "Terms & Conditions",
     icon: FileText,
-    lastUpdated: "March 2025",
+    lastUpdated: "May 2026",
     sections: [
       {
         heading: "1. Introduction",
@@ -72,7 +72,7 @@ const legalData: Record<
   privacy: {
     title: "Privacy Policy",
     icon: Shield,
-    lastUpdated: "March 2025",
+    lastUpdated: "May 2026",
     sections: [
       {
         heading: "1. Data We Collect",
@@ -114,7 +114,7 @@ const legalData: Record<
   refund: {
     title: "Refund Policy",
     icon: RotateCcw,
-    lastUpdated: "March 2025",
+    lastUpdated: "May 2026",
     sections: [
       {
         heading: "1. General Policy",
@@ -151,7 +151,7 @@ const legalData: Record<
   shipping: {
     title: "Shipping & Delivery Policy",
     icon: Truck,
-    lastUpdated: "March 2025",
+    lastUpdated: "May 2026",
     sections: [
       {
         heading: "1. Digital Service",

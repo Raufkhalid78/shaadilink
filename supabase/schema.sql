@@ -35,7 +35,12 @@ CREATE TABLE IF NOT EXISTS public.invitations (
   gifts                 TEXT,
   hero_image_url        TEXT,
   slideshow_image_urls  TEXT[] DEFAULT '{}',
+  youtube_video_id      TEXT,
+  personalized_guest_links BOOLEAN DEFAULT FALSE,
   is_active             BOOLEAN DEFAULT FALSE,
+  show_bismillah        BOOLEAN DEFAULT TRUE,
+  show_quran_verse      BOOLEAN DEFAULT TRUE,
+  view_count            INTEGER DEFAULT 0,
   created_at            TIMESTAMPTZ DEFAULT NOW(),
   updated_at            TIMESTAMPTZ DEFAULT NOW()
 );
@@ -223,3 +228,68 @@ CREATE POLICY "invitation_images_owner_delete" ON storage.objects
   FOR DELETE USING (
     bucket_id = 'invitation-images' AND auth.uid()::TEXT = (storage.foldername(name))[1]
   );
+
+-- ─── System Statistics (Historical Cumulative Counters) ──────
+CREATE TABLE IF NOT EXISTS public.system_stats (
+  id INT PRIMARY KEY DEFAULT 1 CHECK (id = 1),
+  invitations_count INTEGER DEFAULT 0 NOT NULL,
+  rsvps_count INTEGER DEFAULT 0 NOT NULL,
+  wishes_count INTEGER DEFAULT 0 NOT NULL
+);
+
+INSERT INTO public.system_stats (id, invitations_count, rsvps_count, wishes_count)
+VALUES (1, 0, 0, 0)
+ON CONFLICT (id) DO NOTHING;
+
+-- Triggers to increment system_stats automatically on insert
+CREATE OR REPLACE FUNCTION public.increment_invitations_stat()
+RETURNS TRIGGER AS $$
+BEGIN
+  UPDATE public.system_stats
+  SET invitations_count = invitations_count + 1
+  WHERE id = 1;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_invitation_created ON public.invitations;
+CREATE TRIGGER on_invitation_created
+  AFTER INSERT ON public.invitations
+  FOR EACH ROW EXECUTE FUNCTION public.increment_invitations_stat();
+
+CREATE OR REPLACE FUNCTION public.increment_rsvps_stat()
+RETURNS TRIGGER AS $$
+BEGIN
+  UPDATE public.system_stats
+  SET rsvps_count = rsvps_count + 1
+  WHERE id = 1;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_rsvp_created ON public.rsvps;
+CREATE TRIGGER on_rsvp_created
+  AFTER INSERT ON public.rsvps
+  FOR EACH ROW EXECUTE FUNCTION public.increment_rsvps_stat();
+
+CREATE OR REPLACE FUNCTION public.increment_wishes_stat()
+RETURNS TRIGGER AS $$
+BEGIN
+  UPDATE public.system_stats
+  SET wishes_count = wishes_count + 1
+  WHERE id = 1;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_wish_created ON public.wishes;
+CREATE TRIGGER on_wish_created
+  AFTER INSERT ON public.wishes
+  FOR EACH ROW EXECUTE FUNCTION public.increment_wishes_stat();
+
+ALTER TABLE public.system_stats ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow public read-only access to system_stats" ON public.system_stats;
+CREATE POLICY "Allow public read-only access to system_stats" 
+  ON public.system_stats FOR SELECT USING (true);
+

@@ -150,7 +150,7 @@ export function Pricing({ onSelectPlan }: PricingProps) {
                 variants={cardVariants}
                 onMouseEnter={() => setHovered(plan.id)}
                 onMouseLeave={() => setHovered(null)}
-                className={`relative rounded-2xl overflow-hidden transition-all duration-500 shadow-md ${
+                className={`relative rounded-2xl overflow-hidden transition-all duration-500 shadow-md flex flex-col h-full ${
                   plan.highlighted
                     ? "border border-gold/40 shadow-xl shadow-gold/5 hover:shadow-gold/15 hover:shadow-2xl"
                     : "border border-border/20 hover:border-gold/20 hover:shadow-xl hover:shadow-gold/5"
@@ -199,7 +199,7 @@ export function Pricing({ onSelectPlan }: PricingProps) {
                   </Badge>
                 </div>
 
-                <div className="p-7 sm:p-9">
+                <div className="p-7 sm:p-9 flex flex-col flex-grow">
                   {/* Plan name */}
                   <h3 className="font-display text-2xl font-bold text-foreground mb-1">
                     {plan.name}
@@ -257,23 +257,64 @@ export function Pricing({ onSelectPlan }: PricingProps) {
                   </ul>
 
                   {/* CTA */}
-                  <Button
-                    onClick={() => onSelectPlan?.(plan.id)}
-                    size="lg"
-                    className={`w-full font-bold text-base h-13 rounded-xl transition-all duration-300 ${
-                      plan.highlighted
-                        ? "bg-gold hover:bg-gold-light text-emerald-dark pulse-glow border-none shadow-lg shadow-gold/25"
-                        : "bg-card border border-emerald/60 text-emerald hover:bg-emerald hover:text-primary-foreground hover:border-emerald shadow-sm"
-                    }`}
-                  >
-                    {plan.highlighted && <Crown className="w-4 h-4 mr-2" />}
-                    {plan.cta}
-                  </Button>
-                  <p className="text-xs text-muted-foreground mt-2 text-center">✓ 24-Hour Money-Back Guarantee</p>
+                  <div className="mt-auto pt-6">
+                    <Button
+                      onClick={() => onSelectPlan?.(plan.id)}
+                      size="lg"
+                      className={`w-full font-bold text-base h-13 rounded-xl transition-all duration-300 ${
+                        plan.highlighted
+                          ? "bg-gold hover:bg-gold-light text-emerald-dark pulse-glow border-none shadow-lg shadow-gold/25"
+                          : "bg-card border border-emerald/60 text-emerald hover:bg-emerald hover:text-primary-foreground hover:border-emerald shadow-sm"
+                      }`}
+                    >
+                      {plan.highlighted && <Crown className="w-4 h-4 mr-2" />}
+                      {plan.cta}
+                    </Button>
+                    <p className="text-xs text-muted-foreground mt-2 text-center">✓ 24-Hour Money-Back Guarantee</p>
+                  </div>
                 </div>
               </motion.div>
             );
           })}
+        </motion.div>
+
+        {/* Add-ons Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.2 }}
+          className="mt-12 bg-card border border-border/30 rounded-2xl p-6 sm:p-8 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6"
+        >
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-2">
+              <Badge className="bg-emerald/10 text-emerald border-emerald/20 px-2 py-0.5 text-[10px]">NEW ADD-ON</Badge>
+              <h3 className="font-display text-xl font-bold text-foreground">Personalized Guest Links</h3>
+            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Send unique, personalized links to your guests. Greet them by name ("Dear Ahmed Family") and track individual RSVPs with precision. Includes up to 50 unique guest links.
+            </p>
+          </div>
+          <div className="flex items-center gap-6 md:border-l md:border-border/30 md:pl-8">
+            <div className="flex flex-col">
+              <span className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Add-on Price</span>
+              <div className="flex items-baseline gap-1">
+                <span className="text-sm text-foreground">Rs.</span>
+                <span className="font-display text-3xl font-bold text-foreground">1,000</span>
+              </div>
+              <span className="text-xs text-muted-foreground">per 50 guests</span>
+            </div>
+            <Button
+              onClick={() => {
+                // If they click here, just trigger select plan flow for now, but in future maybe handle addon specifically
+                onSelectPlan?.("royal");
+              }}
+              variant="outline"
+              className="border-emerald/30 text-emerald hover:bg-emerald hover:text-white"
+            >
+              Add to Plan
+            </Button>
+          </div>
         </motion.div>
 
         {/* Bottom notices */}

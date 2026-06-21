@@ -45,30 +45,7 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue }: Paym
       .join(" ") || "Template";
 
   const validate = () => {
-    const newErrors: Record<string, string> = {};
-    const rawCard = cardNumber.replace(/\s/g, "");
-    if (!rawCard) newErrors.cardNumber = "Card number is required";
-    else if (rawCard.length < 16) newErrors.cardNumber = "Enter a valid 16-digit card number";
-
-    if (!expiry) newErrors.expiry = "Expiry date is required";
-    else if (!/^\d{2}\/\d{2}$/.test(expiry)) newErrors.expiry = "Enter expiry as MM/YY";
-    else {
-      const [mm, yy] = expiry.split("/").map(Number);
-      if (mm < 1 || mm > 12) newErrors.expiry = "Invalid month";
-      else {
-        const now = new Date();
-        const exp = new Date(2000 + yy, mm - 1);
-        if (exp < now) newErrors.expiry = "Card has expired";
-      }
-    }
-
-    if (!cvc) newErrors.cvc = "CVC is required";
-    else if (cvc.length < 3) newErrors.cvc = "CVC must be 3–4 digits";
-
-    if (!cardName.trim()) newErrors.cardName = "Cardholder name is required";
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return true; // No validation needed for beta launch
   };
 
   const handlePayment = async () => {
@@ -158,108 +135,21 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue }: Paym
               Complete Payment
             </h1>
             <p className="mt-2 text-muted-foreground text-sm">
-              One-time secure payment. No subscriptions, no hidden fees.
+              Special Launch Offer: Create your invitation for free during our beta period.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
             {/* Payment Form */}
             <div className="md:col-span-3 space-y-6">
-              <div className="p-6 rounded-2xl border border-border/50 bg-card space-y-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <CreditCard className="w-5 h-5 text-gold" />
-                  <h2 className="font-display text-lg font-semibold">Card Details</h2>
+              <div className="p-6 rounded-2xl border border-emerald/30 bg-emerald/5 space-y-4 text-center">
+                <div className="w-12 h-12 rounded-full bg-emerald/20 flex items-center justify-center mx-auto mb-4">
+                  <Sparkles className="w-6 h-6 text-emerald" />
                 </div>
-
-                {/* Card Number */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                    Card Number <span className="text-red-400">*</span>
-                  </label>
-                  <div className="relative">
-                    <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      value={cardNumber}
-                      onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
-                      placeholder="4242 4242 4242 4242"
-                      className={`pl-10 h-11 font-mono tracking-wider ${errors.cardNumber ? "border-red-400" : ""}`}
-                      maxLength={19}
-                      inputMode="numeric"
-                    />
-                  </div>
-                  {errors.cardNumber && <p className="text-xs text-red-500">{errors.cardNumber}</p>}
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  {/* Expiry */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                      Expiry <span className="text-red-400">*</span>
-                    </label>
-                    <Input
-                      value={expiry}
-                      onChange={(e) => setExpiry(formatExpiry(e.target.value))}
-                      placeholder="MM/YY"
-                      className={`h-11 font-mono ${errors.expiry ? "border-red-400" : ""}`}
-                      maxLength={5}
-                      inputMode="numeric"
-                    />
-                    {errors.expiry && <p className="text-xs text-red-500">{errors.expiry}</p>}
-                  </div>
-                  {/* CVC */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                      CVC <span className="text-red-400">*</span>
-                    </label>
-                    <div className="relative">
-                      <Input
-                        value={cvc}
-                        onChange={(e) => setCvc(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                        placeholder="123"
-                        className={`h-11 font-mono ${errors.cvc ? "border-red-400" : ""}`}
-                        maxLength={4}
-                        inputMode="numeric"
-                        type="password"
-                      />
-                      <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-                    </div>
-                    {errors.cvc && <p className="text-xs text-red-500">{errors.cvc}</p>}
-                  </div>
-                </div>
-
-                {/* Cardholder Name */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                    Cardholder Name <span className="text-red-400">*</span>
-                  </label>
-                  <Input
-                    value={cardName}
-                    onChange={(e) => setCardName(e.target.value)}
-                    placeholder="Name on card"
-                    className={`h-11 ${errors.cardName ? "border-red-400" : ""}`}
-                    autoComplete="cc-name"
-                  />
-                  {errors.cardName && <p className="text-xs text-red-500">{errors.cardName}</p>}
-                </div>
-              </div>
-
-              {/* Security badges */}
-              <div className="flex flex-col items-center justify-center gap-2 text-xs text-muted-foreground text-center">
-                <div className="flex items-center justify-center gap-4">
-                  <div className="flex items-center gap-1">
-                    <Shield className="w-3.5 h-3.5 text-emerald" />
-                    SSL Encrypted
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Lock className="w-3.5 h-3.5 text-emerald" />
-                    Secure Payment
-                  </div>
-                </div>
-                <p className="text-muted-foreground/85">
-                  Payments are securely processed by our parent company, TechyDez.
-                </p>
-                <p className="text-muted-foreground/60 text-[10px]">
-                  ShaadiLink is owned and operated by TechyDez.
+                <h2 className="font-display text-xl font-semibold text-emerald-light">Beta Launch Special</h2>
+                <p className="text-muted-foreground">
+                  As an early adopter of ShaadiLink, your invitation is completely <strong className="text-white">FREE</strong>.
+                  Skip the payment step and publish your invitation instantly!
                 </p>
               </div>
 
@@ -270,9 +160,9 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue }: Paym
                 className="w-full h-12 bg-gold hover:bg-gold-light text-emerald-dark font-semibold text-base gap-2"
               >
                 {processing ? (
-                  <><Loader2 className="w-4 h-4 animate-spin" /> Processing Payment...</>
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Processing...</>
                 ) : (
-                  <>Pay Rs. {plan.price}<ArrowRight className="w-4 h-4" /></>
+                  <>Claim Free Access & Publish <ArrowRight className="w-4 h-4" /></>
                 )}
               </Button>
             </div>
@@ -320,12 +210,43 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue }: Paym
                     </div>
                   </div>
 
+                  <div className="border-t border-border/50 pt-3 mt-3 space-y-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex flex-col gap-1 pr-4">
+                        <span className="font-medium text-sm">Personalized Guest Links</span>
+                        <span className="text-xs text-muted-foreground">Up to 50 unique links to track individual RSVPs</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold text-foreground">+ Rs. 1,000</span>
+                        <button
+                          type="button"
+                          onClick={() => onUpdateData({ personalizedGuestLinks: !flowData.personalizedGuestLinks })}
+                          className={`w-10 h-5 rounded-full transition-colors relative flex items-center shrink-0 ${
+                            flowData.personalizedGuestLinks ? "bg-emerald" : "bg-muted"
+                          }`}
+                        >
+                          <div
+                            className={`w-4 h-4 bg-white rounded-full shadow-sm absolute transition-transform ${
+                              flowData.personalizedGuestLinks ? "translate-x-5" : "translate-x-1"
+                            }`}
+                          />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="border-t border-border/50 pt-3 mt-3">
                     <div className="flex justify-between items-baseline">
                       <span className="text-muted-foreground">Total</span>
                       <div className="text-right">
                         <span className="text-xs text-muted-foreground">Rs.</span>
-                        <span className="font-display text-2xl font-bold ml-1">{plan.price}</span>
+                        <span className="font-display text-2xl font-bold ml-1">
+                          {(() => {
+                            const basePrice = parseInt(plan.price.replace(/,/g, ""));
+                            const total = basePrice + (flowData.personalizedGuestLinks ? 1000 : 0);
+                            return total.toLocaleString("en-PK");
+                          })()}
+                        </span>
                       </div>
                     </div>
                     <p className="text-xs text-muted-foreground text-right mt-0.5">

@@ -1,9 +1,19 @@
-"use client";
+import type { Metadata } from "next";
+import ShippingClientPage from "./shipping-client";
 
-import { LegalPage } from "@/components/flow/legal-page";
-import { useRouter } from "next/navigation";
+export const metadata: Metadata = {
+  title: "Shipping & Delivery Policy | ShaadiLink — Instant Delivery",
+  description: "Read our shipping and delivery policy. ShaadiLink invitations are delivered instantly online through our digital sharing links.",
+  keywords: ["shipping policy", "instant delivery", "ShaadiLink delivery"],
+  openGraph: {
+    title: "Shipping & Delivery Policy | ShaadiLink — Instant Delivery",
+    description: "Read our shipping and delivery policy. ShaadiLink invitations are delivered instantly online through our digital sharing links.",
+    type: "website",
+    locale: "en_PK",
+    siteName: "ShaadiLink",
+  }
+};
 
-export default function Page() {
-  const router = useRouter();
-  return <LegalPage type="shipping" onBack={() => router.push("/")} />;
+export default function ShippingRoutePage() {
+  return <ShippingClientPage />;
 }

@@ -115,6 +115,45 @@ const classicTemplates = [
     doorType: "Petal Reveal",
     features: ["Door Animation", "Scratch Card", "Countdown", "Fireworks", "RSVP"],
   },
+  {
+    id: "watercolor-peach",
+    name: "Watercolor Peach",
+    theme: "Mehndi",
+    description: "Soft peach and orange watercolor with petal reveal animation",
+    bgClass: "bg-gradient-to-br from-orange-950 via-orange-900 to-orange-950",
+    borderClass: "border-orange-400/30",
+    badgeText: "New",
+    badgeClass: "bg-orange-500/15 text-orange-300 border-orange-400/25",
+    patternColor: "text-orange-400/10",
+    doorType: "Petal Reveal",
+    features: ["Door Animation", "Scratch Card", "Countdown", "Fireworks", "RSVP"],
+  },
+  {
+    id: "pastel-floral",
+    name: "Pastel Floral",
+    theme: "Walima",
+    description: "Soft pink and blush with elegant floral curtains and premium typography",
+    bgClass: "bg-gradient-to-br from-fuchsia-950 via-pink-900 to-fuchsia-950",
+    borderClass: "border-pink-300/30",
+    badgeText: "Elegant",
+    badgeClass: "bg-pink-400/15 text-pink-200 border-pink-400/25",
+    patternColor: "text-pink-300/10",
+    doorType: "Curtain Reveal",
+    features: ["Door Animation", "Scratch Card", "Countdown", "Fireworks", "RSVP"],
+  },
+  {
+    id: "minimal-white",
+    name: "Minimal White",
+    theme: "Reception",
+    description: "Clean, elegant white and slate with a modern split-screen glass door reveal",
+    bgClass: "bg-slate-50",
+    borderClass: "border-slate-300/50",
+    badgeText: "Modern",
+    badgeClass: "bg-slate-200 text-slate-700 border-slate-300",
+    patternColor: "text-slate-200",
+    doorType: "Split-Screen Reveal",
+    features: ["Door Animation", "Scratch Card", "Countdown", "Fireworks", "RSVP"],
+  },
 ];
 
 const royalTemplates = [
@@ -142,6 +181,32 @@ const royalTemplates = [
     badgeClass: "bg-rose-400/15 text-rose-300 border-rose-400/25",
     patternColor: "text-rose-300/10",
     doorType: "Curtain Door Reveal",
+    features: ["Door Animation", "Scratch Card", "Countdown", "Fireworks", "RSVP", "Music", "Photo Gallery", "Custom Domain", "Priority Support"],
+  },
+  {
+    id: "geometric-gold",
+    name: "Geometric Gold",
+    theme: "Reception",
+    description: "Luxurious deep navy and gold geometric doors with sleek glass-grid panel reveal",
+    bgClass: "bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950",
+    borderClass: "border-amber-400/30",
+    badgeText: "Modern Royal",
+    badgeClass: "bg-amber-500/15 text-amber-300 border-amber-400/25",
+    patternColor: "text-amber-400/10",
+    doorType: "Geometric Reveal",
+    features: ["Door Animation", "Scratch Card", "Countdown", "Fireworks", "RSVP", "Music", "Photo Gallery", "Custom Domain"],
+  },
+  {
+    id: "dark-velvet",
+    name: "Dark Velvet",
+    theme: "Baraat",
+    description: "Deep violet and velvet black with classic door opening and premium gold accents",
+    bgClass: "bg-gradient-to-br from-violet-950 via-purple-900 to-violet-950",
+    borderClass: "border-purple-300/30",
+    badgeText: "Premium Royal",
+    badgeClass: "bg-purple-500/15 text-purple-200 border-purple-400/25",
+    patternColor: "text-purple-300/10",
+    doorType: "Classic Doors",
     features: ["Door Animation", "Scratch Card", "Countdown", "Fireworks", "RSVP", "Music", "Photo Gallery", "Custom Domain", "Priority Support"],
   },
 ];
@@ -205,12 +270,12 @@ function TemplateCard({
         </div>
 
         {/* Hover overlay */}
-        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 z-20">
-          <Button variant="outline" size="sm" onClick={() => onPreview(template.id)} className="border-gold text-gold hover:bg-gold hover:text-emerald-dark font-medium">
-            <Eye className="h-4 w-4 mr-1.5" /> Live Demo
+        <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-2.5 p-4 z-20">
+          <Button variant="outline" size="sm" onClick={() => onPreview(template.id)} className="w-44 border-gold text-gold hover:bg-gold hover:text-emerald-dark font-medium justify-center">
+            <Eye className="h-4.5 w-4.5 mr-1.5 shrink-0" /> Live Demo
           </Button>
-          <Button size="sm" onClick={() => onSelect(template.id)} className="bg-gold hover:bg-gold-light text-emerald-dark font-medium border-none">
-            <Check className="h-4 w-4 mr-1.5" /> {isRoyal ? "Use This Royal Design" : "Use This Design"}
+          <Button size="sm" onClick={() => onSelect(template.id)} className="w-44 bg-gold hover:bg-gold-light text-emerald-dark font-medium border-none justify-center">
+            <Check className="h-4.5 w-4.5 mr-1.5 shrink-0" /> {isRoyal ? "Use Royal Design" : "Use This Design"}
           </Button>
         </div>
 

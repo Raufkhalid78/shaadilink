@@ -8,16 +8,21 @@ export async function GET(
 ) {
   try {
     const { id } = await params
+    const cleanId = id.replace(/%20| /g, "-")
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanId)
     const service = createServiceClient()
 
-    const { data: invitation, error } = await service
+    const query = service
       .from('invitations')
       .select(`
         *, events(id, name, date, time, venue, order_index),
         wishes(id, sender_name, message, created_at)
       `)
-      .eq('id', id)
-      .single()
+
+    const { data: invitation, error } = await (isUuid
+      ? query.eq('id', cleanId)
+      : query.eq('slug', cleanId)
+    ).single()
 
     if (error || !invitation) {
       return NextResponse.json({ error: 'Invitation not found' }, { status: 404 })
@@ -57,7 +62,7 @@ export async function PUT(
     // Verify ownership
     const { data: existing } = await service
       .from('invitations')
-      .select('user_id')
+      .select('user_id, partner1_name, partner2_name')
       .eq('id', id)
       .single()
 
@@ -75,9 +80,35 @@ export async function PUT(
       gifts: 'gifts', heroImageUrl: 'hero_image_url',
       slideshowImageUrls: 'slideshow_image_urls', isActive: 'is_active',
       showBismillah: 'show_bismillah',
+      showQuranVerse: 'show_quran_verse',
+      youtubeVideoId: 'youtube_video_id',
+      personalizedGuestLinks: 'personalized_guest_links',
+      slug: 'slug',
     }
     for (const [jsKey, dbKey] of Object.entries(fieldMap)) {
-      if (body[jsKey] !== undefined) updateData[dbKey] = body[jsKey]
+      if (body[jsKey] !== undefined) {
+        if (jsKey === 'slug') {
+          let updatedSlug = (body[jsKey] as string)?.trim()
+          if (!updatedSlug) {
+            const p1Name = body.partner1Name || existing?.partner1_name || 'groom'
+            const p2Name = body.partner2Name || existing?.partner2_name || 'bride'
+            const p1 = p1Name
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, '-')
+              .replace(/(^-|-$)/g, '')
+            const p2 = p2Name
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, '-')
+              .replace(/(^-|-$)/g, '')
+            let baseSlug = `${p1}-${p2}`
+            if (baseSlug === '-') baseSlug = 'wedding'
+            updatedSlug = `${baseSlug}-${Math.floor(1000 + Math.random() * 9000)}`
+          }
+          updateData[dbKey] = updatedSlug
+        } else {
+          updateData[dbKey] = body[jsKey]
+        }
+      }
     }
 
     const { data: updated, error } = await service
@@ -87,7 +118,12 @@ export async function PUT(
       .select()
       .single()
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    if (error) {
+      if (error.code === '23505') {
+        return NextResponse.json({ error: 'This custom link slug is already taken. Please try another one.' }, { status: 400 })
+      }
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
 
     // Update events if provided
     if (body.events) {

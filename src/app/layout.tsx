@@ -1,7 +1,8 @@
 import type { Metadata, Viewport } from "next";
-import { Playfair_Display, Amiri, Inter, Cinzel_Decorative, Pinyon_Script } from "next/font/google";
+import { Playfair_Display, Amiri, Inter, Cinzel_Decorative, Great_Vibes } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import { WhatsAppFAB } from "@/components/whatsapp-fab";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -29,8 +30,8 @@ const cinzelDec = Cinzel_Decorative({
   display: "swap",
 });
 
-const pinyon = Pinyon_Script({
-  variable: "--font-pinyon",
+const greatVibes = Great_Vibes({
+  variable: "--font-great-vibes",
   subsets: ["latin"],
   weight: ["400"],
   display: "swap",
@@ -42,6 +43,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://shaadilink.com.pk"),
   applicationName: "ShaadiLink",
   title: "ShaadiLink — Premium Digital Wedding Invitations for Pakistani Weddings",
   description:
@@ -124,13 +126,6 @@ export default function RootLayout({
               "priceCurrency": "PKR"
             }
           ]
-        },
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": "4.9",
-          "ratingCount": "142",
-          "bestRating": "5",
-          "worstRating": "1"
         }
       },
       {
@@ -169,7 +164,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${playfair.variable} ${amiri.variable} ${inter.variable} ${cinzelDec.variable} ${pinyon.variable} antialiased bg-background text-foreground`}
+        className={`${playfair.variable} ${amiri.variable} ${inter.variable} ${cinzelDec.variable} ${greatVibes.variable} antialiased bg-background text-foreground`}
       >
         <script
           type="application/ld+json"
@@ -187,6 +182,7 @@ export default function RootLayout({
             },
           }}
         />
+        <WhatsAppFAB />
       </body>
     </html>
   );

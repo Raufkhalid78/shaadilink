@@ -1,22 +1,26 @@
-"use client";
+import type { Metadata } from "next";
+import TemplatesClientPage from "./templates-client-page";
 
-import { useRouter } from "next/navigation";
-import { TemplatesPage } from "@/components/landing/templates-page";
-import { Suspense } from "react";
+export const metadata: Metadata = {
+  title: "Premium Wedding Invitation Templates | ShaadiLink",
+  description: "Browse beautiful digital wedding invitation templates for Nikkah, Mehndi, Baraat, and Walima. Explore 3D door reveals, scroll rollups, and interactive RSVP.",
+  keywords: [
+    "wedding invitation templates",
+    "Pakistani wedding cards online",
+    "mehndi invitation card templates",
+    "nikkah invitation templates",
+    "baraat invitation templates",
+    "digital shaadi card designs"
+  ],
+  openGraph: {
+    title: "Premium Wedding Invitation Templates | ShaadiLink",
+    description: "Browse beautiful digital wedding invitation templates for Nikkah, Mehndi, Baraat, and Walima. Explore 3D door reveals, scroll rollups, and interactive RSVP.",
+    type: "website",
+    locale: "en_PK",
+    siteName: "ShaadiLink",
+  }
+};
 
 export default function TemplatesRoutePage() {
-  const router = useRouter();
-
-  return (
-    <div className="min-h-screen bg-background">
-      <Suspense fallback={<div className="min-h-screen" />}>
-        <TemplatesPage
-          selectedPlan="royal"
-          onBack={() => router.push("/")}
-          onPreview={(id) => router.push(`/?start=demo&template=${id}`)}
-          onSelectTemplate={(id) => router.push(`/?start=create&template=${id}`)}
-        />
-      </Suspense>
-    </div>
-  );
+  return <TemplatesClientPage />;
 }

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { DashboardPage } from "@/components/flow/dashboard-page";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import type { FlowData } from "@/lib/flow-types";
 import { initialFlowData } from "@/lib/flow-types";
 
@@ -15,22 +16,35 @@ export default function DashboardRoutePage() {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const supabase = createClient();
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session?.user) {
-        // Not logged in — redirect to home
+      try {
+        const supabase = createClient();
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("Supabase session fetch error:", error);
+          toast.error("Authentication error. Redirecting to home...");
+          router.replace("/");
+          return;
+        }
+
+        if (!session?.user) {
+          // Not logged in — redirect to home
+          router.replace("/");
+          return;
+        }
+        
+        setFlowData({
+          ...initialFlowData,
+          userId: session.user.id,
+          email: session.user.email ?? "",
+          fullName: session.user.user_metadata?.full_name ?? "",
+        });
+        setReady(true);
+      } catch (err) {
+        console.error("Dashboard checkAuth error:", err);
+        toast.error("An unexpected error occurred. Redirecting...");
         router.replace("/");
-        return;
       }
-      
-      setFlowData({
-        ...initialFlowData,
-        userId: session.user.id,
-        email: session.user.email ?? "",
-        fullName: session.user.user_metadata?.full_name ?? "",
-      });
-      setReady(true);
     };
     
     checkAuth();

@@ -16,18 +16,67 @@ import { Pricing } from "@/components/landing/pricing";
 import { FAQ } from "@/components/landing/faq";
 import { CTASection } from "@/components/landing/cta-section";
 import { Footer } from "@/components/landing/footer";
-import { TemplatesPage } from "@/components/landing/templates-page";
-import { SignupPage } from "@/components/flow/signup-page";
-import { LoginPage } from "@/components/flow/login-page";
-import { DetailsPage } from "@/components/flow/details-page";
-import { PaymentPage } from "@/components/flow/payment-page";
-import { SuccessPage } from "@/components/flow/success-page";
-import { AboutPage } from "@/components/flow/about-page";
-import { ContactPage } from "@/components/flow/contact-page";
-import { AffiliatePage } from "@/components/flow/affiliate-page";
-import { LegalPage } from "@/components/flow/legal-page";
-import { DashboardPage } from "@/components/flow/dashboard-page";
-import InvitationViewer from "@/components/viewer/invitation-viewer";
+import dynamic from "next/dynamic";
+
+const TemplatesPage = dynamic(() => import("@/components/landing/templates-page").then(m => m.TemplatesPage), {
+  ssr: false,
+  loading: () => <div className="min-h-screen bg-background" />
+});
+
+const SignupPage = dynamic(() => import("@/components/flow/signup-page").then(m => m.SignupPage), {
+  ssr: false,
+  loading: () => <div className="min-h-screen bg-background flex items-center justify-center text-gold">Loading...</div>
+});
+
+const LoginPage = dynamic(() => import("@/components/flow/login-page").then(m => m.LoginPage), {
+  ssr: false,
+  loading: () => <div className="min-h-screen bg-background flex items-center justify-center text-gold">Loading...</div>
+});
+
+const DetailsPage = dynamic(() => import("@/components/flow/details-page").then(m => m.DetailsPage), {
+  ssr: false,
+  loading: () => <div className="min-h-screen bg-background flex items-center justify-center text-gold">Loading details editor...</div>
+});
+
+const PaymentPage = dynamic(() => import("@/components/flow/payment-page").then(m => m.PaymentPage), {
+  ssr: false,
+  loading: () => <div className="min-h-screen bg-background flex items-center justify-center text-gold">Loading payment...</div>
+});
+
+const SuccessPage = dynamic(() => import("@/components/flow/success-page").then(m => m.SuccessPage), {
+  ssr: false,
+  loading: () => <div className="min-h-screen bg-background" />
+});
+
+const AboutPage = dynamic(() => import("@/components/flow/about-page").then(m => m.AboutPage), {
+  ssr: false,
+  loading: () => <div className="min-h-screen bg-background" />
+});
+
+const ContactPage = dynamic(() => import("@/components/flow/contact-page").then(m => m.ContactPage), {
+  ssr: false,
+  loading: () => <div className="min-h-screen bg-background" />
+});
+
+const AffiliatePage = dynamic(() => import("@/components/flow/affiliate-page").then(m => m.AffiliatePage), {
+  ssr: false,
+  loading: () => <div className="min-h-screen bg-background" />
+});
+
+const LegalPage = dynamic(() => import("@/components/flow/legal-page").then(m => m.LegalPage), {
+  ssr: false,
+  loading: () => <div className="min-h-screen bg-background" />
+});
+
+const DashboardPage = dynamic(() => import("@/components/flow/dashboard-page").then(m => m.DashboardPage), {
+  ssr: false,
+  loading: () => <div className="min-h-screen bg-background flex items-center justify-center text-gold">Loading dashboard...</div>
+});
+
+const InvitationViewer = dynamic(() => import("@/components/viewer/invitation-viewer"), {
+  ssr: false,
+  loading: () => <div className="fixed inset-0 bg-background flex items-center justify-center text-gold font-display text-xl z-[200]">Loading invitation...</div>
+});
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Eye, Sparkles, Shield } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -67,6 +116,9 @@ function AppPurposeSection({ onGetStarted }: { onGetStarted?: () => void }) {
           </h2>
           <p className="mt-4 text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
             <strong className="text-foreground">ShaadiLink</strong> is a web application that lets Pakistani couples create, customise, and share stunning digital wedding invitations. Guests receive a unique link and experience cinematic 3D door reveals, scratch-card date reveals, live countdowns, photo galleries, and one-click RSVP — all without downloading an app.
+          </p>
+          <p className="mt-3 text-muted-foreground/80 text-xs sm:text-sm max-w-2xl mx-auto leading-relaxed border-t border-gold/20 pt-3 italic">
+            🔐 <strong>Authentication Purpose:</strong> We use Google Sign-In solely for secure user account creation and login. This guarantees that only you can access your private dashboard, edit your invitation drafts, customize your themes, and view RSVP lists and guest wishes.
           </p>
         </motion.div>
 
@@ -130,7 +182,43 @@ function InfoPageWrapper({ children, stepKey }: { children: React.ReactNode; ste
 }
 
 function HomeInner() {
-  const [currentStep, setCurrentStep] = useState<FlowStep>("landing");
+  const [currentStep, setCurrentStepInternal] = useState<FlowStep>("landing");
+  const [demoSourceStep, setDemoSourceStep] = useState<FlowStep | null>(null);
+
+  const setCurrentStep = useCallback((step: FlowStep) => {
+    setCurrentStepInternal(step);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("step", step);
+      window.history.pushState({ step }, "", url.pathname + url.search);
+    }
+  }, []);
+
+  // Listen to popstate to handle browser back/forward buttons
+  useEffect(() => {
+    const handlePopState = (e: PopStateEvent) => {
+      if (e.state && e.state.step) {
+        setCurrentStepInternal(e.state.step);
+      } else {
+        const params = new URLSearchParams(window.location.search);
+        const stepParam = params.get("step") as FlowStep;
+        setCurrentStepInternal(stepParam || "landing");
+      }
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  // Initialize step from URL query parameter on first load
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const stepParam = params.get("step") as FlowStep;
+      if (stepParam) {
+        setCurrentStepInternal(stepParam);
+      }
+    }
+  }, []);
   const [flowData, setFlowData] = useState<FlowData>(initialFlowData);
   const [previewTemplateId, setPreviewTemplateId] = useState<string | null>(null);
   // Track previous step so Details → Back works correctly
@@ -183,12 +271,16 @@ function HomeInner() {
                 gifts: invitation.gifts ?? "",
                 heroImage: invitation.hero_image_url ?? "",
                 slideshowImages: invitation.slideshow_image_urls ?? [],
+                youtubeVideoId: invitation.youtube_video_id ?? "",
+                personalizedGuestLinks: invitation.personalized_guest_links ?? false,
                 events: ((invitation.events as { name: string; date: string; time: string; venue?: string; order_index: number }[]) || [])
                   .sort((a, b) => a.order_index - b.order_index)
                   .map((e) => ({ name: e.name, date: e.date, time: e.time, venue: e.venue })),
                 selectedPlan: invitation.plan,
                 paymentDone: invitation.is_active,
                 showBismillah: invitation.show_bismillah ?? true,
+                showQuranVerse: invitation.show_quran_verse ?? true,
+                slug: invitation.slug ?? "",
               }));
               setStepBeforeDetails("dashboard");
               setCurrentStep("details");
@@ -216,12 +308,16 @@ function HomeInner() {
                 gifts: invitation.gifts ?? "",
                 heroImage: invitation.hero_image_url ?? "",
                 slideshowImages: invitation.slideshow_image_urls ?? [],
+                youtubeVideoId: invitation.youtube_video_id ?? "",
+                personalizedGuestLinks: invitation.personalized_guest_links ?? false,
                 events: ((invitation.events as { name: string; date: string; time: string; venue?: string; order_index: number }[]) || [])
                   .sort((a, b) => a.order_index - b.order_index)
                   .map((e) => ({ name: e.name, date: e.date, time: e.time, venue: e.venue })),
                 selectedPlan: "royal",
                 paymentDone: false,
                 showBismillah: invitation.show_bismillah ?? true,
+                showQuranVerse: invitation.show_quran_verse ?? true,
+                slug: invitation.slug ?? "",
               }));
               setStepBeforeDetails("dashboard");
               setCurrentStep("details");
@@ -278,9 +374,39 @@ function HomeInner() {
         }
       } else if (savedData) {
         // If there's no session, but we have saved flowData, load it so inputs are preserved
-        setFlowData(savedData);
+        setFlowData({
+          ...savedData,
+          userId: "",
+          email: "",
+          fullName: "",
+        });
       }
     });
+  }, []);
+
+  // Listen to auth state changes to keep session properties synchronized
+  useEffect(() => {
+    const supabase = createClient();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        setFlowData((prev) => ({
+          ...prev,
+          userId: session.user.id,
+          email: session.user.email ?? "",
+          fullName: session.user.user_metadata?.full_name ?? "",
+        }));
+      } else {
+        setFlowData((prev) => ({
+          ...prev,
+          userId: "",
+          email: "",
+          fullName: "",
+        }));
+      }
+    });
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   // Save flowData to localStorage when it changes to preserve progress during OAuth redirect
@@ -357,11 +483,13 @@ function HomeInner() {
   };
 
   const handleViewInvitation = () => {
+    setDemoSourceStep("success");
     setPreviewTemplateId(flowData.selectedTemplateId);
     setCurrentStep("demo");
   };
 
   const handleViewInvitationById = (invitationId: string) => {
+    setDemoSourceStep("dashboard");
     // Load the invitation into flowData for viewing
     fetch(`/api/invitations/${invitationId}`)
       .then((r) => r.json())
@@ -383,12 +511,15 @@ function HomeInner() {
             gifts: invitation.gifts,
             heroImage: invitation.hero_image_url,
             slideshowImages: invitation.slideshow_image_urls || [],
+            youtubeVideoId: invitation.youtube_video_id ?? "",
+            personalizedGuestLinks: invitation.personalized_guest_links ?? false,
             events: (invitation.events || []).sort(
               (a: { order_index: number }, b: { order_index: number }) => a.order_index - b.order_index
             ).map((e: { name: string; date: string; time: string; venue?: string }) => ({
               name: e.name, date: e.date, time: e.time, venue: e.venue,
             })),
             selectedPlan: invitation.plan,
+            slug: invitation.slug ?? "",
           });
           setPreviewTemplateId(invitation.template_id);
           setCurrentStep("demo");
@@ -435,6 +566,8 @@ function HomeInner() {
           gifts: invitation.gifts,
           heroImage: invitation.hero_image_url,
           slideshowImages: invitation.slideshow_image_urls || [],
+          youtubeVideoId: invitation.youtube_video_id ?? "",
+          personalizedGuestLinks: invitation.personalized_guest_links ?? false,
           events: (invitation.events || []).sort(
             (a: { order_index: number }, b: { order_index: number }) => a.order_index - b.order_index
           ).map((e: { name: string; date: string; time: string; venue?: string }) => ({
@@ -477,6 +610,8 @@ function HomeInner() {
           gifts: invitation.gifts,
           heroImage: invitation.hero_image_url,
           slideshowImages: invitation.slideshow_image_urls || [],
+          youtubeVideoId: invitation.youtube_video_id ?? "",
+          personalizedGuestLinks: invitation.personalized_guest_links ?? false,
           events: (invitation.events || []).sort(
             (a: { order_index: number }, b: { order_index: number }) => a.order_index - b.order_index
           ).map((e: { name: string; date: string; time: string; venue?: string }) => ({
@@ -495,12 +630,19 @@ function HomeInner() {
     }
   };
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
+    try {
+      const supabase = createClient();
+      await supabase.auth.signOut();
+    } catch (e) {
+      console.error("Sign out error:", e);
+    }
     localStorage.removeItem("shaadilink_pending_flow_data");
     localStorage.removeItem("shaadilink_oauth_in_progress");
     setFlowData(initialFlowData);
     setPreviewTemplateId(null);
     setCurrentStep("landing");
+    toast.success("Signed out successfully. 👋");
   };
 
   const handleCreateNew = () => {
@@ -530,6 +672,7 @@ function HomeInner() {
   };
 
   const goToDemo = (templateId?: string) => {
+    setDemoSourceStep(currentStep);
     if (templateId) setPreviewTemplateId(templateId);
     else setPreviewTemplateId(flowData.selectedTemplateId);
     setCurrentStep("demo");
@@ -556,7 +699,11 @@ function HomeInner() {
             <div className="fixed top-4 left-4 z-[200]">
               <Button
                 onClick={() => {
-                  if (flowData.paymentDone) {
+                  if (demoSourceStep) {
+                    const src = demoSourceStep;
+                    setDemoSourceStep(null);
+                    setCurrentStep(src);
+                  } else if (flowData.paymentDone) {
                     setCurrentStep("success");
                   } else if (flowData.invitationId) {
                     setCurrentStep("dashboard");
@@ -581,7 +728,7 @@ function HomeInner() {
             </div>
             <InvitationViewer
               templateId={previewTemplateId || flowData.selectedTemplateId || undefined}
-              flowData={flowData}
+              flowData={(demoSourceStep === "landing" || demoSourceStep === "templates") ? initialFlowData : flowData}
             />
           </motion.div>
         )}
@@ -712,6 +859,9 @@ function HomeInner() {
               onContactClick={goToContact}
               isLoggedIn={!!flowData.userId}
               onDashboardClick={handleGoToDashboard}
+              userEmail={flowData.email}
+              userFullName={flowData.fullName}
+              onSignOut={handleSignOut}
             />
             <main className="flex-1">
               <Hero onViewTemplates={goToTemplates} onGetStarted={scrollToPricing} />

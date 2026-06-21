@@ -93,7 +93,7 @@ function FormMockup() {
   return (
     <div className="relative w-full max-w-sm mx-auto">
       {/* Glass-morphism form card */}
-      <div className="relative bg-white/70 backdrop-blur-xl rounded-2xl shadow-2xl border border-gold/20 overflow-hidden">
+      <div className="relative bg-white/70 backdrop-blur-xl rounded-2xl shadow-2xl border border-gold/20 overflow-hidden min-h-[462px] flex flex-col justify-between">
         {/* Form header with progress dots */}
         <div className="flex items-center justify-center gap-2 pt-5 pb-3 bg-gradient-to-r from-emerald/5 via-gold/5 to-emerald/5">
           <span className="w-2.5 h-2.5 rounded-full bg-emerald" />
@@ -223,7 +223,7 @@ function InvitationPreview() {
       transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
     >
       {/* Card */}
-      <div className="relative bg-gradient-to-br from-[#1a1a1a] via-[#2a1f1f] to-[#1a1a1a] rounded-2xl shadow-2xl overflow-hidden border border-gold/20">
+      <div className="relative bg-gradient-to-br from-[#1a1a1a] via-[#2a1f1f] to-[#1a1a1a] rounded-2xl shadow-2xl overflow-hidden border border-gold/20 min-h-[462px] flex flex-col justify-center">
         {/* Animated shimmer border */}
         <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
           <div
@@ -395,9 +395,9 @@ export function HowItWorks() {
           className="relative"
         >
           {/* Desktop: 3 columns with connecting lines */}
-          <div className="hidden lg:grid grid-cols-[1fr_auto_1fr_auto_1fr] items-start gap-0">
+          <div className="hidden lg:grid grid-cols-[1fr_auto_1fr_auto_1fr] items-stretch gap-0">
             {/* Step 1 */}
-            <motion.div variants={itemVariants} className="space-y-4 text-center">
+            <motion.div variants={itemVariants} className="flex flex-col h-full space-y-4 text-center">
               <StepBadge number="01" label="Fill Details" />
               <FormMockup />
               <p className="text-center text-sm text-muted-foreground mt-4 max-w-xs mx-auto">
@@ -406,12 +406,12 @@ export function HowItWorks() {
             </motion.div>
 
             {/* Connecting Line 1 */}
-            <div className="flex items-center pt-36">
+            <div className="flex items-center justify-center h-full pb-12">
               <ConnectingLine direction="horizontal" />
             </div>
 
             {/* Step 2 */}
-            <motion.div variants={itemVariants} className="space-y-4 text-center">
+            <motion.div variants={itemVariants} className="flex flex-col h-full justify-center space-y-4 text-center">
               <StepBadge number="02" label="We Transform" />
               <TransformVisual />
               <p className="text-center text-sm text-muted-foreground mt-4 max-w-xs mx-auto">
@@ -420,12 +420,12 @@ export function HowItWorks() {
             </motion.div>
 
             {/* Connecting Line 2 */}
-            <div className="flex items-center pt-36">
+            <div className="flex items-center justify-center h-full pb-12">
               <ConnectingLine direction="horizontal" />
             </div>
 
             {/* Step 3 */}
-            <motion.div variants={itemVariants} className="space-y-4 text-center">
+            <motion.div variants={itemVariants} className="flex flex-col h-full space-y-4 text-center">
               <StepBadge number="03" label="Share & Celebrate" />
               <InvitationPreview />
               <p className="text-center text-sm text-muted-foreground mt-4 max-w-xs mx-auto">

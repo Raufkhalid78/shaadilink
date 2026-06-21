@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowLeft, ArrowRight, Calendar, Heart, MapPin, Music, MessageSquare,
-  Check, Plus, Trash2, User, Shirt, Car, Hotel, Gift, ImagePlus, X, Globe, Loader2,
+  Check, Plus, Trash2, User, Shirt, Car, Hotel, Gift, ImagePlus, X, Globe, Loader2, Video
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +28,17 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue }: Deta
   const heroInputRef = useRef<HTMLInputElement>(null);
   const slideshowInputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [slugManuallyEdited, setSlugManuallyEdited] = useState(!!flowData.slug);
+
+  // Auto-generate slug from partner names if it's not manually edited
+  useEffect(() => {
+    if (!isEdit && !slugManuallyEdited && (flowData.partner1Name || flowData.partner2Name)) {
+      const p1 = flowData.partner1Name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      const p2 = flowData.partner2Name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      const autoSlug = [p1, p2].filter(Boolean).join('-');
+      onUpdateData({ slug: autoSlug });
+    }
+  }, [flowData.partner1Name, flowData.partner2Name, isEdit, slugManuallyEdited, onUpdateData]);
 
   // Play audio preview on selection
   const handleMusicSelection = (trackId: string) => {
@@ -125,6 +136,8 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue }: Deta
           events: flowData.events,
           isActive: flowData.paymentDone,
           showBismillah: flowData.showBismillah,
+          showQuranVerse: flowData.showQuranVerse,
+          slug: flowData.slug || undefined,
         }),
       });
 
@@ -374,6 +387,41 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue }: Deta
               </div>
             </section>
 
+            {/* Custom Invitation Link (Slug) */}
+            <section className="space-y-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Globe className="w-4 h-4 text-gold" />
+                <h2 className="font-display text-lg font-semibold text-foreground">Custom Invitation Link</h2>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                  Personalized Web Link Slug
+                </label>
+                <div className="relative flex items-center">
+                  <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-border bg-muted text-muted-foreground text-xs h-11">
+                    shaadilink.com/inv/
+                  </span>
+                  <Input
+                    value={flowData.slug || ""}
+                    onChange={(e) => {
+                      setSlugManuallyEdited(true);
+                      const cleanVal = e.target.value
+                        .toLowerCase()
+                        .replace(/\s+/g, "-")
+                        .replace(/[^a-z0-9\-_]/g, "");
+                      onUpdateData({ slug: cleanVal });
+                    }}
+                    placeholder="e.g. ahmed-fatima-2026"
+                    className={`rounded-l-none h-11 ${errors.slug ? "border-red-400" : ""}`}
+                  />
+                </div>
+                <p className="text-[10px] text-muted-foreground">
+                  Create a memorable link to share (e.g. <b>ahmed-fatima-dec2026</b>). Only lowercase letters, numbers, hyphens, and underscores are allowed.
+                </p>
+                {errors.slug && <p className="text-xs text-red-500">{errors.slug}</p>}
+              </div>
+            </section>
+
             {/* Bismillah Banner Toggle */}
             <section className="space-y-3">
               <div className="flex items-center gap-2 mb-1">
@@ -405,6 +453,46 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue }: Deta
                     بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">In the name of Allah, the Most Gracious, the Most Merciful</p>
+                </div>
+              )}
+            </section>
+
+            {/* Quranic Verse Toggle */}
+            <section className="space-y-3">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-base">📖</span>
+                <h2 className="font-display text-lg font-semibold text-foreground">Quranic Verse</h2>
+              </div>
+              <div
+                className="flex items-center justify-between rounded-xl border border-border p-4 cursor-pointer hover:bg-muted/30 transition-colors"
+                onClick={() => onUpdateData({ showQuranVerse: !flowData.showQuranVerse })}
+              >
+                <div className="flex-1 pr-4">
+                  <p className="text-sm font-medium text-foreground">Show Quranic Verse (30:21)</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Displays the beautiful verse about marriage in Arabic, English, and Urdu after the Scratch Card.
+                  </p>
+                </div>
+                {/* Toggle switch */}
+                <div
+                  className={`relative flex-shrink-0 w-12 h-6 rounded-full transition-colors duration-300 ${flowData.showQuranVerse ? "bg-gold" : "bg-muted"}`}
+                >
+                  <div
+                    className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-300 ${flowData.showQuranVerse ? "translate-x-7" : "translate-x-1"}`}
+                  />
+                </div>
+              </div>
+              {flowData.showQuranVerse && (
+                <div className="text-center py-4 px-3 rounded-lg border border-gold/20 bg-gold/5 space-y-3">
+                  <p className="font-arabic text-xl md:text-2xl leading-loose" style={{ color: 'hsl(40 60% 55%)' }} dir="rtl">
+                    وَمِنْ ءَايَـٰتِهِۦٓ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَٰجًا لِّتَسْكُنُوٓا۟ إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً ۚ إِنَّ فِى ذَٰلِكَ لَـَٔايَـٰتٍ لِّقَوْمٍ يَتَفَكَّرُونَ
+                  </p>
+                  <p className="text-xs text-muted-foreground italic max-w-md mx-auto">
+                    &ldquo;And of His signs is that He created for you from yourselves mates that you may find tranquility in them; and He placed between you affection and mercy. Indeed in that are signs for a people who give thought.&rdquo; (30:21)
+                  </p>
+                  <p className="font-arabic text-sm leading-relaxed" style={{ color: 'hsl(40 60% 55%)' }} dir="rtl">
+                    &ldquo;اور اس کی نشانیوں میں سے ہے کہ اس نے تمہارے لیے تمہاری ہی جنس سے جوڑے پیدا کیے تاکہ تم ان سے آرام پاؤ اور اس نے تمہارے درمیان محبت اور رحمت پیدا کر دی، یقیناً اس میں غور و فکر کرنے والوں کے لیے نشانیاں ہیں۔&rdquo; (30:21)
+                  </p>
                 </div>
               )}
             </section>
@@ -880,6 +968,27 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue }: Deta
                   className="hidden"
                 />
               </div>
+
+              {/* YouTube Video (Royal Only) */}
+              {flowData.selectedPlan === "royal" && (
+                <div className="space-y-2 mt-6">
+                  <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase flex items-center gap-2">
+                    <Video className="w-3.5 h-3.5 text-gold" />
+                    YouTube Video ID
+                  </label>
+                  <div className="relative">
+                    <Input
+                      value={flowData.youtubeVideoId || ""}
+                      onChange={(e) => onUpdateData({ youtubeVideoId: e.target.value })}
+                      placeholder="e.g. dQw4w9WgXcQ"
+                      className="bg-muted/50 border-border/50 focus:border-gold/40"
+                    />
+                    <p className="text-[10px] text-muted-foreground mt-1.5">
+                      Only paste the video ID (the part after v= in the URL).
+                    </p>
+                  </div>
+                </div>
+              )}
             </section>
 
             {/* Submit */}

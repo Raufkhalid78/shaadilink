@@ -7,7 +7,7 @@ import {
   Copy, Check, LayoutDashboard, LogOut, Loader2, Crown, Sparkles, X, Lock,
   ArrowLeft, Share2, Home, Activity, QrCode, Eye, Download,
 } from "lucide-react";
-import { QRCodeSVG } from "qrcode.react";
+import { QRCodeSVG, QRCodeCanvas } from "qrcode.react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -30,6 +30,7 @@ interface Invitation {
   rsvps: { id: string; status: string }[];
   wishes: { id: string }[];
   view_count?: number;
+  slug?: string;
 }
 
 interface DashboardPageProps {
@@ -84,6 +85,13 @@ export function DashboardPage({
   const [wishesList, setWishesList] = useState<Wish[]>([]);
   const [wishesLoading, setWishesLoading] = useState(false);
 
+  // Guest Links Drawer State
+  const [guestLinksDrawerOpen, setGuestLinksDrawerOpen] = useState(false);
+  const [guestLinksInvId, setGuestLinksInvId] = useState<string | null>(null);
+  const [newGuestName, setNewGuestName] = useState("");
+  const [generatedLinks, setGeneratedLinks] = useState<{name: string, url: string}[]>([]);
+
+
   const loadInvitations = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -118,6 +126,37 @@ export function DashboardPage({
     } finally {
       setRsvpLoading(false);
     }
+  };
+
+
+  const handleOpenGuestLinks = (invId: string) => {
+    setGuestLinksInvId(invId);
+    setGuestLinksDrawerOpen(true);
+    const stored = localStorage.getItem(`guestLinks_${invId}`);
+    if (stored) {
+      setGeneratedLinks(JSON.parse(stored));
+    } else {
+      setGeneratedLinks([]);
+    }
+  };
+
+  const handleGenerateLink = () => {
+    if (!newGuestName.trim() || !guestLinksInvId) return;
+    const slug = newGuestName.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://shaadilink.com.pk';
+    const newUrl = `${baseUrl}/inv/${guestLinksInvId}?guest=${slug}`;
+    
+    const newLink = { name: newGuestName.trim(), url: newUrl };
+    const updated = [newLink, ...generatedLinks];
+    setGeneratedLinks(updated);
+    localStorage.setItem(`guestLinks_${guestLinksInvId}`, JSON.stringify(updated));
+    setNewGuestName("");
+    toast.success("Guest link generated!");
+  };
+
+  const handleSendWhatsApp = (guestName: string, url: string) => {
+    const text = encodeURIComponent(`Asalam o Alaikum ${guestName}! We would be honored to have your presence at our wedding. Here is your personalized invitation: ${url}`);
+    window.open(`https://wa.me/?text=${text}`, '_blank');
   };
 
   const handleOpenWishes = async (invId: string) => {
@@ -192,7 +231,8 @@ export function DashboardPage({
   };
 
   const handleCopyLink = async (id: string) => {
-    const link = `${window.location.origin}/inv/${id}`;
+    const inv = invitations.find((i) => i.id === id);
+    const link = `${window.location.origin}/inv/${inv?.slug || id}`;
     try {
       await navigator.clipboard.writeText(link);
     } catch {
@@ -206,6 +246,26 @@ export function DashboardPage({
     setCopiedId(id);
     toast.success("Link copied!");
     setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const downloadQRCode = () => {
+    const canvas = document.getElementById("qr-code-canvas") as HTMLCanvasElement | null;
+    if (!canvas) {
+      toast.error("Could not generate QR code image.");
+      return;
+    }
+    try {
+      const pngUrl = canvas.toDataURL("image/png");
+      const downloadLink = document.createElement("a");
+      downloadLink.href = pngUrl;
+      downloadLink.download = "shaadilink-qr-code.png";
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      toast.success("QR Code downloaded!");
+    } catch {
+      toast.error("Failed to download QR Code.");
+    }
   };
 
   const handleSignOut = async () => {
@@ -534,7 +594,7 @@ export function DashboardPage({
                           {/* Shareable URL for live invitations */}
                           {inv.is_active && (
                             <p className="text-[10px] text-emerald/70 font-mono mt-1 truncate">
-                              shaadilink.com/inv/{inv.id.slice(0, 8)}…
+                              shaadilink.com/inv/{inv.slug || inv.id.slice(0, 8)}
                             </p>
                           )}
                         </div>
@@ -621,7 +681,7 @@ export function DashboardPage({
                             size="sm"
                             variant="outline"
                             onClick={() => {
-                              const link = `${window.location.origin}/inv/${inv.id}`;
+                              const link = `${window.location.origin}/inv/${inv.slug || inv.id}`;
                               const text = encodeURIComponent(`You're invited! 🎉 View our wedding invitation: ${link}`);
                               window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");
                             }}
@@ -634,7 +694,7 @@ export function DashboardPage({
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => setQrInvUrl(`${window.location.origin}/inv/${inv.id}`)}
+                              onClick={() => setQrInvUrl(`${window.location.origin}/inv/${inv.slug || inv.id}`)}
                               className="h-8 px-2.5 border-indigo-400/30 text-indigo-400 hover:bg-indigo-400/10"
                               aria-label="Show QR Code"
                             >
@@ -791,6 +851,119 @@ export function DashboardPage({
         )}
       </AnimatePresence>
 
+
+      {/* Guest Links Modal/Drawer */}
+      <AnimatePresence>
+        {guestLinksDrawerOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-end">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setGuestLinksDrawerOpen(false)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            {/* Panel */}
+            <motion.div
+              initial={{ x: "100%", opacity: 0.5 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: "100%", opacity: 0.5 }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="relative w-full max-w-md h-full bg-background border-l border-border/40 shadow-2xl flex flex-col"
+            >
+              <div className="flex-1 flex flex-col h-full overflow-hidden p-6 gap-6">
+                {/* Header */}
+                <div className="flex items-start justify-between shrink-0">
+                  <div>
+                    <h2 className="font-display text-xl font-bold text-foreground">Guest Links</h2>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Generate personalized links for your guests
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setGuestLinksDrawerOpen(false)}
+                    className="rounded-full w-8 h-8"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+
+                {/* Generator Input */}
+                <div className="shrink-0 flex gap-2">
+                  <input 
+                    type="text" 
+                    value={newGuestName}
+                    onChange={(e) => setNewGuestName(e.target.value)}
+                    placeholder="Enter guest name (e.g. Ali Family)"
+                    className="flex-1 px-3 py-2 text-sm rounded-md border border-input bg-transparent shadow-sm focus:outline-none focus:ring-1 focus:ring-emerald"
+                    onKeyDown={(e) => e.key === 'Enter' && handleGenerateLink()}
+                  />
+                  <Button onClick={handleGenerateLink} className="bg-emerald hover:bg-emerald-dark text-white">
+                    Generate
+                  </Button>
+                </div>
+
+                {/* Usage Stats */}
+                <div className="shrink-0 text-xs text-muted-foreground flex justify-between items-center bg-muted/50 px-3 py-2 rounded-md border border-border/50">
+                  <span>{generatedLinks.length} / 50 Links Generated</span>
+                  <div className="w-1/2 bg-muted rounded-full h-1.5 overflow-hidden">
+                    <div className="bg-emerald h-full rounded-full" style={{ width: `${Math.min((generatedLinks.length / 50) * 100, 100)}%` }} />
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+                  {generatedLinks.length === 0 ? (
+                    <div className="text-center py-20 text-muted-foreground">
+                      <ExternalLink className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                      <p className="text-sm">No links generated yet.</p>
+                    </div>
+                  ) : (
+                    generatedLinks.map((link, idx) => (
+                      <div
+                        key={idx}
+                        className="p-3.5 rounded-xl border border-border/40 bg-muted/10 flex flex-col gap-2 relative group"
+                      >
+                        <div className="font-medium text-sm text-foreground">{link.name}</div>
+                        <div className="text-xs text-muted-foreground truncate bg-background p-2 rounded border border-border/50 select-all">
+                          {link.url}
+                        </div>
+                        <div className="flex gap-2 mt-1">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="flex-1 text-xs h-8"
+                            onClick={() => {
+                              navigator.clipboard.writeText(link.url);
+                              toast.success("Link copied!");
+                            }}
+                          >
+                            <Copy className="w-3 h-3 mr-1.5" />
+                            Copy
+                          </Button>
+                          <Button 
+                            variant="default" 
+                            size="sm" 
+                            className="flex-1 text-xs h-8 bg-[#25D366] hover:bg-[#1DA851] text-white border-none"
+                            onClick={() => handleSendWhatsApp(link.name, link.url)}
+                          >
+                            <MessageSquare className="w-3 h-3 mr-1.5" />
+                            WhatsApp
+                          </Button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* Wishes Modal/Drawer */}
       <AnimatePresence>
         {wishesDrawerOpen && (
@@ -895,16 +1068,30 @@ export function DashboardPage({
             >
               <h3 className="font-display font-semibold text-lg text-foreground">QR Code</h3>
               <div className="p-3 bg-white rounded-xl shadow-inner">
+                {/* SVG for sharp on-screen rendering */}
                 <QRCodeSVG value={qrInvUrl} size={180} bgColor="#ffffff" fgColor="#1a1a2e" level="M" />
+                {/* Hidden canvas for PNG downloads */}
+                <div className="hidden">
+                  <QRCodeCanvas id="qr-code-canvas" value={qrInvUrl} size={512} bgColor="#ffffff" fgColor="#1a1a2e" level="M" />
+                </div>
               </div>
               <p className="text-xs text-muted-foreground text-center">Scan to open the invitation. Share on printed cards!</p>
-              <Button
-                variant="outline"
-                onClick={() => setQrInvUrl(null)}
-                className="w-full mt-2"
-              >
-                Close
-              </Button>
+              <div className="flex flex-col gap-2 w-full mt-2">
+                <Button
+                  onClick={downloadQRCode}
+                  className="w-full bg-emerald hover:bg-emerald-dark text-white font-semibold gap-2"
+                >
+                  <Download className="w-4 h-4" />
+                  Download PNG
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setQrInvUrl(null)}
+                  className="w-full"
+                >
+                  Close
+                </Button>
+              </div>
             </motion.div>
           </div>
         )}
