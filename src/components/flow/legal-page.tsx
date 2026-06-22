@@ -80,32 +80,37 @@ const legalData: Record<
           "We collect information you provide directly: your name, email, wedding details (couple names, venue, events, dates), guest messages, and RSVP responses. We also collect usage data such as page views and device information.",
       },
       {
-        heading: "2. How We Use Your Data",
+        heading: "2. Google User Data & Authentication",
+        content:
+          "ShaadiLink uses Google Sign-In for secure authentication. When you log in with Google, we securely collect your basic profile information (name and email address). This data is used exclusively to create your personal dashboard and authenticate your identity, allowing you to save, edit, and manage your wedding invitations. We do not sell, share, or use your Google user data for any other purpose.",
+      },
+      {
+        heading: "3. How We Use Your Data",
         content:
           "Your data is used to create and deliver your invitation webpage, process payments, provide customer support, and improve our services. We never sell your personal data to third parties.",
       },
       {
-        heading: "3. Payment Data",
+        heading: "4. Payment Data",
         content:
           "Payment processing is handled by our secure payment partners. ShaadiLink does not store your full credit card details. All payment data is transmitted via encrypted SSL connections and processed in compliance with PCI-DSS standards.",
       },
       {
-        heading: "4. Data Protection",
+        heading: "5. Data Protection",
         content:
           "We implement industry-standard security measures to protect your data, including encryption, secure servers, and access controls. Your invitation page is only accessible via the unique link you share.",
       },
       {
-        heading: "5. Cookies",
+        heading: "6. Cookies",
         content:
           "We use essential cookies to ensure the proper functioning of our website and analytics cookies to understand how visitors interact with our service. You can manage cookie preferences through your browser settings.",
       },
       {
-        heading: "6. Data Retention",
+        heading: "7. Data Retention",
         content:
           "Your invitation page will remain publicly accessible until 30 days after your wedding date, after which it will be automatically set to private. Account data is retained as long as your account is active.",
       },
       {
-        heading: "7. Your Rights",
+        heading: "8. Your Rights",
         content:
           `You have the right to access, correct, or delete your personal data at any time. Contact us at ${CONTACT_CONFIG.email} for any data-related requests.`,
       },

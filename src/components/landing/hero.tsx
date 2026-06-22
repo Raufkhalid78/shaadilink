@@ -456,16 +456,14 @@ export function Hero({ onViewTemplates, onGetStarted }: HeroProps) {
             </motion.h1>
 
             {/* Subtitle — explicitly describes ShaadiLink's purpose for OAuth reviewers */}
-            <motion.p
-              variants={itemVariants}
-              className="mt-6 sm:mt-8 text-base sm:text-lg md:text-xl text-white/70 max-w-2xl mx-auto lg:mx-0 leading-relaxed"
-            >
-              <strong className="text-white font-semibold">ShaadiLink</strong> is Pakistan's premium online wedding invitation creator. Design, publish, and share beautiful digital cards for{" "}
-              <span className="text-gold font-semibold">Mehndi</span>,{" "}
-              <span className="text-gold font-semibold">Baraat</span>, and{" "}
-              <span className="text-gold font-semibold">Walima</span> — with real-time RSVPs,
-              animated 3D reveals, live countdowns, and more. Trusted by Pakistani families worldwide.
-            </motion.p>
+            <motion.div variants={itemVariants} className="mt-6 sm:mt-8 max-w-2xl mx-auto lg:mx-0 text-left">
+              <h3 className="inline-block px-3 py-1 rounded bg-gold/20 text-gold text-[10px] font-bold tracking-widest uppercase mb-3 border border-gold/30">
+                App Purpose
+              </h3>
+              <p className="text-base sm:text-lg md:text-xl text-white/80 leading-relaxed">
+                <strong className="text-white font-semibold">ShaadiLink</strong> is an online platform that allows couples to create, customize, publish, and manage digital wedding invitations. Guests can view event details, interact with cinematic 3D reveals, and submit their RSVPs directly through the web application.
+              </p>
+            </motion.div>
 
             {/* Google OAuth Purpose Notice (required for Google Verification) */}
             <motion.p
