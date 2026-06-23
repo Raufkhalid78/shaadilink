@@ -97,8 +97,8 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
 
     if (flowData.venueAddress && flowData.venueAddress.includes('|||')) {
       const mapsUrl = flowData.venueAddress.split('|||')[1]?.trim();
-      if (mapsUrl && !mapsUrl.startsWith('https://maps.') && !mapsUrl.startsWith('https://goo.gl/') && !mapsUrl.startsWith('https://maps.app.goo.gl/')) {
-        newErrors.mapsUrl = 'Please enter a valid Google Maps URL';
+      if (mapsUrl && !mapsUrl.startsWith('https://maps.') && !mapsUrl.startsWith('https://goo.gl/') && !mapsUrl.startsWith('https://maps.app.goo.gl/') && !mapsUrl.includes('google.com/maps/')) {
+        newErrors.mapsUrl = 'Please enter a valid Google Maps URL (e.g. https://maps.app.goo.gl/...)';
       }
     }
 
