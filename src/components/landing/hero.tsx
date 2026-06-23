@@ -331,7 +331,7 @@ export function Hero({ onViewTemplates, onGetStarted }: HeroProps) {
   const appTagline = "Pakistan's Premier Digital Wedding Invitation Platform";
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-emerald-dark">
+    <section className="relative min-h-screen flex flex-col justify-center overflow-hidden bg-emerald-dark pt-32 pb-16">
       {/* Multi-layered gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-emerald-dark via-emerald-dark to-emerald" />
       <div
