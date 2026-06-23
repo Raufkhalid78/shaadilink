@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -52,6 +52,21 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
   const basePrice = parseInt(plan.price.replace(/,/g, ""));
   const total = basePrice + (flowData.personalizedGuestLinks ? 1000 : 0);
   const formattedTotal = total.toLocaleString("en-PK");
+
+  // Check if payment was already completed via Webhook when returning to this page
+  useEffect(() => {
+    if (flowData.invitationId) {
+      fetch(`/api/invitations/${flowData.invitationId}`)
+        .then(r => r.json())
+        .then(({ invitation }) => {
+          if (invitation?.is_active) {
+            onUpdateData({ paymentDone: true, selectedPlan: invitation.plan });
+            onContinue();
+          }
+        })
+        .catch(err => console.error("Failed to check invitation status", err));
+    }
+  }, [flowData.invitationId, onUpdateData, onContinue]);
 
   const handlePayment = async () => {
     setProcessing(true);
