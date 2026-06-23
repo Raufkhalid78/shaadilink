@@ -422,6 +422,54 @@ function HomeInner() {
     }
   }, [flowData]);
 
+  // Restore success step from query params if redirecting from payment gateway callback
+  useEffect(() => {
+    const step = searchParams.get("step");
+    const invitationId = searchParams.get("invitationId");
+    if (step === "success" && invitationId) {
+      fetch(`/api/invitations/${invitationId}`)
+        .then((r) => r.json())
+        .then(({ invitation }) => {
+          if (invitation) {
+            setFlowData((prev) => ({
+              ...prev,
+              invitationId: invitation.id,
+              selectedTemplateId: invitation.template_id,
+              partner1Name: invitation.partner1_name ?? "",
+              partner2Name: invitation.partner2_name ?? "",
+              venue: invitation.venue ?? "",
+              venueAddress: invitation.venue_address ?? "",
+              welcomeMessage: invitation.welcome_message ?? "",
+              backgroundMusic: invitation.background_music ?? "no-music",
+              dressCodeWomen: invitation.dress_code_women ?? "",
+              dressCodeMen: invitation.dress_code_men ?? "",
+              transportation: invitation.transportation ?? "",
+              accommodation: invitation.accommodation ?? "",
+              gifts: invitation.gifts ?? "",
+              heroImage: invitation.hero_image_url ?? "",
+              slideshowImages: invitation.slideshow_image_urls ?? [],
+              youtubeVideoId: invitation.youtube_video_id ?? "",
+              personalizedGuestLinks: invitation.personalized_guest_links ?? false,
+              events: ((invitation.events as { name: string; date: string; time: string; venue?: string; order_index: number }[]) || [])
+                .sort((a, b) => a.order_index - b.order_index)
+                .map((e) => ({ name: e.name, date: e.date, time: e.time, venue: e.venue })),
+              selectedPlan: invitation.plan,
+              paymentDone: invitation.is_active,
+              showBismillah: invitation.show_bismillah ?? true,
+              showQuranVerse: invitation.show_quran_verse ?? true,
+              slug: invitation.slug ?? "",
+            }));
+            setCurrentStep("success");
+            localStorage.removeItem("shaadilink_pending_flow_data");
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to load invitation on success redirect:", err);
+          toast.error("Failed to load invitation details.");
+        });
+    }
+  }, [searchParams, setCurrentStep]);
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
   }, [currentStep]);

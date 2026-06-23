@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   ArrowLeft, ArrowRight, Check, CreditCard, Shield, Lock, Crown, Sparkles, Loader2,
@@ -37,6 +38,9 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue }: Paym
   const [cardName, setCardName] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const searchParams = useSearchParams();
+  const paymentError = searchParams.get("paymentError");
+
   const plan = planDetails[flowData.selectedPlan || "classic"];
   const templateName =
     flowData.selectedTemplateId
@@ -44,39 +48,43 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue }: Paym
       .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
       .join(" ") || "Template";
 
-  const validate = () => {
-    return true; // No validation needed for beta launch
-  };
+  const basePrice = parseInt(plan.price.replace(/,/g, ""));
+  const total = basePrice + (flowData.personalizedGuestLinks ? 1000 : 0);
+  const formattedTotal = total.toLocaleString("en-PK");
 
   const handlePayment = async () => {
-    if (!validate()) return;
     setProcessing(true);
 
     try {
-      // Simulated payment processing (2s) — replace with Stripe later
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // Record order in Supabase
-      if (flowData.invitationId) {
-        const res = await fetch("/api/orders", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            invitationId: flowData.invitationId,
-            plan: flowData.selectedPlan || "classic",
-          }),
-        });
-        if (!res.ok) {
-          const data = await res.json();
-          toast.error(data.error || "Could not record order. Please contact support.");
-          return;
-        }
+      if (!flowData.invitationId) {
+        toast.error("Invitation ID is missing. Please restart the process.");
+        return;
       }
 
-      onUpdateData({ paymentDone: true });
-      onContinue();
-    } catch {
-      toast.error("Payment processing failed. Please try again.");
+      const res = await fetch("/api/payment/initiate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          invitationId: flowData.invitationId,
+          plan: flowData.selectedPlan || "classic",
+          personalizedGuestLinks: !!flowData.personalizedGuestLinks,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || "Failed to initiate payment session. Please try again.");
+        return;
+      }
+
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      } else {
+        toast.error("Checkout URL not returned by payment gateway.");
+      }
+    } catch (err) {
+      console.error("Payment initiation error:", err);
+      toast.error("An error occurred initiating checkout. Please try again.");
     } finally {
       setProcessing(false);
     }
@@ -135,22 +143,32 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue }: Paym
               Complete Payment
             </h1>
             <p className="mt-2 text-muted-foreground text-sm">
-              Special Launch Offer: Create your invitation for free during our beta period.
+              Publish your premium invitation instantly and share with your guests.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
             {/* Payment Form */}
             <div className="md:col-span-3 space-y-6">
-              <div className="p-6 rounded-2xl border border-emerald/30 bg-emerald/5 space-y-4 text-center">
-                <div className="w-12 h-12 rounded-full bg-emerald/20 flex items-center justify-center mx-auto mb-4">
-                  <Sparkles className="w-6 h-6 text-emerald" />
+              {paymentError && (
+                <div className="p-4 rounded-xl border border-destructive/30 bg-destructive/5 text-destructive text-sm text-center">
+                  ⚠️ {paymentError}
                 </div>
-                <h2 className="font-display text-xl font-semibold text-emerald-light">Beta Launch Special</h2>
-                <p className="text-muted-foreground">
-                  As an early adopter of ShaadiLink, your invitation is completely <strong className="text-white">FREE</strong>.
-                  Skip the payment step and publish your invitation instantly!
+              )}
+
+              <div className="p-6 rounded-2xl border border-gold/30 bg-gold/5 space-y-4 text-center">
+                <div className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center mx-auto mb-4">
+                  <Shield className="w-6 h-6 text-gold" />
+                </div>
+                <h2 className="font-display text-lg font-semibold text-gold-light">Secure Checkout via Safepay</h2>
+                <p className="text-muted-foreground text-xs leading-relaxed">
+                  You are purchasing the <strong className="text-white capitalize">{flowData.selectedPlan || "classic"} Plan</strong>.
+                  You will be redirected to the secure Safepay portal to complete your payment using Cards (Visa/Mastercard), Easypaisa, JazzCash, or Direct Bank Transfer.
                 </p>
+                <div className="flex justify-center items-center gap-6 pt-2 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1.5"><Lock className="w-3.5 h-3.5 text-gold" /> 256-bit SSL</span>
+                  <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-emerald" /> Money-Back Guarantee</span>
+                </div>
               </div>
 
               {/* Pay button */}
@@ -160,9 +178,9 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue }: Paym
                 className="w-full h-12 bg-gold hover:bg-gold-light text-emerald-dark font-semibold text-base gap-2"
               >
                 {processing ? (
-                  <><Loader2 className="w-4 h-4 animate-spin" /> Processing...</>
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Preparing checkout...</>
                 ) : (
-                  <>Claim Free Access & Publish <ArrowRight className="w-4 h-4" /></>
+                  <>Pay Rs. {formattedTotal} & Publish <ArrowRight className="w-4 h-4" /></>
                 )}
               </Button>
             </div>
