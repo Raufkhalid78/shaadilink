@@ -56,7 +56,7 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
   // Check if payment was already completed via Webhook when returning to this page
   useEffect(() => {
     if (flowData.invitationId) {
-      fetch(`/api/invitations/${flowData.invitationId}`)
+      fetch(`/api/invitations/${flowData.invitationId}`, { cache: 'no-store' })
         .then(r => r.json())
         .then(({ invitation }) => {
           if (invitation?.is_active) {
