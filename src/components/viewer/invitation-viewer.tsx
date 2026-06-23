@@ -4896,9 +4896,33 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
   const [venueAddress, googleMapsUrl] = rawVenueAddress.includes('|||')
     ? rawVenueAddress.split('|||')
     : [rawVenueAddress, '']
-  const mapQuery = useMemo(() => {
-    return getMapEmbedQuery(googleMapsUrl, venueAddress, venueName)
-  }, [googleMapsUrl, venueAddress, venueName])
+  const [mapQuery, setMapQuery] = useState(getMapEmbedQuery(googleMapsUrl, venueAddress, venueName))
+
+  useEffect(() => {
+    let active = true;
+    const baseQuery = getMapEmbedQuery(googleMapsUrl, venueAddress, venueName);
+
+    if (!googleMapsUrl || (!googleMapsUrl.includes('goo.gl') && !googleMapsUrl.includes('maps.app.goo.gl'))) {
+      if (active) setMapQuery(baseQuery);
+      return;
+    }
+
+    // Resolve shortened URL
+    fetch(`/api/resolve-url?url=${encodeURIComponent(googleMapsUrl)}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.resolvedUrl && active) {
+          setMapQuery(getMapEmbedQuery(data.resolvedUrl, venueAddress, venueName));
+        } else if (active) {
+          setMapQuery(baseQuery);
+        }
+      })
+      .catch(() => {
+        if (active) setMapQuery(baseQuery);
+      });
+
+    return () => { active = false; };
+  }, [googleMapsUrl, venueAddress, venueName]);
   const welcomeMsg = flowData?.welcomeMessage?.trim() || "With hearts full of love and joy, we warmly invite you to share in the celebration of our union. Your presence would mean the world to us as we begin this beautiful journey together."
 
   const [language, setLanguage] = useState<'en' | 'ur'>('en')
