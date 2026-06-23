@@ -746,6 +746,14 @@ function HomeInner() {
   const goToAffiliate = () => setCurrentStep("affiliate");
   const goToLegal = (type: "terms" | "privacy" | "refund" | "shipping") => setCurrentStep(type as FlowStep);
 
+  if (isLoadingParams) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <AnimatePresence mode="wait">
