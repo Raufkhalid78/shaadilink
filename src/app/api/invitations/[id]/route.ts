@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 
+export const dynamic = 'force-dynamic'
+
 /* GET /api/invitations/[id] — fetch single invitation (public if active) */
 export async function GET(
   _request: NextRequest,

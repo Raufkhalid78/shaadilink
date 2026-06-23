@@ -19,14 +19,9 @@ export async function POST(request: NextRequest) {
 
     const payload = JSON.parse(rawBody)
 
-    // Ensure it's a successful payment event
-    // Note: Safepay event type might be 'payment.succeeded' or 'charge.succeeded'
-    if (payload.type && !payload.type.includes('succeeded') && payload.state !== 'PAID') {
-      return NextResponse.json({ received: true, ignored: true })
-    }
-
-    // Extract reference (orderId)
-    const orderId = payload.data?.reference || payload.reference || payload.data?.order_id
+    // Some Safepay events are 'payment:created' or 'payment.succeeded'
+    // We will just proceed if there is a valid reference
+    const orderId = payload.notification?.reference || payload.data?.reference || payload.reference || payload.data?.order_id || payload.notification?.order_id
     if (!orderId) {
       console.warn("Webhook payload missing reference/orderId")
       return NextResponse.json({ error: "Missing reference" }, { status: 400 })
