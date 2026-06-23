@@ -467,6 +467,14 @@ function HomeInner() {
           console.error("Failed to load invitation on success redirect:", err);
           toast.error("Failed to load invitation details.");
         });
+    } else if (step === "payment") {
+      setCurrentStep("payment");
+      const paymentError = searchParams.get("paymentError");
+      if (paymentError) {
+        toast.error(paymentError);
+        // Clean URL to prevent error toast re-firing on refresh
+        window.history.replaceState({}, '', '/?step=payment');
+      }
     }
   }, [searchParams, setCurrentStep]);
 
