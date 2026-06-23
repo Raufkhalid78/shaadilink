@@ -107,7 +107,10 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
   };
 
   const handleSubmit = async () => {
-    if (!validate()) return;
+    if (!validate()) {
+      toast.error("Please fix the errors in the form before saving.");
+      return;
+    }
     setIsSaving(true);
 
     try {
@@ -332,6 +335,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
             <p className="mt-2 text-muted-foreground text-sm">
               Enter your wedding details — we&apos;ll transform them into a stunning invitation.
             </p>
+            {errors.events && <p className="text-sm text-red-500 mb-4">{errors.events}</p>}
           </div>
 
           <div className="space-y-8">
