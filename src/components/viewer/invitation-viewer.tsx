@@ -4907,7 +4907,9 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
 
   const isDemo = !flowData?.invitationId && !flowData?.partner1Name
 
-  // Track page view
+  const [guestNameFromUrl, setGuestNameFromUrl] = useState('')
+
+  // Track page view and handle guest URL param
   useEffect(() => {
     if (flowData?.invitationId && !isDemo) {
       // Small delay to ensure we only track real views, not quick bounces
@@ -4969,6 +4971,20 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
   const [rsvpName, setRsvpName] = useState('')
   const [rsvpEmail, setRsvpEmail] = useState('')
   const [rsvpStatus, setRsvpStatus] = useState<'accept' | 'decline' | null>(null)
+  
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const guestParam = params.get('guest')
+      if (guestParam) {
+        // e.g. "ahmed-family" -> "Ahmed Family"
+        const formatted = guestParam.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+        setGuestNameFromUrl(formatted)
+        if (!rsvpName) setRsvpName(formatted)
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   const [wishName, setWishName] = useState('')
   const [wishMessage, setWishMessage] = useState('')
   const [musicPlaying, setMusicPlaying] = useState(false)
@@ -5753,6 +5769,13 @@ export default function InvitationViewer({ templateId, flowData }: InvitationVie
         <RevealSection>
           <section className="py-16 md:py-20 px-6">
             <div className="max-w-lg mx-auto text-center">
+              {guestNameFromUrl && (
+                <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+                  <h3 className={`${theme.fontDisplay} text-3xl md:text-4xl capitalize mb-8`} style={{ color: theme.accent }}>
+                    {language === 'ur' ? 'محترم' : 'Dear'} {guestNameFromUrl},
+                  </h3>
+                </motion.div>
+              )}
               <WaveDivider accentColor={theme.accent} />
               <p className={`${theme.fontCalligraphy} text-xl md:text-2xl leading-relaxed italic whitespace-pre-wrap break-words my-8`} style={{ color: theme.accentLight, textShadow: `0 0 15px ${getOpacityStyle('text', 0.2)}` }}>
                 {translatedWelcomeMsg}
