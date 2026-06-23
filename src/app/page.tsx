@@ -78,7 +78,7 @@ const InvitationViewer = dynamic(() => import("@/components/viewer/invitation-vi
   loading: () => <div className="fixed inset-0 bg-background flex items-center justify-center text-gold font-display text-xl z-[200]">Loading invitation...</div>
 });
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Eye, Sparkles, Shield } from "lucide-react";
+import { ArrowLeft, Eye, Sparkles, Shield, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { FlowData, FlowStep } from "@/lib/flow-types";
 import { initialFlowData } from "@/lib/flow-types";
@@ -227,17 +227,24 @@ function HomeInner() {
   const router = useRouter();
 
   const searchParams = useSearchParams();
+  const [isLoadingParams, setIsLoadingParams] = useState(true);
 
   // Handle query params from /dashboard route (?start=create, ?edit=ID, ?upgrade=ID)
   useEffect(() => {
     const start = searchParams.get("start");
     const editId = searchParams.get("edit");
     const upgradeId = searchParams.get("upgrade");
-    if (!start && !editId && !upgradeId) return;
+    if (!start && !editId && !upgradeId) {
+      setIsLoadingParams(false);
+      return;
+    }
 
     const supabase = createClient();
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session?.user) return;
+      if (!session?.user) {
+        setIsLoadingParams(false);
+        return;
+      }
       const mergedData: FlowData = {
         ...initialFlowData,
         userId: session.user.id,
@@ -248,8 +255,8 @@ function HomeInner() {
 
       if (start === "create") {
         setCurrentStep("templates");
+        setIsLoadingParams(false);
       } else if (editId) {
-        // Load the invitation then go to details
         fetch(`/api/invitations/${editId}`)
           .then((r) => r.json())
           .then(({ invitation }) => {
