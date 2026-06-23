@@ -292,7 +292,8 @@ function HomeInner() {
               setStepBeforeDetails("dashboard");
               setCurrentStep("details");
             }
-          });
+          })
+          .finally(() => setIsLoadingParams(false));
       } else if (upgradeId) {
         fetch(`/api/invitations/${upgradeId}`)
           .then((r) => r.json())
@@ -329,9 +330,12 @@ function HomeInner() {
               setStepBeforeDetails("dashboard");
               setCurrentStep("details");
             }
-          });
+          })
+          .finally(() => setIsLoadingParams(false));
+      } else {
+        setIsLoadingParams(false);
       }
-    });
+    }).catch(() => setIsLoadingParams(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
