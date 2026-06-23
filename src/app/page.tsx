@@ -484,8 +484,8 @@ function HomeInner() {
     setCurrentStep("templates");
   };
 
-  const handleSelectTemplate = (templateId: string) => {
-    updateFlowData({ selectedTemplateId: templateId });
+  const handleSelectTemplate = (templateId: string, plan: "classic" | "royal") => {
+    updateFlowData({ selectedTemplateId: templateId, selectedPlan: plan });
     // If already logged in, skip signup and go to details
     if (flowData.userId) {
       setStepBeforeDetails("templates");
@@ -789,6 +789,10 @@ function HomeInner() {
               onBack={handleBackToLanding}
               onPreview={(templateId) => goToDemo(templateId)}
               onSelectTemplate={handleSelectTemplate}
+              crumbs={[
+                { label: "Home", onClick: handleGoHome },
+                { label: "Choose Your Template" },
+              ]}
             />
           </InfoPageWrapper>
         )}
@@ -802,6 +806,11 @@ function HomeInner() {
               onBack={() => setCurrentStep("templates")}
               onContinue={handleSignupComplete}
               onLogin={handleLoginClick}
+              crumbs={[
+                { label: "Home", onClick: handleGoHome },
+                { label: "Templates", onClick: () => setCurrentStep("templates") },
+                { label: "Create Account" },
+              ]}
             />
           </InfoPageWrapper>
         )}
@@ -813,6 +822,10 @@ function HomeInner() {
               onBack={handleBackToLanding}
               onLogin={handleLoginComplete}
               onSignup={handleGoToSignup}
+              crumbs={[
+                { label: "Home", onClick: handleGoHome },
+                { label: "Log In" },
+              ]}
             />
           </InfoPageWrapper>
         )}
@@ -825,6 +838,19 @@ function HomeInner() {
               onUpdateData={updateFlowData}
               onBack={() => setCurrentStep(stepBeforeDetails)}
               onContinue={handleDetailsComplete}
+              crumbs={
+                stepBeforeDetails === "dashboard"
+                  ? [
+                      { label: "Home", onClick: handleGoHome },
+                      { label: "Dashboard", onClick: handleGoToDashboard },
+                      { label: "Edit Invitation" },
+                    ]
+                  : [
+                      { label: "Home", onClick: handleGoHome },
+                      { label: "Templates", onClick: () => setCurrentStep("templates") },
+                      { label: "Details" },
+                    ]
+              }
             />
           </InfoPageWrapper>
         )}
@@ -837,6 +863,21 @@ function HomeInner() {
               onUpdateData={updateFlowData}
               onBack={() => setCurrentStep("details")}
               onContinue={handlePaymentComplete}
+              crumbs={
+                stepBeforeDetails === "dashboard"
+                  ? [
+                      { label: "Home", onClick: handleGoHome },
+                      { label: "Dashboard", onClick: handleGoToDashboard },
+                      { label: "Edit Invitation", onClick: () => setCurrentStep("details") },
+                      { label: "Complete Payment" },
+                    ]
+                  : [
+                      { label: "Home", onClick: handleGoHome },
+                      { label: "Templates", onClick: () => setCurrentStep("templates") },
+                      { label: "Details", onClick: () => setCurrentStep("details") },
+                      { label: "Complete Payment" },
+                    ]
+              }
             />
           </InfoPageWrapper>
         )}
@@ -848,6 +889,11 @@ function HomeInner() {
               flowData={flowData}
               onViewInvitation={handleViewInvitation}
               onGoToDashboard={handleGoToDashboard}
+              crumbs={[
+                { label: "Home", onClick: handleGoHome },
+                { label: "Dashboard", onClick: handleGoToDashboard },
+                { label: "Invitation Ready! 🎉" },
+              ]}
             />
           </InfoPageWrapper>
         )}

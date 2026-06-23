@@ -18,9 +18,10 @@ interface DetailsPageProps {
   onUpdateData: (updates: Partial<FlowData>) => void;
   onBack: () => void;
   onContinue: () => void;
+  crumbs: { label: string; onClick?: () => void }[];
 }
 
-export function DetailsPage({ flowData, onUpdateData, onBack, onContinue }: DetailsPageProps) {
+export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs }: DetailsPageProps) {
   const isEdit = !!flowData.invitationId;
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isUploading, setIsUploading] = useState(false);
@@ -314,21 +315,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue }: Deta
       </header>
 
       {/* Breadcrumb path — adapts for new vs edit mode */}
-      <PageBreadcrumb
-        crumbs={
-          isEdit
-            ? [
-                { label: "Home", onClick: onBack },
-                { label: "Dashboard", onClick: onBack },
-                { label: "Edit Invitation" },
-              ]
-            : [
-                { label: "Home", onClick: onBack },
-                { label: "Templates", onClick: onBack },
-                { label: "Customise Invitation" },
-              ]
-        }
-      />
+      <PageBreadcrumb crumbs={crumbs} />
 
       <main className="flex-1 px-4 py-8 sm:py-12">
         <motion.div

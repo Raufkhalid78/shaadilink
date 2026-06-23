@@ -15,9 +15,10 @@ interface SuccessPageProps {
   flowData: FlowData;
   onViewInvitation: () => void;
   onGoToDashboard: () => void;
+  crumbs: { label: string; onClick?: () => void }[];
 }
 
-export function SuccessPage({ flowData, onViewInvitation, onGoToDashboard }: SuccessPageProps) {
+export function SuccessPage({ flowData, onViewInvitation, onGoToDashboard, crumbs }: SuccessPageProps) {
   const [copied, setCopied] = useState(false);
 
   // Use real invitationId for unique link; fall back to template for demo mode
@@ -90,13 +91,7 @@ export function SuccessPage({ flowData, onViewInvitation, onGoToDashboard }: Suc
       </header>
 
       {/* Breadcrumb path */}
-      <PageBreadcrumb
-        crumbs={[
-          { label: "Home", onClick: onGoToDashboard },
-          { label: "Dashboard", onClick: onGoToDashboard },
-          { label: "Invitation Ready! 🎉" },
-        ]}
-      />
+      <PageBreadcrumb crumbs={crumbs} />
 
       <main className="flex-1 flex items-center justify-center px-4 py-12">
         <motion.div

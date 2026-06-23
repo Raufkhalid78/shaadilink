@@ -19,7 +19,7 @@ async function handleCallback(request: NextRequest) {
     
     let tracker = searchParams.get('tracker') || ''
     let sig = searchParams.get('sig') || ''
-    let orderId = searchParams.get('order_id') || ''
+    let orderId = searchParams.get('order_id') || searchParams.get('reference') || ''
 
     // If Safepay redirects via POST, extract parameters from the body
     if (request.method === 'POST') {
@@ -29,12 +29,12 @@ async function handleCallback(request: NextRequest) {
           const formData = await request.formData()
           tracker = tracker || (formData.get('tracker') as string) || ''
           sig = sig || (formData.get('sig') as string) || ''
-          orderId = orderId || (formData.get('order_id') as string) || ''
+          orderId = orderId || (formData.get('order_id') as string) || (formData.get('reference') as string) || ''
         } else if (contentType.includes('application/json')) {
           const body = await request.json()
           tracker = tracker || body.tracker || ''
           sig = sig || body.sig || ''
-          orderId = orderId || body.order_id || ''
+          orderId = orderId || body.order_id || body.reference || ''
         }
       } catch (e) {
         console.error('Failed to parse POST body in payment callback:', e)

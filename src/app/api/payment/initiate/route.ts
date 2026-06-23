@@ -115,7 +115,8 @@ export async function POST(request: NextRequest) {
       ? 'https://api.getsafepay.com/checkout/pay'
       : 'https://sandbox.api.getsafepay.com/checkout/pay'
 
-    const callbackUrl = `${siteUrl}/api/payment/callback`
+    // Embed the order ID into the callback URL so we have it upon redirect
+    const callbackUrl = `${siteUrl}/api/payment/callback?order_id=${order.id}`
     const cancelUrl = `${siteUrl}/?step=payment`
 
     const checkoutUrl = `${checkoutBase}?env=${safepayEnv}&beacon=${trackerToken}&client=${safepayApiKey}&order_id=${order.id}&redirect_url=${encodeURIComponent(callbackUrl)}&cancel_url=${encodeURIComponent(cancelUrl)}&source=custom`

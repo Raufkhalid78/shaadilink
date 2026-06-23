@@ -19,6 +19,7 @@ interface PaymentPageProps {
   onUpdateData: (updates: Partial<FlowData>) => void;
   onBack: () => void;
   onContinue: () => void;
+  crumbs: { label: string; onClick?: () => void }[];
 }
 
 function formatCardNumber(value: string) {
@@ -30,7 +31,7 @@ function formatExpiry(value: string) {
   return digits;
 }
 
-export function PaymentPage({ flowData, onUpdateData, onBack, onContinue }: PaymentPageProps) {
+export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs }: PaymentPageProps) {
   const [processing, setProcessing] = useState(false);
   const [cardNumber, setCardNumber] = useState("");
   const [expiry, setExpiry] = useState("");
@@ -122,14 +123,7 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue }: Paym
       </header>
 
       {/* Breadcrumb path */}
-      <PageBreadcrumb
-        crumbs={[
-          { label: "Home", onClick: onBack },
-          { label: "Templates", onClick: onBack },
-          { label: "Details", onClick: onBack },
-          { label: "Complete Payment" },
-        ]}
-      />
+      <PageBreadcrumb crumbs={crumbs} />
 
       <main className="flex-1 px-4 py-8 sm:py-12">
         <motion.div

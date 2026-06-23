@@ -14,9 +14,10 @@ interface LoginPageProps {
   onBack: () => void;
   onLogin: (userId: string, email: string) => void;
   onSignup: () => void;
+  crumbs: { label: string; onClick?: () => void }[];
 }
 
-export function LoginPage({ onBack, onLogin, onSignup }: LoginPageProps) {
+export function LoginPage({ onBack, onLogin, onSignup, crumbs }: LoginPageProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -147,12 +148,7 @@ export function LoginPage({ onBack, onLogin, onSignup }: LoginPageProps) {
       </header>
 
       {/* Breadcrumb path */}
-      <PageBreadcrumb
-        crumbs={[
-          { label: "Home", onClick: onBack },
-          { label: "Log In" },
-        ]}
-      />
+      <PageBreadcrumb crumbs={crumbs} />
 
       <main className="flex-1 flex items-center justify-center px-4 py-12 relative overflow-hidden">
         {/* Background ambient elements */}

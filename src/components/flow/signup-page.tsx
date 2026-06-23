@@ -18,6 +18,7 @@ interface SignupPageProps {
   onBack: () => void;
   onContinue: () => void;
   onLogin: () => void;
+  crumbs: { label: string; onClick?: () => void }[];
 }
 
 export function SignupPage({
@@ -26,6 +27,7 @@ export function SignupPage({
   onBack,
   onContinue,
   onLogin,
+  crumbs,
 }: SignupPageProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState("");
@@ -148,13 +150,7 @@ export function SignupPage({
       </header>
 
       {/* Breadcrumb path */}
-      <PageBreadcrumb
-        crumbs={[
-          { label: "Home", onClick: onBack },
-          { label: "Templates", onClick: onBack },
-          { label: "Create Account" },
-        ]}
-      />
+      <PageBreadcrumb crumbs={crumbs} />
 
       <main className="flex-1 flex items-center justify-center px-4 py-12 relative overflow-hidden">
         {/* Background ambient elements */}

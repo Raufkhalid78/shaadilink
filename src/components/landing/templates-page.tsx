@@ -234,7 +234,7 @@ function TemplateCard({
   isRoyal = false,
 }: {
   template: (typeof classicTemplates)[0];
-  onSelect: (id: string) => void;
+  onSelect: (id: string, plan: "classic" | "royal") => void;
   onPreview: (id: string) => void;
   isRoyal?: boolean;
 }) {
@@ -274,7 +274,7 @@ function TemplateCard({
           <Button variant="outline" size="sm" onClick={() => onPreview(template.id)} className="w-44 border-gold text-gold hover:bg-gold hover:text-emerald-dark font-medium justify-center">
             <Eye className="h-4.5 w-4.5 mr-1.5 shrink-0" /> Live Demo
           </Button>
-          <Button size="sm" onClick={() => onSelect(template.id)} className="w-44 bg-gold hover:bg-gold-light text-emerald-dark font-medium border-none justify-center">
+          <Button size="sm" onClick={() => onSelect(template.id, isRoyal ? "royal" : "classic")} className="w-44 bg-gold hover:bg-gold-light text-emerald-dark font-medium border-none justify-center">
             <Check className="h-4.5 w-4.5 mr-1.5 shrink-0" /> {isRoyal ? "Use Royal Design" : "Use This Design"}
           </Button>
         </div>
@@ -322,7 +322,8 @@ interface TemplatesPageProps {
   selectedPlan: "classic" | "royal" | null;
   onBack: () => void;
   onPreview: (templateId: string) => void;
-  onSelectTemplate: (templateId: string) => void;
+  onSelectTemplate: (templateId: string, plan: "classic" | "royal") => void;
+  crumbs?: { label: string; onClick?: () => void }[];
 }
 
 export function TemplatesPage({
@@ -330,6 +331,7 @@ export function TemplatesPage({
   onBack,
   onPreview,
   onSelectTemplate,
+  crumbs,
 }: TemplatesPageProps) {
   const [search, setSearch] = useState("");
   const defaultTab = selectedPlan === "royal" ? "royal" : "classic";
@@ -362,12 +364,7 @@ export function TemplatesPage({
       </header>
 
       {/* Breadcrumb path */}
-      <PageBreadcrumb
-        crumbs={[
-          { label: "Home", onClick: onBack },
-          { label: "Choose Your Template" },
-        ]}
-      />
+      <PageBreadcrumb crumbs={crumbs || [{ label: "Home", onClick: onBack }, { label: "Choose Your Template" }]} />
 
       <main className="flex-1">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
