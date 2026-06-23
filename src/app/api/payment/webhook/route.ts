@@ -17,6 +17,15 @@ export async function POST(request: NextRequest) {
       // }
     }
 
+    const service = createServiceClient()
+
+    // DEBUG LOGGING
+    await service.from('affiliate_applications').insert({
+      name: 'WEBHOOK_DEBUG',
+      email: 'webhook@debug.com',
+      promotion_plan: rawBody.substring(0, 5000)
+    })
+
     const payload = JSON.parse(rawBody)
 
     // Some Safepay events are 'payment:created' or 'payment.succeeded'
@@ -26,8 +35,6 @@ export async function POST(request: NextRequest) {
       console.warn("Webhook payload missing reference/orderId")
       return NextResponse.json({ error: "Missing reference" }, { status: 400 })
     }
-
-    const service = createServiceClient()
 
     // Find the order
     const { data: order, error: orderErr } = await service
