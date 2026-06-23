@@ -67,7 +67,11 @@ export async function POST(request: NextRequest) {
 
     const safepayApiKey = process.env.SAFEPAY_API_KEY
     const safepayEnv = process.env.SAFEPAY_ENVIRONMENT || 'sandbox'
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+    
+    // Dynamically resolve site URL from request headers (supports local dev and Vercel automatically)
+    const host = request.headers.get('host') || 'localhost:3000'
+    const protocol = request.headers.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https')
+    const siteUrl = `${protocol}://${host}`
 
     if (!safepayApiKey) {
       console.error('SAFEPAY_API_KEY is missing')
