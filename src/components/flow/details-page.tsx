@@ -103,7 +103,21 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    
+    const keys = Object.keys(newErrors);
+    if (keys.length > 0) {
+      // Small delay to ensure React has updated the DOM with error messages
+      setTimeout(() => {
+        const firstErrorId = `field-${keys[0]}`;
+        const el = document.getElementById(firstErrorId);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 50);
+      return false;
+    }
+    
+    return true;
   };
 
   const handleSubmit = async () => {
@@ -346,7 +360,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                 <h2 className="font-display text-lg font-semibold text-foreground">Couple Names</h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
+                <div className="space-y-1.5" id="field-partner1Name">
                   <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                     Partner 1 Name
                   </label>
@@ -361,7 +375,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                   </div>
                   {errors.partner1Name && <p className="text-xs text-red-500">{errors.partner1Name}</p>}
                 </div>
-                <div className="space-y-1.5">
+                <div className="space-y-1.5" id="field-partner2Name">
                   <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                     Partner 2 Name
                   </label>
@@ -385,7 +399,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                 <Globe className="w-4 h-4 text-gold" />
                 <h2 className="font-display text-lg font-semibold text-foreground">Custom Invitation Link</h2>
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-1.5" id="field-slug">
                 <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                   Personalized Web Link Slug
                 </label>
@@ -496,7 +510,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                 <h2 className="font-display text-lg font-semibold text-foreground">Venue</h2>
               </div>
               <div className="space-y-3">
-                <div className="space-y-1.5">
+                <div className="space-y-1.5" id="field-venue">
                   <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                     Venue Name
                   </label>
@@ -528,7 +542,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                     />
                   </div>
                 </div>
-                <div className="space-y-1.5">
+                <div className="space-y-1.5" id="field-mapsUrl">
                   <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                     Google Maps Link (Optional)
                   </label>
@@ -572,7 +586,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
             </section>
 
             {/* Events */}
-            <section className="space-y-4">
+            <section className="space-y-4" id="field-events">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-gold" />
