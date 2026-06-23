@@ -142,9 +142,11 @@ export function DashboardPage({
 
   const handleGenerateLink = () => {
     if (!newGuestName.trim() || !guestLinksInvId) return;
+    const inv = invitations.find(i => i.id === guestLinksInvId);
+    const invSlug = inv?.slug || guestLinksInvId;
     const slug = newGuestName.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
     const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://shaadilink.com.pk';
-    const newUrl = `${baseUrl}/inv/${guestLinksInvId}?guest=${slug}`;
+    const newUrl = `${baseUrl}/inv/${invSlug}?guest=${slug}`;
     
     const newLink = { name: newGuestName.trim(), url: newUrl };
     const updated = [newLink, ...generatedLinks];
@@ -594,7 +596,7 @@ export function DashboardPage({
                           {/* Shareable URL for live invitations */}
                           {inv.is_active && (
                             <p className="text-[10px] text-emerald/70 font-mono mt-1 truncate">
-                              shaadilink.com/inv/{inv.slug || inv.id.slice(0, 8)}
+                              shaadilink.com.pk/inv/{inv.slug || inv.id.slice(0, 8)}
                             </p>
                           )}
                         </div>
@@ -690,6 +692,17 @@ export function DashboardPage({
                           >
                             <Share2 className="w-3.5 h-3.5" />
                           </Button>
+                          {inv.personalized_guest_links && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleOpenGuestLinks(inv.id)}
+                              className="h-8 px-2.5 border-amber-500/30 text-amber-500 hover:bg-amber-500/10"
+                              aria-label="Generate Personalized Guest Links"
+                            >
+                              <Users className="w-3.5 h-3.5" />
+                            </Button>
+                          )}
                           {inv.is_active && (
                             <Button
                               size="sm"

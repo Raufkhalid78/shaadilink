@@ -123,7 +123,7 @@ export async function GET() {
       .from('invitations')
       .select(`
         id, template_id, plan, partner1_name, partner2_name, venue,
-        hero_image_url, is_active, created_at, updated_at, slug,
+        hero_image_url, is_active, created_at, updated_at, slug, personalized_guest_links,
         events(id, name, date, time, order_index),
         rsvps(id, status),
         wishes(id)
