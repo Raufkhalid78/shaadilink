@@ -138,6 +138,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
           isActive: flowData.paymentDone,
           showBismillah: flowData.showBismillah,
           showQuranVerse: flowData.showQuranVerse,
+          youtubeVideoId: flowData.youtubeVideoId,
           slug: flowData.slug || undefined,
         }),
       });
