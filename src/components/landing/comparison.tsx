@@ -10,6 +10,7 @@ import {
   Video,
   Star,
 } from "lucide-react";
+import { useLanguage } from "@/components/language-provider";
 
 interface ComparisonRow {
   feature: string;
@@ -18,79 +19,6 @@ interface ComparisonRow {
   video: string | boolean;
   shaadilink: string | boolean;
 }
-
-const comparisonRows: ComparisonRow[] = [
-  {
-    feature: "Cost per invite",
-    printed: "Rs. 50–200 / card",
-    photo: "Rs. 1,000",
-    video: "Rs. 4,000",
-    shaadilink: "Rs. 3,499 (∞ guests)",
-  },
-  {
-    feature: "RSVP tracking",
-    printed: false,
-    photo: false,
-    video: false,
-    shaadilink: true,
-  },
-  {
-    feature: "Photo gallery",
-    printed: false,
-    photo: false,
-    video: false,
-    shaadilink: true,
-  },
-  {
-    feature: "Live countdown",
-    printed: false,
-    photo: false,
-    video: false,
-    shaadilink: true,
-  },
-  {
-    feature: "Venue map & directions",
-    printed: false,
-    photo: false,
-    video: false,
-    shaadilink: true,
-  },
-  {
-    feature: "Background music",
-    printed: false,
-    photo: false,
-    video: true,
-    shaadilink: true,
-  },
-  {
-    feature: "Easy to share",
-    printed: false,
-    photo: true,
-    video: true,
-    shaadilink: true,
-  },
-  {
-    feature: "Eco-friendly",
-    printed: false,
-    photo: true,
-    video: true,
-    shaadilink: true,
-  },
-  {
-    feature: "Premium look & feel",
-    printed: true,
-    photo: true,
-    video: true,
-    shaadilink: true,
-  },
-  {
-    feature: "Personalized guest names",
-    printed: true,
-    photo: false,
-    video: false,
-    shaadilink: true,
-  },
-];
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -124,16 +52,91 @@ const CrossIcon = () => (
 );
 
 export function Comparison() {
+  const { t, language } = useLanguage();
+
+  const comparisonRows: ComparisonRow[] = [
+    {
+      feature: t('compare.row.1.feat'),
+      printed: language === 'en' ? "Rs. 50–200 / card" : "50-200 روپے فی کارڈ",
+      photo: language === 'en' ? "Rs. 1,000" : "1,000 روپے",
+      video: language === 'en' ? "Rs. 4,000" : "4,000 روپے",
+      shaadilink: language === 'en' ? "Rs. 3,499 (∞ guests)" : "3,499 روپے (لامحدود مہمان)",
+    },
+    {
+      feature: t('compare.row.2.feat'),
+      printed: false,
+      photo: false,
+      video: false,
+      shaadilink: true,
+    },
+    {
+      feature: t('compare.row.3.feat'),
+      printed: false,
+      photo: false,
+      video: false,
+      shaadilink: true,
+    },
+    {
+      feature: t('compare.row.4.feat'),
+      printed: false,
+      photo: false,
+      video: false,
+      shaadilink: true,
+    },
+    {
+      feature: t('compare.row.5.feat'),
+      printed: false,
+      photo: false,
+      video: false,
+      shaadilink: true,
+    },
+    {
+      feature: t('compare.row.6.feat'),
+      printed: false,
+      photo: false,
+      video: true,
+      shaadilink: true,
+    },
+    {
+      feature: t('compare.row.7.feat'),
+      printed: false,
+      photo: true,
+      video: true,
+      shaadilink: true,
+    },
+    {
+      feature: t('compare.row.8.feat'),
+      printed: false,
+      photo: true,
+      video: true,
+      shaadilink: true,
+    },
+    {
+      feature: t('compare.row.9.feat'),
+      printed: true,
+      photo: true,
+      video: true,
+      shaadilink: true,
+    },
+    {
+      feature: t('compare.row.10.feat'),
+      printed: true,
+      photo: false,
+      video: false,
+      shaadilink: true,
+    },
+  ];
+
   return (
     <section className="py-20 sm:py-28 bg-background">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-14 sm:mb-20 reveal-on-scroll">
           <span className="inline-block font-calligraphy text-gold text-lg mb-3">
-            ✦ vs. Paper Invites ✦
+            {t('compare.badge')}
           </span>
           <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">
-            How We Compare
+            {t('compare.title')}
           </h2>
           {/* Gold divider */}
           <div className="mt-4 flex items-center justify-center gap-3">
@@ -141,8 +144,8 @@ export function Comparison() {
             <div className="w-2 h-2 rounded-full bg-gold/60" />
             <div className="h-px w-16 bg-gradient-to-l from-transparent to-gold/60" />
           </div>
-          <p className="mt-4 text-muted-foreground max-w-xl mx-auto text-base sm:text-lg">
-            See why digital invitations from ShaadiLink are the smarter, more beautiful choice for your wedding.
+          <p className="mt-4 text-muted-foreground max-w-xl mx-auto text-base sm:text-lg text-center">
+            {t('compare.desc')}
           </p>
         </div>
 
@@ -158,30 +161,30 @@ export function Comparison() {
             {/* Header Row */}
             <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1.2fr] text-center border-b border-border/40 items-end py-8 bg-card">
               <div className="p-4 text-left font-display text-xs font-bold text-white/50 tracking-wider">
-                FEATURES
+                {t('compare.col.feat')}
               </div>
               <div className="p-4 flex flex-col items-center gap-2">
                 <Printer className="h-5 w-5 text-white/60" />
                 <span className="text-[10px] tracking-[0.12em] uppercase font-bold text-white/60">
-                  Printed Cards
+                  {t('compare.col.paper')}
                 </span>
               </div>
               <div className="p-4 flex flex-col items-center gap-2">
                 <Image className="h-5 w-5 text-white/60" />
                 <span className="text-[10px] tracking-[0.12em] uppercase font-bold text-white/60">
-                  Photo Invite
+                  {t('compare.col.photo')}
                 </span>
               </div>
               <div className="p-4 flex flex-col items-center gap-2">
                 <Video className="h-5 w-5 text-white/60" />
                 <span className="text-[10px] tracking-[0.12em] uppercase font-bold text-white/60">
-                  Video Invite
+                  {t('compare.col.video')}
                 </span>
               </div>
               <div className="p-4 flex flex-col items-center gap-2 bg-gold/[0.03] dark:bg-gold/[0.05] h-full justify-end border-l border-gold/10">
                 <Star className="h-5 w-5 text-gold fill-gold" />
                 <span className="text-[10px] tracking-[0.12em] uppercase font-bold text-gold">
-                  ShaadiLink
+                  {t('compare.col.shaadilink')}
                 </span>
               </div>
             </div>
@@ -196,7 +199,7 @@ export function Comparison() {
                 }`}
               >
                 {/* Feature Label */}
-                <div className="p-5 flex items-center font-medium text-sm text-white/90">
+                <div className="p-5 flex items-center font-medium text-sm text-white/90 text-left">
                   {row.feature}
                 </div>
 
@@ -233,8 +236,8 @@ export function Comparison() {
                   )}
                 </div>
 
-                {/* ShaadiLink Column (Highlighted) */}
-                <div className="p-5 flex items-center justify-center text-sm font-bold text-gold bg-gold/[0.03] dark:bg-gold/[0.05] border-l border-gold/10">
+                {/* ShaadiLink Column */}
+                <div className="p-5 flex items-center justify-center text-sm font-semibold text-gold bg-gold/[0.01] dark:bg-gold/[0.02] border-l border-gold/5">
                   {typeof row.shaadilink === "string" ? (
                     <span className="text-gold font-bold">{row.shaadilink}</span>
                   ) : row.shaadilink ? (
@@ -247,27 +250,6 @@ export function Comparison() {
             ))}
           </motion.div>
         </div>
-
-        {/* Bottom CTA */}
-        <motion.div
-          className="mt-10 text-center"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-        >
-          <div className="inline-flex items-center gap-2.5 bg-gradient-to-r from-gold/10 via-gold/5 to-gold/10 border border-gold/20 rounded-full px-6 py-3">
-            <Sparkles className="w-4 h-4 text-gold" />
-            <p className="text-sm sm:text-base text-muted-foreground">
-              Save over{" "}
-              <span className="font-bold text-gold text-base sm:text-lg">
-                Rs. 47,000
-              </span>{" "}
-              while getting a far superior experience.
-            </p>
-            <Sparkles className="w-4 h-4 text-gold" />
-          </div>
-        </motion.div>
       </div>
     </section>
   );

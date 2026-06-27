@@ -12,6 +12,7 @@ import {
   Link2,
   MessageCircle,
 } from "lucide-react";
+import { useLanguage } from "@/components/language-provider";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -339,8 +340,8 @@ function StepBadge({ number, label }: { number: string; label: string }) {
   );
 }
 
-/* ---------- Main Component ---------- */
 export function HowItWorks() {
+  const { t } = useLanguage();
   return (
     <section
       id="how-it-works"
@@ -370,10 +371,10 @@ export function HowItWorks() {
         {/* Section Header */}
         <div className="text-center mb-14 sm:mb-20 reveal-on-scroll">
           <span className="inline-block font-calligraphy text-gold text-lg mb-3">
-            ✦ Simple Steps ✦
+            {t('hiw.badge')}
           </span>
           <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">
-            How It Works
+            {t('hiw.title')}
           </h2>
           {/* Decorative gold divider */}
           <div className="mt-4 flex items-center justify-center gap-3">
@@ -381,8 +382,8 @@ export function HowItWorks() {
             <div className="w-2 h-2 rounded-full bg-gold/60" />
             <div className="h-px w-16 bg-gradient-to-l from-transparent to-gold/60" />
           </div>
-          <p className="mt-4 text-muted-foreground max-w-xl mx-auto text-base sm:text-lg">
-            Fill in your details — we transform them into a stunning invitation webpage.
+          <p className="mt-4 text-muted-foreground max-w-xl mx-auto text-base sm:text-lg text-center">
+            {t('hiw.subtitle')}
           </p>
         </div>
 
@@ -398,10 +399,10 @@ export function HowItWorks() {
           <div className="hidden lg:grid grid-cols-[1fr_auto_1fr_auto_1fr] items-stretch gap-0">
             {/* Step 1 */}
             <motion.div variants={itemVariants} className="flex flex-col h-full space-y-4 text-center">
-              <StepBadge number="01" label="Fill Details" />
+              <StepBadge number="01" label={t('hiw.step1.label')} />
               <FormMockup />
               <p className="text-center text-sm text-muted-foreground mt-4 max-w-xs mx-auto">
-                Enter your venue, events, welcome message, and music — everything that makes your celebration unique.
+                {t('hiw.step1.desc')}
               </p>
             </motion.div>
 
@@ -412,10 +413,10 @@ export function HowItWorks() {
 
             {/* Step 2 */}
             <motion.div variants={itemVariants} className="flex flex-col h-full justify-center space-y-4 text-center">
-              <StepBadge number="02" label="We Transform" />
+              <StepBadge number="02" label={t('hiw.step2.label')} />
               <TransformVisual />
               <p className="text-center text-sm text-muted-foreground mt-4 max-w-xs mx-auto">
-                Our platform applies your details to a stunning animated template — complete with music, live countdown, venue maps, and RSVP collection.
+                {t('hiw.step2.desc')}
               </p>
             </motion.div>
 
@@ -426,10 +427,10 @@ export function HowItWorks() {
 
             {/* Step 3 */}
             <motion.div variants={itemVariants} className="flex flex-col h-full space-y-4 text-center">
-              <StepBadge number="03" label="Share & Celebrate" />
+              <StepBadge number="03" label={t('hiw.step3.label')} />
               <InvitationPreview />
               <p className="text-center text-sm text-muted-foreground mt-4 max-w-xs mx-auto">
-                Your beautiful, animated invitation is ready to share via WhatsApp, link, or social media.
+                {t('hiw.step3.desc')}
               </p>
             </motion.div>
           </div>
@@ -437,30 +438,30 @@ export function HowItWorks() {
           {/* Mobile: vertical stack with connecting lines */}
           <div className="lg:hidden space-y-0">
             <motion.div variants={itemVariants} className="space-y-4 text-center">
-              <StepBadge number="01" label="Fill Details" />
+              <StepBadge number="01" label={t('hiw.step1.label')} />
               <FormMockup />
               <p className="text-center text-sm text-muted-foreground mt-4 max-w-xs mx-auto">
-                Enter your venue, events, welcome message, and music — everything that makes your celebration unique.
+                {t('hiw.step1.desc')}
               </p>
             </motion.div>
 
             <ConnectingLine direction="vertical" />
 
             <motion.div variants={itemVariants} className="space-y-4 text-center">
-              <StepBadge number="02" label="We Transform" />
+              <StepBadge number="02" label={t('hiw.step2.label')} />
               <TransformVisual />
               <p className="text-center text-sm text-muted-foreground mt-4 max-w-xs mx-auto">
-                Our platform applies your details to a stunning animated template — complete with music, live countdown, venue maps, and RSVP collection.
+                {t('hiw.step2.desc')}
               </p>
             </motion.div>
 
             <ConnectingLine direction="vertical" />
 
             <motion.div variants={itemVariants} className="space-y-4 text-center">
-              <StepBadge number="03" label="Share & Celebrate" />
+              <StepBadge number="03" label={t('hiw.step3.label')} />
               <InvitationPreview />
               <p className="text-center text-sm text-muted-foreground mt-4 max-w-xs mx-auto">
-                Your beautiful, animated invitation is ready to share via WhatsApp, link, or social media.
+                {t('hiw.step3.desc')}
               </p>
             </motion.div>
           </div>

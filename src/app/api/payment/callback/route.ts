@@ -20,6 +20,7 @@ async function handleCallback(request: NextRequest) {
     let tracker = searchParams.get('tracker') || ''
     let sig = searchParams.get('sig') || ''
     let orderId = searchParams.get('order_id') || searchParams.get('reference') || ''
+    const targetGuestLinksQuota = parseInt(searchParams.get('guest_links_quota') || '0', 10)
 
     // If Safepay redirects via POST, extract parameters from the body
     if (request.method === 'POST') {
@@ -111,9 +112,14 @@ async function handleCallback(request: NextRequest) {
     }
 
     // Activate the invitation and update the selected plan
+    const updatePayload: any = { is_active: true, plan: order.plan }
+    if (searchParams.has('guest_links_quota')) {
+      updatePayload.guest_links_quota = targetGuestLinksQuota || 0
+    }
+
     const { error: updateInvErr } = await service
       .from('invitations')
-      .update({ is_active: true, plan: order.plan })
+      .update(updatePayload)
       .eq('id', order.invitation_id)
 
     if (updateInvErr) {

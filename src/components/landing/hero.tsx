@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { ChevronDown, Sparkles, Shield, Star, Heart, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/components/language-provider";
 
 /* ─── Animation Variants ─── */
 
@@ -312,6 +313,7 @@ interface HeroProps {
 }
 
 export function Hero({ onViewTemplates, onGetStarted }: HeroProps) {
+  const { t, language } = useLanguage();
   const particles = useMemo<ParticleData[]>(
     () =>
       Array.from({ length: 18 }, (_, i) => ({
@@ -326,9 +328,9 @@ export function Hero({ onViewTemplates, onGetStarted }: HeroProps) {
     []
   );
 
-  const line1Words = ["Create", "Your", "Dream"];
-  const line2Words = ["Wedding", "Invitation"];
-  const appTagline = "Pakistan's Premier Digital Wedding Invitation Platform";
+  const line1Words = t('hero.title.1').split(' ');
+  const line2Words = t('hero.title.2').split(' ');
+  const appTagline = t('hero.tagline');
 
   return (
     <section className="relative min-h-screen flex flex-col justify-center overflow-hidden bg-emerald-dark pt-32 pb-16">
@@ -458,19 +460,19 @@ export function Hero({ onViewTemplates, onGetStarted }: HeroProps) {
             {/* Subtitle — explicitly describes ShaadiLink's purpose for OAuth reviewers */}
             <motion.div variants={itemVariants} className="mt-6 sm:mt-8 max-w-2xl mx-auto lg:mx-0 text-left">
               <h3 className="inline-block px-3 py-1 rounded bg-gold/20 text-gold text-[10px] font-bold tracking-widest uppercase mb-3 border border-gold/30">
-                App Purpose
+                {t('hero.purpose.badge')}
               </h3>
-              <p className="text-base sm:text-lg md:text-xl text-white/80 leading-relaxed">
-                <strong className="text-white font-semibold">ShaadiLink</strong> is an online platform that allows couples to create, customize, publish, and manage digital wedding invitations. Guests can view event details, interact with cinematic 3D reveals, and submit their RSVPs directly through the web application.
+              <p className="text-base sm:text-lg md:text-xl text-white/80 leading-relaxed text-left">
+                <strong className="text-white font-semibold">ShaadiLink</strong> {t('hero.purpose.text').replace('ShaadiLink', '')}
               </p>
             </motion.div>
 
             {/* Google OAuth Purpose Notice (required for Google Verification) */}
             <motion.p
               variants={itemVariants}
-              className="mt-4 text-xs text-white/60 max-w-2xl mx-auto lg:mx-0 leading-relaxed border-l border-gold/40 pl-3 italic"
+              className="mt-4 text-xs text-white/60 max-w-2xl mx-auto lg:mx-0 leading-relaxed border-l border-gold/40 pl-3 italic text-left"
             >
-              🔐 <strong>Sign-In Purpose:</strong> We use Google Sign-In exclusively to authenticate your identity, giving you secure access to your private dashboard to create, edit, and manage your digital wedding invitations and track RSVP lists.
+              🔐 <strong>{t('hero.oauth.badge')}:</strong> {t('hero.oauth.text')}
             </motion.p>
 
             {/* CTA Buttons */}
@@ -483,16 +485,14 @@ export function Hero({ onViewTemplates, onGetStarted }: HeroProps) {
                 onClick={onGetStarted}
                 className="bg-gold hover:bg-gold-light text-emerald-dark font-bold text-base px-8 h-12 pulse-glow border-none shadow-lg shadow-gold/20 hover:shadow-gold/40 transition-all duration-300"
               >
-                Create My Invitation
+                {t('hero.cta.primary')}
               </Button>
               <Button
                 size="lg"
                 variant="outline"
                 onClick={onViewTemplates}
                 className="border-gold/40 text-gold hover:bg-gold/10 hover:text-gold-light font-medium text-base px-8 h-12 bg-transparent"
-              >
-                View Templates
-              </Button>
+              >{t('hero.cta.secondary')}</Button>
             </motion.div>
 
             {/* Trust indicators */}
@@ -502,13 +502,13 @@ export function Hero({ onViewTemplates, onGetStarted }: HeroProps) {
             >
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xs text-white/50">🎉 New &amp; Growing</span>
+                  <span className="text-xs text-white/50">🎉 {language === 'en' ? 'New & Growing' : 'نیا اور ابھرتا ہوا'}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xs text-white/50">❤️ Crafted with Love</span>
+                  <span className="text-xs text-white/50">❤️ {language === 'en' ? 'Crafted with Love' : 'محبت سے تیار کردہ'}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xs text-white/50">🇵🇰 Made in Pakistan</span>
+                  <span className="text-xs text-white/50">🇵🇰 {language === 'en' ? 'Made in Pakistan' : 'پاکستان میں تیار کردہ'}</span>
                 </div>
               </div>
             </motion.div>

@@ -43,8 +43,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function InvitationPage({ params }: Props) {
+export default async function InvitationPage({ params, searchParams }: { params: Promise<{ id: string }>, searchParams: Promise<{ guest?: string }> }) {
   const { id } = await params;
+  const { guest } = await searchParams;
   const cleanId = id.replace(/%20| /g, "-");
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanId);
   const supabase = await createClient();
@@ -66,6 +67,9 @@ export default async function InvitationPage({ params }: Props) {
   if (error || !invitation) {
     notFound();
   }
+
+  const rawGuestName = guest ? guest.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : null;
+  const guestName = (invitation as any).personalized_guest_links ? rawGuestName : null;
 
   // Build flowData from DB record
   const flowData = {
@@ -95,9 +99,9 @@ export default async function InvitationPage({ params }: Props) {
     showBismillah: (invitation as { show_bismillah?: boolean }).show_bismillah ?? true,
     showQuranVerse: (invitation as { show_quran_verse?: boolean }).show_quran_verse ?? true,
     paymentDone: true,
-    personalizedGuestLinks: (invitation as { personalized_guest_links?: boolean }).personalized_guest_links ?? false,
+    guestLinksQuota: (invitation as { guest_links_quota?: number }).guest_links_quota ?? 0,
     slug: invitation.slug ?? "",
   };
 
-  return <InvitationViewerWrapper templateId={invitation.template_id} flowData={flowData} />;
+  return <InvitationViewerWrapper templateId={invitation.template_id} flowData={flowData} guestName={guestName} />;
 }

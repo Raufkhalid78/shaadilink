@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import {
   ArrowLeft, ArrowRight, Calendar, Heart, MapPin, Music, MessageSquare,
   Check, Plus, Trash2, User, Shirt, Car, Hotel, Gift, ImagePlus, X, Globe, Loader2, Video
@@ -335,7 +336,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
       {/* Breadcrumb path — adapts for new vs edit mode */}
       <PageBreadcrumb crumbs={crumbs} />
 
-      <main className="flex-1 px-4 py-8 sm:py-12">
+      <main id="main-content" className="flex-1 px-4 py-8 sm:py-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -896,10 +897,11 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                 </label>
                 {flowData.heroImage ? (
                   <div className="relative rounded-xl overflow-hidden border border-border/50 aspect-[16/9]">
-                    <img
+                    <Image
                       src={flowData.heroImage}
                       alt="Hero preview"
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
                     />
                     <button
                       onClick={() => onUpdateData({ heroImage: "" })}
@@ -940,10 +942,11 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                       key={idx}
                       className="relative rounded-lg overflow-hidden border border-border/50 aspect-square"
                     >
-                      <img
+                      <Image
                         src={img}
                         alt={`Slideshow ${idx + 1}`}
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
                       />
                       <button
                         onClick={() => removeSlideshowImage(idx)}

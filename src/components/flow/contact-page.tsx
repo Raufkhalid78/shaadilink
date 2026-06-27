@@ -102,7 +102,7 @@ export function ContactPage({ onBack }: ContactPageProps) {
         ]}
       />
 
-      <main className="flex-1 py-12 sm:py-16 px-4">
+      <main id="main-content" className="flex-1 py-12 sm:py-16 px-4">
         {/* Hero */}
         <section className="relative py-16 sm:py-20 px-4 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-emerald-dark/5 to-transparent" />

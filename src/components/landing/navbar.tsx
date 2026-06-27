@@ -22,6 +22,8 @@ import {
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useLanguage } from "@/components/language-provider";
+import { Globe } from "lucide-react";
 
 interface NavbarProps {
   onTemplatesClick?: () => void;
@@ -53,6 +55,7 @@ export function Navbar({
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { language, setLanguage, t } = useLanguage();
 
   useEffect(() => {
     let ticking = false;
@@ -81,12 +84,13 @@ export function Navbar({
   }, []);
 
   const navLinks = [
-    { label: "Features", href: "#features", action: undefined as (() => void) | undefined, sectionId: "features" },
-    { label: "How It Works", href: "#how-it-works", action: undefined as (() => void) | undefined, sectionId: "how-it-works" },
-    { label: "Templates", href: undefined as string | undefined, action: onTemplatesClick, sectionId: undefined },
-    { label: "About", href: undefined as string | undefined, action: onAboutClick, sectionId: undefined },
-    { label: "Contact", href: undefined as string | undefined, action: onContactClick, sectionId: undefined },
-    { label: "Pricing", href: "#pricing", action: undefined as (() => void) | undefined, sectionId: "pricing" },
+    { label: t('nav.features'), href: "#features", action: undefined as (() => void) | undefined, sectionId: "features" },
+    { label: t('nav.howItWorks'), href: "#how-it-works", action: undefined as (() => void) | undefined, sectionId: "how-it-works" },
+    { label: t('nav.templates'), href: undefined as string | undefined, action: onTemplatesClick, sectionId: undefined },
+    { label: t('nav.blog'), href: "/blog", action: undefined as (() => void) | undefined, sectionId: undefined },
+    { label: t('nav.about'), href: undefined as string | undefined, action: onAboutClick, sectionId: undefined },
+    { label: t('nav.contact'), href: undefined as string | undefined, action: onContactClick, sectionId: undefined },
+    { label: t('nav.pricing'), href: "#pricing", action: undefined as (() => void) | undefined, sectionId: "pricing" },
   ];
 
   const handleNavClick = useCallback((link: typeof navLinks[number]) => {
@@ -171,6 +175,17 @@ export function Navbar({
 
         {/* Desktop CTA */}
         <div className="hidden lg:flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setLanguage(language === 'en' ? 'ur' : 'en')}
+            className="text-white hover:text-gold hover:bg-gold/10"
+            title={language === 'en' ? 'Switch to Urdu' : 'Switch to English'}
+          >
+            <Globe className="w-5 h-5" />
+            <span className="sr-only">Toggle Language</span>
+          </Button>
+          
           {isLoggedIn ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -214,16 +229,18 @@ export function Navbar({
               onClick={onLoginClick}
               className="text-white/70 hover:text-white hover:bg-white/10 font-medium transition-colors duration-300"
             >
-              Login
+              {t('nav.login')}
             </Button>
           )}
-          <Button
-            onClick={onGetStarted}
-            className="bg-gold hover:bg-gold-light text-emerald-dark font-bold border-none pulse-glow shadow-lg shadow-gold/20 hover:shadow-gold/40 transition-all duration-300"
-            size="lg"
-          >
-            Create Invitation
-          </Button>
+          
+          {!isLoggedIn && (
+            <Button
+              onClick={onGetStarted}
+              className="bg-gold hover:bg-gold-light text-emerald-dark font-bold rounded-full px-6 transition-all duration-300 hover:scale-105 shadow-[0_0_15px_rgba(212,175,55,0.3)] hover:shadow-[0_0_25px_rgba(212,175,55,0.5)] border-none"
+            >
+              {t('nav.getStarted')}
+            </Button>
+          )}
         </div>
 
         {/* Mobile Menu */}
@@ -289,6 +306,21 @@ export function Navbar({
                 );
               })}
               <div className="mt-6 pt-6 border-t border-gold/10 space-y-3">
+                {/* Mobile Language Switcher */}
+                <div className="flex items-center justify-between px-3 py-2.5 bg-white/5 rounded-xl mb-4 border border-white/5">
+                  <span className="text-xs font-semibold text-white/70 flex items-center gap-2">
+                    <Globe className="w-4 h-4 text-gold" />
+                    Language / زبان
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setLanguage(language === 'en' ? 'ur' : 'en')}
+                    className="text-gold hover:bg-gold/10 font-bold px-3 py-1 h-auto text-xs"
+                  >
+                    {language === 'en' ? 'اردو' : 'English'}
+                  </Button>
+                </div>
                 {isLoggedIn && (
                   <div className="px-4 py-2 bg-emerald/10 border border-gold/20 rounded-xl mb-4">
                     <p className="text-xs font-semibold text-gold uppercase tracking-wider">Logged In As</p>
@@ -322,9 +354,7 @@ export function Navbar({
                       onClick={onLoginClick}
                       className="w-full border-gold/30 text-gold hover:bg-gold/10 font-medium bg-transparent"
                       size="lg"
-                    >
-                      Login
-                    </Button>
+                    >{t('nav.login')}</Button>
                   )}
                 </SheetClose>
                 <SheetClose asChild>
@@ -332,9 +362,7 @@ export function Navbar({
                     onClick={onGetStarted}
                     className="w-full bg-gold hover:bg-gold-light text-emerald-dark font-bold border-none pulse-glow"
                     size="lg"
-                  >
-                    Get Started
-                  </Button>
+                  >{t('nav.getStarted')}</Button>
                 </SheetClose>
               </div>
             </div>

@@ -84,7 +84,7 @@ export async function PUT(
       showBismillah: 'show_bismillah',
       showQuranVerse: 'show_quran_verse',
       youtubeVideoId: 'youtube_video_id',
-      personalizedGuestLinks: 'personalized_guest_links',
+      guestLinksQuota: 'guest_links_quota',
       slug: 'slug',
     }
     for (const [jsKey, dbKey] of Object.entries(fieldMap)) {

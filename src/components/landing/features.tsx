@@ -6,13 +6,14 @@ import {
   Sparkles, Timer, MapPin, MessageCircleHeart, Share2, Pencil,
   Music, Crown, ImagePlus, Settings2, BarChart3, ShieldCheck, Languages,
 } from "lucide-react";
+import { useLanguage } from "@/components/language-provider";
 
 type FeatureCategory = "all" | "experience" | "customization" | "sharing";
 
 interface Feature {
   icon: React.ComponentType<{ className?: string }>;
-  title: string;
-  description: string;
+  titleKey: "features.item.1.title" | "features.item.2.title" | "features.item.3.title" | "features.item.4.title" | "features.item.5.title" | "features.item.6.title" | "features.item.7.title" | "features.item.8.title" | "features.item.9.title" | "features.item.10.title" | "features.item.11.title" | "features.item.12.title" | "features.item.13.title";
+  descKey: "features.item.1.desc" | "features.item.2.desc" | "features.item.3.desc" | "features.item.4.desc" | "features.item.5.desc" | "features.item.6.desc" | "features.item.7.desc" | "features.item.8.desc" | "features.item.9.desc" | "features.item.10.desc" | "features.item.11.desc" | "features.item.12.desc" | "features.item.13.desc";
   category: FeatureCategory;
   color: string;
   glow: string;
@@ -20,77 +21,70 @@ interface Feature {
 
 const features: Feature[] = [
   {
-    icon: Share2, title: "Share to Unlimited Guests",
-    description: "One link, infinite reach — no per-guest charges, ever.",
+    icon: Share2, titleKey: "features.item.1.title",
+    descKey: "features.item.1.desc",
     category: "sharing", color: "from-blue-500 to-indigo-600", glow: "rgba(99, 102, 241, 0.3)",
   },
   {
-    icon: Pencil, title: "Unlimited Edits",
-    description: "Refine every detail right up to your big day.",
+    icon: Pencil, titleKey: "features.item.2.title",
+    descKey: "features.item.2.desc",
     category: "customization", color: "from-violet-500 to-purple-600", glow: "rgba(139, 92, 246, 0.3)",
   },
   {
-    icon: Sparkles, title: "Scratch to Reveal Date",
-    description: "Interactive scratch card reveals the wedding date with a delightful surprise.",
+    icon: Sparkles, titleKey: "features.item.3.title",
+    descKey: "features.item.3.desc",
     category: "experience", color: "from-gold to-amber-400", glow: "rgba(212, 168, 83, 0.4)",
   },
   {
-    icon: Timer, title: "Live Countdown",
-    description: "Animated countdown timer ticking down to your special day.",
+    icon: Timer, titleKey: "features.item.4.title",
+    descKey: "features.item.4.desc",
     category: "experience", color: "from-rose-500 to-pink-600", glow: "rgba(244, 63, 94, 0.3)",
   },
   {
-    icon: MessageCircleHeart, title: "Guest Messaging & Inbox",
-    description: "Receive heartfelt messages, RSVPs & guest attendance confirmations.",
+    icon: MessageCircleHeart, titleKey: "features.item.5.title",
+    descKey: "features.item.5.desc",
     category: "sharing", color: "from-emerald to-teal-500", glow: "rgba(82, 170, 120, 0.35)",
   },
   {
-    icon: Music, title: "Background Music",
-    description: "Romantic instrumentals with elegant one-touch mute toggle.",
+    icon: Music, titleKey: "features.item.6.title",
+    descKey: "features.item.6.desc",
     category: "experience", color: "from-sky-500 to-cyan-600", glow: "rgba(14, 165, 233, 0.3)",
   },
   {
-    icon: MapPin, title: "Venue with Maps",
-    description: "Embedded Google Maps for seamless directions to your venue.",
+    icon: MapPin, titleKey: "features.item.7.title",
+    descKey: "features.item.7.desc",
     category: "customization", color: "from-red-500 to-orange-600", glow: "rgba(239, 68, 68, 0.3)",
   },
   {
-    icon: Crown, title: "Premium Animations",
-    description: "3D door reveals, curtains, sparkles & cinematic entrances.",
+    icon: Crown, titleKey: "features.item.8.title",
+    descKey: "features.item.8.desc",
     category: "experience", color: "from-gold to-yellow-400", glow: "rgba(212, 168, 83, 0.45)",
   },
   {
-    icon: ImagePlus, title: "Custom Image Upload",
-    description: "Upload your own hero background and slideshow photos.",
+    icon: ImagePlus, titleKey: "features.item.9.title",
+    descKey: "features.item.9.desc",
     category: "customization", color: "from-fuchsia-500 to-pink-600", glow: "rgba(217, 70, 239, 0.3)",
   },
   {
-    icon: Settings2, title: "Full Customization",
-    description: "Toggle sections, events, dress codes & more with ease.",
+    icon: Settings2, titleKey: "features.item.10.title",
+    descKey: "features.item.10.desc",
     category: "customization", color: "from-slate-400 to-gray-500", glow: "rgba(100, 116, 139, 0.3)",
   },
   {
-    icon: BarChart3, title: "Analytics & Page Views",
-    description: "Track guest views, messages, and RSVP responses in real-time.",
+    icon: BarChart3, titleKey: "features.item.11.title",
+    descKey: "features.item.11.desc",
     category: "sharing", color: "from-lime-500 to-green-600", glow: "rgba(132, 204, 22, 0.3)",
   },
   {
-    icon: ShieldCheck, title: "Auto Privacy Protection",
-    description: "Invitation auto-privatizes 30 days after your wedding — zero effort.",
+    icon: ShieldCheck, titleKey: "features.item.12.title",
+    descKey: "features.item.12.desc",
     category: "sharing", color: "from-emerald to-green-500", glow: "rgba(34, 197, 94, 0.3)",
   },
   {
-    icon: Languages, title: "Multi-Language Support",
-    description: "Support for English, Urdu, and AI-powered translations.",
+    icon: Languages, titleKey: "features.item.13.title",
+    descKey: "features.item.13.desc",
     category: "customization", color: "from-amber-500 to-orange-500", glow: "rgba(245, 158, 11, 0.3)",
   },
-];
-
-const tabs: { key: FeatureCategory; label: string; emoji: string }[] = [
-  { key: "all", label: "All Features", emoji: "✨" },
-  { key: "experience", label: "Experience", emoji: "🎭" },
-  { key: "customization", label: "Customization", emoji: "🎨" },
-  { key: "sharing", label: "Sharing", emoji: "📤" },
 ];
 
 const containerVariants = {
@@ -103,7 +97,15 @@ const cardVariants = {
 };
 
 export function Features() {
+  const { t, language } = useLanguage();
   const [activeTab, setActiveTab] = useState<FeatureCategory>("all");
+
+  const tabs: { key: FeatureCategory; label: string; emoji: string }[] = [
+    { key: "all", label: t("features.tabs.all"), emoji: "✨" },
+    { key: "experience", label: t("features.tabs.exp"), emoji: "🎭" },
+    { key: "customization", label: t("features.tabs.cust"), emoji: "🎨" },
+    { key: "sharing", label: t("features.tabs.share"), emoji: "📤" },
+  ];
 
   const filteredFeatures =
     activeTab === "all" ? features : features.filter((f) => f.category === activeTab);
@@ -137,7 +139,7 @@ export function Features() {
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-gold/20 bg-gold/10 text-gold text-sm font-medium mb-4"
           >
             <Sparkles className="w-3.5 h-3.5" />
-            Premium Features
+            {t("features.badge")}
           </motion.span>
           <motion.h2
             initial={{ opacity: 0, y: 16 }}
@@ -146,18 +148,18 @@ export function Features() {
             transition={{ delay: 0.1 }}
             className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-foreground"
           >
-            Everything You Need for the
+            {language === 'en' ? 'Everything You Need for the' : 'شادی کی بہترین تیاری کے لیے'}
             <br />
-            <span className="gold-shimmer">Perfect Digital Invitation</span>
+            <span className="gold-shimmer">{language === 'en' ? 'Perfect Digital Invitation' : 'ہر ضروری اور بہترین فیچر'}</span>
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className="mt-4 text-muted-foreground max-w-2xl mx-auto text-base sm:text-lg"
+            className="mt-4 text-muted-foreground max-w-2xl mx-auto text-base sm:text-lg text-center"
           >
-            From grand door-opening reveals to heartfelt guest wishes — every detail crafted for Pakistani weddings.
+            {language === 'en' ? 'From grand door-opening reveals to heartfelt guest wishes — every detail crafted for Pakistani weddings.' : 'شاہی گیٹ اوپننگ اینیمیشن سے لے کر مہمانوں کی دعاؤں اور مبارکباد تک، ہر چیز پاکستانی شادیوں کے مطابق تیار کردہ۔'}
           </motion.p>
           <div className="mt-6 flex items-center justify-center gap-3">
             <div className="h-px w-20 bg-gradient-to-r from-transparent to-gold/50" />
@@ -200,7 +202,7 @@ export function Features() {
               const Icon = feature.icon;
               return (
                 <motion.div
-                  key={feature.title}
+                  key={feature.titleKey}
                   variants={cardVariants}
                   onMouseEnter={() => {}}
                   onMouseLeave={() => {}}
@@ -223,12 +225,12 @@ export function Features() {
                     </div>
 
                     {/* Text */}
-                    <div>
-                      <h3 className="font-display text-sm font-semibold text-foreground leading-snug group-hover:text-gold transition-colors duration-300">
-                        {feature.title}
+                    <div className="text-left">
+                      <h3 className="font-display text-sm font-semibold text-foreground leading-snug group-hover:text-gold transition-colors duration-300 text-left">
+                        {t(feature.titleKey)}
                       </h3>
-                      <p className="mt-1.5 text-muted-foreground text-xs leading-relaxed">
-                        {feature.description}
+                      <p className="mt-1.5 text-muted-foreground text-xs leading-relaxed text-left">
+                        {t(feature.descKey)}
                       </p>
                     </div>
                   </div>
@@ -252,14 +254,14 @@ export function Features() {
           className="mt-14 flex flex-col sm:flex-row items-center justify-center gap-3"
         >
           <p className="text-muted-foreground text-sm sm:text-base">
-            Impressed by the features?
+            {language === 'en' ? 'Impressed by the features?' : 'کیا آپ خصوصیات سے متاثر ہوئے ہیں؟'}
           </p>
           <a
             href="#pricing"
             className="inline-flex items-center gap-1.5 text-sm font-semibold text-gold hover:text-gold-light underline underline-offset-4 decoration-gold/30 transition-colors duration-200"
           >
             <Sparkles className="w-3.5 h-3.5" />
-            See pricing →
+            {language === 'en' ? 'See pricing →' : 'قیمتیں دیکھیں ←'}
           </a>
         </motion.div>
       </div>

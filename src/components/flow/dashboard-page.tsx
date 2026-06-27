@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Heart, Plus, ExternalLink, Trash2, Users, MessageSquare, Calendar,
@@ -31,6 +32,7 @@ interface Invitation {
   wishes: { id: string }[];
   view_count?: number;
   slug?: string;
+  guest_links_quota?: number;
 }
 
 interface DashboardPageProps {
@@ -40,6 +42,7 @@ interface DashboardPageProps {
   onEditInvitation: (invitationId: string) => void;
   onSignOut: () => void;
   onUpgradeInvitation?: (invitationId: string) => void;
+  onBuyMoreLinks?: (invitationId: string) => void;
   onGoHome?: () => void;
 }
 
@@ -65,6 +68,7 @@ export function DashboardPage({
   onEditInvitation,
   onSignOut,
   onUpgradeInvitation,
+  onBuyMoreLinks,
   onGoHome,
 }: DashboardPageProps) {
   const [invitations, setInvitations] = useState<Invitation[]>([]);
@@ -143,7 +147,13 @@ export function DashboardPage({
   const handleGenerateLink = () => {
     if (!newGuestName.trim() || !guestLinksInvId) return;
     const inv = invitations.find(i => i.id === guestLinksInvId);
-    const invSlug = inv?.slug || guestLinksInvId;
+    if (!inv) return;
+    const quota = inv.guest_links_quota || 0;
+    if (generatedLinks.length >= quota) {
+      toast.error(`You have reached your limit of ${quota} personalized links.`);
+      return;
+    }
+    const invSlug = inv.slug || guestLinksInvId;
     const slug = newGuestName.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
     const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://shaadilink.com.pk';
     const newUrl = `${baseUrl}/inv/${invSlug}?guest=${slug}`;
@@ -373,7 +383,7 @@ export function DashboardPage({
         ]}
       />
 
-      <main className="flex-1 px-4 py-8 sm:py-12">
+      <main id="main-content" className="flex-1 px-4 py-8 sm:py-12">
         <div className="mx-auto max-w-6xl">
           {/* Page title */}
           <motion.div
@@ -537,10 +547,11 @@ export function DashboardPage({
                       {/* Hero image / placeholder */}
                       <div className="relative aspect-[16/9] bg-gradient-to-br from-emerald/20 to-gold/10 overflow-hidden">
                         {inv.hero_image_url ? (
-                          <img
+                          <Image
                             src={inv.hero_image_url}
                             alt="Invitation hero"
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            fill
+                            className="object-cover transition-transform duration-500 group-hover:scale-105"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
@@ -692,7 +703,7 @@ export function DashboardPage({
                           >
                             <Share2 className="w-3.5 h-3.5" />
                           </Button>
-                          {inv.personalized_guest_links && (
+                          {inv.is_active && (
                             <Button
                               size="sm"
                               variant="outline"
@@ -920,11 +931,31 @@ export function DashboardPage({
                 </div>
 
                 {/* Usage Stats */}
-                <div className="shrink-0 text-xs text-muted-foreground flex justify-between items-center bg-muted/50 px-3 py-2 rounded-md border border-border/50">
-                  <span>{generatedLinks.length} / 50 Links Generated</span>
-                  <div className="w-1/2 bg-muted rounded-full h-1.5 overflow-hidden">
-                    <div className="bg-emerald h-full rounded-full" style={{ width: `${Math.min((generatedLinks.length / 50) * 100, 100)}%` }} />
-                  </div>
+                <div className="shrink-0 text-xs text-muted-foreground flex flex-col gap-2 bg-muted/50 px-3 py-2.5 rounded-md border border-border/50">
+                  {(() => {
+                    const inv = invitations.find(i => i.id === guestLinksInvId);
+                    const quota = inv?.guest_links_quota || 0;
+                    return (
+                      <>
+                        <div className="flex justify-between items-center w-full">
+                          <span>{generatedLinks.length} / {quota} Links Generated</span>
+                          <button
+                            onClick={() => {
+                              if (guestLinksInvId) {
+                                onBuyMoreLinks?.(guestLinksInvId);
+                              }
+                            }}
+                            className="text-xs text-gold hover:text-gold-light font-semibold underline cursor-pointer"
+                          >
+                            Buy More Links
+                          </button>
+                        </div>
+                        <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
+                          <div className="bg-emerald h-full rounded-full" style={{ width: `${Math.min((generatedLinks.length / (quota || 1)) * 100, 100)}%` }} />
+                        </div>
+                      </>
+                    );
+                  })()}
                 </div>
 
                 {/* Content */}

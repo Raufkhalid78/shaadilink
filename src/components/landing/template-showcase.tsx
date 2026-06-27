@@ -1,8 +1,7 @@
-"use client";
-
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
+import { useLanguage } from "@/components/language-provider";
 
 interface Template {
   name: string;
@@ -105,6 +104,7 @@ const templates: Template[] = [
 ];
 
 export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => void }) {
+  const { t } = useLanguage();
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -213,13 +213,13 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
         {/* Section Header */}
         <div className="text-center mb-10 sm:mb-14 reveal-on-scroll">
           <span className="inline-block font-calligraphy text-gold text-lg mb-3">
-            ✦ Our Templates ✦
+            {t('showcase.badge')}
           </span>
           <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-white">
-            Beautiful Templates for Every Style
+            {t('showcase.title')}
           </h2>
-          <p className="mt-4 text-white/60 max-w-xl mx-auto text-base sm:text-lg">
-            From classic elegance to royal luxury — find the perfect design for your celebration.
+          <p className="mt-4 text-white/60 max-w-xl mx-auto text-base sm:text-lg text-center">
+            {t('showcase.subtitle')}
           </p>
           {/* Gold divider */}
           <div className="mt-6 flex items-center justify-center gap-3">
@@ -370,7 +370,7 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
                           : "bg-white/15 text-white/80 border border-white/25"
                       }`}
                     >
-                      {template.badge}
+                      {template.badge === "Royal" ? t('showcase.royal') : t('showcase.classic')}
                     </span>
                   </div>
 
@@ -407,7 +407,7 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
               onClick={onViewAllClick}
               className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-gold/10 border border-gold/25 text-gold font-semibold text-sm hover:bg-gold/20 hover:border-gold/40 transition-all duration-200 group"
             >
-              View All Templates &amp; Live Demos
+              {t('showcase.viewAll')}
               <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
             </button>
           </div>

@@ -8,23 +8,19 @@ export async function POST(request: NextRequest) {
     
     // Webhook secret validation
     const secret = process.env.SAFEPAY_WEBHOOK_SECRET
-    if (secret) {
-      const sigHeader = request.headers.get('x-sfpy-signature') || ''
-      // Optional: If you strictly want to enforce signature verification:
-      // const computedSig = crypto.createHmac('sha256', secret).update(rawBody).digest('hex')
-      // if (sigHeader !== computedSig) {
-      //   console.warn("Invalid webhook signature")
-      // }
+    if (!secret) {
+      console.error('SAFEPAY_WEBHOOK_SECRET not configured');
+      return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 });
+    }
+
+    const sigHeader = request.headers.get('x-sfpy-signature') || ''
+    const computedSig = crypto.createHmac('sha256', secret).update(rawBody).digest('hex')
+    if (sigHeader !== computedSig) {
+      console.warn("Invalid webhook signature")
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
     }
 
     const service = createServiceClient()
-
-    // DEBUG LOGGING
-    await service.from('affiliate_applications').insert({
-      name: 'WEBHOOK_DEBUG',
-      email: 'webhook@debug.com',
-      promotion_plan: rawBody.substring(0, 5000)
-    })
 
     const payload = JSON.parse(rawBody)
     const eventData = payload.data || payload

@@ -66,6 +66,7 @@ export default function DashboardRoutePage() {
       onEditInvitation={(id) => router.push(`/?edit=${id}`)}
       onSignOut={() => router.replace("/")}
       onUpgradeInvitation={(id) => router.push(`/?upgrade=${id}`)}
+      onBuyMoreLinks={(id) => router.push(`/?buyMoreLinks=${id}`)}
       onGoHome={() => router.push("/")}
     />
   );

@@ -1,69 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-
-const faqs = [
-  {
-    icon: "💬",
-    question: "How does the digital invitation work?",
-    answer:
-      "After creating your invitation, you get a unique link that you can share with guests via WhatsApp, email, or social media. When guests open the link, they see a stunning animated webpage with your wedding details, door-opening animation, scratch card, countdown timer, and more.",
-  },
-  {
-    icon: "✏️",
-    question: "Can I edit my invitation after creating it?",
-    answer:
-      "Yes! You can make unlimited edits to your invitation right up until your wedding date. Change venue details, update event times, modify your welcome message — everything is fully editable from your dashboard.",
-  },
-  {
-    icon: "📋",
-    question: "How many invitations can I create?",
-    answer:
-      "Each purchase gives you one beautifully crafted invitation. However, you can create additional invitations by purchasing again. Many families create separate invitations for Mehndi, Baraat, and Walima events.",
-  },
-  {
-    icon: "👥",
-    question: "Is there a limit on how many guests can view my invitation?",
-    answer:
-      "Absolutely not! Share your invitation link with as many guests as you want — there are no per-guest charges or viewing limits. One link, infinite reach.",
-  },
-  {
-    icon: "💳",
-    question: "What payment methods are accepted?",
-    answer:
-      "We currently accept all major credit and debit cards (Visa, Mastercard) via our secure checkout. All payments are processed securely with SSL encryption.",
-  },
-  {
-    icon: "🔄",
-    question: "Can I get a refund?",
-    answer:
-      "We offer a full refund within 24 hours of purchase if you haven't shared the invitation link yet. After that, we provide credit for future purchases. Please see our Refund Policy for complete details.",
-  },
-  {
-    icon: "🎙️",
-    question: "Can I add Urdu text to my invitation?",
-    answer:
-      "Yes! ShaadiLink fully supports Urdu (and Arabic script) in all text fields — names, venue, welcome message, and event titles. Our AI translation feature can also auto-translate your invitation into Urdu for guests.",
-  },
-  {
-    icon: "⏳",
-    question: "How long does my invitation stay live?",
-    answer:
-      "Your invitation stays fully live and accessible until 30 days after your last wedding event date. After that, it auto-privatises for your privacy. You can always extend or download a copy from your dashboard.",
-  },
-  {
-    icon: "💒",
-    question: "Can I create separate invitations for Mehndi, Baraat, and Walima?",
-    answer:
-      "Absolutely! Each purchase gives you one invitation, but you can add multiple events (Mehndi, Baraat, Walima, Dholki) within a single invitation — each with its own date, time, and venue. Or you can purchase separate invitations for each event.",
-  },
-];
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { useLanguage } from "@/components/language-provider";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -83,8 +22,38 @@ const itemVariants = {
 };
 
 export function FAQ({ onContactClick }: { onContactClick?: () => void }) {
+  const { t, language } = useLanguage();
+
+  const faqs = [
+    {
+      icon: "💬",
+      question: t("faq.q1"),
+      answer: t("faq.a1"),
+    },
+    {
+      icon: "💰",
+      question: t("faq.q2"),
+      answer: t("faq.a2"),
+    },
+    {
+      icon: "✏️",
+      question: t("faq.q3"),
+      answer: t("faq.a3"),
+    },
+    {
+      icon: "👥",
+      question: t("faq.q4"),
+      answer: t("faq.a4"),
+    },
+    {
+      icon: "💳",
+      question: t("faq.q5"),
+      answer: t("faq.a5"),
+    },
+  ];
+
   return (
-    <section id="faq" className="py-24 sm:py-32 relative overflow-hidden">
+    <section id="faq" className="py-24 sm:py-32 relative overflow-hidden bg-background">
       <div className="absolute inset-0 bg-gradient-to-b from-background via-emerald-dark/10 to-background" />
       <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
@@ -93,16 +62,15 @@ export function FAQ({ onContactClick }: { onContactClick?: () => void }) {
             ✦ FAQ ✦
           </span>
           <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">
-            Frequently Asked{" "}
-            <span className="gold-shimmer">Questions</span>
+            {language === 'en' ? 'Frequently Asked ' : 'اکثر پوچھے جانے والے '}<span className="gold-shimmer">{language === 'en' ? 'Questions' : 'سوالات'}</span>
           </h2>
           <div className="flex items-center justify-center gap-3 mt-5">
             <div className="h-px w-16 bg-gradient-to-r from-transparent to-gold/50" />
             <div className="h-1.5 w-1.5 rounded-full bg-gold/60" />
             <div className="h-px w-16 bg-gradient-to-l from-transparent to-gold/50" />
           </div>
-          <p className="mt-5 text-muted-foreground max-w-xl mx-auto text-base sm:text-lg">
-            Everything you need to know about ShaadiLink digital invitations.
+          <p className="mt-5 text-muted-foreground max-w-xl mx-auto text-base sm:text-lg text-center">
+            {t("faq.subtitle")}
           </p>
         </div>
 
@@ -126,7 +94,7 @@ export function FAQ({ onContactClick }: { onContactClick?: () => void }) {
                       <span>{faq.question}</span>
                     </span>
                   </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground text-sm sm:text-base leading-relaxed pb-5">
+                  <AccordionContent className="text-muted-foreground text-sm sm:text-base leading-relaxed pb-5 text-left">
                     {faq.answer}
                   </AccordionContent>
                 </AccordionItem>
@@ -144,17 +112,17 @@ export function FAQ({ onContactClick }: { onContactClick?: () => void }) {
           className="mt-12 text-center"
         >
           <p className="text-muted-foreground text-base sm:text-lg">
-            Still have questions?{" "}
+            {language === 'en' ? 'Still have questions? ' : 'مزید سوالات ہیں؟ '}
             {onContactClick ? (
               <button
                 onClick={onContactClick}
                 className="text-gold font-semibold hover:text-gold-light transition-colors underline underline-offset-4 decoration-gold/30"
               >
-                Contact our support team
+                {language === 'en' ? 'Contact our support team' : 'ہماری سپورٹ ٹیم سے رابطہ کریں'}
               </button>
             ) : (
               <a href="/contact" className="text-gold font-semibold hover:text-gold-light transition-colors underline underline-offset-4 decoration-gold/30">
-                Contact our support team
+                {language === 'en' ? 'Contact our support team' : 'ہماری سپورٹ ٹیم سے رابطہ کریں'}
               </a>
             )}
           </p>

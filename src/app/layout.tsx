@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Playfair_Display, Amiri, Inter, Cinzel_Decorative, Great_Vibes } from "next/font/google";
+import { Playfair_Display, Amiri, Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { WhatsAppFAB } from "@/components/whatsapp-fab";
+import { LanguageProvider } from "@/components/language-provider";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -20,20 +21,6 @@ const amiri = Amiri({
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
-  display: "swap",
-});
-
-const cinzelDec = Cinzel_Decorative({
-  variable: "--font-cinzel-dec",
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  display: "swap",
-});
-
-const greatVibes = Great_Vibes({
-  variable: "--font-great-vibes",
-  subsets: ["latin"],
-  weight: ["400"],
   display: "swap",
 });
 
@@ -69,7 +56,7 @@ export const metadata: Metadata = {
     siteName: "ShaadiLink",
     images: [
       {
-        url: "/og-image.jpg",
+        url: "/og-image.png",
         width: 1200,
         height: 630,
         alt: "ShaadiLink - Premium Digital Wedding Invitations",
@@ -164,25 +151,35 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${playfair.variable} ${amiri.variable} ${inter.variable} ${cinzelDec.variable} ${greatVibes.variable} antialiased bg-background text-foreground`}
+        className={`${playfair.variable} ${amiri.variable} ${inter.variable} antialiased bg-background text-foreground`}
       >
+        <a 
+          href="#main-content" 
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:p-4 focus:bg-background focus:text-foreground focus:rounded-md focus:shadow-md focus:outline-none focus:ring-2 focus:ring-primary"
+        >
+          Skip to main content
+        </a>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaJson) }}
         />
-        {children}
-        <Toaster
-          theme="dark"
-          position="bottom-right"
-          toastOptions={{
-            style: {
-              background: "oklch(0.16 0.03 155)",
-              border: "1px solid oklch(0.22 0.025 155)",
-              color: "oklch(0.92 0.01 80)",
-            },
-          }}
-        />
-        <WhatsAppFAB />
+        <LanguageProvider>
+          <div id="main-content">
+            {children}
+          </div>
+          <WhatsAppFAB />
+          <Toaster 
+            position="bottom-center"
+            toastOptions={{
+              className: 'font-inter text-sm',
+              style: {
+                background: 'var(--background)',
+                color: 'var(--foreground)',
+                border: '1px solid hsl(var(--gold)/0.2)',
+              }
+            }}
+          />
+        </LanguageProvider>
       </body>
     </html>
   );

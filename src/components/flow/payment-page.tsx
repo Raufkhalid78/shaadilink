@@ -49,24 +49,13 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
       .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
       .join(" ") || "Template";
 
-  const basePrice = parseInt(plan.price.replace(/,/g, ""));
-  const total = basePrice + (flowData.personalizedGuestLinks ? 1000 : 0);
+  const basePrice = flowData.paymentDone ? 0 : parseInt(plan.price.replace(/,/g, ""));
+  const addedQuota = Math.max(0, (flowData.guestLinksQuota || 0) - (flowData.originalGuestLinksQuota || 0));
+  const total = basePrice + (addedQuota / 50 * 1000);
   const formattedTotal = total.toLocaleString("en-PK");
 
-  // Check if payment was already completed via Webhook when returning to this page
-  useEffect(() => {
-    if (flowData.invitationId) {
-      fetch(`/api/invitations/${flowData.invitationId}`, { cache: 'no-store' })
-        .then(r => r.json())
-        .then(({ invitation }) => {
-          if (invitation?.is_active) {
-            onUpdateData({ paymentDone: true, selectedPlan: invitation.plan });
-            onContinue();
-          }
-        })
-        .catch(err => console.error("Failed to check invitation status", err));
-    }
-  }, [flowData.invitationId, onUpdateData, onContinue]);
+  // Webhook verification is no longer done here to avoid redirect loops during upgrades.
+  // The Safepay callback naturally handles redirection upon successful payment.
 
   const handlePayment = async () => {
     setProcessing(true);
@@ -83,7 +72,7 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
         body: JSON.stringify({
           invitationId: flowData.invitationId,
           plan: flowData.selectedPlan || "classic",
-          personalizedGuestLinks: !!flowData.personalizedGuestLinks,
+          guestLinksQuota: flowData.guestLinksQuota || 0,
         }),
       });
 
@@ -140,7 +129,7 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
       {/* Breadcrumb path */}
       <PageBreadcrumb crumbs={crumbs} />
 
-      <main className="flex-1 px-4 py-8 sm:py-12">
+      <main id="main-content" className="flex-1 px-4 py-8 sm:py-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -172,9 +161,25 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                 <h2 className="font-display text-lg font-semibold text-gold-light">Secure Checkout via Safepay</h2>
                 <p className="text-muted-foreground text-xs leading-relaxed">
                   You are purchasing the <strong className="text-white capitalize">{flowData.selectedPlan || "classic"} Plan</strong>.
-                  You will be redirected to the secure Safepay portal to complete your payment using Cards (Visa/Mastercard), Easypaisa, JazzCash, or Direct Bank Transfer.
+                  You will be redirected to the secure Safepay portal to complete your payment.
                 </p>
-                <div className="flex justify-center items-center gap-6 pt-2 text-xs text-muted-foreground">
+                
+                {/* Payment Method Badges */}
+                <div className="flex flex-wrap justify-center items-center gap-2 pt-2">
+                  <div className="px-2.5 py-1 rounded bg-[#1434CB] text-white text-[10px] font-bold tracking-wide">VISA</div>
+                  <div className="px-2.5 py-1 rounded bg-[#FF5F00] text-white text-[10px] font-bold tracking-wide flex">
+                    <div className="w-2.5 h-2.5 rounded-full bg-[#EB001B] -mr-1 mix-blend-multiply opacity-80"></div>
+                    <div className="w-2.5 h-2.5 rounded-full bg-[#F79E1B] mix-blend-multiply opacity-80"></div>
+                  </div>
+                  <div className="px-2.5 py-1 rounded bg-[#41B649] text-white text-[10px] font-bold tracking-wide">
+                    easypaisa
+                  </div>
+                  <div className="px-2.5 py-1 rounded bg-[#EE232A] text-white text-[10px] font-bold tracking-wide">
+                    JazzCash
+                  </div>
+                </div>
+
+                <div className="flex justify-center items-center gap-6 pt-3 text-xs text-muted-foreground border-t border-gold/10 mt-4">
                   <span className="flex items-center gap-1.5"><Lock className="w-3.5 h-3.5 text-gold" /> 256-bit SSL</span>
                   <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-emerald" /> Money-Back Guarantee</span>
                 </div>
@@ -241,23 +246,30 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                     <div className="flex items-start justify-between">
                       <div className="flex flex-col gap-1 pr-4">
                         <span className="font-medium text-sm">Personalized Guest Links</span>
-                        <span className="text-xs text-muted-foreground">Up to 50 unique links to track individual RSVPs</span>
+                        <span className="text-xs text-muted-foreground">Unique links to track individual RSVPs</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-foreground">+ Rs. 1,000</span>
-                        <button
-                          type="button"
-                          onClick={() => onUpdateData({ personalizedGuestLinks: !flowData.personalizedGuestLinks })}
-                          className={`w-10 h-5 rounded-full transition-colors relative flex items-center shrink-0 ${
-                            flowData.personalizedGuestLinks ? "bg-emerald" : "bg-muted"
-                          }`}
-                        >
-                          <div
-                            className={`w-4 h-4 bg-white rounded-full shadow-sm absolute transition-transform ${
-                              flowData.personalizedGuestLinks ? "translate-x-5" : "translate-x-1"
-                            }`}
-                          />
-                        </button>
+                      <div className="flex flex-col items-end gap-2">
+                        <div className="flex items-center gap-3">
+                          <button
+                            type="button"
+                            disabled={(flowData.guestLinksQuota || 0) <= (flowData.originalGuestLinksQuota || 0)}
+                            onClick={() => onUpdateData({ guestLinksQuota: Math.max(flowData.originalGuestLinksQuota || 0, (flowData.guestLinksQuota || 0) - 50) })}
+                            className="w-6 h-6 rounded-full flex items-center justify-center bg-muted text-foreground disabled:opacity-50 hover:bg-muted/80 transition-colors"
+                          >
+                            -
+                          </button>
+                          <span className="text-sm font-medium w-6 text-center">{flowData.guestLinksQuota || 0}</span>
+                          <button
+                            type="button"
+                            onClick={() => onUpdateData({ guestLinksQuota: (flowData.guestLinksQuota || 0) + 50 })}
+                            className="w-6 h-6 rounded-full flex items-center justify-center bg-emerald text-white hover:bg-emerald/90 transition-colors"
+                          >
+                            +
+                          </button>
+                        </div>
+                        {((flowData.guestLinksQuota || 0) > (flowData.originalGuestLinksQuota || 0)) && (
+                          <span className="text-sm font-semibold text-foreground">+ Rs. {(((flowData.guestLinksQuota || 0) - (flowData.originalGuestLinksQuota || 0)) / 50 * 1000).toLocaleString('en-PK')}</span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -269,8 +281,9 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                         <span className="text-xs text-muted-foreground">Rs.</span>
                         <span className="font-display text-2xl font-bold ml-1">
                           {(() => {
-                            const basePrice = parseInt(plan.price.replace(/,/g, ""));
-                            const total = basePrice + (flowData.personalizedGuestLinks ? 1000 : 0);
+                            const basePrice = flowData.paymentDone ? 0 : parseInt(plan.price.replace(/,/g, ""));
+                            const addedQuota = Math.max(0, (flowData.guestLinksQuota || 0) - (flowData.originalGuestLinksQuota || 0));
+                            const total = basePrice + (addedQuota / 50 * 1000);
                             return total.toLocaleString("en-PK");
                           })()}
                         </span>

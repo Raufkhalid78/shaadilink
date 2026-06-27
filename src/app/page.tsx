@@ -16,6 +16,7 @@ import { Pricing } from "@/components/landing/pricing";
 import { FAQ } from "@/components/landing/faq";
 import { CTASection } from "@/components/landing/cta-section";
 import { Footer } from "@/components/landing/footer";
+import { useLanguage } from "@/components/language-provider";
 import dynamic from "next/dynamic";
 
 const TemplatesPage = dynamic(() => import("@/components/landing/templates-page").then(m => m.TemplatesPage), {
@@ -82,18 +83,19 @@ import { ArrowLeft, Eye, Sparkles, Shield, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { FlowData, FlowStep } from "@/lib/flow-types";
 import { initialFlowData } from "@/lib/flow-types";
-import { getTheme } from "@/components/viewer/invitation-viewer";
+import { getTheme } from "@/components/viewer/utils";
 import { createClient } from "@/lib/supabase/client";
 
 /* ─── What Is ShaadiLink? Section (fulfills Google OAuth homepage purpose requirement) ─── */
 function AppPurposeSection({ onGetStarted }: { onGetStarted?: () => void }) {
+  const { t } = useLanguage();
   const features = [
-    { icon: "✨", label: "Digital Invitations", desc: "Beautiful online cards for Mehndi, Baraat & Walima" },
-    { icon: "🎴", label: "Scratch Card Reveals", desc: "Interactive scratch-to-reveal wedding date cards" },
-    { icon: "⏱️", label: "Live Countdown", desc: "Animated timer counting down to the wedding day" },
-    { icon: "💌", label: "RSVP & Guest Wishes", desc: "Collect RSVPs and heartfelt messages from guests" },
-    { icon: "🎵", label: "Background Music", desc: "Romantic music that plays when the invitation opens" },
-    { icon: "🗺️", label: "Maps & Directions", desc: "Embedded Google Maps for easy venue navigation" },
+    { icon: "✨", label: t('purpose.feat.1.label'), desc: t('purpose.feat.1.desc') },
+    { icon: "🎴", label: t('purpose.feat.2.label'), desc: t('purpose.feat.2.desc') },
+    { icon: "⏱️", label: t('purpose.feat.3.label'), desc: t('purpose.feat.3.desc') },
+    { icon: "💌", label: t('purpose.feat.4.label'), desc: t('purpose.feat.4.desc') },
+    { icon: "🎵", label: t('purpose.feat.5.label'), desc: t('purpose.feat.5.desc') },
+    { icon: "🗺️", label: t('purpose.feat.6.label'), desc: t('purpose.feat.6.desc') },
   ];
   return (
     <section id="about-shaadilink" className="py-16 px-4 sm:px-6 bg-gradient-to-b from-emerald-dark/20 to-background relative overflow-hidden">
@@ -108,17 +110,17 @@ function AppPurposeSection({ onGetStarted }: { onGetStarted?: () => void }) {
           className="text-center mb-10"
         >
           <span className="inline-block px-4 py-1 rounded-full text-[11px] font-semibold tracking-widest uppercase bg-gold/10 border border-gold/20 text-gold mb-4">
-            What is ShaadiLink?
+            {t('purpose.badge')}
           </span>
           <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">
-            Pakistan&apos;s Premier{" "}
-            <span className="gold-shimmer">Digital Wedding</span> Invitation Platform
+            {t('purpose.title.1')}{" "}
+            <span className="gold-shimmer">{t('purpose.title.2')}</span> {t('purpose.title.3')}
           </h2>
           <p className="mt-4 text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-            <strong className="text-foreground">ShaadiLink</strong> is a web application that lets Pakistani couples create, customise, and share stunning digital wedding invitations. Guests receive a unique link and experience cinematic 3D door reveals, scratch-card date reveals, live countdowns, photo galleries, and one-click RSVP — all without downloading an app.
+            <strong className="text-foreground">ShaadiLink</strong> {t('purpose.desc').replace('ShaadiLink', '')}
           </p>
           <p className="mt-3 text-muted-foreground/80 text-xs sm:text-sm max-w-2xl mx-auto leading-relaxed border-t border-gold/20 pt-3 italic">
-            🔐 <strong>Authentication Purpose:</strong> We use Google Sign-In solely for secure user account creation and login. This guarantees that only you can access your private dashboard, edit your invitation drafts, customize your themes, and view RSVP lists and guest wishes.
+            🔐 <strong>{t('purpose.auth.badge')}:</strong> {t('purpose.auth.text')}
           </p>
         </motion.div>
 
@@ -223,7 +225,8 @@ function HomeInner() {
   const [previewTemplateId, setPreviewTemplateId] = useState<string | null>(null);
   // Track previous step so Details → Back works correctly
   const [stepBeforeDetails, setStepBeforeDetails] = useState<FlowStep>("signup");
-  useScrollReveal();
+  useScrollReveal(currentStep);
+  const { t, language } = useLanguage();
   const router = useRouter();
 
   const searchParams = useSearchParams();
@@ -234,7 +237,8 @@ function HomeInner() {
     const start = searchParams.get("start");
     const editId = searchParams.get("edit");
     const upgradeId = searchParams.get("upgrade");
-    if (!start && !editId && !upgradeId) {
+    const buyMoreLinksId = searchParams.get("buyMoreLinks");
+    if (!start && !editId && !upgradeId && !buyMoreLinksId) {
       setIsLoadingParams(false);
       return;
     }
@@ -279,7 +283,8 @@ function HomeInner() {
                 heroImage: invitation.hero_image_url ?? "",
                 slideshowImages: invitation.slideshow_image_urls ?? [],
                 youtubeVideoId: invitation.youtube_video_id ?? "",
-                personalizedGuestLinks: invitation.personalized_guest_links ?? false,
+                guestLinksQuota: invitation.guest_links_quota ?? 0,
+                originalGuestLinksQuota: invitation.guest_links_quota ?? 0,
                 events: ((invitation.events as { name: string; date: string; time: string; venue?: string; order_index: number }[]) || [])
                   .sort((a, b) => a.order_index - b.order_index)
                   .map((e) => ({ name: e.name, date: e.date, time: e.time, venue: e.venue })),
@@ -317,7 +322,8 @@ function HomeInner() {
                 heroImage: invitation.hero_image_url ?? "",
                 slideshowImages: invitation.slideshow_image_urls ?? [],
                 youtubeVideoId: invitation.youtube_video_id ?? "",
-                personalizedGuestLinks: invitation.personalized_guest_links ?? false,
+                guestLinksQuota: invitation.guest_links_quota ?? 0,
+                originalGuestLinksQuota: invitation.guest_links_quota ?? 0,
                 events: ((invitation.events as { name: string; date: string; time: string; venue?: string; order_index: number }[]) || [])
                   .sort((a, b) => a.order_index - b.order_index)
                   .map((e) => ({ name: e.name, date: e.date, time: e.time, venue: e.venue })),
@@ -332,6 +338,45 @@ function HomeInner() {
             }
           })
           .finally(() => setIsLoadingParams(false));
+      } else if (buyMoreLinksId) {
+        fetch(`/api/invitations/${buyMoreLinksId}`)
+          .then((r) => r.json())
+          .then(({ invitation }) => {
+            if (invitation) {
+              setFlowData((prev) => ({
+                ...prev,
+                invitationId: invitation.id,
+                selectedTemplateId: invitation.template_id,
+                partner1Name: invitation.partner1_name ?? "",
+                partner2Name: invitation.partner2_name ?? "",
+                venue: invitation.venue ?? "",
+                venueAddress: invitation.venue_address ?? "",
+                welcomeMessage: invitation.welcome_message ?? "",
+                backgroundMusic: invitation.background_music ?? "no-music",
+                dressCodeWomen: invitation.dress_code_women ?? "",
+                dressCodeMen: invitation.dress_code_men ?? "",
+                transportation: invitation.transportation ?? "",
+                accommodation: invitation.accommodation ?? "",
+                gifts: invitation.gifts ?? "",
+                heroImage: invitation.hero_image_url ?? "",
+                slideshowImages: invitation.slideshow_image_urls ?? [],
+                youtubeVideoId: invitation.youtube_video_id ?? "",
+                guestLinksQuota: invitation.guest_links_quota ?? 0,
+                originalGuestLinksQuota: invitation.guest_links_quota ?? 0,
+                events: ((invitation.events as { name: string; date: string; time: string; venue?: string; order_index: number }[]) || [])
+                  .sort((a, b) => a.order_index - b.order_index)
+                  .map((e) => ({ name: e.name, date: e.date, time: e.time, venue: e.venue })),
+                selectedPlan: invitation.plan,
+                paymentDone: true,
+                showBismillah: invitation.show_bismillah ?? true,
+                showQuranVerse: invitation.show_quran_verse ?? true,
+                slug: invitation.slug ?? "",
+              }));
+              setStepBeforeDetails("dashboard");
+              setCurrentStep("payment");
+            }
+          })
+          .finally(() => setIsLoadingParams(false));
       } else {
         setIsLoadingParams(false);
       }
@@ -342,7 +387,7 @@ function HomeInner() {
   // Restore session and flowData on mount
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get("edit") || params.get("upgrade") || params.get("start") === "create") {
+    if (params.get("edit") || params.get("upgrade") || params.get("buyMoreLinks") || params.get("start") === "create") {
       return;
     }
 
@@ -437,7 +482,7 @@ function HomeInner() {
   useEffect(() => {
     const step = searchParams.get("step");
     const invitationId = searchParams.get("invitationId");
-    if (step === "success" && invitationId) {
+    if (step === "success" && invitationId && currentStep !== "success") {
       fetch(`/api/invitations/${invitationId}`)
         .then((r) => r.json())
         .then(({ invitation }) => {
@@ -460,7 +505,8 @@ function HomeInner() {
               heroImage: invitation.hero_image_url ?? "",
               slideshowImages: invitation.slideshow_image_urls ?? [],
               youtubeVideoId: invitation.youtube_video_id ?? "",
-              personalizedGuestLinks: invitation.personalized_guest_links ?? false,
+              guestLinksQuota: invitation.guest_links_quota ?? 0,
+              originalGuestLinksQuota: invitation.guest_links_quota ?? 0,
               events: ((invitation.events as { name: string; date: string; time: string; venue?: string; order_index: number }[]) || [])
                 .sort((a, b) => a.order_index - b.order_index)
                 .map((e) => ({ name: e.name, date: e.date, time: e.time, venue: e.venue })),
@@ -472,6 +518,8 @@ function HomeInner() {
             }));
             setCurrentStep("success");
             localStorage.removeItem("shaadilink_pending_flow_data");
+            // Clear invitationId from URL to prevent infinite fetching
+            window.history.replaceState({}, '', '/?step=success');
           }
         })
         .catch((err) => {
@@ -479,7 +527,9 @@ function HomeInner() {
           toast.error("Failed to load invitation details.");
         });
     } else if (step === "payment") {
-      setCurrentStep("payment");
+      if (currentStep !== "payment") {
+        setCurrentStep("payment");
+      }
       const paymentError = searchParams.get("paymentError");
       if (paymentError) {
         toast.error(paymentError);
@@ -487,7 +537,7 @@ function HomeInner() {
         window.history.replaceState({}, '', '/?step=payment');
       }
     }
-  }, [searchParams, setCurrentStep]);
+  }, [searchParams, currentStep, setCurrentStep]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
@@ -579,7 +629,7 @@ function HomeInner() {
             heroImage: invitation.hero_image_url,
             slideshowImages: invitation.slideshow_image_urls || [],
             youtubeVideoId: invitation.youtube_video_id ?? "",
-            personalizedGuestLinks: invitation.personalized_guest_links ?? false,
+            guestLinksQuota: invitation.guest_links_quota ?? 0,
             events: (invitation.events || []).sort(
               (a: { order_index: number }, b: { order_index: number }) => a.order_index - b.order_index
             ).map((e: { name: string; date: string; time: string; venue?: string }) => ({
@@ -634,7 +684,7 @@ function HomeInner() {
           heroImage: invitation.hero_image_url,
           slideshowImages: invitation.slideshow_image_urls || [],
           youtubeVideoId: invitation.youtube_video_id ?? "",
-          personalizedGuestLinks: invitation.personalized_guest_links ?? false,
+          guestLinksQuota: invitation.guest_links_quota ?? 0,
           events: (invitation.events || []).sort(
             (a: { order_index: number }, b: { order_index: number }) => a.order_index - b.order_index
           ).map((e: { name: string; date: string; time: string; venue?: string }) => ({
@@ -678,7 +728,7 @@ function HomeInner() {
           heroImage: invitation.hero_image_url,
           slideshowImages: invitation.slideshow_image_urls || [],
           youtubeVideoId: invitation.youtube_video_id ?? "",
-          personalizedGuestLinks: invitation.personalized_guest_links ?? false,
+          guestLinksQuota: invitation.guest_links_quota ?? 0,
           events: (invitation.events || []).sort(
             (a: { order_index: number }, b: { order_index: number }) => a.order_index - b.order_index
           ).map((e: { name: string; date: string; time: string; venue?: string }) => ({
@@ -693,6 +743,52 @@ function HomeInner() {
       }
     } catch (err) {
       console.error("Upgrade fetch error:", err);
+      toast.error("Error loading invitation.");
+    }
+  };
+  
+  const handleBuyMoreLinks = async (invitationId: string) => {
+    try {
+      const res = await fetch(`/api/invitations/${invitationId}`);
+      if (!res.ok) {
+        toast.error("Failed to fetch invitation details.");
+        return;
+      }
+      const { invitation } = await res.json();
+      if (invitation) {
+        updateFlowData({
+          invitationId: invitation.id,
+          selectedTemplateId: invitation.template_id,
+          partner1Name: invitation.partner1_name ?? "",
+          partner2Name: invitation.partner2_name ?? "",
+          venue: invitation.venue ?? "",
+          venueAddress: invitation.venue_address ?? "",
+          welcomeMessage: invitation.welcome_message ?? "",
+          backgroundMusic: invitation.background_music ?? "no-music",
+          dressCodeWomen: invitation.dress_code_women ?? "",
+          dressCodeMen: invitation.dress_code_men ?? "",
+          transportation: invitation.transportation ?? "",
+          accommodation: invitation.accommodation ?? "",
+          gifts: invitation.gifts ?? "",
+          heroImage: invitation.hero_image_url ?? "",
+          slideshowImages: invitation.slideshow_image_urls ?? [],
+          youtubeVideoId: invitation.youtube_video_id ?? "",
+          guestLinksQuota: invitation.guest_links_quota ?? 0,
+          originalGuestLinksQuota: invitation.guest_links_quota ?? 0,
+          events: ((invitation.events as { name: string; date: string; time: string; venue?: string; order_index: number }[]) || [])
+            .sort((a, b) => a.order_index - b.order_index)
+            .map((e) => ({ name: e.name, date: e.date, time: e.time, venue: e.venue })),
+          selectedPlan: invitation.plan,
+          paymentDone: true, // We are editing/upgrading a paid invitation, but buying an add-on
+          showBismillah: invitation.show_bismillah ?? true,
+          showQuranVerse: invitation.show_quran_verse ?? true,
+          slug: invitation.slug ?? "",
+        });
+        setStepBeforeDetails("dashboard");
+        setCurrentStep("payment");
+      }
+    } catch (err) {
+      console.error("Buy more links fetch error:", err);
       toast.error("Error loading invitation.");
     }
   };
@@ -935,6 +1031,7 @@ function HomeInner() {
               onEditInvitation={handleEditInvitation}
               onSignOut={handleSignOut}
               onUpgradeInvitation={handleUpgradeInvitation}
+              onBuyMoreLinks={handleBuyMoreLinks}
               onGoHome={handleBackToLanding}
             />
           </InfoPageWrapper>
@@ -984,7 +1081,7 @@ function HomeInner() {
               userFullName={flowData.fullName}
               onSignOut={handleSignOut}
             />
-            <main className="flex-1">
+            <main id="main-content" className="flex-1">
               <Hero onViewTemplates={goToTemplates} onGetStarted={scrollToPricing} />
               {/* Explicit app purpose section — satisfies Google OAuth homepage requirement */}
               <AppPurposeSection onGetStarted={scrollToPricing} />
@@ -1006,9 +1103,13 @@ function HomeInner() {
                     <Shield className="w-4.5 h-4.5 text-emerald" />
                   </div>
                   <div className="space-y-0.5 text-left">
-                    <h4 className="font-display font-semibold text-[10px] sm:text-xs text-gold uppercase tracking-wider">Secure Account Sync &amp; Purpose</h4>
-                    <p className="text-[10px] sm:text-[11px] text-muted-foreground leading-relaxed">
-                      ShaadiLink uses secure Google Sign-In to authenticate couples and generate their personal dashboard. Your Google profile details (name and email) are used solely to store, publish, and allow you to edit your digital wedding invitations and moderate RSVP/guest wishes securely.
+                    <h4 className="font-display font-semibold text-[10px] sm:text-xs text-gold uppercase tracking-wider">
+                      {language === 'en' ? "Secure Account Sync & Purpose" : "محفوظ اکاؤنٹ اور مقصد"}
+                    </h4>
+                    <p className="text-[10px] sm:text-[11px] text-muted-foreground leading-relaxed text-left">
+                      {language === 'en'
+                        ? "ShaadiLink uses secure Google Sign-In to authenticate couples and generate their personal dashboard. Your Google profile details (name and email) are used solely to store, publish, and allow you to edit your digital wedding invitations and moderate RSVP/guest wishes securely."
+                        : "شادی لنک گوگل سائن ان کا استعمال جوڑوں کی شناخت کی تصدیق اور ان کا ڈیش بورڈ بنانے کے لیے کرتا ہے۔ آپ کے گوگل اکاؤنٹ کی تفصیلات (نام اور ای میل) صرف آپ کے دعوت ناموں کو محفوظ رکھنے اور ان میں تبدیلیاں کرنے کے لیے استعمال کی جاتی ہیں۔"}
                     </p>
                   </div>
                 </motion.div>
@@ -1038,10 +1139,11 @@ function HomeInner() {
                     <div className="h-px w-12 bg-gradient-to-l from-transparent to-gold/50" />
                   </div>
                   <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold">
-                    See It <span className="gold-shimmer">Live</span>
+                    {t('demo.title.1')}{" "}
+                    <span className="gold-shimmer">{t('demo.title.2')}</span>
                   </h2>
-                  <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-                    Experience the magic — from the grand door-opening to the interactive scratch card, countdown, and fireworks.
+                  <p className="text-muted-foreground text-lg max-w-xl mx-auto text-center">
+                    {t('demo.subtitle')}
                   </p>
 
 
@@ -1052,7 +1154,7 @@ function HomeInner() {
                       className="bg-emerald hover:bg-emerald-dark text-primary-foreground border border-gold/40 px-8 py-6 text-lg font-display pulse-glow gap-2"
                     >
                       <Eye className="w-5 h-5" />
-                      View Live Demo
+                      {t('demo.cta.demo')}
                     </Button>
                     <Button
                       variant="outline"
@@ -1060,7 +1162,7 @@ function HomeInner() {
                       size="lg"
                       className="border-gold/30 text-gold hover:bg-gold/10 hover:text-gold-light px-6 py-6 text-base font-display"
                     >
-                      Browse All Templates
+                      {t('demo.cta.browse')}
                     </Button>
                   </div>
                 </div>

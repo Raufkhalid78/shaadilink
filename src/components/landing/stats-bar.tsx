@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
 import { Heart, Users, MessageCircle } from "lucide-react";
+import { useLanguage } from "@/components/language-provider";
 
 interface StatsData {
   invitations: number;
@@ -15,7 +16,7 @@ const statConfig = [
     key: "invitations" as const,
     icon: Users,
     suffix: "",
-    label: "Invitations Live",
+    translationKey: "stats.live" as const,
     color: "text-emerald",
     glow: "0 0 20px rgba(82, 170, 120, 0.4)",
   },
@@ -23,7 +24,7 @@ const statConfig = [
     key: "rsvps" as const,
     icon: Heart,
     suffix: "",
-    label: "RSVPs Collected",
+    translationKey: "stats.rsvps" as const,
     color: "text-rose-400",
     glow: "0 0 20px rgba(251, 113, 133, 0.4)",
   },
@@ -31,7 +32,7 @@ const statConfig = [
     key: "wishes" as const,
     icon: MessageCircle,
     suffix: "",
-    label: "Wishes Sent",
+    translationKey: "stats.wishes" as const,
     color: "text-gold",
     glow: "0 0 20px rgba(212, 168, 83, 0.5)",
   },
@@ -59,24 +60,24 @@ function CountUp({
     let step = 0;
 
     const timer = setInterval(() => {
+      current += increment;
       step++;
-      current = Math.min(current + increment, target);
-      setCount(isDecimal ? parseFloat(current.toFixed(1)) : Math.round(current));
-      if (step >= steps) clearInterval(timer);
+      if (step >= steps) {
+        setCount(target);
+        clearInterval(timer);
+      } else {
+        setCount(isDecimal ? parseFloat(current.toFixed(1)) : Math.round(current));
+      }
     }, duration / steps);
 
     return () => clearInterval(timer);
   }, [inView, target, isDecimal]);
 
-  return (
-    <span ref={ref}>
-      {isDecimal ? count.toFixed(1) : count.toLocaleString()}
-      {suffix}
-    </span>
-  );
+  return <span ref={ref}>{count}{suffix}</span>;
 }
 
 export function StatsBar() {
+  const { t } = useLanguage();
   const [statsData, setStatsData] = useState<StatsData>({
     invitations: 0,
     rsvps: 0,
@@ -86,7 +87,15 @@ export function StatsBar() {
   useEffect(() => {
     fetch("/api/stats")
       .then((res) => res.json())
-      .then((data: StatsData) => setStatsData(data))
+      .then((data) => {
+        if (data) {
+          setStatsData({
+            invitations: data.invitations || 0,
+            rsvps: data.rsvps || 0,
+            wishes: data.wishes || 0,
+          });
+        }
+      })
       .catch(() => {
         // silently fail — keep zeros
       });
@@ -116,7 +125,7 @@ export function StatsBar() {
         {/* Heading + subtitle */}
         <div className="text-center mb-8">
           <p className="text-xs sm:text-sm text-muted-foreground font-medium">
-            Every number is live — updated automatically
+            {t('stats.subtitle')}
           </p>
         </div>
 
@@ -127,7 +136,7 @@ export function StatsBar() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-6 mx-auto max-w-xl rounded-xl border border-gold/20 bg-gold/5 px-5 py-3 text-center text-sm text-gold/80"
           >
-            We&apos;re just getting started — every number here is real and growing!
+            {t('stats.zeroState')}
           </motion.div>
         )}
 
@@ -137,7 +146,7 @@ export function StatsBar() {
             const value = statsData[stat.key];
             return (
               <motion.div
-                key={stat.label}
+                key={stat.translationKey}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -173,7 +182,7 @@ export function StatsBar() {
 
                 {/* Label */}
                 <p className="text-xs sm:text-sm text-muted-foreground font-medium text-center leading-tight">
-                  {stat.label}
+                  {t(stat.translationKey)}
                 </p>
               </motion.div>
             );

@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
       templateId, plan, partner1Name, partner2Name, venue, venueAddress,
       welcomeMessage, backgroundMusic, dressCodeWomen, dressCodeMen,
       transportation, accommodation, gifts, heroImageUrl, slideshowImageUrls,
-      youtubeVideoId, personalizedGuestLinks, events, slug,
+      youtubeVideoId, guestLinksQuota, events, slug,
     } = body
 
     let finalSlug = slug?.trim()
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
         hero_image_url: heroImageUrl || '',
         slideshow_image_urls: slideshowImageUrls || [],
         youtube_video_id: youtubeVideoId || '',
-        personalized_guest_links: personalizedGuestLinks ?? false,
+        guest_links_quota: guestLinksQuota ?? 0,
         is_active: false,
         show_bismillah: body.showBismillah ?? true,
         show_quran_verse: body.showQuranVerse ?? true,
@@ -123,7 +123,7 @@ export async function GET() {
       .from('invitations')
       .select(`
         id, template_id, plan, partner1_name, partner2_name, venue,
-        hero_image_url, is_active, created_at, updated_at, slug, personalized_guest_links,
+        hero_image_url, is_active, created_at, updated_at, slug, guest_links_quota,
         events(id, name, date, time, order_index),
         rsvps(id, status),
         wishes(id)

@@ -5,6 +5,7 @@ import { ArrowLeft, Heart, FileText, Shield, RotateCcw, Truck } from "lucide-rea
 import { Button } from "@/components/ui/button";
 import { CONTACT_CONFIG } from "@/lib/config";
 import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
+import { useLanguage } from "@/components/language-provider";
 
 type LegalType = "terms" | "privacy" | "refund" | "shipping";
 
@@ -13,7 +14,7 @@ interface LegalPageProps {
   onBack: () => void;
 }
 
-const legalData: Record<
+const legalDataEn: Record<
   LegalType,
   {
     title: string;
@@ -187,8 +188,183 @@ const legalData: Record<
   },
 };
 
+const legalDataUr: Record<
+  LegalType,
+  {
+    title: string;
+    icon: typeof FileText;
+    lastUpdated: string;
+    sections: { heading: string; content: string }[];
+  }
+> = {
+  terms: {
+    title: "شرائط و ضوابط",
+    icon: FileText,
+    lastUpdated: "مئی 2026",
+    sections: [
+      {
+        heading: "1۔ تعارف",
+        content:
+          "شادی لنک میں خوش آمدید۔ شادی لنک کی ملکیت اور انتظام TechyDez کے پاس ہے۔ ہماری سروس استعمال کر کے آپ ان شرائط و ضوابط کے پابند ہونے پر رضامندی دیتے ہیں۔ شادی لنک پاکستانی شادیوں کے لیے پریمیم ڈیجیٹل شادی دعوت نامے فراہم کرتا ہے۔",
+      },
+      {
+        heading: "2۔ اہلیت",
+        content:
+          "ہماری سروسز استعمال کرنے کے لیے آپ کی عمر کم از کم 18 سال ہونی چاہیے۔ شادی لنک استعمال کر کے، آپ تصدیق کرتے ہیں کہ آپ کی عمر کم از کم 18 سال ہے اور آپ قانونی طور پر ان شرائط کو قبول کرنے کے اہل ہیں۔",
+      },
+      {
+        heading: "3۔ اکاؤنٹ کی رجسٹریشن",
+        content:
+          "دعوت نامہ بنانے کے لیے، آپ کو اکاؤنٹ رجسٹر کرنا ہوگا۔ آپ اپنے اکاؤنٹ کی تفصیلات کو خفیہ رکھنے اور اپنے اکاؤنٹ کے تحت ہونے والی تمام سرگرمیوں کے ذمہ دار ہیں۔",
+      },
+      {
+        heading: "4۔ ادائیگی کی شرائط",
+        content:
+          "تمام قیمتیں پاکستانی روپوں (PKR) میں ہیں۔ ادائیگی یک وقتی ہے اور اس میں کوئی ماہانہ چارجز یا پوشیدہ فیس نہیں ہے۔ ہم تمام کریڈٹ/ڈیبیٹ کارڈز، جاز کیش، ایزی پیسہ، اور بینک ٹرانسفرز قبول کرتے ہیں۔ تمام ادائیگیاں SSL انکرپشن کے ساتھ محفوظ طریقے سے عمل میں لائی جاتی ہیں۔",
+      },
+      {
+        heading: "5۔ سروس کی فراہمی",
+        content:
+          "کامیاب ادائیگی پر، آپ کو اپنے دعوت نامہ کا پیج بنانے کے لیے فوری رسائی دی جائے گی۔ آپ کا دعوت نامہ لنک فوری طور پر بن جائے گا اور آپ اسے لامحدود مہمانوں کے ساتھ شیئر کر سکتے ہیں۔",
+      },
+      {
+        heading: "6۔ صارف کی ذمہ داریاں",
+        content:
+          "آپ اپنے دعوت نامے میں فراہم کردہ تمام معلومات کی درستگی کے ذمہ دار ہیں۔ آپ ہماری سروس کو کسی غیر قانونی مقصد کے لیے یا کسی ایسے مواد کو شیئر کرنے کے لیے استعمال نہ کرنے پر متفق ہیں جو نقصان دہ یا غیر اخلاقی ہو۔",
+      },
+      {
+        heading: "7۔ ملکیتی حقوق",
+        content:
+          "تمام ڈیزائنز، ٹیمپلیٹس اور کوڈ شادی لنک کی ملکیت ہیں۔ آپ ہماری اجازت کے بغیر ہمارے ڈیزائنز کو دوبارہ فروخت یا کاپی نہیں کر سکتے۔",
+      },
+      {
+        heading: "8۔ سروس کی دستیابی",
+        content:
+          "ہم ویب سائٹ کی 99.9% دستیابی کو یقینی بنانے کی کوشش کرتے ہیں لیکن کسی بھی تکنیکی خرابی کی صورت میں مستقل دستیابی کی ضمانت نہیں دیتے۔ آپ کے دعوت نامہ صفحات شادی کی تاریخ کے کم از کم 30 دن بعد تک آن لائن رہیں گے۔",
+      },
+    ],
+  },
+  privacy: {
+    title: "پرائیویسی پالیسی",
+    icon: Shield,
+    lastUpdated: "مئی 2026",
+    sections: [
+      {
+        heading: "1۔ جمع کردہ معلومات",
+        content:
+          "ہم آپ کی فراہم کردہ معلومات جمع کرتے ہیں: آپ کا نام، ای میل، شادی کی تفصیلات (دولہا دولہن کا نام، تاریخ، مقام)، مہمانوں کے پیغامات اور RSVP جوابات۔",
+      },
+      {
+        heading: "2۔ گوگل ڈیٹا اور سائن ان",
+        content:
+          "شادی لنک گوگل سائن ان کا استعمال جوڑوں کی شناخت کی تصدیق اور ان کا ڈیش بورڈ بنانے کے لیے کرتا ہے۔ آپ کے گوگل اکاؤنٹ کی تفصیلات (نام اور ای میل) صرف آپ کے دعوت ناموں کو محفوظ رکھنے اور ان میں تبدیلیاں کرنے کے لیے استعمال کی جاتی ہیں۔ ہم آپ کا گوگل ڈیٹا کسی کے ساتھ شیئر نہیں کرتے۔",
+      },
+      {
+        heading: "3۔ معلومات کا استعمال",
+        content:
+          "آپ کا ڈیٹا دعوت نامہ پیج بنانے، ادائیگی مکمل کرنے، اور کسٹمر سپورٹ فراہم کرنے کے لیے استعمال ہوتا ہے۔ ہم آپ کا ذاتی ڈیٹا کبھی کسی تیسری پارٹی کو فروخت نہیں کرتے۔",
+      },
+      {
+        heading: "4۔ پیمنٹ ڈیٹا سیکیورٹی",
+        content:
+          "پیمنٹ کا عمل ہمارے محفوظ ادائیگی کے پارٹنرز سنبھالتے ہیں۔ شادی لنک آپ کے کارڈ کی تفصیلات محفوظ نہیں کرتا۔ تمام ادائیگی SSL سیکیورٹی کے تحت عمل میں لائی جاتی ہے۔",
+      },
+      {
+        heading: "5۔ ڈیٹا کی حفاظت",
+        content:
+          "ہم آپ کے ڈیٹا کی حفاظت کے لیے انڈسٹری کے بہترین معیار کی سیکیورٹی استعمال کرتے ہیں۔ آپ کا دعوت نامہ صرف اس لنک کے ذریعے کھولا جا سکتا ہے جو آپ خود شیئر کرتے ہیں۔",
+      },
+      {
+        heading: "6۔ کوکیز (Cookies)",
+        content:
+          "ہم ویب سائٹ کو بہتر بنانے کے لیے بنیادی کوکیز کا استعمال کرتے ہیں۔ آپ اپنے براؤزر کی سیٹنگز سے کوکیز کو بند بھی کر سکتے ہیں۔",
+      },
+      {
+        heading: "7۔ ڈیٹا برقرار رکھنا",
+        content:
+          "آپ کا دعوت نامہ پیج شادی کی تاریخ کے 30 دن بعد تک آن لائن رہے گا، جس کے بعد پرائیویسی کے پیش نظر اسے خودکار طور پر پرائیویٹ کر دیا جائے گا۔",
+      },
+      {
+        heading: "8۔ آپ کے حقوق",
+        content:
+          `آپ کو کسی بھی وقت اپنے ذاتی ڈیٹا کو تبدیل کرنے یا حذف کرنے کا پورا حق حاصل ہے۔ ڈیٹا سے متعلق کسی بھی درخواست کے لیے ہم سے ${CONTACT_CONFIG.email} پر رابطہ کریں۔`,
+      },
+    ],
+  },
+  refund: {
+    title: "رقم کی واپسی کی پالیسی",
+    icon: RotateCcw,
+    lastUpdated: "مئی 2026",
+    sections: [
+      {
+        heading: "1۔ عام پالیسی",
+        content:
+          "شادی لنک پر تمام خریداریاں حتمی ہیں۔ چونکہ ہماری سروس ڈیجیٹل پروڈکٹس اور ٹیمپلیٹس تک فوری رسائی فراہم کرتی ہے، اس لیے ہم سروس استعمال شروع کرنے کے بعد رقم واپس کرنے سے قاصر ہیں۔",
+      },
+      {
+        heading: "2۔ دوہری ادائیگی",
+        content:
+          `اگر کسی تکنیکی خرابی کی وجہ سے دو بار ادائیگی ہو جائے، تو ہم جائزہ لے کر پروسیسنگ چارجز منہا کرنے کے بعد رقم واپس کر دیں گے۔ برائے مہربانی ٹرانزیکشن کی تفصیلات کے ساتھ ${CONTACT_CONFIG.email} پر رابطہ کریں۔`,
+      },
+      {
+        heading: "3۔ غلط ادائیگی",
+        content:
+          "کسی بھی واضح تکنیکی غلطی (مثلاً غلط رقم چارج ہونا) کی صورت میں، ہم تصدیق کے بعد 7 سے 10 کاروباری دنوں کے اندر رقم واپس کر دیں گے۔",
+      },
+      {
+        heading: "4۔ کوپن کوڈز",
+        content:
+          "پروموشنل ڈسکاؤنٹ یا کوپن کوڈز خریداری مکمل ہونے کے بعد لاگو نہیں کیے جا سکتے۔ ہر کوڈ صرف ایک بار ہی استعمال کیا جا سکتا ہے۔",
+      },
+      {
+        heading: "5۔ تکنیکی مسائل",
+        content:
+          "اگر آپ کو سروس استعمال کرنے میں کوئی تکنیکی مسئلہ درپیش ہو، تو ہماری سپورٹ ٹیم سے رابطہ کریں۔ ہم اسے حل کرنے کی ہر ممکن کوشش کریں گے۔",
+      },
+      {
+        heading: "6۔ رقم کی واپسی کا عمل",
+        content:
+          "منظور شدہ رقم کی واپسی 7 سے 10 کاروباری دنوں کے اندر آپ کے اصل ادائیگی کے طریقے (کارڈ یا اکاؤنٹ) پر منتقل کر دی جائے گی۔",
+      },
+    ],
+  },
+  shipping: {
+    title: "شپنگ اور ڈیلیوری پالیسی",
+    icon: Truck,
+    lastUpdated: "مئی 2026",
+    sections: [
+      {
+        heading: "1۔ ڈیجیٹل سروس",
+        content:
+          "شادی لنک 100% ڈیجیٹل سروس ہے۔ آپ کے ایڈریس پر کوئی فزیکل پروڈکٹ، پرنٹ شدہ کارڈ، یا کوئی فزیکل سامان نہیں بھیجا جاتا۔",
+      },
+      {
+        heading: "2۔ فوری ڈیلیوری",
+        content:
+          "ادائیگی مکمل ہوتے ہی آپ کو فوری طور پر ڈیش بورڈ تک رسائی مل جائے گی جہاں آپ اپنا کارڈ بنا سکتے ہیں۔ آپ کا دعوتی لنک فوری طور پر تیار ہو جاتا ہے۔",
+      },
+      {
+        heading: "3۔ ڈیش بورڈ کے ذریعے رسائی",
+        content:
+          "آپ کے تمام دعوت نامے اور ان میں ترمیم کرنے کی سہولت ڈیش بورڈ پر دستیاب ہے۔ آپ کسی بھی موبائل یا کمپیوٹر سے لاگ ان کر کے اسے استعمال کر سکتے ہیں۔",
+      },
+      {
+        heading: "4۔ تصدیقی ای میل",
+        content:
+          "خریداری کے بعد آپ کو ایک تصدیقی ای میل موصول ہوگی جس میں لاگ ان کی تفصیلات اور ڈیش بورڈ استعمال کرنے کے طریقے بتائے جائیں گے۔",
+      },
+      {
+        heading: "5۔ کوئی فزیکل شپنگ چارجز نہیں",
+        content:
+          "چونکہ شادی لنک صرف ڈیجیٹل پروڈکٹس فراہم کرتا ہے، اس لیے شپنگ کے کوئی چارجز یا ڈیلیوری میں تاخیر کا کوئی امکان نہیں ہے۔ سب کچھ سیکنڈوں میں آن لائن دستیاب ہے۔",
+      },
+    ],
+  },
+};
+
 export function LegalPage({ type, onBack }: LegalPageProps) {
-  const data = legalData[type];
+  const { t, language } = useLanguage();
+  const data = language === 'en' ? legalDataEn[type] : legalDataUr[type];
   const Icon = data.icon;
 
   return (
@@ -203,7 +379,9 @@ export function LegalPage({ type, onBack }: LegalPageProps) {
               className="gap-2 text-foreground/70 hover:text-foreground"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span className="hidden sm:inline">Back</span>
+              <span className="hidden sm:inline">
+                {language === 'en' ? "Back" : "پیچھے"}
+              </span>
             </Button>
 
             <div className="flex items-center gap-2">
@@ -223,20 +401,20 @@ export function LegalPage({ type, onBack }: LegalPageProps) {
       {/* Breadcrumb path — title adapts to the legal page type */}
       <PageBreadcrumb
         crumbs={[
-          { label: "Home", onClick: onBack },
+          { label: language === 'en' ? "Home" : "ہوم", onClick: onBack },
           { label: data.title },
         ]}
       />
 
-      <main className="flex-1 py-12 sm:py-16 px-4">
+      <main id="main-content" className="flex-1 py-12 sm:py-16 px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="mx-auto max-w-3xl"
+          className="mx-auto max-w-3xl text-left"
         >
           {/* Title */}
-          <div className="flex items-center gap-3 mb-2">
+          <div className="flex items-center gap-3 mb-2 justify-start">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gold/10 text-gold">
               <Icon className="h-5 w-5" />
             </div>
@@ -244,23 +422,24 @@ export function LegalPage({ type, onBack }: LegalPageProps) {
               {data.title}
             </h1>
           </div>
-          <p className="text-muted-foreground text-sm mb-10">
-            Last updated: {data.lastUpdated}
+          <p className="text-muted-foreground text-sm mb-10 text-left">
+            {language === 'en' ? "Last updated: " : "آخری اپ ڈیٹ: "}{data.lastUpdated}
           </p>
 
           {/* Sections */}
-          <div className="space-y-8">
+          <div className="space-y-8 text-left">
             {data.sections.map((section, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: index * 0.05 }}
+                className="text-left"
               >
-                <h2 className="font-display text-lg font-semibold text-foreground mb-2">
+                <h2 className="font-display text-lg font-semibold text-foreground mb-2 text-left">
                   {section.heading}
                 </h2>
-                <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">
+                <p className="text-muted-foreground leading-relaxed text-sm sm:text-base text-left">
                   {section.content}
                 </p>
               </motion.div>
@@ -268,10 +447,13 @@ export function LegalPage({ type, onBack }: LegalPageProps) {
           </div>
 
           {/* Contact note */}
-          <div className="mt-12 p-5 rounded-xl border border-gold/20 bg-gold/5">
-            <p className="text-sm text-muted-foreground">
-              Have questions about our policies?{" "}
-              <span className="text-gold font-medium">Contact us</span> at{" "}
+          <div className="mt-12 p-5 rounded-xl border border-gold/20 bg-gold/5 text-left">
+            <p className="text-sm text-muted-foreground text-left">
+              {language === 'en' ? "Have questions about our policies? " : "کیا آپ کے پاس ہماری پالیسیوں کے بارے میں سوالات ہیں؟ "}
+              <span className="text-gold font-medium">
+                {language === 'en' ? "Contact us" : "ہم سے رابطہ کریں"}
+              </span>{" "}
+              {language === 'en' ? "at" : "پر"}{" "}
               <a
                 href={`mailto:${CONTACT_CONFIG.email}`}
                 className="text-gold hover:text-gold-light underline"

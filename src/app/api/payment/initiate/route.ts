@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { invitationId, plan, personalizedGuestLinks } = body
+    const { invitationId, plan, guestLinksQuota } = body
 
     if (!invitationId || !plan) {
       return NextResponse.json({ error: 'invitationId and plan are required' }, { status: 400 })
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     // Verify invitation ownership
     const { data: inv, error: invError } = await service
       .from('invitations')
-      .select('user_id')
+      .select('user_id, is_active, guest_links_quota')
       .eq('id', invitationId)
       .single()
 
@@ -35,16 +35,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    // Save personalized guest links preference to the invitation
-    await service
-      .from('invitations')
-      .update({ personalized_guest_links: !!personalizedGuestLinks })
-      .eq('id', invitationId)
+    // We no longer update the invitation's quota here to prevent free links on cancelled checkouts.
+    // The target quota is instead passed to the callback URL.
 
     // Calculate total price
-    const basePrice = PLAN_AMOUNTS[plan] ?? PLAN_AMOUNTS.classic
-    const addOnPrice = personalizedGuestLinks ? 1000 : 0
+    const basePrice = inv.is_active ? 0 : (PLAN_AMOUNTS[plan] ?? PLAN_AMOUNTS.classic)
+    const addedQuota = Math.max(0, (guestLinksQuota || 0) - (inv.guest_links_quota || 0))
+    const addOnPrice = (addedQuota / 50) * 1000
     const totalAmount = basePrice + addOnPrice
+
+    if (totalAmount <= 0) {
+      return NextResponse.json({ error: 'No new charges to apply.' }, { status: 400 })
+    }
 
     // Create a pending order record
     const { data: order, error: orderErr } = await service
@@ -115,11 +117,11 @@ export async function POST(request: NextRequest) {
       ? 'https://api.getsafepay.com/checkout/pay'
       : 'https://sandbox.api.getsafepay.com/checkout/pay'
 
-    // Embed the order ID into the callback URL so we have it upon redirect
-    const callbackUrl = `${siteUrl}/api/payment/callback?order_id=${order.id}`
+    // Embed the order ID and the target guest links quota into the callback URL
+    const callbackUrl = `${siteUrl}/api/payment/callback?order_id=${order.id}&guest_links_quota=${guestLinksQuota || 0}`
     const cancelUrl = `${siteUrl}/?step=payment`
 
-    const checkoutUrl = `${checkoutBase}?env=${safepayEnv}&beacon=${trackerToken}&client=${safepayApiKey}&order_id=${order.id}&redirect_url=${encodeURIComponent(callbackUrl)}&cancel_url=${encodeURIComponent(cancelUrl)}&source=custom`
+    const checkoutUrl = `${checkoutBase}?env=${safepayEnv}&beacon=${trackerToken}&client=${safepayApiKey}&order_id=${order.id}&reference=${order.id}&redirect_url=${encodeURIComponent(callbackUrl)}&cancel_url=${encodeURIComponent(cancelUrl)}&source=custom`
 
     return NextResponse.json({ checkoutUrl })
   } catch (error) {

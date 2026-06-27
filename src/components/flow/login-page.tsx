@@ -150,7 +150,7 @@ export function LoginPage({ onBack, onLogin, onSignup, crumbs }: LoginPageProps)
       {/* Breadcrumb path */}
       <PageBreadcrumb crumbs={crumbs} />
 
-      <main className="flex-1 flex items-center justify-center px-4 py-12 relative overflow-hidden">
+      <main id="main-content" className="flex-1 flex items-center justify-center px-4 py-12 relative overflow-hidden">
         {/* Background ambient elements */}
         <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-emerald/10 blur-[120px] rounded-full pointer-events-none" />
         <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[400px] h-[400px] bg-gold/5 blur-[120px] rounded-full pointer-events-none" />

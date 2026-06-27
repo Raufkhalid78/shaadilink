@@ -1,18 +1,21 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Sparkles, Heart, ArrowRight, Check, Star } from "lucide-react";
+import { Sparkles, Heart, ArrowRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/components/language-provider";
 
 interface CTASectionProps {
   onGetStarted?: () => void;
 }
 
 export function CTASection({ onGetStarted }: CTASectionProps) {
+  const { t, language } = useLanguage();
+
   const benefits = [
-    "One-time payment — no subscription",
-    "Unlimited guests — no per-guest charge",
-    "Unlimited edits until wedding date",
+    t('cta.benefit.1'),
+    t('cta.benefit.2'),
+    t('cta.benefit.3'),
   ];
 
   return (
@@ -114,18 +117,23 @@ export function CTASection({ onGetStarted }: CTASectionProps) {
             <div className="flex items-center gap-0.5">
               <Sparkles className="w-4 h-4 text-gold" />
             </div>
-            <span className="text-sm text-gold font-semibold">Premium Quality</span>
-            <span className="text-xs text-white/40">Handcrafted digital designs</span>
+            <span className="text-sm text-gold font-semibold">
+              {language === 'en' ? 'Premium Quality' : 'اعلی معیار'}
+            </span>
+            <span className="text-xs text-white/40">
+              {language === 'en' ? 'Handcrafted digital designs' : 'نفاست سے تیار کردہ ڈیزائنز'}
+            </span>
           </motion.div>
 
           <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight">
-            Ready to Create Your{" "}
-            <span className="gold-shimmer-strong">Perfect Invitation?</span>
+            {language === 'en' ? 'Ready to Create Your ' : 'کیا آپ اپنا '}
+            <span className="gold-shimmer-strong">
+              {language === 'en' ? 'Perfect Invitation?' : 'شاندار کارڈ بنانے کے لیے تیار ہیں؟'}
+            </span>
           </h2>
 
-          <p className="mt-6 text-base sm:text-lg text-white/70 max-w-xl mx-auto leading-relaxed">
-            Join our growing community of Pakistani couples making their
-            wedding celebrations unforgettable with ShaadiLink.
+          <p className="mt-6 text-base sm:text-lg text-white/70 max-w-xl mx-auto leading-relaxed text-center">
+            {t("cta.subtitle")}
           </p>
 
           {/* Benefits list */}
@@ -165,14 +173,14 @@ export function CTASection({ onGetStarted }: CTASectionProps) {
                 className="bg-gold hover:bg-gold-light text-emerald-dark font-bold text-base px-8 h-12 pulse-glow border-none gap-2"
               >
                 <Heart className="w-4 h-4 fill-current" />
-                Start Creating Your Invitation
+                {language === 'en' ? 'Start Creating Your Invitation' : 'دعوت نامہ بنانا شروع کریں'}
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </motion.div>
           </motion.div>
 
           <p className="mt-6 text-sm text-white/30">
-            Starting from Rs. 3,499 • One-time payment
+            {language === 'en' ? 'Starting from Rs. 3,499 • One-time payment' : 'صرف 3,499 روپے سے شروع • یک وقتی ادائیگی'}
           </p>
         </motion.div>
       </div>

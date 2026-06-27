@@ -32,7 +32,9 @@ export interface FlowData {
   // Step 5: Payment (simulated)
   paymentDone: boolean;
   // Add-ons
-  personalizedGuestLinks: boolean;
+  guestLinksQuota: number;
+  // Baseline quota for tracking new additions during upgrades
+  originalGuestLinksQuota?: number;
   // Backend IDs — set after API calls
   userId?: string;
   invitationId?: string;
@@ -69,7 +71,8 @@ export const initialFlowData: FlowData = {
   showBismillah: true,
   showQuranVerse: true,
   paymentDone: false,
-  personalizedGuestLinks: false,
+  guestLinksQuota: 0,
+  originalGuestLinksQuota: 0,
   slug: "",
 };
 

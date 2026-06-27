@@ -93,7 +93,7 @@ export function SuccessPage({ flowData, onViewInvitation, onGoToDashboard, crumb
       {/* Breadcrumb path */}
       <PageBreadcrumb crumbs={crumbs} />
 
-      <main className="flex-1 flex items-center justify-center px-4 py-12">
+      <main id="main-content" className="flex-1 flex items-center justify-center px-4 py-12">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}

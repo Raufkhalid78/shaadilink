@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-export function useScrollReveal() {
+export function useScrollReveal(currentStep?: string) {
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -15,9 +15,15 @@ export function useScrollReveal() {
       { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
     );
 
-    const elements = document.querySelectorAll(".reveal-on-scroll");
-    elements.forEach((el) => observer.observe(el));
+    // Wait for the DOM to update after step transitions
+    const timer = setTimeout(() => {
+      const elements = document.querySelectorAll(".reveal-on-scroll");
+      elements.forEach((el) => observer.observe(el));
+    }, 100);
 
-    return () => observer.disconnect();
-  }, []);
+    return () => {
+      clearTimeout(timer);
+      observer.disconnect();
+    };
+  }, [currentStep]);
 }

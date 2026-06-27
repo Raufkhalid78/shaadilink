@@ -5,133 +5,103 @@ import { motion } from "framer-motion";
 import { Check, Crown, Sparkles, ArrowRight, Lock, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/components/language-provider";
 
-const plans = [
-  {
-    id: "classic" as const,
-    name: "Classic",
-    price: "3,499",
-    originalPrice: "5,500",
-    period: "/ invitation",
-    description: "Elegant classic invitations — everything you need for a beautiful digital celebration.",
-    features: [
-      "8 Premium Animated Templates",
-      "1 Invitation Webpage",
-      "Unlimited Edits Until Wedding Date",
-      "Guest Messaging & Inbox",
-      "Music, Photos & Custom Uploads",
-      "Google Maps & Multi-Language",
-      "Analytics & Page View Tracking",
-      "Automatic Privacy Protection",
-    ],
-    cta: "Start with Classic",
-    highlighted: false,
-    badgeText: "STARTER",
-    savings: null,
-  },
-  {
-    id: "royal" as const,
-    name: "Royal",
-    price: "5,799",
-    originalPrice: "7,299",
-    period: "/ invitation",
-    description: "Premium cinematic experience — unlock every feature for the grandest celebration.",
-    features: [
-      "Everything in Classic, Plus:",
-      "All 10 Templates (Classic + Royal)",
-      "Cinematic 3D Door & Curtain Reveals",
-      "Scratch Card Date Reveal + Fireworks",
-      "Add to Calendar Integration",
-      "Pakistani Digital Shagun & Registry",
-      "Dress Code Swatches (Ladies/Gentlemen)",
-      "Travel & Accommodation Info Blocks",
-      "Premium Motion Storytelling",
-      "Exclusive Royal Template Collection",
-      "Priority Support 24/7",
-    ],
-    cta: "Unlock Royal Experience",
-    highlighted: true,
-    badgeText: "POPULAR",
-    savings: "Save Rs. 1,500",
-  },
-];
+interface PricingProps {
+  onSelectPlan?: (planId: "classic" | "royal") => void;
+}
 
 const containerVariants = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.2 } },
-};
-const cardVariants = {
-  hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" as const } },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.1 },
+  },
 };
 
-interface PricingProps {
-  onSelectPlan?: (plan: "classic" | "royal") => void;
-}
+const cardVariants = {
+  hidden: { opacity: 0, y: 30, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.5, ease: "easeOut" as const },
+  },
+};
 
 export function Pricing({ onSelectPlan }: PricingProps) {
-  const [hovered, setHovered] = useState<string | null>(null);
+  const { t, language } = useLanguage();
+  const [hovered, setHovered] = useState<"classic" | "royal" | null>(null);
+
+  const plans = [
+    {
+      id: "classic" as const,
+      name: t("pricing.classic.name"),
+      price: t("pricing.classic.price").replace("Rs. ", ""),
+      originalPrice: "5,500",
+      period: language === 'en' ? "/ invitation" : "/ دعوت نامہ",
+      description: t("pricing.classic.desc"),
+      features: [
+        t("pricing.feat.templates.classic"),
+        t("pricing.feat.rsvp"),
+        t("pricing.feat.wishes"),
+        t("pricing.feat.music"),
+        t("pricing.feat.countdown"),
+        t("pricing.feat.maps"),
+        t("pricing.feat.edits"),
+        t("pricing.feat.valid"),
+      ],
+      cta: language === 'en' ? "Start with Classic" : "کلاسک سے شروع کریں",
+      highlighted: false,
+      badgeText: t("pricing.classic.badge"),
+      savings: null,
+    },
+    {
+      id: "royal" as const,
+      name: t("pricing.royal.name"),
+      price: t("pricing.royal.price").replace("Rs. ", ""),
+      originalPrice: "7,299",
+      period: language === 'en' ? "/ invitation" : "/ دعوت نامہ",
+      description: t("pricing.royal.desc"),
+      features: [
+        language === 'en' ? "Everything in Classic, Plus:" : "کلاسک کی تمام خصوصیات، اور ساتھ:",
+        t("pricing.feat.templates.royal"),
+        t("pricing.feat.doors"),
+        t("pricing.feat.scratch"),
+        t("pricing.feat.guestlinks"),
+        t("pricing.feat.shagun"),
+        language === 'en' ? "Dress Code Swatches" : "ڈریس کوڈ معلومات",
+        language === 'en' ? "Travel & Accommodation Info" : "سفر اور رہائش کی تفصیلات",
+      ],
+      cta: language === 'en' ? "Unlock Royal Experience" : "شاہی تجربہ حاصل کریں",
+      highlighted: true,
+      badgeText: t("pricing.royal.badge"),
+      savings: language === 'en' ? "Save Rs. 1,500" : "1,500 روپے بچت",
+    },
+  ];
 
   return (
-    <section id="pricing" className="py-24 sm:py-32 relative overflow-hidden">
-      {/* Rich background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-emerald-dark/15 to-background" />
-      <div
-        className="absolute inset-0 opacity-40"
-        style={{
-          background:
-            "radial-gradient(ellipse at 30% 60%, rgba(212,168,83,0.06) 0%, transparent 55%), radial-gradient(ellipse at 70% 40%, rgba(82,170,120,0.06) 0%, transparent 55%)",
-        }}
-      />
+    <section id="pricing" className="py-24 sm:py-32 relative overflow-hidden bg-background">
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-emerald-dark/10 to-background" />
 
-      {/* Subtle Islamic pattern */}
-      <div className="absolute inset-0 opacity-[0.018]">
-        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="pricing-pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
-              <path d="M50 5 L61.8 21.8 L81.8 18.2 L70 35 L81.8 51.8 L61.8 48.2 L50 65 L38.2 48.2 L18.2 51.8 L30 35 L18.2 18.2 L38.2 21.8 Z"
-                fill="none" stroke="#d4a853" strokeWidth="0.5" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#pricing-pattern)" />
-        </svg>
-      </div>
-
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
-        <div className="text-center mb-16 sm:mb-20 reveal-on-scroll">
-          <motion.span
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-gold/20 bg-gold/10 text-gold text-sm font-medium mb-4"
-          >
-            <Crown className="w-3.5 h-3.5" />
-            Choose Your Experience
-          </motion.span>
-          <motion.h2
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-foreground"
-          >
-            Choose Your <span className="gold-shimmer">Invitation Plan</span>
-          </motion.h2>
+        <div className="text-center mb-16 reveal-on-scroll">
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-gold/20 bg-gold/10 text-gold text-sm font-medium mb-4">
+            <Sparkles className="w-3.5 h-3.5" />
+            {t("pricing.badge")}
+          </span>
+          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">
+            {t("pricing.title")}
+          </h2>
           <div className="flex items-center justify-center gap-3 mt-5">
             <div className="h-px w-16 bg-gradient-to-r from-transparent to-gold/50" />
             <div className="h-1.5 w-1.5 rounded-full bg-gold/60" />
             <div className="h-px w-16 bg-gradient-to-l from-transparent to-gold/50" />
           </div>
-          <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="mt-5 text-muted-foreground max-w-xl mx-auto text-base sm:text-lg"
-          >
-            Elegant classic invitations or immersive cinematic luxury — both crafted for Pakistani weddings.
-          </motion.p>
+          <p className="mt-5 text-muted-foreground max-w-xl mx-auto text-base sm:text-lg text-center">
+            {t("pricing.subtitle")}
+          </p>
         </div>
 
         {/* Pricing Cards */}
@@ -146,10 +116,10 @@ export function Pricing({ onSelectPlan }: PricingProps) {
             const isHovered = hovered === plan.id;
             return (
               <motion.div
-                key={plan.name}
+                key={plan.id}
                 variants={cardVariants}
                 onMouseEnter={() => setHovered(plan.id)}
-                onMouseLeave={() => setHovered(null)}
+                onMouseLeave={() => hovered === plan.id && setHovered(null)}
                 className={`relative rounded-2xl overflow-hidden transition-all duration-500 shadow-md flex flex-col h-full ${
                   plan.highlighted
                     ? "border border-gold/40 shadow-xl shadow-gold/5 hover:shadow-gold/15 hover:shadow-2xl"
@@ -199,15 +169,15 @@ export function Pricing({ onSelectPlan }: PricingProps) {
                   </Badge>
                 </div>
 
-                <div className="p-7 sm:p-9 flex flex-col flex-grow">
+                <div className="p-7 sm:p-9 flex flex-col flex-grow text-left">
                   {/* Plan name */}
-                  <h3 className="font-display text-2xl font-bold text-foreground mb-1">
+                  <h3 className="font-display text-2xl font-bold text-foreground mb-1 text-left">
                     {plan.name}
                   </h3>
-                  <p className="text-sm text-muted-foreground">{plan.description}</p>
+                  <p className="text-sm text-muted-foreground text-left">{plan.description}</p>
 
                   {/* Price */}
-                  <div className="mt-6 flex items-end gap-2">
+                  <div className="mt-6 flex items-end gap-2 text-left justify-start">
                     <div className="flex items-baseline gap-1">
                       <span className="text-sm text-muted-foreground">Rs.</span>
                       <span
@@ -218,14 +188,14 @@ export function Pricing({ onSelectPlan }: PricingProps) {
                         {plan.price}
                       </span>
                     </div>
-                    <div className="flex flex-col mb-1">
+                    <div className="flex flex-col mb-1 text-left">
                       <span className="text-xs text-muted-foreground line-through">Rs. {plan.originalPrice}</span>
                       <span className="text-muted-foreground text-sm">{plan.period}</span>
                     </div>
                   </div>
 
                   {plan.savings && (
-                    <div className="mt-2 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald/10 border border-emerald/20 text-emerald text-xs font-semibold">
+                    <div className="mt-2 self-start inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald/10 border border-emerald/20 text-emerald text-xs font-semibold">
                       <Star className="w-3 h-3 fill-emerald" />
                       {plan.savings}
                     </div>
@@ -235,9 +205,9 @@ export function Pricing({ onSelectPlan }: PricingProps) {
                   <div className="my-6 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
                   {/* Features */}
-                  <ul className="space-y-3 mb-8">
+                  <ul className="space-y-3 mb-8 text-left">
                     {plan.features.map((feature, i) => (
-                      <li key={i} className="flex items-start gap-3">
+                      <li key={i} className="flex items-start gap-3 justify-start">
                         <div
                           className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${
                             plan.highlighted ? "bg-gold/20 text-gold" : "bg-emerald/10 text-emerald"
@@ -246,7 +216,7 @@ export function Pricing({ onSelectPlan }: PricingProps) {
                           <Check className="h-3 w-3" />
                         </div>
                         <span
-                          className={`text-sm ${
+                          className={`text-sm text-left ${
                             i === 0 && plan.highlighted ? "text-gold font-semibold" : "text-foreground/75"
                           }`}
                         >
@@ -257,7 +227,7 @@ export function Pricing({ onSelectPlan }: PricingProps) {
                   </ul>
 
                   {/* CTA */}
-                  <div className="mt-auto pt-6">
+                  <div className="mt-auto pt-6 text-center">
                     <Button
                       onClick={() => onSelectPlan?.(plan.id)}
                       size="lg"
@@ -270,7 +240,7 @@ export function Pricing({ onSelectPlan }: PricingProps) {
                       {plan.highlighted && <Crown className="w-4 h-4 mr-2" />}
                       {plan.cta}
                     </Button>
-                    <p className="text-xs text-muted-foreground mt-2 text-center">✓ 24-Hour Money-Back Guarantee</p>
+                    <p className="text-xs text-muted-foreground mt-2 text-center">{t("pricing.guarantee")}</p>
                   </div>
                 </div>
               </motion.div>
@@ -286,33 +256,42 @@ export function Pricing({ onSelectPlan }: PricingProps) {
           transition={{ delay: 0.2 }}
           className="mt-12 bg-card border border-border/30 rounded-2xl p-6 sm:p-8 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6"
         >
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-              <Badge className="bg-emerald/10 text-emerald border-emerald/20 px-2 py-0.5 text-[10px]">NEW ADD-ON</Badge>
-              <h3 className="font-display text-xl font-bold text-foreground">Personalized Guest Links</h3>
+          <div className="flex-1 text-left">
+            <div className="flex items-center gap-2 mb-2 justify-start">
+              <Badge className="bg-emerald/10 text-emerald border-emerald/20 px-2 py-0.5 text-[10px]">
+                {language === 'en' ? 'NEW ADD-ON' : 'نیا فیچر'}
+              </Badge>
+              <h3 className="font-display text-xl font-bold text-foreground">
+                {language === 'en' ? 'Personalized Guest Links' : 'مہمانوں کے نام کے ساتھ لنکس'}
+              </h3>
             </div>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Send unique, personalized links to your guests. Greet them by name ("Dear Ahmed Family") and track individual RSVPs with precision. Includes up to 50 unique guest links.
+            <p className="text-sm text-muted-foreground leading-relaxed text-left">
+              {language === 'en'
+                ? 'Send unique, personalized links to your guests. Greet them by name ("Dear Ahmed Family") and track individual RSVPs with precision. Includes up to 50 unique guest links.'
+                : 'اپنے مہمانوں کو منفرد اور ان کے نام کے ساتھ دعوت نامہ لنکس بھیجیں۔ انہیں نام سے مخاطب کریں (مثلاً احمد فیملی) اور لائیو جوابات حاصل کریں۔ اس میں 50 لنکس شامل ہیں۔'}
             </p>
           </div>
-          <div className="flex items-center gap-6 md:border-l md:border-border/30 md:pl-8">
-            <div className="flex flex-col">
-              <span className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Add-on Price</span>
-              <div className="flex items-baseline gap-1">
+          <div className="flex items-center gap-6 md:border-l md:border-border/30 md:pl-8 justify-start">
+            <div className="flex flex-col text-left">
+              <span className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+                {language === 'en' ? 'Add-on Price' : 'اضافی قیمت'}
+              </span>
+              <div className="flex items-baseline gap-1 justify-start">
                 <span className="text-sm text-foreground">Rs.</span>
                 <span className="font-display text-3xl font-bold text-foreground">1,000</span>
               </div>
-              <span className="text-xs text-muted-foreground">per 50 guests</span>
+              <span className="text-xs text-muted-foreground">
+                {language === 'en' ? 'per 50 guests' : 'فی 50 مہمان'}
+              </span>
             </div>
             <Button
               onClick={() => {
-                // If they click here, just trigger select plan flow for now, but in future maybe handle addon specifically
                 onSelectPlan?.("royal");
               }}
               variant="outline"
               className="border-emerald/30 text-emerald hover:bg-emerald hover:text-white"
             >
-              Add to Plan
+              {language === 'en' ? 'Add to Plan' : 'شامل کریں'}
             </Button>
           </div>
         </motion.div>
@@ -330,15 +309,18 @@ export function Pricing({ onSelectPlan }: PricingProps) {
             className="inline-flex items-center gap-2 px-5 py-3 rounded-xl border border-gold/15 bg-gold/5 cursor-pointer hover:bg-gold/10 hover:border-gold/30 transition-all duration-300 group"
           >
             <Sparkles className="w-4 h-4 text-gold shrink-0 group-hover:scale-110 transition-transform" />
-            <p className="text-sm text-muted-foreground">
-              Already on Classic?{" "}
-              <span className="text-gold font-semibold hover:text-gold-light underline underline-offset-4 decoration-gold/30">Upgrade to Royal</span> anytime
+            <p className="text-sm text-muted-foreground text-left">
+              {language === 'en' ? 'Already on Classic? ' : 'پہلے سے کلاسک موجود ہے؟ '}
+              <span className="text-gold font-semibold hover:text-gold-light underline underline-offset-4 decoration-gold/30">
+                {language === 'en' ? 'Upgrade to Royal' : 'رائل پر اپ گریڈ کریں'}
+              </span>{' '}
+              {language === 'en' ? 'anytime' : 'کسی بھی وقت'}
             </p>
             <ArrowRight className="w-4 h-4 text-gold shrink-0 group-hover:translate-x-1 transition-transform" />
           </div>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground justify-end">
             <Lock className="w-3.5 h-3.5 text-emerald shrink-0" />
-            Secure payments · SSL encrypted
+            {language === 'en' ? 'Secure payments · SSL encrypted' : 'محفوظ ادائیگی · SSL انکرپٹڈ'}
           </div>
         </motion.div>
       </div>

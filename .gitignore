@@ -52,3 +52,12 @@ prompt
 server.log
 # Skills directory
 /skills/
+# scratch and test scripts
+/scratch/
+/check_slug_column.js
+/check-db.js
+/test-gemini.js
+/test-gemini2.js
+/test-resend.js
+/test-resend3.js
+/test-zai.js
