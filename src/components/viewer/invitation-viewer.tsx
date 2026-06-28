@@ -930,67 +930,51 @@ export default function InvitationViewer({ templateId, flowData, guestName }: In
           </div>
 
           <div className="relative z-10 max-w-lg text-center">
-            <motion.p
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className={`${theme.fontCalligraphy} text-sm sm:text-base tracking-[0.4em] uppercase mb-8`}
-              style={{ color: theme.textSecondary }}
+            <p
+              className={`ss-animate-in ${theme.fontCalligraphy} text-sm sm:text-base tracking-[0.4em] uppercase mb-8`}
+              style={{ color: theme.textSecondary, animationDelay: '0.3s' }}
             >
               {t('gettingMarried', "We're getting married")}
-            </motion.p>
+            </p>
 
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, delay: 0.5 }}
-              className={`${theme.fontDisplay} text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-[0.08em] mb-2`}
-              style={{ color: theme.textPrimary }}
+            <h1
+              className={`ss-animate-in ${theme.fontDisplay} text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-[0.08em] mb-2`}
+              style={{ color: theme.textPrimary, animationDelay: '0.5s' }}
             >
               {translatedPartner1}
-            </motion.h1>
+            </h1>
 
-            <motion.div
-              initial={{ opacity: 0, scaleX: 0 }}
-              animate={{ opacity: 1, scaleX: 1 }}
-              transition={{ duration: 0.8, delay: 0.7 }}
-              className="flex items-center justify-center gap-6 my-5"
+            <div
+              className="ss-scale-in-x flex items-center justify-center gap-6 my-5"
+              style={{ animationDelay: '0.7s' }}
             >
               <div className="w-20 h-px" style={{ background: `linear-gradient(90deg, transparent, ${theme.accentDark})` }} />
               <div className="w-3 h-3 rotate-45 border" style={{ borderColor: theme.accentDark }} />
               <div className="w-20 h-px" style={{ background: `linear-gradient(270deg, transparent, ${theme.accentDark})` }} />
-            </motion.div>
+            </div>
 
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, delay: 0.9 }}
-              className={`${theme.fontDisplay} text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-[0.08em] mb-8`}
-              style={{ color: theme.textPrimary }}
+            <h1
+              className={`ss-animate-in ${theme.fontDisplay} text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-[0.08em] mb-8`}
+              style={{ color: theme.textPrimary, animationDelay: '0.9s' }}
             >
               {translatedPartner2}
-            </motion.h1>
+            </h1>
 
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.2, duration: 0.8 }}
-              className="flex items-center justify-center gap-3 mb-6"
+            <div
+              className="ss-animate-in flex items-center justify-center gap-3 mb-6"
+              style={{ animationDelay: '1.2s' }}
             >
               <div className="w-8 h-px" style={{ background: theme.textMuted }} />
               <div className="w-1.5 h-1.5 rounded-full" style={{ background: theme.accentDark }} />
               <div className="w-8 h-px" style={{ background: theme.textMuted }} />
-            </motion.div>
+            </div>
 
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.4, duration: 0.8 }}
-              className={`${theme.fontCalligraphy} text-base sm:text-lg tracking-[0.15em]`}
-              style={{ color: theme.textSecondary }}
+            <p
+              className={`ss-animate-in ${theme.fontCalligraphy} text-base sm:text-lg tracking-[0.15em]`}
+              style={{ color: theme.textSecondary, animationDelay: '1.4s' }}
             >
               {t('requestHonour', 'Request the honour of your presence')}
-            </motion.p>
+            </p>
           </div>
 
           {/* Bottom gold line */}
@@ -999,12 +983,12 @@ export default function InvitationViewer({ templateId, flowData, guestName }: In
           </div>
 
           {/* Scroll indicator */}
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.5 }} className="absolute bottom-8 flex flex-col items-center gap-2">
+          <div className="ss-animate-in absolute bottom-8 flex flex-col items-center gap-2" style={{ animationDelay: '2.5s' }}>
             <span className="text-[10px] uppercase tracking-[0.2em]" style={{ color: theme.textMuted }}>{t('scroll', 'Scroll')}</span>
-            <motion.div animate={{ y: [0, 8, 0] }} transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}>
+            <div className="animate-bounce">
               <ChevronDown className="w-4 h-4" style={{ color: theme.textMuted }} />
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         </section>
 
         {/* ─── Message / Quote Section ─── */}
