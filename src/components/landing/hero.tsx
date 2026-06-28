@@ -154,16 +154,12 @@ function AnimatedWord({ children, className }: { children: React.ReactNode; clas
 
 function InvitationCardMockup() {
   return (
-    <motion.div
-      initial={{ opacity: 0, x: 60, rotateY: -15 }}
-      animate={{ opacity: 1, x: 0, rotateY: 0 }}
-      transition={{ duration: 1.2, delay: 0.8, ease: [0.25, 0.4, 0.25, 1] }}
-      className="relative mt-10 lg:mt-0 w-full flex justify-center lg:w-auto lg:block"
+    <div
+      className="ss-card-enter relative mt-10 lg:mt-0 w-full flex justify-center lg:w-auto lg:block"
+      style={{ animationDelay: '0.8s' }}
     >
-      <motion.div
-        animate={{ y: [0, -10, 0] }}
-        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-        className="relative scale-90 sm:scale-100 transform-origin-top"
+      <div
+        className="ss-card-float relative scale-90 sm:scale-100 transform-origin-top"
       >
         {/* Main Card */}
         <div className="relative w-[320px] h-[440px] rounded-2xl overflow-hidden shadow-2xl shadow-gold/20 border border-gold/20"
@@ -205,14 +201,12 @@ function InvitationCardMockup() {
           {/* Card Content */}
           <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center z-10">
             {/* Bismillah */}
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.5 }}
-              className="font-calligraphy text-gold/40 text-sm mb-4"
+            <p
+              className="ss-animate-in font-calligraphy text-gold/40 text-sm mb-4 opacity-0"
+              style={{ animationDelay: '1.5s', animationFillMode: 'forwards' }}
             >
               بِسْمِ اللَّهِ
-            </motion.p>
+            </p>
 
             {/* Decorative line */}
             <div className="flex items-center gap-2 mb-4">
@@ -253,18 +247,17 @@ function InvitationCardMockup() {
             </p>
 
             {/* Events preview */}
-            <div className="mt-4 space-y-1">
+            <div className="mt-4 space-y-1 w-full px-2">
               {["Mehndi", "Baraat", "Walima"].map((event, i) => (
-                <motion.div
+                <div
                   key={event}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 2 + i * 0.2 }}
-                  className="flex items-center gap-2"
+                  className="ss-animate-in flex justify-between items-center text-[#b19f7e] text-[11px] opacity-0"
+                  style={{ animationDelay: `${1.8 + i * 0.2}s`, animationFillMode: 'forwards' }}
                 >
-                  <div className="w-1 h-1 rounded-full bg-gold/40" />
-                  <span className="text-[9px] text-[#8f7c56] tracking-wider uppercase">{event}</span>
-                </motion.div>
+                  <span className="font-medium tracking-wide uppercase">{event}</span>
+                  <div className="flex-1 border-b border-dashed border-gold/20 mx-2" />
+                  <span className="font-calligraphy">Evening</span>
+                </div>
               ))}
             </div>
           </div>
@@ -297,8 +290,8 @@ function InvitationCardMockup() {
           }}
         />
         <div className="absolute -bottom-6 -right-6 left-4 right-4 h-12 bg-red-900/10 rounded-full blur-2xl" />
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 }
 
