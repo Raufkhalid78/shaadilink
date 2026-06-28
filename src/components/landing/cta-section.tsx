@@ -56,34 +56,14 @@ export function CTASection({ onGetStarted }: CTASectionProps) {
         </svg>
       </div>
 
-      {/* Animated gradient orbs */}
-      <motion.div
-        className="absolute w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-gold/10 blur-3xl"
+      {/* Gradient orbs (static for high scroll performance) */}
+      <div
+        className="absolute w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-gold/10 blur-3xl pointer-events-none transform-gpu"
         style={{ top: "10%", left: "10%" }}
-        animate={{
-          scale: [1, 1.2, 1],
-          x: [0, 30, 0],
-          y: [0, -20, 0],
-        }}
-        transition={{
-          duration: 8,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
       />
-      <motion.div
-        className="absolute w-48 h-48 sm:w-72 sm:h-72 rounded-full bg-emerald/10 blur-3xl"
+      <div
+        className="absolute w-48 h-48 sm:w-72 sm:h-72 rounded-full bg-emerald/10 blur-3xl pointer-events-none transform-gpu"
         style={{ bottom: "10%", right: "15%" }}
-        animate={{
-          scale: [1.1, 1, 1.1],
-          x: [0, -20, 0],
-          y: [0, 30, 0],
-        }}
-        transition={{
-          duration: 10,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
       />
 
       {/* Decorative gold corner accents */}
@@ -160,6 +140,7 @@ export function CTASection({ onGetStarted }: CTASectionProps) {
             transition={{ duration: 0.5, delay: 0.4 }}
           >
             <motion.div
+              className="transform-gpu will-change-transform"
               animate={{ scale: [1, 1.02, 1] }}
               transition={{
                 duration: 2,

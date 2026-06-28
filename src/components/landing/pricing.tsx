@@ -127,8 +127,8 @@ export function Pricing({ onSelectPlan }: PricingProps) {
                 } ${isHovered ? "-translate-y-2" : ""}`}
                 style={{
                   background: plan.highlighted
-                    ? "linear-gradient(145deg, oklch(0.16 0.035 80 / 0.7), oklch(0.12 0.025 155 / 0.9))"
-                    : "oklch(0.14 0.022 155 / 0.8)",
+                    ? "linear-gradient(145deg, oklch(0.22 0.04 80 / 0.75), oklch(0.18 0.03 155 / 0.95))"
+                    : "var(--card)",
                   backdropFilter: "blur(20px)",
                 }}
               >
@@ -189,7 +189,7 @@ export function Pricing({ onSelectPlan }: PricingProps) {
                       </span>
                     </div>
                     <div className="flex flex-col mb-1 text-left">
-                      <span className="text-xs text-muted-foreground line-through">Rs. {plan.originalPrice}</span>
+                      <del className="text-xs text-muted-foreground line-through" aria-label={`Original price was Rs. ${plan.originalPrice}`}>Rs. {plan.originalPrice}</del>
                       <span className="text-muted-foreground text-sm">{plan.period}</span>
                     </div>
                   </div>

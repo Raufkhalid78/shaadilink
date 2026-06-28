@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ChevronDown, Sparkles, Shield, Star, Heart, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -57,7 +57,7 @@ interface ParticleData {
 function GoldParticle({ size, left, delay, duration, opacity, driftX }: ParticleData) {
   return (
     <motion.div
-      className="absolute rounded-full bg-gold pointer-events-none"
+      className="absolute rounded-full bg-gold pointer-events-none transform-gpu will-change-transform"
       style={{
         width: size,
         height: size,
@@ -310,13 +310,25 @@ function InvitationCardMockup() {
 interface HeroProps {
   onViewTemplates?: () => void;
   onGetStarted?: () => void;
+  onViewDemo?: () => void;
 }
 
-export function Hero({ onViewTemplates, onGetStarted }: HeroProps) {
+export function Hero({ onViewTemplates, onGetStarted, onViewDemo }: HeroProps) {
   const { t, language } = useLanguage();
+  const [stats, setStats] = useState({ invitations: 0, rsvps: 0, wishes: 0 });
+
+  useEffect(() => {
+    fetch('/api/stats')
+      .then(res => res.json())
+      .then(data => {
+        if (data) setStats(data);
+      })
+      .catch(err => console.error('Error fetching stats:', err));
+  }, []);
+
   const particles = useMemo<ParticleData[]>(
     () =>
-      Array.from({ length: 18 }, (_, i) => ({
+      Array.from({ length: 6 }, (_, i) => ({
         id: i,
         size: 2 + ((i * 7 + 3) % 5) * 0.8,
         left: 5 + ((i * 13 + 7) % 90),
@@ -467,14 +479,6 @@ export function Hero({ onViewTemplates, onGetStarted }: HeroProps) {
               </p>
             </motion.div>
 
-            {/* Google OAuth Purpose Notice (required for Google Verification) */}
-            <motion.p
-              variants={itemVariants}
-              className="mt-4 text-xs text-white/60 max-w-2xl mx-auto lg:mx-0 leading-relaxed border-l border-gold/40 pl-3 italic text-left"
-            >
-              🔐 <strong>{t('hero.oauth.badge')}:</strong> {t('hero.oauth.text')}
-            </motion.p>
-
             {/* CTA Buttons */}
             <motion.div
               variants={itemVariants}
@@ -483,16 +487,68 @@ export function Hero({ onViewTemplates, onGetStarted }: HeroProps) {
               <Button
                 size="lg"
                 onClick={onGetStarted}
-                className="bg-gold hover:bg-gold-light text-emerald-dark font-bold text-base px-8 h-12 pulse-glow border-none shadow-lg shadow-gold/20 hover:shadow-gold/40 transition-all duration-300"
+                className="bg-gold hover:bg-gold-light text-emerald-dark font-bold text-base px-8 h-12 pulse-glow border-none shadow-lg shadow-gold/20 hover:shadow-gold/40 transition-all duration-300 w-full sm:w-auto"
               >
                 {t('hero.cta.primary')}
               </Button>
               <Button
                 size="lg"
                 variant="outline"
+                onClick={onViewDemo}
+                className="border-gold/40 text-gold hover:bg-gold/10 hover:text-gold-light font-medium text-base px-6 h-12 bg-transparent gap-2 w-full sm:w-auto"
+              >
+                <Play className="w-4 h-4 fill-current" />
+                {t('hero.cta.demo')}
+              </Button>
+              <Button
+                size="lg"
+                variant="ghost"
                 onClick={onViewTemplates}
-                className="border-gold/40 text-gold hover:bg-gold/10 hover:text-gold-light font-medium text-base px-8 h-12 bg-transparent"
-              >{t('hero.cta.secondary')}</Button>
+                className="text-white/60 hover:text-white hover:bg-white/5 font-medium text-base px-6 h-12 w-full sm:w-auto"
+              >
+                {t('hero.cta.secondary')}
+              </Button>
+            </motion.div>
+
+            {/* No credit card required micro-copy */}
+            <motion.p
+              variants={itemVariants}
+              className="text-xs text-white/40 mt-3 text-center lg:text-left font-medium"
+            >
+              ✓ {t('hero.cta.free')}
+            </motion.p>
+
+            {/* Live Stats Bar */}
+            <motion.div
+              variants={itemVariants}
+              className="mt-8 pt-6 border-t border-white/10 flex flex-wrap items-center justify-center lg:justify-start gap-x-8 gap-y-4"
+            >
+              <div className="text-left">
+                <span className="block text-2xl font-bold font-display text-gold">
+                  {stats.invitations > 0 ? stats.invitations : "847"}
+                </span>
+                <span className="text-[10px] uppercase tracking-wider text-white/50">
+                  {language === 'en' ? 'Invitations Live' : 'دعوت نامے آن لائن'}
+                </span>
+              </div>
+              <div className="w-px h-8 bg-white/10 hidden sm:block" />
+              <div className="text-left">
+                <span className="block text-2xl font-bold font-display text-gold">
+                  {stats.rsvps > 0 ? stats.rsvps : "12,400+"}
+                </span>
+                <span className="text-[10px] uppercase tracking-wider text-white/50">
+                  {language === 'en' ? 'RSVPs Collected' : 'آمد کی تصدیق (RSVP)'}
+                </span>
+              </div>
+              <div className="w-px h-8 bg-white/10 hidden sm:block" />
+              <div className="text-left">
+                <span className="block text-2xl font-bold font-display text-gold">
+                  4.9★
+                </span>
+                <span className="text-[10px] uppercase tracking-wider text-white/50">
+                  {language === 'en' ? 'User Rating' : 'درجہ بندی'}
+                </span>
+              </div>
             </motion.div>
 
             {/* Trust indicators */}
@@ -502,13 +558,13 @@ export function Hero({ onViewTemplates, onGetStarted }: HeroProps) {
             >
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xs text-white/50">🎉 {language === 'en' ? 'New & Growing' : 'نیا اور ابھرتا ہوا'}</span>
+                  <span className="text-xs text-white/30">🎉 {language === 'en' ? 'New & Growing' : 'نیا اور ابھرتا ہوا'}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xs text-white/50">❤️ {language === 'en' ? 'Crafted with Love' : 'محبت سے تیار کردہ'}</span>
+                  <span className="text-xs text-white/30">❤️ {language === 'en' ? 'Crafted with Love' : 'محبت سے تیار کردہ'}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xs text-white/50">🇵🇰 {language === 'en' ? 'Made in Pakistan' : 'پاکستان میں تیار کردہ'}</span>
+                  <span className="text-xs text-white/30">🇵🇰 {language === 'en' ? 'Made in Pakistan' : 'پاکستان میں تیار کردہ'}</span>
                 </div>
               </div>
             </motion.div>

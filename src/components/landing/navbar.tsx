@@ -157,6 +157,7 @@ export function Navbar({
                   key={link.label}
                   onClick={() => handleNavClick(link)}
                   className="relative"
+                  aria-current={isActive ? "page" : undefined}
                 >
                   {linkContent}
                 </button>
@@ -164,7 +165,12 @@ export function Navbar({
             }
             if (link.href) {
               return (
-                <a key={link.label} href={link.href} className="relative">
+                <a
+                  key={link.label}
+                  href={link.href}
+                  className="relative"
+                  aria-current={isActive ? "page" : undefined}
+                >
                   {linkContent}
                 </a>
               );
@@ -246,12 +252,19 @@ export function Navbar({
         {/* Mobile Menu */}
         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="lg:hidden text-white/80 hover:text-white hover:bg-white/10">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="lg:hidden text-white/80 hover:text-white hover:bg-white/10"
+              aria-expanded={mobileOpen}
+              aria-controls="mobile-menu"
+            >
               <Menu className="h-5 w-5" />
               <span className="sr-only">Open menu</span>
             </Button>
           </SheetTrigger>
           <SheetContent
+            id="mobile-menu"
             side="right"
             className="w-[300px] bg-emerald-dark/95 backdrop-blur-2xl border-l border-gold/10"
           >

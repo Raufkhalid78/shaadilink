@@ -1082,93 +1082,38 @@ function HomeInner() {
               onSignOut={handleSignOut}
             />
             <main id="main-content" className="flex-1">
-              <Hero onViewTemplates={goToTemplates} onGetStarted={scrollToPricing} />
-              {/* Explicit app purpose section — satisfies Google OAuth homepage requirement */}
-              <AppPurposeSection onGetStarted={scrollToPricing} />
-              <StatsBar />
+              <Hero
+                onViewTemplates={goToTemplates}
+                onGetStarted={scrollToPricing}
+                onViewDemo={() => goToDemo("emerald-noir")}
+              />
+              {/* Prominent App Purpose & Google OAuth Sync Explanation Section */}
+              <AppPurposeSection />
               <Features />
               <TemplateShowcase onViewAllClick={goToTemplates} />
               <HowItWorks />
-              {/* Google OAuth & Account Purpose Statement */}
-              <section className="py-6 px-4 bg-background/30 border-y border-border/30 relative overflow-hidden flex justify-center">
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald/2 to-gold/2 pointer-events-none" />
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4 }}
-                  className="max-w-lg w-full p-4 rounded-xl border border-gold/10 bg-background/50 backdrop-blur-md relative z-10 flex gap-3 items-center shadow-md shadow-gold/2 hover:border-gold/20 transition-all duration-300"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-emerald/10 border border-emerald/20 flex items-center justify-center shrink-0">
-                    <Shield className="w-4.5 h-4.5 text-emerald" />
-                  </div>
-                  <div className="space-y-0.5 text-left">
-                    <h4 className="font-display font-semibold text-[10px] sm:text-xs text-gold uppercase tracking-wider">
-                      {language === 'en' ? "Secure Account Sync & Purpose" : "محفوظ اکاؤنٹ اور مقصد"}
-                    </h4>
-                    <p className="text-[10px] sm:text-[11px] text-muted-foreground leading-relaxed text-left">
-                      {language === 'en'
-                        ? "ShaadiLink uses secure Google Sign-In to authenticate couples and generate their personal dashboard. Your Google profile details (name and email) are used solely to store, publish, and allow you to edit your digital wedding invitations and moderate RSVP/guest wishes securely."
-                        : "شادی لنک گوگل سائن ان کا استعمال جوڑوں کی شناخت کی تصدیق اور ان کا ڈیش بورڈ بنانے کے لیے کرتا ہے۔ آپ کے گوگل اکاؤنٹ کی تفصیلات (نام اور ای میل) صرف آپ کے دعوت ناموں کو محفوظ رکھنے اور ان میں تبدیلیاں کرنے کے لیے استعمال کی جاتی ہیں۔"}
-                    </p>
-                  </div>
-                </motion.div>
-              </section>
               <Comparison />
               <Testimonials />
               <Pricing onSelectPlan={handleGetStarted} />
               <FAQ onContactClick={goToContact} />
+              <CTASection onGetStarted={scrollToPricing} />
 
-              {/* Live Demo CTA Section */}
-              <section id="live-demo" className="py-24 px-6 bg-gradient-to-b from-background to-emerald-dark/10 relative overflow-hidden">
-                <div className="absolute inset-0 opacity-[0.04]">
-                  <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                      <pattern id="demo-pattern" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
-                        <path d="M40 0 L80 40 L40 80 L0 40 Z" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-gold" />
-                        <circle cx="40" cy="40" r="20" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-gold" />
-                      </pattern>
-                    </defs>
-                    <rect width="100%" height="100%" fill="url(#demo-pattern)" />
-                  </svg>
-                </div>
-                <div className="max-w-4xl mx-auto text-center space-y-6 relative z-10">
-                  <div className="flex items-center justify-center gap-4 mb-2">
-                    <div className="h-px w-12 bg-gradient-to-r from-transparent to-gold/50" />
-                    <Sparkles className="w-5 h-5 text-gold" />
-                    <div className="h-px w-12 bg-gradient-to-l from-transparent to-gold/50" />
-                  </div>
-                  <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold">
-                    {t('demo.title.1')}{" "}
-                    <span className="gold-shimmer">{t('demo.title.2')}</span>
-                  </h2>
-                  <p className="text-muted-foreground text-lg max-w-xl mx-auto text-center">
-                    {t('demo.subtitle')}
-                  </p>
-
-
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-                    <Button
-                      onClick={() => goToDemo("emerald-noir")}
-                      size="lg"
-                      className="bg-emerald hover:bg-emerald-dark text-primary-foreground border border-gold/40 px-8 py-6 text-lg font-display pulse-glow gap-2"
-                    >
-                      <Eye className="w-5 h-5" />
-                      {t('demo.cta.demo')}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={goToTemplates}
-                      size="lg"
-                      className="border-gold/30 text-gold hover:bg-gold/10 hover:text-gold-light px-6 py-6 text-base font-display"
-                    >
-                      {t('demo.cta.browse')}
-                    </Button>
-                  </div>
+              {/* Google OAuth Disclosure Details Element */}
+              <section className="py-6 px-4 border-t border-border/30 bg-background/20">
+                <div className="max-w-xl mx-auto">
+                  <details className="text-xs text-muted-foreground cursor-pointer group">
+                    <summary className="font-semibold text-gold/60 group-hover:text-gold transition-colors list-none flex items-center gap-1.5 justify-center">
+                      <Shield className="w-3.5 h-3.5" />
+                      <span>{language === 'en' ? 'Google Sign-In Data & Purpose Disclosure' : 'گوگل سائن ان ڈیٹا اور مقصد کا انکشاف'}</span>
+                    </summary>
+                    <p className="mt-3 text-[11px] leading-relaxed text-center text-muted-foreground/80">
+                      {language === 'en'
+                        ? 'ShaadiLink uses Google Sign-In solely to authenticate your identity and secure access to your wedding invitation drafts and RSVP details. We retrieve your name and email address to maintain account sync. None of this data is shared with third parties or used for any other purpose.'
+                        : 'شادی لنک گوگل سائن ان کا استعمال صرف آپ کی شناخت کی تصدیق اور آپ کے دعوت ناموں اور RSVP کی تفصیلات تک محفوظ رسائی کے لیے کرتا ہے۔ ہم آپ کا نام اور ای میل ایڈریس حاصل کرتے ہیں تاکہ اکاؤنٹ سنک کو برقرار رکھا جا سکے۔ یہ ڈیٹا کسی تیسرے فریق کے ساتھ شیئر نہیں کیا جاتا۔'}
+                    </p>
+                  </details>
                 </div>
               </section>
-
-              <CTASection onGetStarted={scrollToPricing} />
             </main>
             <Footer
               onTemplatesClick={goToTemplates}

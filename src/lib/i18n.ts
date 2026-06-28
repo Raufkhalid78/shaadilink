@@ -193,6 +193,8 @@ export const translations = {
 
     // Generic
     'loading': 'Loading...',
+    'hero.cta.demo': 'View Live Demo',
+    'hero.cta.free': 'No credit card required',
   },
   ur: {
     // Navbar
@@ -388,6 +390,8 @@ export const translations = {
 
     // Generic
     'loading': 'لوڈ ہو رہا ہے...',
+    'hero.cta.demo': 'لائیو ڈیمو دیکھیں',
+    'hero.cta.free': 'کریڈٹ کارڈ کی ضرورت نہیں',
   }
 }
 

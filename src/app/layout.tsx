@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Playfair_Display, Amiri, Inter } from "next/font/google";
+import { Playfair_Display, Amiri, Inter, Cinzel_Decorative, Great_Vibes } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { WhatsAppFAB } from "@/components/whatsapp-fab";
@@ -21,6 +21,20 @@ const amiri = Amiri({
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
+  display: "swap",
+});
+
+const cinzelDec = Cinzel_Decorative({
+  variable: "--font-cinzel-dec",
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  display: "swap",
+});
+
+const greatVibes = Great_Vibes({
+  variable: "--font-great-vibes",
+  subsets: ["latin"],
+  weight: ["400"],
   display: "swap",
 });
 
@@ -151,7 +165,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${playfair.variable} ${amiri.variable} ${inter.variable} antialiased bg-background text-foreground`}
+        className={`${playfair.variable} ${amiri.variable} ${inter.variable} ${cinzelDec.variable} ${greatVibes.variable} antialiased bg-background text-foreground`}
       >
         <a 
           href="#main-content" 

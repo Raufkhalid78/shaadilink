@@ -157,7 +157,7 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
   return (
     <section className="py-20 sm:py-28 relative overflow-hidden">
       {/* Dark premium background with layered gradients */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0a1210] via-[#0f1a16] to-[#0a1210]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-emerald-dark/15 to-background" />
       {/* Subtle radial glow */}
       <div
         className="absolute inset-0"
@@ -239,7 +239,7 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 10 }}
                 onClick={handlePrev}
-                className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 w-12 h-12 items-center justify-center rounded-full bg-[#0a1210]/90 backdrop-blur-sm border border-gold/30 shadow-lg shadow-black/30 text-gold hover:bg-gold/10 hover:border-gold/50 transition-all duration-300"
+                className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 w-12 h-12 items-center justify-center rounded-full bg-card/95 backdrop-blur-sm border border-gold/30 shadow-lg shadow-black/30 text-gold hover:bg-gold/10 hover:border-gold/50 transition-all duration-300"
                 aria-label="Previous templates"
               >
                 <ChevronLeft className="w-5 h-5" />
@@ -255,7 +255,7 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -10 }}
                 onClick={handleNext}
-                className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 w-12 h-12 items-center justify-center rounded-full bg-[#0a1210]/90 backdrop-blur-sm border border-gold/30 shadow-lg shadow-black/30 text-gold hover:bg-gold/10 hover:border-gold/50 transition-all duration-300"
+                className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 w-12 h-12 items-center justify-center rounded-full bg-card/95 backdrop-blur-sm border border-gold/30 shadow-lg shadow-black/30 text-gold hover:bg-gold/10 hover:border-gold/50 transition-all duration-300"
                 aria-label="Next templates"
               >
                 <ChevronRight className="w-5 h-5" />
