@@ -72,8 +72,8 @@ export function Features() {
       {/* Animated visualizer keyframe injected locally */}
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes pulseHeight {
-          0% { height: 15%; }
-          100% { height: 85%; }
+          0% { transform: scaleY(0.15); }
+          100% { transform: scaleY(0.85); }
         }
       `}} />
 
@@ -287,9 +287,9 @@ export function Features() {
                   return (
                     <span
                       key={bar}
-                      className="w-1 bg-gold/70 rounded-full"
+                      className="w-1 bg-gold/70 rounded-full origin-bottom"
                       style={{
-                        height: "30%",
+                        height: "100%",
                         animation: `pulseHeight 1s ease-in-out infinite alternate`,
                         animationDelay: `${delays[bar - 1]}s`,
                       }}

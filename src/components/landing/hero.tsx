@@ -33,11 +33,10 @@ const wordContainerVariants = {
 };
 
 const wordVariants = {
-  hidden: { opacity: 0, y: 20, filter: "blur(4px)" },
+  hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
     y: 0,
-    filter: "blur(0px)",
     transition: { duration: 0.5, ease: "easeOut" as const },
   },
 };
@@ -175,11 +174,9 @@ function InvitationCardMockup() {
           {/* Shimmer border animation */}
           <div className="absolute inset-0 rounded-2xl overflow-hidden">
             <div
-              className="absolute inset-0"
+              className="absolute inset-0 w-[200%] h-full -translate-x-full animate-[blockShimmerComposited_4s_ease-in-out_infinite]"
               style={{
                 background: "linear-gradient(90deg, transparent, rgba(212,168,83,0.15), transparent)",
-                backgroundSize: "200% 100%",
-                animation: "shimmer 4s ease-in-out infinite",
               }}
             />
           </div>

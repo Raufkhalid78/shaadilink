@@ -203,11 +203,7 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
-@media (min-width: 1024px) {
-  .gold-shimmer {
-    animation: shimmer 3s ease-in-out infinite;
-  }
-}
+
 
 .gold-shimmer-strong {
   background: linear-gradient(
@@ -225,11 +221,7 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
-@media (min-width: 1024px) {
-  .gold-shimmer-strong {
-    animation: shimmer 2.5s ease-in-out infinite;
-  }
-}
+
 
 /* ═══════════════════════════════════
    GLASS & CARD UTILITIES
