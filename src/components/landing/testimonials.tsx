@@ -142,9 +142,9 @@ export function Testimonials() {
                     {t.initials}
                   </div>
                   <div className="text-left">
-                    <h4 className="font-display font-bold text-base text-white">
+                    <p className="font-display font-bold text-base text-white">
                       {language === 'en' ? t.name : t.nameUr}
-                    </h4>
+                    </p>
                     <span className="text-xs text-muted-foreground">
                       {language === 'en' ? `${t.location} · ${t.date}` : `${t.locationUr} · ${t.dateUr}`}
                     </span>

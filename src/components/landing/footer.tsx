@@ -171,9 +171,9 @@ export function Footer({
               transition={{ delay: 0.1 }}
               className="text-left"
             >
-              <h3 className="font-display font-semibold text-xs uppercase tracking-[0.15em] text-gold mb-5">
+              <p className="font-display font-semibold text-xs uppercase tracking-[0.15em] text-gold mb-5">
                 {language === 'en' ? "Quick Links" : "فوری روابط"}
-              </h3>
+              </p>
               <ul className="space-y-3">
                 {quickLinks.map((link) => (
                   <li key={link.label}>
@@ -205,9 +205,9 @@ export function Footer({
               transition={{ delay: 0.15 }}
               className="text-left"
             >
-              <h3 className="font-display font-semibold text-xs uppercase tracking-[0.15em] text-gold mb-5">
+              <p className="font-display font-semibold text-xs uppercase tracking-[0.15em] text-gold mb-5">
                 {language === 'en' ? "Legal" : "قانونی معلومات"}
-              </h3>
+              </p>
               <ul className="space-y-3 text-left">
                 {legalLinks.map((link) => (
                   <li key={link.label}>
@@ -239,9 +239,9 @@ export function Footer({
               transition={{ delay: 0.2 }}
               className="text-left"
             >
-              <h3 className="font-display font-semibold text-xs uppercase tracking-[0.15em] text-gold mb-5">
+              <p className="font-display font-semibold text-xs uppercase tracking-[0.15em] text-gold mb-5">
                 {language === 'en' ? "Stay Updated" : "باخبر رہیں"}
-              </h3>
+              </p>
               <p className="text-white/40 text-xs mb-3 leading-relaxed text-left">
                 {language === 'en'
                   ? "Get notified about new templates and exclusive offers."

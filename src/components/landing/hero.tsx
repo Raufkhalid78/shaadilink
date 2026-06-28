@@ -471,9 +471,9 @@ export function Hero({ onViewTemplates, onGetStarted, onViewDemo }: HeroProps) {
 
             {/* Subtitle — explicitly describes ShaadiLink's purpose for OAuth reviewers */}
             <motion.div variants={itemVariants} className="mt-6 sm:mt-8 max-w-2xl mx-auto lg:mx-0 text-left">
-              <h3 className="inline-block px-3 py-1 rounded bg-gold/20 text-gold text-[10px] font-bold tracking-widest uppercase mb-3 border border-gold/30">
+              <p className="inline-block px-3 py-1 rounded bg-gold/20 text-gold text-[10px] font-bold tracking-widest uppercase mb-3 border border-gold/30">
                 {t('hero.purpose.badge')}
-              </h3>
+              </p>
               <p className="text-base sm:text-lg md:text-xl text-white/80 leading-relaxed text-left">
                 <strong className="text-white font-semibold">ShaadiLink</strong> {t('hero.purpose.text').replace('ShaadiLink', '')}
               </p>
