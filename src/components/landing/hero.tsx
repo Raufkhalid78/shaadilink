@@ -395,17 +395,16 @@ export function Hero({ onViewTemplates, onGetStarted, onViewDemo }: HeroProps) {
       <div className="relative z-10 mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
           {/* Left: Text content */}
-          {/* Left: Text content */}
           <div className="flex-1 text-center lg:text-left">
             {/* Bismillah */}
-            <div className="mb-4 animate-in fade-in slide-in-from-bottom-6 duration-1000 fill-mode-both">
+            <div className="mb-4 ss-animate-in">
               <span className="font-calligraphy text-gold/50 text-2xl sm:text-3xl tracking-wider">
                 بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
               </span>
             </div>
 
             {/* App Purpose Badge — ShaadiLink named explicitly for search engines & OAuth review */}
-            <div className="mb-4 animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-[150ms] fill-mode-both">
+            <div className="mb-4 ss-animate-in" style={{ animationDelay: '150ms' }}>
               <span
                 className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-widest uppercase bg-emerald/10 border border-emerald/30 text-emerald"
                 aria-label="ShaadiLink — Pakistan's number one digital wedding invitation platform"
@@ -418,7 +417,7 @@ export function Hero({ onViewTemplates, onGetStarted, onViewDemo }: HeroProps) {
             </div>
 
             {/* Decorative divider with subtle pulse */}
-            <div className="flex items-center justify-center lg:justify-start gap-4 mb-8 animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-[300ms] fill-mode-both">
+            <div className="flex items-center justify-center lg:justify-start gap-4 mb-8 ss-animate-in" style={{ animationDelay: '300ms' }}>
               <div className="h-px w-12 sm:w-20 bg-gradient-to-r from-transparent to-gold/50" />
               <motion.div
                 animate={{ scale: [1, 1.2, 1], opacity: [0.7, 1, 0.7] }}
@@ -434,7 +433,7 @@ export function Hero({ onViewTemplates, onGetStarted, onViewDemo }: HeroProps) {
               {/* Line 1: "Create Your Dream" */}
               <span className="block text-white">
                 {line1Words.map((word, i) => (
-                  <span key={`${word}-${i}`} className="inline-block mr-[0.3em] animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both" style={{ animationDelay: `${(i * 100) + 400}ms` }}>
+                  <span key={`${word}-${i}`} className="inline-block mr-[0.3em] ss-animate-in" style={{ animationDelay: `${(i * 100) + 400}ms` }}>
                     {word}
                   </span>
                 ))}
@@ -443,7 +442,7 @@ export function Hero({ onViewTemplates, onGetStarted, onViewDemo }: HeroProps) {
               {/* Line 2: "Wedding Invitation" with gold shimmer */}
               <span className="block gold-shimmer-strong mt-2">
                 {line2Words.map((word, i) => (
-                  <span key={`${word}-${i}`} className="inline-block mr-[0.3em] animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both" style={{ animationDelay: `${(i * 100) + 400 + (line1Words.length * 100)}ms` }}>
+                  <span key={`${word}-${i}`} className="inline-block mr-[0.3em] ss-animate-in" style={{ animationDelay: `${(i * 100) + 400 + (line1Words.length * 100)}ms` }}>
                     {word}
                   </span>
                 ))}
@@ -451,7 +450,7 @@ export function Hero({ onViewTemplates, onGetStarted, onViewDemo }: HeroProps) {
             </h1>
 
             {/* Subtitle — explicitly describes ShaadiLink's purpose for OAuth reviewers */}
-            <div className="mt-6 sm:mt-8 max-w-2xl mx-auto lg:mx-0 text-left animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-[1000ms] fill-mode-both">
+            <div className="mt-6 sm:mt-8 max-w-2xl mx-auto lg:mx-0 text-left ss-animate-in" style={{ animationDelay: '1000ms' }}>
               <p className="inline-block px-3 py-1 rounded bg-gold/20 text-gold text-[10px] font-bold tracking-widest uppercase mb-3 border border-gold/30">
                 {t('hero.purpose.badge')}
               </p>
@@ -461,7 +460,7 @@ export function Hero({ onViewTemplates, onGetStarted, onViewDemo }: HeroProps) {
             </div>
 
             {/* CTA Buttons */}
-            <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-[1200ms] fill-mode-both">
+            <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 ss-animate-in" style={{ animationDelay: '1200ms' }}>
               <Button
                 size="lg"
                 onClick={onGetStarted}
@@ -489,13 +488,13 @@ export function Hero({ onViewTemplates, onGetStarted, onViewDemo }: HeroProps) {
             </div>
 
             {/* No credit card required micro-copy */}
-            <p className="text-xs text-white/40 mt-3 text-center lg:text-left font-medium animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-[1350ms] fill-mode-both">
+            <p className="text-xs text-white/40 mt-3 text-center lg:text-left font-medium ss-animate-in" style={{ animationDelay: '1350ms' }}>
               ✓ {t('hero.cta.free')}
             </p>
 
             {/* Live Stats Bar */}
             <div
-              className="mt-12 lg:mt-16 animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-[1500ms] fill-mode-both border-t border-white/10 pt-6 flex flex-wrap items-center justify-center lg:justify-start gap-x-8 gap-y-4"
+              className="mt-12 lg:mt-16 ss-animate-in border-t border-white/10 pt-6 flex flex-wrap items-center justify-center lg:justify-start gap-x-8 gap-y-4" style={{ animationDelay: '1500ms' }}
             >
               <div className="text-left">
                 <span className="block text-2xl font-bold font-display text-gold">
@@ -527,7 +526,7 @@ export function Hero({ onViewTemplates, onGetStarted, onViewDemo }: HeroProps) {
 
             {/* Trust indicators */}
             <div
-              className="mt-6 flex flex-col items-center lg:items-start gap-3 animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-[1600ms] fill-mode-both"
+              className="mt-6 flex flex-col items-center lg:items-start gap-3 ss-animate-in" style={{ animationDelay: '1600ms' }}
             >
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1.5">

@@ -792,3 +792,19 @@
 [class*="font-amiri"] + p, .font-calligraphy + span {
   margin-top: 0.25rem;
 }
+
+/* Clean GPU-accelerated composited entrance animation */
+@keyframes ssEnter {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ss-animate-in {
+  animation: ssEnter 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
