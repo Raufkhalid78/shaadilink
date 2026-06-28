@@ -395,21 +395,17 @@ export function Hero({ onViewTemplates, onGetStarted, onViewDemo }: HeroProps) {
       <div className="relative z-10 mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
           {/* Left: Text content */}
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="flex-1 text-center lg:text-left"
-          >
+          {/* Left: Text content */}
+          <div className="flex-1 text-center lg:text-left">
             {/* Bismillah */}
-            <motion.div variants={itemVariants} className="mb-4">
+            <div className="mb-4 animate-in fade-in slide-in-from-bottom-6 duration-1000 fill-mode-both">
               <span className="font-calligraphy text-gold/50 text-2xl sm:text-3xl tracking-wider">
                 بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
               </span>
-            </motion.div>
+            </div>
 
             {/* App Purpose Badge — ShaadiLink named explicitly for search engines & OAuth review */}
-            <motion.div variants={itemVariants} className="mb-4">
+            <div className="mb-4 animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-[150ms] fill-mode-both">
               <span
                 className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-widest uppercase bg-emerald/10 border border-emerald/30 text-emerald"
                 aria-label="ShaadiLink — Pakistan's number one digital wedding invitation platform"
@@ -419,13 +415,10 @@ export function Hero({ onViewTemplates, onGetStarted, onViewDemo }: HeroProps) {
                 <span className="text-white/30">·</span>
                 <span>{appTagline}</span>
               </span>
-            </motion.div>
+            </div>
 
             {/* Decorative divider with subtle pulse */}
-            <motion.div
-              variants={itemVariants}
-              className="flex items-center justify-center lg:justify-start gap-4 mb-8"
-            >
+            <div className="flex items-center justify-center lg:justify-start gap-4 mb-8 animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-[300ms] fill-mode-both">
               <div className="h-px w-12 sm:w-20 bg-gradient-to-r from-transparent to-gold/50" />
               <motion.div
                 animate={{ scale: [1, 1.2, 1], opacity: [0.7, 1, 0.7] }}
@@ -434,53 +427,41 @@ export function Hero({ onViewTemplates, onGetStarted, onViewDemo }: HeroProps) {
                 <Sparkles className="h-5 w-5 text-gold" />
               </motion.div>
               <div className="h-px w-12 sm:w-20 bg-gradient-to-l from-transparent to-gold/50" />
-            </motion.div>
+            </div>
 
             {/* Headline with staggered word reveal */}
-            <motion.h1
-              variants={itemVariants}
-              className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight tracking-tight"
-            >
+            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight tracking-tight">
               {/* Line 1: "Create Your Dream" */}
-              <motion.span
-                variants={wordContainerVariants}
-                className="block text-white"
-              >
-                {line1Words.map((word) => (
-                  <AnimatedWord key={word} className="inline-block mr-[0.3em]">
+              <span className="block text-white">
+                {line1Words.map((word, i) => (
+                  <span key={`${word}-${i}`} className="inline-block mr-[0.3em] animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both" style={{ animationDelay: `${(i * 100) + 400}ms` }}>
                     {word}
-                  </AnimatedWord>
+                  </span>
                 ))}
-              </motion.span>
+              </span>
 
               {/* Line 2: "Wedding Invitation" with gold shimmer */}
-              <motion.span
-                variants={wordContainerVariants}
-                className="block gold-shimmer-strong mt-2"
-              >
-                {line2Words.map((word) => (
-                  <AnimatedWord key={word} className="inline-block mr-[0.3em]">
+              <span className="block gold-shimmer-strong mt-2">
+                {line2Words.map((word, i) => (
+                  <span key={`${word}-${i}`} className="inline-block mr-[0.3em] animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both" style={{ animationDelay: `${(i * 100) + 400 + (line1Words.length * 100)}ms` }}>
                     {word}
-                  </AnimatedWord>
+                  </span>
                 ))}
-              </motion.span>
-            </motion.h1>
+              </span>
+            </h1>
 
             {/* Subtitle — explicitly describes ShaadiLink's purpose for OAuth reviewers */}
-            <motion.div variants={itemVariants} className="mt-6 sm:mt-8 max-w-2xl mx-auto lg:mx-0 text-left">
+            <div className="mt-6 sm:mt-8 max-w-2xl mx-auto lg:mx-0 text-left animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-[1000ms] fill-mode-both">
               <p className="inline-block px-3 py-1 rounded bg-gold/20 text-gold text-[10px] font-bold tracking-widest uppercase mb-3 border border-gold/30">
                 {t('hero.purpose.badge')}
               </p>
               <p className="text-base sm:text-lg md:text-xl text-white/80 leading-relaxed text-left">
                 <strong className="text-white font-semibold">ShaadiLink</strong> {t('hero.purpose.text').replace('ShaadiLink', '')}
               </p>
-            </motion.div>
+            </div>
 
             {/* CTA Buttons */}
-            <motion.div
-              variants={itemVariants}
-              className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4"
-            >
+            <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-[1200ms] fill-mode-both">
               <Button
                 size="lg"
                 onClick={onGetStarted}
@@ -505,20 +486,16 @@ export function Hero({ onViewTemplates, onGetStarted, onViewDemo }: HeroProps) {
               >
                 {t('hero.cta.secondary')}
               </Button>
-            </motion.div>
+            </div>
 
             {/* No credit card required micro-copy */}
-            <motion.p
-              variants={itemVariants}
-              className="text-xs text-white/40 mt-3 text-center lg:text-left font-medium"
-            >
+            <p className="text-xs text-white/40 mt-3 text-center lg:text-left font-medium animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-[1350ms] fill-mode-both">
               ✓ {t('hero.cta.free')}
-            </motion.p>
+            </p>
 
             {/* Live Stats Bar */}
-            <motion.div
-              variants={itemVariants}
-              className="mt-8 pt-6 border-t border-white/10 flex flex-wrap items-center justify-center lg:justify-start gap-x-8 gap-y-4"
+            <div
+              className="mt-12 lg:mt-16 animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-[1500ms] fill-mode-both border-t border-white/10 pt-6 flex flex-wrap items-center justify-center lg:justify-start gap-x-8 gap-y-4"
             >
               <div className="text-left">
                 <span className="block text-2xl font-bold font-display text-gold">
@@ -546,12 +523,11 @@ export function Hero({ onViewTemplates, onGetStarted, onViewDemo }: HeroProps) {
                   {language === 'en' ? 'User Rating' : 'درجہ بندی'}
                 </span>
               </div>
-            </motion.div>
+            </div>
 
             {/* Trust indicators */}
-            <motion.div
-              variants={itemVariants}
-              className="mt-6 flex flex-col items-center lg:items-start gap-3"
+            <div
+              className="mt-6 flex flex-col items-center lg:items-start gap-3 animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-[1600ms] fill-mode-both"
             >
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1.5">
@@ -564,9 +540,9 @@ export function Hero({ onViewTemplates, onGetStarted, onViewDemo }: HeroProps) {
                   <span className="text-xs text-white/30">🇵🇰 {language === 'en' ? 'Made in Pakistan' : 'پاکستان میں تیار کردہ'}</span>
                 </div>
               </div>
-            </motion.div>
+            </div>
 
-          </motion.div>
+          </div>
 
           {/* Right: Floating invitation card mockup */}
           <InvitationCardMockup />
