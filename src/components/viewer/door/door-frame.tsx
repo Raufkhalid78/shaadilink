@@ -37,28 +37,28 @@ export function DoorFrame({ theme }: { theme: TemplateTheme }) {
 
   switch (ds.frameStyle) {
     case 'modern':
-      // Sleek minimal steel frame
+      // Sleek minimal premium metal frame matching the theme accent!
       return (
         <div className="absolute inset-0 pointer-events-none z-[1]">
-          {/* Top - thin steel bar */}
+          {/* Top - metal bar */}
           <div className="absolute top-0 left-0 right-0 h-4" style={{
-            background: `linear-gradient(180deg, #444, #333)`,
-            borderBottom: `1px solid rgba(255,255,255,0.1)`,
+            background: `linear-gradient(180deg, ${theme.accent}, ${theme.accentDark})`,
+            borderBottom: `1.5px solid rgba(${a}, 0.55)`,
           }} />
-          {/* Bottom threshold - thin */}
+          {/* Bottom threshold */}
           <div className="absolute bottom-0 left-0 right-0 h-3" style={{
-            background: `linear-gradient(0deg, #444, #333)`,
-            borderTop: `1px solid rgba(255,255,255,0.08)`,
+            background: `linear-gradient(0deg, ${theme.accent}, ${theme.accentDark})`,
+            borderTop: `1.5px solid rgba(${a}, 0.55)`,
           }} />
-          {/* Left pillar - thin steel */}
+          {/* Left pillar */}
           <div className="absolute top-4 left-0 w-3 bottom-3" style={{
-            background: `linear-gradient(90deg, #444, #3a3a3a)`,
-            borderRight: `1px solid rgba(255,255,255,0.08)`,
+            background: `linear-gradient(90deg, ${theme.accent}, ${theme.accentDark})`,
+            borderRight: `1.5px solid rgba(${a}, 0.45)`,
           }} />
           {/* Right pillar */}
           <div className="absolute top-4 right-0 w-3 bottom-3" style={{
-            background: `linear-gradient(270deg, #444, #3a3a3a)`,
-            borderLeft: `1px solid rgba(255,255,255,0.08)`,
+            background: `linear-gradient(270deg, ${theme.accent}, ${theme.accentDark})`,
+            borderLeft: `1.5px solid rgba(${a}, 0.45)`,
           }} />
         </div>
       )

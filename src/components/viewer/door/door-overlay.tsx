@@ -612,11 +612,11 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
           {renderDoorTypeOverlays('left')}
           <div className="absolute inset-0 door-shimmer" />
           <div className="absolute inset-0" style={{ background: `linear-gradient(to right, transparent, ${theme.getOpacityStyle('text', 0.05)})` }} />
-          {/* Vignette shadow overlay - fades out as door opens */}
+          {/* Vignette shadow overlay - now sits under panel content */}
           <div 
-            className="absolute inset-0 transition-opacity duration-[3200ms] pointer-events-none z-10"
+            className="absolute inset-0 transition-opacity duration-[3200ms] pointer-events-none z-[1]"
             style={{
-              background: `linear-gradient(to left, rgba(0,0,0,0.55), transparent)`,
+              background: `linear-gradient(to left, rgba(0,0,0,0.4), transparent)`,
               opacity: doorsOpened ? 0 : 0.85,
             }}
           />
@@ -626,7 +626,7 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
           {shouldRenderHingesAndHandle && <DoorHandle theme={theme} side="left" />}
           {/* Center seam vertical golden divider */}
           <div className="absolute right-0 top-0 bottom-0 w-[3px] z-20" style={{
-            background: `linear-gradient(to bottom, ${theme.getOpacityStyle('text', 0.1)}, ${theme.getOpacityStyle('text', 0.6)}, ${theme.getOpacityStyle('text', 0.1)})`
+            background: `linear-gradient(to bottom, transparent, ${theme.accent}, transparent)`
           }} />
           {/* Hinges on hinge side (left) */}
           {shouldRenderHingesAndHandle && <DoorHinges side="left" accent={theme.accent} accentRgb={theme.accentRgb} />}
@@ -654,11 +654,11 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
           {renderDoorTypeOverlays('right')}
           <div className="absolute inset-0 door-shimmer" />
           <div className="absolute inset-0" style={{ background: `linear-gradient(to left, transparent, ${theme.getOpacityStyle('text', 0.05)})` }} />
-          {/* Vignette shadow overlay - fades out as door opens */}
+          {/* Vignette shadow overlay - now sits under panel content */}
           <div 
-            className="absolute inset-0 transition-opacity duration-[3200ms] pointer-events-none z-10"
+            className="absolute inset-0 transition-opacity duration-[3200ms] pointer-events-none z-[1]"
             style={{
-              background: `linear-gradient(to right, rgba(0,0,0,0.55), transparent)`,
+              background: `linear-gradient(to right, rgba(0,0,0,0.4), transparent)`,
               opacity: doorsOpened ? 0 : 0.85,
             }}
           />
@@ -668,7 +668,7 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
           {shouldRenderHingesAndHandle && <DoorHandle theme={theme} side="right" />}
           {/* Center seam vertical golden divider */}
           <div className="absolute left-0 top-0 bottom-0 w-[3px] z-20" style={{
-            background: `linear-gradient(to bottom, ${theme.getOpacityStyle('text', 0.1)}, ${theme.getOpacityStyle('text', 0.6)}, ${theme.getOpacityStyle('text', 0.1)})`
+            background: `linear-gradient(to bottom, transparent, ${theme.accent}, transparent)`
           }} />
           {/* Hinges on hinge side (right) */}
           {shouldRenderHingesAndHandle && <DoorHinges side="right" accent={theme.accent} accentRgb={theme.accentRgb} />}

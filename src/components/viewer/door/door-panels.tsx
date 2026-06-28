@@ -87,15 +87,22 @@ export function DoorPanelLayout({ theme, side }: { theme: TemplateTheme; side: '
         <>
           <div className="absolute" style={{
             left: '6%', top: '6%', width: '88%', height: '88%',
-            border: `2px solid rgba(${a},0.2)`,
+            border: `2.5px solid rgba(${a},0.45)`,
             borderRadius: '3px',
           }} />
         </>
       )
     case 'flat':
     default:
-      // Flat / modern - no panels, just a subtle border
-      return null
+      // Render a modern clean inset border for flat panels so they are visible
+      return (
+        <div className="absolute" style={{
+          left: '8%', top: '6%', width: '84%', height: '88%',
+          border: `1.5px solid rgba(${a}, 0.55)`,
+          borderRadius: '4px',
+          boxShadow: `inset 0 0 12px rgba(${a}, 0.15)`,
+        }} />
+      )
   }
 }
 
@@ -143,89 +150,89 @@ export function DoorPanelContent({ theme, text, textLang }: { theme: TemplateThe
   return (
     <div className="absolute inset-0 flex items-center justify-center">
       <div className="flex flex-col items-center gap-3">
-        {/* Central ornament - varies by svgPattern */}
-        <svg className="w-20 h-20 opacity-30" viewBox="0 0 100 100" fill="none">
+        {/* Central ornament - varies by svgPattern (boosted opacity for visibility) */}
+        <svg className="w-24 h-24 opacity-85" viewBox="0 0 100 100" fill="none">
           {ds.svgPattern === 'arch' && (
             <>
-              <circle cx="50" cy="50" r="40" stroke={theme.accent} strokeWidth="0.5" opacity="0.4" />
-              <circle cx="50" cy="50" r="30" stroke={theme.accent} strokeWidth="0.5" opacity="0.3" />
+              <circle cx="50" cy="50" r="40" stroke={theme.accent} strokeWidth="0.8" opacity="0.75" />
+              <circle cx="50" cy="50" r="30" stroke={theme.accent} strokeWidth="0.6" opacity="0.65" />
               {[0, 45, 90, 135, 180, 225, 270, 315].map(a => (
-                <line key={a} x1="50" y1="10" x2="50" y2="90" stroke={theme.accent} strokeWidth="0.3" opacity="0.15" transform={`rotate(${a} 50 50)`} />
+                <line key={a} x1="50" y1="10" x2="50" y2="90" stroke={theme.accent} strokeWidth="0.4" opacity="0.45" transform={`rotate(${a} 50 50)`} />
               ))}
             </>
           )}
           {ds.svgPattern === 'floral' && (
             <>
-              <circle cx="50" cy="50" r="25" stroke={theme.accent} strokeWidth="0.5" opacity="0.4" />
+              <circle cx="50" cy="50" r="25" stroke={theme.accent} strokeWidth="0.8" opacity="0.75" />
               {[0, 72, 144, 216, 288].map(a => (
-                <ellipse key={a} cx="50" cy="25" rx="6" ry="14" stroke={theme.accent} strokeWidth="0.4" opacity="0.3" transform={`rotate(${a} 50 50)`} />
+                <ellipse key={a} cx="50" cy="25" rx="6" ry="14" stroke={theme.accent} strokeWidth="0.6" opacity="0.65" transform={`rotate(${a} 50 50)`} />
               ))}
             </>
           )}
           {ds.svgPattern === 'minimal' && (
             <>
-              <line x1="20" y1="50" x2="80" y2="50" stroke={theme.accent} strokeWidth="0.5" opacity="0.3" />
-              <line x1="50" y1="20" x2="50" y2="80" stroke={theme.accent} strokeWidth="0.5" opacity="0.3" />
-              <circle cx="50" cy="50" r="2" fill={theme.accent} opacity="0.4" />
+              <line x1="20" y1="50" x2="80" y2="50" stroke={theme.accent} strokeWidth="0.8" opacity="0.7" />
+              <line x1="50" y1="20" x2="50" y2="80" stroke={theme.accent} strokeWidth="0.8" opacity="0.7" />
+              <circle cx="50" cy="50" r="3.5" fill={theme.accent} opacity="0.8" />
             </>
           )}
           {ds.svgPattern === 'mandala' && (
             <>
-              <circle cx="50" cy="50" r="35" stroke={theme.accent} strokeWidth="0.5" opacity="0.3" />
-              <circle cx="50" cy="50" r="22" stroke={theme.accent} strokeWidth="0.4" opacity="0.25" />
-              <circle cx="50" cy="50" r="10" stroke={theme.accent} strokeWidth="0.3" opacity="0.2" />
+              <circle cx="50" cy="50" r="35" stroke={theme.accent} strokeWidth="0.8" opacity="0.65" />
+              <circle cx="50" cy="50" r="22" stroke={theme.accent} strokeWidth="0.6" opacity="0.55" />
+              <circle cx="50" cy="50" r="10" stroke={theme.accent} strokeWidth="0.5" opacity="0.45" />
               {Array.from({ length: 12 }).map((_, i) => (
-                <line key={i} x1="50" y1="15" x2="50" y2="85" stroke={theme.accent} strokeWidth="0.2" opacity="0.15" transform={`rotate(${i * 30} 50 50)`} />
+                <line key={i} x1="50" y1="15" x2="50" y2="85" stroke={theme.accent} strokeWidth="0.35" opacity="0.4" transform={`rotate(${i * 30} 50 50)`} />
               ))}
             </>
           )}
           {ds.svgPattern === 'paisley' && (
             <>
-              <path d="M50 20 Q70 35 65 55 Q60 70 45 65 Q30 55 35 40 Q40 25 50 20Z" stroke={theme.accent} strokeWidth="0.5" opacity="0.3" fill="none" />
-              <path d="M50 25 Q60 35 55 50 Q50 60 42 55" stroke={theme.accent} strokeWidth="0.3" opacity="0.2" fill="none" />
+              <path d="M50 20 Q70 35 65 55 Q60 70 45 65 Q30 55 35 40 Q40 25 50 20Z" stroke={theme.accent} strokeWidth="0.8" opacity="0.75" fill="none" />
+              <path d="M50 25 Q60 35 55 50 Q50 60 42 55" stroke={theme.accent} strokeWidth="0.5" opacity="0.6" fill="none" />
             </>
           )}
           {ds.svgPattern === 'diamond' && (
             <>
-              <polygon points="50,15 85,50 50,85 15,50" stroke={theme.accent} strokeWidth="0.5" opacity="0.3" fill="none" />
-              <polygon points="50,30 70,50 50,70 30,50" stroke={theme.accent} strokeWidth="0.4" opacity="0.25" fill="none" />
+              <polygon points="50,15 85,50 50,85 15,50" stroke={theme.accent} strokeWidth="0.8" opacity="0.7" fill="none" />
+              <polygon points="50,30 70,50 50,70 30,50" stroke={theme.accent} strokeWidth="0.6" opacity="0.6" fill="none" />
             </>
           )}
           {ds.svgPattern === 'dome' && (
             <>
-              <path d="M20 60 Q20 25 50 15 Q80 25 80 60" stroke={theme.accent} strokeWidth="0.5" opacity="0.3" fill="none" />
-              <line x1="50" y1="15" x2="50" y2="8" stroke={theme.accent} strokeWidth="0.5" opacity="0.3" />
-              <circle cx="50" cy="6" r="3" stroke={theme.accent} strokeWidth="0.4" opacity="0.25" fill="none" />
+              <path d="M20 60 Q20 25 50 15 Q80 25 80 60" stroke={theme.accent} strokeWidth="0.8" opacity="0.7" fill="none" />
+              <line x1="50" y1="15" x2="50" y2="8" stroke={theme.accent} strokeWidth="0.8" opacity="0.7" />
+              <circle cx="50" cy="6" r="3.5" stroke={theme.accent} strokeWidth="0.6" opacity="0.65" fill="none" />
             </>
           )}
           {ds.svgPattern === 'star' && (
             <>
-              <polygon points="50,15 57,38 80,38 62,52 68,75 50,62 32,75 38,52 20,38 43,38" stroke={theme.accent} strokeWidth="0.5" opacity="0.3" fill="none" />
-              <polygon points="50,25 54,38 65,38 56,46 59,58 50,52 41,58 44,46 35,38 46,38" stroke={theme.accent} strokeWidth="0.3" opacity="0.2" fill="none" />
+              <polygon points="50,15 57,38 80,38 62,52 68,75 50,62 32,75 38,52 20,38 43,38" stroke={theme.accent} strokeWidth="0.8" opacity="0.7" fill="none" />
+              <polygon points="50,25 54,38 65,38 56,46 59,58 50,52 41,58 44,46 35,38 46,38" stroke={theme.accent} strokeWidth="0.5" opacity="0.55" fill="none" />
             </>
           )}
           {ds.svgPattern === 'lantern' && (
             <>
-              <path d="M35 40 Q35 25 50 20 Q65 25 65 40" stroke={theme.accent} strokeWidth="0.5" opacity="0.3" fill="none" />
-              <rect x="37" y="40" width="26" height="30" stroke={theme.accent} strokeWidth="0.4" opacity="0.25" fill="none" rx="2" />
-              <path d="M37 70 Q37 80 50 85 Q63 80 65 70" stroke={theme.accent} strokeWidth="0.5" opacity="0.3" fill="none" />
+              <path d="M35 40 Q35 25 50 20 Q65 25 65 40" stroke={theme.accent} strokeWidth="0.8" opacity="0.7" fill="none" />
+              <rect x="37" y="40" width="26" height="30" stroke={theme.accent} strokeWidth="0.6" opacity="0.6" fill="none" rx="2" />
+              <path d="M37 70 Q37 80 50 85 Q63 80 65 70" stroke={theme.accent} strokeWidth="0.8" opacity="0.7" fill="none" />
             </>
           )}
           {ds.svgPattern === 'geometric' && (
             <>
-              <polygon points="50,20 70,35 70,60 50,75 30,60 30,35" stroke={theme.accent} strokeWidth="0.5" opacity="0.3" fill="none" />
-              <polygon points="50,30 60,38 60,55 50,63 40,55 40,38" stroke={theme.accent} strokeWidth="0.3" opacity="0.2" fill="none" />
+              <polygon points="50,20 70,35 70,60 50,75 30,60 30,35" stroke={theme.accent} strokeWidth="0.8" opacity="0.7" fill="none" />
+              <polygon points="50,30 60,38 60,55 50,63 40,55 40,38" stroke={theme.accent} strokeWidth="0.5" opacity="0.55" fill="none" />
             </>
           )}
         </svg>
         <span
           className={`${theme.fontCalligraphy} text-3xl sm:text-4xl leading-relaxed`}
           dir={isRtl ? 'rtl' : 'ltr'}
-          style={{ color: theme.getOpacityStyle('text', 0.8) }}
+          style={{ color: theme.getOpacityStyle('text', 0.95), textShadow: theme.isLight ? 'none' : '0 2px 8px rgba(0,0,0,0.5)' }}
         >
           {text}
         </span>
-        <div className="w-12 h-px" style={{ backgroundColor: theme.getOpacityStyle('bg', 0.3) }} />
+        <div className="w-16 h-[2px]" style={{ backgroundColor: theme.getOpacityStyle('text', 0.6) }} />
       </div>
     </div>
   )
@@ -257,11 +264,11 @@ export function DoorSurface({ theme, side }: { theme: TemplateTheme; side: 'left
       boxShadow: `inset 0 1px 3px rgba(255,255,255,0.15), inset 0 -1px 2px rgba(0,0,0,0.2)`,
     },
     glass: {
-      background: `linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.03) 100%)`,
-      backgroundColor: theme.isLight ? 'rgba(248, 250, 252, 0.65)' : 'rgba(10, 14, 26, 0.65)',
-      backdropFilter: 'blur(16px) saturate(120%)',
-      border: `1.5px solid rgba(${a}, 0.35)`,
-      boxShadow: `inset 0 1px 2px rgba(255,255,255,0.2), inset 0 0 15px rgba(${a}, 0.1), 0 8px 32px 0 rgba(0, 0, 0, 0.35)`,
+      background: `linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.05) 100%)`,
+      backgroundColor: theme.isLight ? 'rgba(255, 255, 255, 0.94)' : 'rgba(12, 18, 33, 0.92)',
+      backdropFilter: 'blur(24px) saturate(120%)',
+      border: `2.5px solid ${theme.accent}`,
+      boxShadow: `inset 0 1px 3px rgba(255,255,255,0.35), inset 0 0 25px rgba(${a}, 0.25), 0 12px 40px rgba(0, 0, 0, 0.5)`,
     },
     stone: {
       backgroundImage: `
@@ -709,12 +716,13 @@ export function DoorSurface({ theme, side }: { theme: TemplateTheme; side: 'left
   } else if (ds.type === 'scroll') {
     baseStyle = {
       backgroundImage: `
-        linear-gradient(0deg, rgba(0,0,0,0.25) 0%, transparent 6%, transparent 94%, rgba(0,0,0,0.25) 100%),
+        linear-gradient(0deg, rgba(0,0,0,0.2) 0%, transparent 6%, transparent 94%, rgba(0,0,0,0.2) 100%),
         repeating-linear-gradient(0deg, transparent 0px, rgba(${a}, 0.015) 2px, transparent 4px),
-        linear-gradient(90deg, rgba(${a}, 0.08) 0%, transparent 8%, transparent 92%, rgba(${a}, 0.08) 100%),
+        linear-gradient(90deg, rgba(${a}, 0.15) 0%, transparent 8%, transparent 92%, rgba(${a}, 0.15) 100%),
         linear-gradient(180deg, ${theme.bgDoor}, ${theme.bgSecondary})
       `,
-      boxShadow: 'inset 0 0 15px rgba(0,0,0,0.35)',
+      border: `2px solid ${theme.accent}`,
+      boxShadow: `0 10px 30px rgba(0,0,0,0.45), inset 0 0 25px rgba(0,0,0,0.3)`,
     };
   } else if (ds.type === 'petals' || ds.type === 'lotus') {
     baseStyle = {
