@@ -47,6 +47,7 @@ export function WhatsAppFAB() {
                   <button
                     onClick={() => setIsOpen(false)}
                     className="text-muted-foreground hover:text-foreground transition-colors"
+                    aria-label="Close chat"
                   >
                     <X className="w-4 h-4" />
                   </button>
