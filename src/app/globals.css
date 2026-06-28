@@ -457,16 +457,16 @@
 .petal-sway-idle { animation: petalSway 4.5s ease-in-out infinite; }
 
 @keyframes splitShimmer {
-  0%, 100% { opacity: 0.02; }
-  50% { opacity: 0.06; }
+  0%, 100% { filter: brightness(1); transform: rotateY(0deg) scale(1); }
+  50% { filter: brightness(1.02); transform: rotateY(-0.3deg) scale(1.001); }
 }
-.split-shimmer-idle { animation: splitShimmer 3s ease-in-out infinite; }
+.split-shimmer-idle { animation: splitShimmer 4s ease-in-out infinite; transform-style: preserve-3d; }
 
 @keyframes scrollShimmer {
-  0%, 100% { opacity: 0.05; transform: scaleX(1); }
-  50% { opacity: 0.12; transform: scaleX(1.001); }
+  0%, 100% { filter: brightness(1); transform: scaleX(1); }
+  50% { filter: brightness(1.03); transform: scaleX(1.001); }
 }
-.scroll-shimmer-idle { animation: scrollShimmer 3s ease-in-out infinite; }
+.scroll-shimmer-idle { animation: scrollShimmer 4s ease-in-out infinite; }
 
 @keyframes domeFloat {
   0%, 100% { transform: translateY(0) rotate(0deg); }
