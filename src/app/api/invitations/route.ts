@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 
 /* POST /api/invitations — create new invitation */
 export async function POST(request: NextRequest) {
@@ -34,10 +34,7 @@ export async function POST(request: NextRequest) {
       finalSlug = `${baseSlug}-${Math.floor(1000 + Math.random() * 9000)}`
     }
 
-    // Use service client to bypass RLS for reliable insert
-    const service = createServiceClient()
-
-    const { data: invitation, error: invErr } = await service
+    const { data: invitation, error: invErr } = await supabase
       .from('invitations')
       .insert({
         user_id: user.id,
@@ -88,7 +85,7 @@ export async function POST(request: NextRequest) {
         }))
 
       if (eventRows.length > 0) {
-        const { error: evErr } = await service.from('events').insert(eventRows)
+        const { error: evErr } = await supabase.from('events').insert(eventRows)
         if (evErr) {
           console.error('Events insert error:', evErr)
           // Return the invitation ID but signal a partial failure
@@ -117,9 +114,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const service = createServiceClient()
-
-    const { data: invitations, error } = await service
+    const { data: invitations, error } = await supabase
       .from('invitations')
       .select(`
         id, template_id, plan, partner1_name, partner2_name, venue,

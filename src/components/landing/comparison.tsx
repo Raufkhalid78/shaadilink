@@ -6,7 +6,7 @@ import {
   Check,
   Sparkles,
   Printer,
-  Image,
+  Image as ImageIcon,
   Video,
   Star,
 } from "lucide-react";
@@ -170,7 +170,7 @@ export function Comparison() {
                 </span>
               </div>
               <div className="p-4 flex flex-col items-center gap-2">
-                <Image className="h-5 w-5 text-white/60" />
+                <ImageIcon className="h-5 w-5 text-white/60" />
                 <span className="text-[10px] tracking-[0.12em] uppercase font-bold text-white/60">
                   {t('compare.col.photo')}
                 </span>

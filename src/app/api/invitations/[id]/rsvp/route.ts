@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 
 /* POST /api/invitations/[id]/rsvp — submit RSVP (public) */
 export async function POST(
@@ -19,25 +19,25 @@ export async function POST(
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
     }
 
-    const service = createServiceClient()
+    const supabase = await createClient()
 
     // Check invitation exists and is active
-    const { data: inv } = await service.from('invitations').select('is_active').eq('id', id).single()
+    const { data: inv } = await supabase.from('invitations').select('is_active').eq('id', id).single()
     if (!inv?.is_active) return NextResponse.json({ error: 'This invitation is not yet published' }, { status: 403 })
 
     // Check for existing RSVP
-    let query = service.from('rsvps').select('id').eq('invitation_id', id)
+    let rsvpQuery = supabase.from('rsvps').select('id').eq('invitation_id', id)
     if (guestEmail?.trim()) {
-      query = query.eq('guest_email', guestEmail.trim())
+      rsvpQuery = rsvpQuery.eq('guest_email', guestEmail.trim())
     } else {
-      query = query.eq('guest_name', guestName.trim())
+      rsvpQuery = rsvpQuery.eq('guest_name', guestName.trim())
     }
-    const { data: existingRsvp } = await query.limit(1).maybeSingle()
+    const { data: existingRsvp } = await rsvpQuery.limit(1).maybeSingle()
     if (existingRsvp) {
       return NextResponse.json({ error: 'You have already submitted an RSVP for this invitation.' }, { status: 409 })
     }
 
-    const { data, error } = await service
+    const { data, error } = await supabase
       .from('rsvps')
       .insert({
         invitation_id: id,
@@ -74,10 +74,8 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const service = createServiceClient()
-
     // Verify ownership
-    const { data: inv } = await service
+    const { data: inv } = await supabase
       .from('invitations')
       .select('user_id')
       .eq('id', id)
@@ -87,7 +85,7 @@ export async function GET(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const { data: rsvps, error } = await service
+    const { data: rsvps, error } = await supabase
       .from('rsvps')
       .select('*')
       .eq('invitation_id', id)

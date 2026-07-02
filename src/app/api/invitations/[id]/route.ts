@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,9 +12,9 @@ export async function GET(
     const { id } = await params
     const cleanId = id.replace(/%20| /g, "-")
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanId)
-    const service = createServiceClient()
+    const supabase = await createClient()
 
-    const query = service
+    const query = supabase
       .from('invitations')
       .select(`
         *, events(id, name, date, time, venue, order_index),
@@ -30,8 +30,7 @@ export async function GET(
       return NextResponse.json({ error: 'Invitation not found' }, { status: 404 })
     }
 
-    // Check auth for inactive invitations
-    const supabase = await createClient()
+    // RLS handles visibility (active or owner only). We still fetch user to double check
     const { data: { user } } = await supabase.auth.getUser()
     if (!invitation.is_active && invitation.user_id !== user?.id) {
       return NextResponse.json({ error: 'Invitation not found' }, { status: 404 })
@@ -59,10 +58,8 @@ export async function PUT(
     }
 
     const body = await request.json()
-    const service = createServiceClient()
-
     // Verify ownership
-    const { data: existing } = await service
+    const { data: existing } = await supabase
       .from('invitations')
       .select('user_id, partner1_name, partner2_name')
       .eq('id', id)
@@ -113,7 +110,7 @@ export async function PUT(
       }
     }
 
-    const { data: updated, error } = await service
+    const { data: updated, error } = await supabase
       .from('invitations')
       .update(updateData)
       .eq('id', id)
@@ -129,7 +126,7 @@ export async function PUT(
 
     // Update events if provided
     if (body.events) {
-      await service.from('events').delete().eq('invitation_id', id)
+      await supabase.from('events').delete().eq('invitation_id', id)
       const eventRows = body.events
         .filter((e: { name: string }) => e.name)
         .map((e: { name: string; date: string; time: string; venue?: string }, idx: number) => ({
@@ -141,7 +138,7 @@ export async function PUT(
           order_index: idx,
         }))
       if (eventRows.length > 0) {
-        await service.from('events').insert(eventRows)
+        await supabase.from('events').insert(eventRows)
       }
     }
 
@@ -166,10 +163,8 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const service = createServiceClient()
-
     // Verify ownership
-    const { data: existing } = await service
+    const { data: existing } = await supabase
       .from('invitations')
       .select('user_id')
       .eq('id', id)
@@ -179,7 +174,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const { error } = await service.from('invitations').delete().eq('id', id)
+    const { error } = await supabase.from('invitations').delete().eq('id', id)
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
     return NextResponse.json({ success: true })

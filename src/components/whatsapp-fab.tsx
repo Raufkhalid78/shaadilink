@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { MessageCircle, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
@@ -28,7 +28,7 @@ export function WhatsAppFAB() {
         <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4">
           <AnimatePresence>
             {isOpen && (
-              <motion.div
+              <m.div
                 initial={{ opacity: 0, y: 20, scale: 0.9 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 20, scale: 0.9 }}
@@ -64,11 +64,11 @@ export function WhatsAppFAB() {
                   <MessageCircle className="w-4 h-4" />
                   Start WhatsApp Chat
                 </a>
-              </motion.div>
+              </m.div>
             )}
           </AnimatePresence>
 
-          <motion.button
+          <m.button
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             whileHover={{ scale: 1.05 }}
@@ -86,7 +86,7 @@ export function WhatsAppFAB() {
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
               </span>
             )}
-          </motion.button>
+          </m.button>
         </div>
       )}
     </AnimatePresence>

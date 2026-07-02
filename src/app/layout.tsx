@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { WhatsAppFAB } from "@/components/whatsapp-fab";
 import { LanguageProvider } from "@/components/language-provider";
+import { FramerMotionProvider } from "@/components/framer-provider";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -178,10 +179,12 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaJson) }}
         />
         <LanguageProvider>
-          <div id="main-content">
-            {children}
-          </div>
-          <WhatsAppFAB />
+          <FramerMotionProvider>
+            <div id="main-content">
+              {children}
+            </div>
+            <WhatsAppFAB />
+          </FramerMotionProvider>
           <Toaster 
             position="bottom-center"
             toastOptions={{

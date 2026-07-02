@@ -474,9 +474,20 @@ export function DashboardPage({
 
           {/* Loading state */}
           {isLoading && (
-            <div className="flex flex-col items-center justify-center py-20 gap-3">
-              <Loader2 className="w-8 h-8 text-muted-foreground animate-spin" />
-              <p className="text-muted-foreground text-sm">Loading your invitations...</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 py-6">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="bg-card border border-border/40 rounded-2xl p-5 h-96 flex flex-col justify-between animate-pulse">
+                  <div className="space-y-3">
+                    <div className="h-40 bg-muted/60 rounded-xl w-full" />
+                    <div className="h-6 bg-muted/60 rounded w-3/4" />
+                    <div className="h-4 bg-muted/60 rounded w-1/2" />
+                  </div>
+                  <div className="flex gap-2 mt-4">
+                    <div className="h-9 bg-muted/60 rounded w-full" />
+                    <div className="h-9 bg-muted/60 rounded w-full" />
+                  </div>
+                </div>
+              ))}
             </div>
           )}
 

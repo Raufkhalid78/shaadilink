@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 
 /* POST /api/invitations/[id]/wishes — submit wish (public) */
 export async function POST(
@@ -19,8 +19,8 @@ export async function POST(
       return NextResponse.json({ error: 'Message is required' }, { status: 400 })
     }
 
-    const service = createServiceClient()
-    const { data, error } = await service
+    const supabase = await createClient()
+    const { data, error } = await supabase
       .from('wishes')
       .insert({
         invitation_id: id,
@@ -49,9 +49,8 @@ export async function GET(
   try {
     const { id: rawId } = await params
     const id = rawId.replace(/%20| /g, "-")
-    const service = createServiceClient()
-
-    const { data: wishes, error } = await service
+    const supabase = await createClient()
+    const { data: wishes, error } = await supabase
       .from('wishes')
       .select('*')
       .eq('invitation_id', id)
@@ -88,10 +87,8 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const service = createServiceClient()
-
     // Verify ownership
-    const { data: inv } = await service
+    const { data: inv } = await supabase
       .from('invitations')
       .select('user_id')
       .eq('id', id)
@@ -102,7 +99,7 @@ export async function DELETE(
     }
 
     // Delete wish
-    const { error: deleteError } = await service
+    const { error: deleteError } = await supabase
       .from('wishes')
       .delete()
       .eq('id', wishId)
