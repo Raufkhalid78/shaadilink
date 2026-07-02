@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import type { FlowData } from "@/lib/flow-types";
 import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
+import { TEMPLATE_THEMES } from "@/components/viewer/themes";
 
 interface Invitation {
   id: string;
@@ -546,6 +547,7 @@ export function DashboardPage({
                 const acceptedRsvps = inv.rsvps?.filter((r) => r.status === "accept").length || 0;
                 const declinedRsvps = inv.rsvps?.filter((r) => r.status === "decline").length || 0;
                 const passed = isWeddingPassed(inv.events || []);
+                const theme = TEMPLATE_THEMES[inv.template_id] || TEMPLATE_THEMES['emerald-noir'];
 
                 return (
                   <motion.div
@@ -556,7 +558,12 @@ export function DashboardPage({
                   >
                     <Card className="border-border/50 hover:border-gold/30 transition-all group overflow-hidden">
                       {/* Hero image / placeholder */}
-                      <div className="relative aspect-[16/9] bg-gradient-to-br from-emerald/20 to-gold/10 overflow-hidden">
+                      <div 
+                        className="relative aspect-[16/9] overflow-hidden group/thumb"
+                        style={{
+                          background: inv.hero_image_url ? undefined : `linear-gradient(135deg, ${theme.bgPrimary}, ${theme.bgSecondary})`
+                        }}
+                      >
                         {inv.hero_image_url ? (
                           <Image
                             src={inv.hero_image_url}
@@ -565,8 +572,30 @@ export function DashboardPage({
                             className="object-cover transition-transform duration-500 group-hover:scale-105"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <Heart className="w-10 h-10 text-gold/40" />
+                          <div className="absolute inset-0 flex items-center justify-center transition-transform duration-500 group-hover:scale-105">
+                            <div 
+                              className="w-16 h-16 rounded-full flex flex-col items-center justify-center shadow-[0_0_20px_rgba(0,0,0,0.3)] backdrop-blur-sm relative"
+                              style={{ 
+                                backgroundColor: theme.bgDoor,
+                                border: `2px solid ${theme.accent}` 
+                              }}
+                            >
+                              <div 
+                                className="absolute inset-0 rounded-full opacity-20"
+                                style={{
+                                  background: `repeating-linear-gradient(45deg, transparent, transparent 5px, ${theme.accent} 5px, ${theme.accent} 6px)`
+                                }}
+                              />
+                              <Heart style={{ color: theme.accent, fill: theme.accent }} className="w-6 h-6 z-10 opacity-80" />
+                            </div>
+                            
+                            {/* Decorative elements based on theme */}
+                            <div 
+                              className="absolute inset-0 opacity-10 pointer-events-none"
+                              style={{
+                                backgroundImage: `radial-gradient(circle at 20% 20%, ${theme.accent} 0%, transparent 40%), radial-gradient(circle at 80% 80%, ${theme.accent} 0%, transparent 40%)`
+                              }}
+                            />
                           </div>
                         )}
                         {/* Active badge */}
