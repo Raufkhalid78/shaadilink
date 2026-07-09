@@ -68,6 +68,16 @@ const legalDataEn: Record<
         content:
           "We strive to maintain 99.9% uptime but cannot guarantee uninterrupted service. Scheduled maintenance will be communicated in advance. Your invitation pages will remain accessible for at least 30 days after your wedding date.",
       },
+      {
+        heading: "9. Business Entity & Governing Law",
+        content:
+          "These Terms and Conditions constitute a legally binding agreement between you and TechyDez (the parent company operating ShaadiLink). Our registered business address is Jhelum, Punjab, Pakistan. These terms are governed by the laws of the Islamic Republic of Pakistan and you agree that the courts of Jhelum will have exclusive jurisdiction in any dispute.",
+      },
+      {
+        heading: "10. Complaint Handling Mechanism",
+        content:
+          "In order to resolve a complaint regarding our services or require support, please contact us by calling +447517879333 or send us an email at hello@techydez.com.",
+      },
     ],
   },
   privacy: {
@@ -241,6 +251,16 @@ const legalDataUr: Record<
         heading: "8۔ سروس کی دستیابی",
         content:
           "ہم ویب سائٹ کی 99.9% دستیابی کو یقینی بنانے کی کوشش کرتے ہیں لیکن کسی بھی تکنیکی خرابی کی صورت میں مستقل دستیابی کی ضمانت نہیں دیتے۔ آپ کے دعوت نامہ صفحات شادی کی تاریخ کے کم از کم 30 دن بعد تک آن لائن رہیں گے۔",
+      },
+      {
+        heading: "9۔ کاروباری ادارہ اور گورننگ لاء",
+        content:
+          "یہ شرائط و ضوابط آپ اور ٹیک ڈیز (TechyDez - شادی لنک کی پیرنٹ کمپنی) کے درمیان ایک قانونی معاہدہ ہیں۔ ہمارا رجسٹرڈ کاروباری پتہ جہلم، پنجاب، پاکستان ہے۔ یہ شرائط اسلامی جمہوریہ پاکستان کے قوانین کے تابع ہیں اور آپ اتفاق کرتے ہیں کہ کسی بھی تنازعے کی صورت میں جہلم کی عدالتوں کو خصوصی اختیار حاصل ہوگا۔",
+      },
+      {
+        heading: "10۔ شکایات کے ازالے کا طریقہ کار",
+        content:
+          "ہماری سروسز کے حوالے سے کسی بھی شکایت کے ازالے یا مدد کے لیے، براہ کرم ہمیں +447517879333 پر کال کریں یا hello@techydez.com پر ای میل بھیجیں۔",
       },
     ],
   },
