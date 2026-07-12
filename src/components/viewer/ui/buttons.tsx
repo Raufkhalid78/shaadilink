@@ -3,7 +3,7 @@
 
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { createPortal } from 'react-dom'
-import { motion, AnimatePresence, useInView } from 'framer-motion'
+import { m, AnimatePresence, useInView } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -43,7 +43,7 @@ export function CenterButton({ theme, onClick }: { theme: TemplateTheme; onClick
   const accent = theme.accent
 
   return (
-    <motion.button
+    <m.button
       onClick={onClick}
       className="relative w-28 h-28 md:w-36 md:h-36 cursor-pointer focus:outline-none select-none z-30"
       whileHover={{ scale: 1.08 }}
@@ -108,6 +108,6 @@ export function CenterButton({ theme, onClick }: { theme: TemplateTheme; onClick
           borderRadius: '50%' 
         }} 
       />
-    </motion.button>
+    </m.button>
   )
 }

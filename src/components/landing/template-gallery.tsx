@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Eye, Sparkles, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -136,7 +136,7 @@ export function TemplateGallery() {
         </div>
 
         {/* Template Cards */}
-        <motion.div
+        <m.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
@@ -144,7 +144,7 @@ export function TemplateGallery() {
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
         >
           {templates.map((template) => (
-            <motion.div key={template.name} variants={cardVariants}>
+            <m.div key={template.name} variants={cardVariants}>
               <div className="group relative rounded-2xl overflow-hidden border border-border/50 hover:border-gold/40 transition-all duration-500 hover:shadow-xl hover:shadow-gold/10 hover:-translate-y-2">
                 {/* Template Preview */}
                 <div
@@ -217,9 +217,9 @@ export function TemplateGallery() {
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </m.div>
           ))}
-        </motion.div>
+        </m.div>
       </div>
     </section>
   );

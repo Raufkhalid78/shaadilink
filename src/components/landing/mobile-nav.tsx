@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Menu, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -99,7 +99,7 @@ export function MobileNav({
             );
 
             return (
-              <motion.div
+              <m.div
                 key={link.label}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -119,7 +119,7 @@ export function MobileNav({
                     <a href={link.href}>{linkEl}</a>
                   </SheetClose>
                 ) : null}
-              </motion.div>
+              </m.div>
             );
           })}
           <div className="mt-6 pt-6 border-t border-gold/10 space-y-3">

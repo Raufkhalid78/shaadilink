@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   ArrowLeft,
   Heart,
@@ -113,7 +113,7 @@ export function AboutPage({ onBack }: AboutPageProps) {
           </div>
 
           <div className="relative z-10 mx-auto max-w-3xl text-center">
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
@@ -130,14 +130,14 @@ export function AboutPage({ onBack }: AboutPageProps) {
               <p className="mt-4 font-calligraphy text-gold text-lg sm:text-xl">
                 Where Tradition Meets Technology
               </p>
-            </motion.div>
+            </m.div>
           </div>
         </section>
 
         {/* Our Story */}
         <section className="py-12 sm:py-16 px-4">
           <div className="mx-auto max-w-3xl">
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -165,7 +165,7 @@ export function AboutPage({ onBack }: AboutPageProps) {
                 <span className="text-gold font-semibold">Walima</span>, every event deserves
                 an invitation that honors the tradition.
               </p>
-            </motion.div>
+            </m.div>
           </div>
         </section>
 
@@ -173,7 +173,7 @@ export function AboutPage({ onBack }: AboutPageProps) {
         <section className="py-12 sm:py-16 px-4 bg-muted/30">
           <div className="mx-auto max-w-4xl">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <motion.div
+              <m.div
                 initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
@@ -193,9 +193,9 @@ export function AboutPage({ onBack }: AboutPageProps) {
                   effortless. No design skills needed, no app downloads required — just fill
                   in your details and share a link. That&apos;s it.
                 </p>
-              </motion.div>
+              </m.div>
 
-              <motion.div
+              <m.div
                 initial={{ opacity: 0, x: 20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
@@ -215,7 +215,7 @@ export function AboutPage({ onBack }: AboutPageProps) {
                   location — can share an elegant, interactive, and environmentally friendly
                   wedding invitation with their loved ones, instantly.
                 </p>
-              </motion.div>
+              </m.div>
             </div>
           </div>
         </section>
@@ -232,7 +232,7 @@ export function AboutPage({ onBack }: AboutPageProps) {
               </p>
             </div>
 
-            <motion.div
+            <m.div
               variants={containerVariants}
               initial="hidden"
               whileInView="visible"
@@ -242,7 +242,7 @@ export function AboutPage({ onBack }: AboutPageProps) {
               {values.map((value) => {
                 const Icon = value.icon;
                 return (
-                  <motion.div key={value.title} variants={itemVariants}>
+                  <m.div key={value.title} variants={itemVariants}>
                     <Card className="group relative overflow-hidden border-border/50 hover:border-gold/40 transition-all duration-300 hover:shadow-lg hover:shadow-gold/5 h-full">
                       <CardContent className="p-6 flex flex-col items-center text-center gap-4">
                         <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-emerald/10 text-emerald group-hover:bg-emerald group-hover:text-primary-foreground transition-colors duration-300">
@@ -259,10 +259,10 @@ export function AboutPage({ onBack }: AboutPageProps) {
                         <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-gold/0 to-transparent group-hover:via-gold/50 transition-all duration-500" />
                       </CardContent>
                     </Card>
-                  </motion.div>
+                  </m.div>
                 );
               })}
-            </motion.div>
+            </m.div>
           </div>
         </section>
 
@@ -290,7 +290,7 @@ export function AboutPage({ onBack }: AboutPageProps) {
         {/* Closing */}
         <section className="py-12 sm:py-16 px-4">
           <div className="mx-auto max-w-2xl text-center">
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -304,7 +304,7 @@ export function AboutPage({ onBack }: AboutPageProps) {
               <p className="mt-4 text-gold font-display font-semibold">
                 — The ShaadiLink Team
               </p>
-            </motion.div>
+            </m.div>
           </div>
         </section>
       </main>

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { CONTACT_CONFIG } from "@/lib/config";
 import { Heart, Instagram, Facebook, Twitter, Mail, Globe, Sparkles } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
@@ -85,7 +85,7 @@ export function Footer({
           {/* Main Footer Grid */}
           <div className="py-14 sm:py-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-12">
             {/* Brand Column */}
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -137,10 +137,10 @@ export function Footer({
                   );
                 })}
               </div>
-            </motion.div>
+            </m.div>
 
             {/* Quick Links */}
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -171,10 +171,10 @@ export function Footer({
                   </li>
                 ))}
               </ul>
-            </motion.div>
+            </m.div>
 
             {/* Legal */}
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -205,10 +205,10 @@ export function Footer({
                   </button>
                 </li>
               </ul>
-            </motion.div>
+            </m.div>
 
             {/* Newsletter + Contact */}
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -245,7 +245,7 @@ export function Footer({
                   {CONTACT_CONFIG.address}
                 </span>
               </div>
-            </motion.div>
+            </m.div>
           </div>
 
           {/* Bottom bar */}

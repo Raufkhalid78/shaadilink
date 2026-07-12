@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { CONTACT_CONFIG } from "@/lib/config";
 import {
   ArrowLeft,
@@ -107,7 +107,7 @@ export function ContactPage({ onBack }: ContactPageProps) {
         <section className="relative py-16 sm:py-20 px-4 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-emerald-dark/5 to-transparent" />
           <div className="relative z-10 mx-auto max-w-3xl text-center">
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
@@ -118,7 +118,7 @@ export function ContactPage({ onBack }: ContactPageProps) {
               <p className="mt-4 text-muted-foreground text-lg">
                 We&apos;d love to hear from you
               </p>
-            </motion.div>
+            </m.div>
           </div>
         </section>
 
@@ -128,7 +128,7 @@ export function ContactPage({ onBack }: ContactPageProps) {
             <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
               {/* Contact Info */}
               <div className="md:col-span-2 space-y-6">
-                <motion.div
+                <m.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.6 }}
@@ -185,12 +185,12 @@ export function ContactPage({ onBack }: ContactPageProps) {
                       </div>
                     </div>
                   </div>
-                </motion.div>
+                </m.div>
               </div>
 
               {/* Contact Form */}
               <div className="md:col-span-3">
-                <motion.div
+                <m.div
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.6, delay: 0.2 }}
@@ -199,13 +199,13 @@ export function ContactPage({ onBack }: ContactPageProps) {
                     <CardContent className="p-6 sm:p-8">
                       {submitted ? (
                         <div className="text-center py-8">
-                          <motion.div
+                          <m.div
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
                             transition={{ type: "spring", duration: 0.6 }}
                           >
                             <CheckCircle className="w-16 h-16 text-emerald mx-auto mb-4" />
-                          </motion.div>
+                          </m.div>
                           <h3 className="font-display text-2xl font-bold text-foreground mb-2">
                             Message Sent!
                           </h3>
@@ -293,7 +293,7 @@ export function ContactPage({ onBack }: ContactPageProps) {
                       )}
                     </CardContent>
                   </Card>
-                </motion.div>
+                </m.div>
               </div>
             </div>
           </div>

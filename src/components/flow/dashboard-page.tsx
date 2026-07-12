@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import {
   Heart, Plus, ExternalLink, Trash2, Users, MessageSquare, Calendar,
   Copy, Check, LayoutDashboard, LogOut, Loader2, Crown, Sparkles, X, Lock,
@@ -387,7 +387,7 @@ export function DashboardPage({
       <main id="main-content" className="flex-1 px-4 py-8 sm:py-12">
         <div className="mx-auto max-w-6xl">
           {/* Page title */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -408,11 +408,11 @@ export function DashboardPage({
               <Plus className="w-4 h-4" />
               Create New Invitation
             </Button>
-          </motion.div>
+          </m.div>
 
           {/* Stats row — 4 cards: 2×2 on mobile, 5-col on lg */}
           {!isLoading && invitations.length > 0 && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.1 }}
@@ -470,7 +470,7 @@ export function DashboardPage({
                   </Card>
                 );
               })}
-            </motion.div>
+            </m.div>
           )}
 
           {/* Loading state */}
@@ -494,7 +494,7 @@ export function DashboardPage({
 
           {/* Empty state — 3-step getting started guide */}
           {!isLoading && invitations.length === 0 && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0, scale: 0.97 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.4 }}
@@ -533,7 +533,7 @@ export function DashboardPage({
                 <Plus className="w-4 h-4" />
                 Create Your First Invitation
               </Button>
-            </motion.div>
+            </m.div>
           )}
 
           {/* Invitation cards */}
@@ -550,7 +550,7 @@ export function DashboardPage({
                 const theme = TEMPLATE_THEMES[inv.template_id] || TEMPLATE_THEMES['emerald-noir'];
 
                 return (
-                  <motion.div
+                  <m.div
                     key={inv.id}
                     initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -795,7 +795,7 @@ export function DashboardPage({
                         </div>
                       </CardContent>
                     </Card>
-                  </motion.div>
+                  </m.div>
                 );
               })}
             </div>
@@ -808,7 +808,7 @@ export function DashboardPage({
         {rsvpDrawerOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-end">
             {/* Backdrop */}
-            <motion.div
+            <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -816,7 +816,7 @@ export function DashboardPage({
               className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             />
             {/* Panel */}
-            <motion.div
+            <m.div
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
@@ -910,7 +910,7 @@ export function DashboardPage({
                   ))
                 )}
               </div>
-            </motion.div>
+            </m.div>
           </div>
         )}
       </AnimatePresence>
@@ -921,7 +921,7 @@ export function DashboardPage({
         {guestLinksDrawerOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-end">
             {/* Backdrop */}
-            <motion.div
+            <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -929,7 +929,7 @@ export function DashboardPage({
               className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             />
             {/* Panel */}
-            <motion.div
+            <m.div
               initial={{ x: "100%", opacity: 0.5 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: "100%", opacity: 0.5 }}
@@ -1043,7 +1043,7 @@ export function DashboardPage({
                   )}
                 </div>
               </div>
-            </motion.div>
+            </m.div>
           </div>
         )}
       </AnimatePresence>
@@ -1053,7 +1053,7 @@ export function DashboardPage({
         {wishesDrawerOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-end">
             {/* Backdrop */}
-            <motion.div
+            <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -1061,7 +1061,7 @@ export function DashboardPage({
               className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             />
             {/* Panel */}
-            <motion.div
+            <m.div
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
@@ -1131,7 +1131,7 @@ export function DashboardPage({
                   ))
                 )}
               </div>
-            </motion.div>
+            </m.div>
           </div>
         )}
       </AnimatePresence>
@@ -1143,7 +1143,7 @@ export function DashboardPage({
             className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
             onClick={() => setQrInvUrl(null)}
           >
-            <motion.div
+            <m.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
@@ -1176,7 +1176,7 @@ export function DashboardPage({
                   Close
                 </Button>
               </div>
-            </motion.div>
+            </m.div>
           </div>
         )}
       </AnimatePresence>

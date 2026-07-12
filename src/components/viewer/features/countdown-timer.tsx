@@ -3,7 +3,7 @@
 
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { createPortal } from 'react-dom'
-import { motion, AnimatePresence, useInView } from 'framer-motion'
+import { m, AnimatePresence, useInView } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -64,7 +64,7 @@ export function CountdownTimer({
             <div className="rounded-lg backdrop-blur-sm w-16 sm:w-20 h-16 sm:h-20 flex items-center justify-center countdown-pulse relative overflow-hidden" style={{ border: `1px solid ${theme.getOpacityStyle('border', 0.25)}`, backgroundColor: theme.getOpacityStyle('border', 0.08) }}>
               <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, ${theme.getOpacityStyle('text', 0.05)}, transparent)` }} />
               <AnimatePresence mode="popLayout">
-                <motion.span
+                <m.span
                   key={unit.value}
                   initial={{ y: -15, opacity: 0, rotateX: -90 }}
                   animate={{ y: 0, opacity: 1, rotateX: 0 }}
@@ -74,7 +74,7 @@ export function CountdownTimer({
                   style={{ color: theme.accent }}
                 >
                   {String(unit.value).padStart(2, '0')}
-                </motion.span>
+                </m.span>
               </AnimatePresence>
             </div>
             <span className="text-[10px] sm:text-xs uppercase tracking-widest mt-2" style={{ color: theme.accent }}>{unit.label}</span>

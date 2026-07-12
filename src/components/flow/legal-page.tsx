@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { ArrowLeft, Heart, FileText, Shield, RotateCcw, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CONTACT_CONFIG } from "@/lib/config";
@@ -427,7 +427,7 @@ export function LegalPage({ type, onBack }: LegalPageProps) {
       />
 
       <main id="main-content" className="flex-1 py-12 sm:py-16 px-4">
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -449,7 +449,7 @@ export function LegalPage({ type, onBack }: LegalPageProps) {
           {/* Sections */}
           <div className="space-y-8 text-left">
             {data.sections.map((section, index) => (
-              <motion.div
+              <m.div
                 key={index}
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -462,7 +462,7 @@ export function LegalPage({ type, onBack }: LegalPageProps) {
                 <p className="text-muted-foreground leading-relaxed text-sm sm:text-base text-left">
                   {section.content}
                 </p>
-              </motion.div>
+              </m.div>
             ))}
           </div>
 
@@ -482,7 +482,7 @@ export function LegalPage({ type, onBack }: LegalPageProps) {
               </a>
             </p>
           </div>
-        </motion.div>
+        </m.div>
       </main>
     </div>
   );

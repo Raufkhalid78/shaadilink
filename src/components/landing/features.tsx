@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, MouseEvent } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   Sparkles, Timer, MapPin, MessageCircleHeart, Share2,
   Music, Crown, Languages
@@ -43,7 +43,7 @@ function BentoCard({
   };
 
   return (
-    <motion.div
+    <m.div
       ref={cardRef}
       onMouseMove={handleMouseMove}
       initial={{ opacity: 0, y: 30 }}
@@ -60,7 +60,7 @@ function BentoCard({
         }}
       />
       {children}
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -96,7 +96,7 @@ export function Features() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <motion.span
+          <m.span
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -104,7 +104,7 @@ export function Features() {
           >
             <Sparkles className="w-3.5 h-3.5" />
             {t("features.badge")}
-          </motion.span>
+          </m.span>
           <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">
             {language === 'en' ? 'Everything You Need for the' : 'شادی کی بہترین تیاری کے لیے'}
             <br />
@@ -369,7 +369,7 @@ export function Features() {
         </div>
 
         {/* Bottom CTA */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -386,7 +386,7 @@ export function Features() {
             <Sparkles className="w-3.5 h-3.5" />
             {language === 'en' ? 'See pricing →' : 'قیمتیں دیکھیں ←'}
           </a>
-        </motion.div>
+        </m.div>
       </div>
     </section>
   );

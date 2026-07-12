@@ -3,9 +3,9 @@
 import { drawHeartPath, getHeartSvgPath } from '../ui/shapes';
 import { HeartDivider } from '../ui/dividers';
 
-import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
+import React, { useState, useRef, useEffect, useCallback, useMemo, useId } from 'react'
 import { createPortal } from 'react-dom'
-import { motion, AnimatePresence, useInView } from 'framer-motion'
+import { m, AnimatePresence, useInView } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -56,15 +56,17 @@ export function ScratchCard({
   const sparklesRef = useRef<Array<{ x: number; y: number; vx: number; vy: number; life: number; maxLife: number; size: number; color: string }>>([])
   const sparkleAnimRef = useRef<number>(0)
 
-  const isRoyal = theme.id.includes('royal')
+  const isRoyal = theme.id.includes('royal') || theme.id === 'geometric-gold' || theme.id === 'dark-velvet'
+  const clipId = useId().replace(/:/g, '')
   // Responsive width: never exceed viewport width minus padding (fixes overflow on iPhone SE)
   const maxWidth = typeof window !== 'undefined' ? window.innerWidth - 32 : 340
-  const CARD_W = isRoyal ? Math.min(320, maxWidth) : Math.min(340, maxWidth)
-  const CARD_H = isRoyal ? 300 : 220
+  const CARD_W = Math.min(340, maxWidth)
+  // Taller heart card so revealed content fits without clipping
+  const CARD_H = isRoyal ? 360 : 220
 
   // Grid-based scratch tracking (reliable, no getImageData needed)
   const GRID_COLS = isRoyal ? 15 : 17
-  const GRID_ROWS = isRoyal ? 15 : 11
+  const GRID_ROWS = isRoyal ? 16 : 11
   const REVEAL_THRESHOLD = isRoyal ? 40 : 60
   const gridRef = useRef<Set<string>>(new Set())
 
@@ -312,9 +314,6 @@ export function ScratchCard({
 
     if (isRoyal) {
       drawHeartPath(ctx, 0, 0, CARD_W, CARD_H)
-      if (!ctx.isPointInPath(x, y)) {
-        return
-      }
     }
 
     ctx.globalCompositeOperation = 'destination-out'
@@ -381,7 +380,7 @@ export function ScratchCard({
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <motion.h2
+      <m.h2
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
@@ -389,11 +388,11 @@ export function ScratchCard({
         style={{ color: theme.accent }}
       >
         {language === 'ur' ? (translations.scratchReveal || 'دعوت نامہ دیکھنے کے لیے') : 'Scratch to Reveal'}
-      </motion.h2>
+      </m.h2>
       <HeartDivider themeId={theme.id} accentColor={theme.accent} />
       {!revealed && scratchPercent > 5 && (
         <div className="w-48 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: theme.getOpacityStyle('bg', 0.1) }}>
-          <motion.div
+          <m.div
             className="h-full rounded-full"
             style={{ background: `linear-gradient(90deg, ${theme.accentDark}, ${theme.accentLight})` }}
             animate={{ width: `${Math.min(scratchPercent, 100)}%` }}
@@ -401,6 +400,18 @@ export function ScratchCard({
           />
         </div>
       )}
+      
+      {/* Dynamic heart clip path for the current dimensions */}
+      {isRoyal && (
+        <svg width="0" height="0" className="absolute pointer-events-none">
+          <defs>
+            <clipPath id={`heart-clip-${clipId}`} clipPathUnits="userSpaceOnUse">
+              <path d={getHeartSvgPath(CARD_W, CARD_H)} />
+            </clipPath>
+          </defs>
+        </svg>
+      )}
+
       <div
         className={`relative ${isRoyal ? '' : 'rounded-2xl'} overflow-hidden`}
         style={{
@@ -409,12 +420,16 @@ export function ScratchCard({
           boxShadow: revealed
             ? `0 0 50px ${theme.getOpacityStyle('text', 0.5)}, 0 0 100px ${theme.getOpacityStyle('border', 0.2)}, rgba(0,0,0,0.3) 0px 4px 12px`
             : `${theme.getOpacityStyle('text', 0.3)} 0px 8px 40px, rgba(0,0,0,0.3) 0px 4px 12px`,
-          clipPath: isRoyal ? 'url(#heart-clip)' : undefined,
+          borderRadius: isRoyal ? '0' : '1rem',
+          clipPath: isRoyal ? `url(#heart-clip-${clipId})` : undefined,
+          WebkitClipPath: isRoyal ? `url(#heart-clip-${clipId})` : undefined
         }}
       >
         <div
           className={`absolute inset-0 flex flex-col items-center justify-center ${isRoyal ? '' : 'rounded-2xl'} transition-all duration-1000 ${revealed ? 'gold-border-pulse' : ''}`}
           style={{
+            width: CARD_W,
+            height: CARD_H,
             background: `linear-gradient(135deg, ${theme.scratchBg[1]} 0%, ${theme.bgDoor} 30%, ${theme.scratchBg[2]} 50%, ${theme.bgDoor} 70%, ${theme.scratchBg[1]} 100%)`,
             border: isRoyal 
               ? 'none' 
@@ -440,74 +455,74 @@ export function ScratchCard({
 
           <AnimatePresence mode="wait">
             {revealed ? (
-              <motion.div
+              <m.div
                 key="revealed"
-                initial={{ scale: 0.5, opacity: 0, filter: 'blur(10px)' }}
+                initial={{ scale: 0.7, opacity: 0, filter: 'blur(8px)' }}
                 animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }}
-                transition={{ duration: 0.8, ease: [0.34, 1.56, 0.64, 1] }}
-                className={`flex flex-col items-center gap-2 z-10 ${isRoyal ? '-translate-y-3' : ''}`}
+                transition={{ duration: 0.7, ease: [0.34, 1.4, 0.64, 1] }}
+                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.375rem', zIndex: 10, paddingLeft: isRoyal ? '2.5rem' : '0.75rem', paddingRight: isRoyal ? '2.5rem' : '0.75rem', paddingTop: isRoyal ? '3.5rem' : undefined }}
               >
-                <motion.div
-                  initial={{ y: -20, opacity: 0 }}
+                <m.div
+                  initial={{ y: -12, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.2, duration: 0.5 }}
+                  transition={{ delay: 0.15, duration: 0.4 }}
                 >
-                  <Sparkles className="w-6 h-6 mx-auto mb-1" style={{ color: theme.accentLight }} />
-                </motion.div>
-                <motion.p
-                  initial={{ y: -10, opacity: 0 }}
+                  <Sparkles className="w-5 h-5 mx-auto" style={{ color: theme.accentLight }} />
+                </m.div>
+                <m.p
+                  initial={{ y: -8, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.3, duration: 0.5 }}
-                  className={`${theme.fontCalligraphy} text-2xl sm:text-3xl font-bold`}
-                  style={{ color: theme.accentLight, textShadow: `0 0 25px ${theme.getOpacityStyle('text', 0.4)}, 0 0 50px ${theme.getOpacityStyle('text', 0.2)}` }}
+                  transition={{ delay: 0.25, duration: 0.4 }}
+                  className={`${theme.fontCalligraphy} ${isRoyal ? 'text-xl' : 'text-2xl sm:text-3xl'} font-bold text-center leading-tight`}
+                  style={{ color: theme.accentLight, textShadow: `0 0 20px ${theme.getOpacityStyle('text', 0.4)}` }}
                 >
                   {language === 'ur' ? (translations.youreInvited || 'آپ مدعو ہیں!') : "You're Invited!"}
-                </motion.p>
-                <motion.div
+                </m.p>
+                <m.div
                   initial={{ scaleX: 0 }}
                   animate={{ scaleX: 1 }}
-                  transition={{ delay: 0.5, duration: 0.4 }}
-                  className="h-px w-24"
+                  transition={{ delay: 0.4, duration: 0.35 }}
+                  className="h-px w-20"
                   style={{ background: `linear-gradient(90deg, transparent, ${theme.accent}, transparent)` }}
                 />
-                <motion.p
-                  initial={{ y: 10, opacity: 0 }}
+                <m.p
+                  initial={{ y: 8, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.6, duration: 0.5 }}
-                  className={`${theme.fontDisplay} text-2xl sm:text-3xl font-bold`}
-                  style={{ color: theme.textSecondary, textShadow: `0 0 15px ${theme.getOpacityStyle('text', 0.3)}` }}
+                  transition={{ delay: 0.5, duration: 0.4 }}
+                  className={`${theme.fontDisplay} ${isRoyal ? 'text-xl sm:text-2xl' : 'text-2xl sm:text-3xl'} font-bold text-center leading-tight`}
+                  style={{ color: theme.textSecondary, textShadow: `0 0 12px ${theme.getOpacityStyle('text', 0.3)}` }}
                 >
                   {scratchDateInfo.date}
-                </motion.p>
-                <motion.p
-                  initial={{ y: 10, opacity: 0 }}
+                </m.p>
+                <m.p
+                  initial={{ y: 8, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.7, duration: 0.5 }}
-                  className={`${theme.fontCalligraphy} text-lg`}
+                  transition={{ delay: 0.6, duration: 0.4 }}
+                  className={`${theme.fontCalligraphy} ${isRoyal ? 'text-base' : 'text-lg'}`}
                   style={{ color: theme.accent }}
                 >
                   {scratchDateInfo.day}
-                </motion.p>
-                <motion.p
-                  initial={{ y: 10, opacity: 0 }}
+                </m.p>
+                <m.p
+                  initial={{ y: 8, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.8, duration: 0.5 }}
-                  className="text-sm"
+                  transition={{ delay: 0.7, duration: 0.4 }}
+                  className="text-sm text-center"
                   style={{ color: theme.accentLight }}
                 >
                   {scratchTimeFormatted} <span style={{ color: theme.accentLight, fontWeight: 600 }}>{language === 'ur' ? 'پاکستانی وقت' : 'PKT'}</span>
-                </motion.p>
-              </motion.div>
+                </m.p>
+              </m.div>
             ) : (
-              <motion.div
+              <m.div
                 key="hidden"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className={`flex flex-col items-center gap-2 z-10 ${isRoyal ? '-translate-y-3' : ''}`}
+                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.375rem', zIndex: 10, paddingLeft: isRoyal ? '2.5rem' : '0.75rem', paddingRight: isRoyal ? '2.5rem' : '0.75rem', paddingTop: isRoyal ? '3.5rem' : undefined }}
               >
-                <Sparkles className="w-5 h-5 mx-auto mb-0.5" style={{ color: theme.accent }} />
+                <Sparkles className="w-5 h-5 mx-auto" style={{ color: theme.accent }} />
                 <p
-                  className={`${theme.fontCalligraphy} text-2xl sm:text-3xl font-bold`}
+                  className={`${theme.fontCalligraphy} ${isRoyal ? 'text-xl' : 'text-2xl sm:text-3xl'} font-bold text-center leading-tight`}
                   style={{ color: theme.accentLight, textShadow: `0 0 15px ${theme.getOpacityStyle('text', 0.25)}` }}
                 >
                   {language === 'ur' ? (translations.youreInvited || 'آپ مدعو ہیں!') : "You're Invited!"}
@@ -517,24 +532,24 @@ export function ScratchCard({
                   style={{ background: `linear-gradient(90deg, transparent, ${theme.accent}, transparent)` }}
                 />
                 <p
-                  className={`${theme.fontDisplay} text-2xl sm:text-3xl font-bold`}
+                  className={`${theme.fontDisplay} ${isRoyal ? 'text-xl sm:text-2xl' : 'text-2xl sm:text-3xl'} font-bold text-center leading-tight`}
                   style={{ color: theme.textSecondary, textShadow: `0 0 10px ${theme.getOpacityStyle('text', 0.15)}` }}
                 >
                   {scratchDateInfo.date}
                 </p>
                 <p
-                  className={`${theme.fontCalligraphy} text-lg`}
+                  className={`${theme.fontCalligraphy} ${isRoyal ? 'text-base' : 'text-lg'}`}
                   style={{ color: theme.accentLight }}
                 >
                   {scratchDateInfo.day}
                 </p>
                 <p
-                  className="text-sm"
+                  className="text-sm text-center"
                   style={{ color: theme.accent }}
                 >
                   {scratchTimeFormatted} <span style={{ color: theme.accentLight, fontWeight: 600 }}>{language === 'ur' ? 'پاکستانی وقت' : 'PKT'}</span>
                 </p>
-              </motion.div>
+              </m.div>
             )}
           </AnimatePresence>
         </div>
@@ -543,7 +558,7 @@ export function ScratchCard({
         <AnimatePresence>
           {showCelebration && celebrationSparkles.map((sparkle, i) => {
             return (
-              <motion.div
+              <m.div
                 key={i}
                 initial={{ scale: 0, opacity: 1, x: 0, y: 0 }}
                 animate={{
@@ -573,7 +588,7 @@ export function ScratchCard({
           <canvas
             ref={sparkleCanvasRef}
             className={`absolute inset-0 ${isRoyal ? '' : 'rounded-2xl'} pointer-events-none z-40`}
-            style={{ width: CARD_W, height: CARD_H }}
+            style={{ width: '100%', height: '100%' }}
           />
         )}
 
@@ -582,7 +597,7 @@ export function ScratchCard({
           <canvas
             ref={canvasRef}
             className={`absolute inset-0 ${isRoyal ? '' : 'rounded-2xl'} cursor-pointer touch-none z-30 transition-opacity duration-400 ${canvasFading ? 'opacity-0' : 'opacity-100'}`}
-            style={{ width: CARD_W, height: CARD_H, touchAction: 'none' }}
+            style={{ width: '100%', height: '100%', touchAction: 'none' }}
             onMouseDown={handleStart}
             onMouseMove={handleMove}
             onMouseUp={handleEnd}

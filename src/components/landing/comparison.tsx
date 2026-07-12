@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   X,
   Check,
@@ -151,7 +151,7 @@ export function Comparison() {
 
         {/* Comparison Table Scroll Container */}
         <div className="overflow-x-auto -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 scrollbar-thin">
-          <motion.div
+          <m.div
             variants={containerVariants}
             initial="hidden"
             whileInView="visible"
@@ -191,7 +191,7 @@ export function Comparison() {
 
             {/* Rows */}
             {comparisonRows.map((row, index) => (
-              <motion.div
+              <m.div
                 key={row.feature}
                 variants={rowVariants}
                 className={`grid grid-cols-[2fr_1fr_1fr_1fr_1.2fr] border-b border-border/30 last:border-b-0 hover:bg-emerald/[0.02] transition-colors duration-200 ${
@@ -246,9 +246,9 @@ export function Comparison() {
                     <CrossIcon />
                   )}
                 </div>
-              </motion.div>
+              </m.div>
             ))}
-          </motion.div>
+          </m.div>
         </div>
       </div>
     </section>

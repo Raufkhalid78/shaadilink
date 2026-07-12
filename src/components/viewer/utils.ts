@@ -17,7 +17,7 @@ export function hexToRgb(hex: string): string {
 
 export function getTheme(templateId?: string | null): TemplateTheme {
   const theme = !templateId ? DEFAULT_THEME : (TEMPLATE_THEMES[templateId] || DEFAULT_THEME)
-  const isRoyal = templateId ? (templateId.includes('royal') || ['crimson-royale', 'majestic-love', 'royal-imperial', 'royal-elegance'].includes(templateId)) : false
+  const isRoyal = templateId ? (['royal-imperial', 'royal-elegance', 'geometric-gold', 'dark-velvet'].includes(templateId)) : false
   
   const getOpacityStyle = (type: 'text' | 'bg' | 'border', defaultOpacity: number) => {
     if (!theme.isLight) {
@@ -43,6 +43,7 @@ export function getTheme(templateId?: string | null): TemplateTheme {
 
   return {
     ...theme,
+    isRoyal,
     fontDisplay: theme.fontDisplay || (isRoyal ? 'font-royal-display' : 'font-display'),
     fontCalligraphy: theme.fontCalligraphy || (isRoyal ? 'font-royal-script' : 'font-calligraphy'),
     getOpacityStyle,

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Star, Heart, CheckCircle2, MessageSquare } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 
@@ -91,7 +91,7 @@ export function Testimonials() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Header */}
         <div className="text-center mb-16">
-          <motion.span
+          <m.span
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -99,7 +99,7 @@ export function Testimonials() {
           >
             <Heart className="w-3.5 h-3.5 fill-current" />
             {language === 'en' ? 'Love Stories' : 'محبت کی کہانیاں'}
-          </motion.span>
+          </m.span>
           <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">
             {language === 'en' ? 'What Our ' : 'ہمارے '}<span className="gold-shimmer">{language === 'en' ? 'Couples' : 'جوڑوں'}</span>{language === 'en' ? ' Say' : ' کی رائے'}
           </h2>
@@ -118,7 +118,7 @@ export function Testimonials() {
         {/* Testimonials Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
           {testimonials.map((t, idx) => (
-            <motion.div
+            <m.div
               key={t.id}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -180,13 +180,13 @@ export function Testimonials() {
                   {language === 'en' ? 'Share Story' : 'کہانی شیئر کریں'}
                 </span>
               </div>
-            </motion.div>
+            </m.div>
           ))}
         </div>
 
         {/* Call to Action Button */}
         <div className="mt-12 text-center">
-          <motion.a
+          <m.a
             href="https://wa.me/447517879333?text=I%20want%20to%20share%20my%20ShaadiLink%20review"
             target="_blank"
             rel="noopener noreferrer"
@@ -195,7 +195,7 @@ export function Testimonials() {
             className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-[#25D366] text-emerald-dark font-bold text-sm tracking-wide shadow-lg shadow-[#25D366]/10 hover:bg-[#25D366]/90 transition-all duration-300"
           >
             💬 {language === 'en' ? 'Share Your Review on WhatsApp' : 'واٹس ایپ پر اپنی رائے شیئر کریں'}
-          </motion.a>
+          </m.a>
         </div>
       </div>
     </section>

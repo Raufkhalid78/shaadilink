@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useLanguage } from "@/components/language-provider";
 
@@ -75,7 +75,7 @@ export function FAQ({ onContactClick }: { onContactClick?: () => void }) {
         </div>
 
         {/* FAQ Accordion */}
-        <motion.div
+        <m.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
@@ -83,7 +83,7 @@ export function FAQ({ onContactClick }: { onContactClick?: () => void }) {
         >
           <Accordion type="single" collapsible className="space-y-3">
             {faqs.map((faq, index) => (
-              <motion.div key={index} variants={itemVariants}>
+              <m.div key={index} variants={itemVariants}>
                 <AccordionItem
                   value={`item-${index}`}
                   className="border border-border/40 rounded-xl px-6 bg-card data-[state=open]:border-gold/30 data-[state=open]:shadow-md data-[state=open]:shadow-gold/5 transition-all duration-300"
@@ -98,13 +98,13 @@ export function FAQ({ onContactClick }: { onContactClick?: () => void }) {
                     {faq.answer}
                   </AccordionContent>
                 </AccordionItem>
-              </motion.div>
+              </m.div>
             ))}
           </Accordion>
-        </motion.div>
+        </m.div>
 
         {/* Still have questions */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -126,7 +126,7 @@ export function FAQ({ onContactClick }: { onContactClick?: () => void }) {
               </a>
             )}
           </p>
-        </motion.div>
+        </m.div>
       </div>
     </section>
   );

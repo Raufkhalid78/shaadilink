@@ -1,5 +1,6 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { Cinzel_Decorative, Great_Vibes } from "next/font/google"
 
@@ -17,7 +18,7 @@ const greatVibes = Great_Vibes({
   display: "swap",
 })
 import { createPortal } from 'react-dom'
-import { motion, AnimatePresence, useInView } from 'framer-motion'
+import { m, AnimatePresence, useInView } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -86,8 +87,23 @@ import { InvitationViewerProps, hexToRgb, getTheme, extractColors, parseGiftDeta
 /* ─── Light Leak Effect ─── */
 /* ─── Door SVG Pattern Component ─── */
 /* ─── Door Overlay Component ─── */
+
+const RoyalImperialViewer = dynamic(() => import('./royal-viewers/royal-imperial-viewer'), { ssr: false })
+const RoyalEleganceViewer = dynamic(() => import('./royal-viewers/royal-elegance-viewer'), { ssr: false })
+const GeometricGoldViewer = dynamic(() => import('./royal-viewers/geometric-gold-viewer'), { ssr: false })
+const DarkVelvetViewer = dynamic(() => import('./royal-viewers/dark-velvet-viewer'), { ssr: false })
+
+/* ─── Royal Template Router ─── */
+const ROYAL_TEMPLATE_MAP: Record<string, React.ComponentType<{ templateId?: string; flowData?: FlowData; guestName?: string | null }>> = {
+  'royal-imperial': RoyalImperialViewer,
+  'royal-elegance': RoyalEleganceViewer,
+  'geometric-gold': GeometricGoldViewer,
+  'dark-velvet': DarkVelvetViewer,
+}
+
 /* ─── Main Invitation Viewer ─── */
-export default function InvitationViewer({ templateId, flowData, guestName }: InvitationViewerProps) {
+function ClassicViewer({ templateId, flowData, guestName }: InvitationViewerProps) {
+
   const theme = useMemo(() => getTheme(templateId), [templateId])
 
   const getOpacityStyle = useCallback((type: 'text' | 'bg' | 'border', defaultOpacity: number) => {
@@ -173,6 +189,7 @@ export default function InvitationViewer({ templateId, flowData, guestName }: In
   const accommodation = flowData?.accommodation?.trim() || (isDemo ? "Rooms blocked at Leela Palace & Pearl Continental. Mention 'Ahmed & Fatima' for discounts." : "")
   const transportation = flowData?.transportation?.trim() || (isDemo ? "Shuttle service will run from Pearl Continental to the venue every 30 minutes starting at 6:30 PM." : "")
   const gifts = flowData?.gifts?.trim() || (isDemo ? "Your prayers are our greatest gift. For Shagun, you may transfer to Meezan Bank, Title: Ahmed Khan, Account Number: 028102384, IBAN: PK45MEZN00028102384, Raast ID: 03001234567, EasyPaisa: 03123456789" : "")
+  const youtubeVideoId = flowData?.youtubeVideoId?.trim() || (isDemo ? "dQw4w9WgXcQ" : "")
 
   const dynamicEvents = useMemo(() => {
     if (flowData?.events && flowData.events.some(e => e.date || e.time)) {
@@ -772,19 +789,15 @@ export default function InvitationViewer({ templateId, flowData, guestName }: In
       <BackgroundParticles accentColor={theme.accent} />
 
       {/* ═══ Door Opening Overlay ═══ */}
-      <AnimatePresence>
-        {doorOverlayVisible && (
-          <motion.div
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-            className="fixed inset-0 z-50"
-            style={{ perspective: ['classic-doors', 'archway', 'lantern'].includes(theme.doorStyle.type) ? '1200px' : undefined }}
-          >
-            <DoorOverlay theme={theme} doorsOpened={doorsOpened} onOpen={handleDoorOpen} />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Note: no Framer opacity animation on this wrapper — it would create a new stacking context and flatten 3D transforms */}
+      {doorOverlayVisible && (
+        <div
+          className="fixed inset-0 z-50"
+          style={{ perspective: ['classic-doors', 'archway', 'lantern'].includes(theme.doorStyle.type) ? '1200px' : undefined }}
+        >
+          <DoorOverlay theme={theme} doorsOpened={doorsOpened} onOpen={handleDoorOpen} />
+        </div>
+      )}
 
       {/* Fireworks */}
       <FireworksDisplay show={showFireworks} colors={theme.fireworkColors} />
@@ -826,14 +839,14 @@ export default function InvitationViewer({ templateId, flowData, guestName }: In
 
       {/* ─── Bismillah Banner (shown only if enabled) ─── */}
       {flowData?.showBismillah !== false && (
-        <motion.div
+        <m.div
           initial={{ borderColor: 'transparent' }}
           animate={doorsOpened ? { borderColor: getOpacityStyle('border', 0.15) } : { borderColor: 'transparent' }}
           transition={{ delay: 2.2, duration: 1.0 }}
           className="relative flex flex-col items-center justify-center py-10 px-6 overflow-hidden border-b"
         >
           {/* Ambient background glow */}
-          <motion.div 
+          <m.div 
             initial={{ opacity: 0 }}
             animate={doorsOpened ? { opacity: 1 } : { opacity: 0 }}
             transition={{ delay: 2.2, duration: 1.0 }}
@@ -843,7 +856,7 @@ export default function InvitationViewer({ templateId, flowData, guestName }: In
             }} 
           />
           {/* Top ornamental line */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={doorsOpened ? { opacity: 1 } : { opacity: 0 }}
             transition={{ delay: 2.2, duration: 1.0 }}
@@ -855,10 +868,10 @@ export default function InvitationViewer({ templateId, flowData, guestName }: In
                 stroke={theme.accent} strokeWidth="0.8" fill="none" opacity="0.7" />
             </svg>
             <div className="flex-1 h-px" style={{ background: `linear-gradient(to left, transparent, ${getOpacityStyle('text', 0.5)})` }} />
-          </motion.div>
+          </m.div>
 
           {/* Calligraphy & Translation Wrapper */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: '38vh', scale: 1.2 }}
             animate={doorsOpened ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: '38vh', scale: 1.2 }}
             transition={{
@@ -882,10 +895,10 @@ export default function InvitationViewer({ templateId, flowData, guestName }: In
             >
               In the name of Allah, the Most Gracious, the Most Merciful
             </p>
-          </motion.div>
+          </m.div>
 
           {/* Bottom ornamental line */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={doorsOpened ? { opacity: 1 } : { opacity: 0 }}
             transition={{ delay: 2.2, duration: 1.0 }}
@@ -894,12 +907,12 @@ export default function InvitationViewer({ templateId, flowData, guestName }: In
             <div className="flex-1 h-px" style={{ background: `linear-gradient(to right, transparent, ${getOpacityStyle('text', 0.5)})` }} />
             <div className="w-2 h-2 rotate-45" style={{ border: `1px solid ${getOpacityStyle('border', 0.6)}` }} />
             <div className="flex-1 h-px" style={{ background: `linear-gradient(to left, transparent, ${getOpacityStyle('text', 0.5)})` }} />
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       )}
 
       {/* ═══ Main Content ═══ */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, scale: theme.id.includes('royal') ? 0.94 : 1, filter: theme.id.includes('royal') ? 'blur(6px)' : 'blur(0px)', y: theme.id.includes('royal') ? 20 : 0 }}
         animate={{
           opacity: heroVisible ? 1 : 0,
@@ -996,11 +1009,11 @@ export default function InvitationViewer({ templateId, flowData, guestName }: In
           <section className="py-16 md:py-20 px-6">
             <div className="max-w-lg mx-auto text-center">
               {guestNameFromUrl && (
-                <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+                <m.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
                   <h3 className={`${theme.fontDisplay} text-3xl md:text-4xl capitalize mb-8`} style={{ color: theme.accent }}>
                     {language === 'ur' ? 'محترم' : 'Dear'} {guestNameFromUrl},
                   </h3>
-                </motion.div>
+                </m.div>
               )}
               <WaveDivider accentColor={theme.accent} />
               <p className={`${theme.fontCalligraphy} text-xl md:text-2xl leading-relaxed italic whitespace-pre-wrap break-words my-8`} style={{ color: theme.accentLight, textShadow: `0 0 15px ${getOpacityStyle('text', 0.2)}` }}>
@@ -1101,7 +1114,7 @@ export default function InvitationViewer({ templateId, flowData, guestName }: In
         </RevealSection>
 
           {/* 🎥 Video Section (Royal Plan / Video Feature) 🎥 */}
-          {flowData?.youtubeVideoId && (flowData.selectedPlan === 'royal' || theme.id.includes('royal') || ['crimson-royale', 'majestic-love', 'royal-imperial', 'royal-elegance'].includes(theme.id)) && (
+          {youtubeVideoId && (flowData?.selectedPlan === 'royal' || theme.isRoyal) && (
             <RevealSection>
               <section className="py-16 md:py-20 px-6">
                 <div className="flex flex-col items-center gap-6">
@@ -1114,7 +1127,7 @@ export default function InvitationViewer({ templateId, flowData, guestName }: In
                     >
                       <iframe 
                         className="w-full h-full"
-                        src={`https://www.youtube.com/embed/${flowData.youtubeVideoId}?rel=0&modestbranding=1`} 
+                        src={`https://www.youtube.com/embed/${youtubeVideoId}?rel=0&modestbranding=1`} 
                         title="YouTube video player" 
                         frameBorder="0" 
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
@@ -1191,7 +1204,7 @@ export default function InvitationViewer({ templateId, flowData, guestName }: In
         </RevealSection>
 
         {/* ─── Dress Code Section ─── */}
-        {(dressCodeWomen || dressCodeMen) && (
+        {(dressCodeWomen || dressCodeMen) && (flowData?.selectedPlan === 'royal' || theme.isRoyal) && (
           <RevealSection>
             <section className="py-16 md:py-20 px-6">
               <div className="flex flex-col items-center gap-8 max-w-md mx-auto">
@@ -1257,7 +1270,7 @@ export default function InvitationViewer({ templateId, flowData, guestName }: In
         )}
 
         {/* ─── Travel & Accommodations Section ─── */}
-        {(accommodation || transportation) && (
+        {(accommodation || transportation) && (flowData?.selectedPlan === 'royal' || theme.isRoyal) && (
           <RevealSection>
             <section className="py-16 md:py-20 px-6">
               <div className="flex flex-col items-center gap-8 max-w-md mx-auto">
@@ -1351,7 +1364,7 @@ export default function InvitationViewer({ templateId, flowData, guestName }: In
         </RevealSection>
 
         {/* ─── Gift Registry & Shagun Section ─── */}
-        {gifts && (
+        {gifts && (flowData?.selectedPlan === 'royal' || theme.isRoyal) && (
           <RevealSection>
             <section className="py-16 md:py-20 px-6">
               <div className="flex flex-col items-center gap-8 max-w-md mx-auto">
@@ -1580,7 +1593,7 @@ export default function InvitationViewer({ templateId, flowData, guestName }: In
                       </button>
                       <AnimatePresence initial={false}>
                         {isExpanded && (
-                          <motion.div
+                          <m.div
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: 'auto', opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
@@ -1589,7 +1602,7 @@ export default function InvitationViewer({ templateId, flowData, guestName }: In
                             <div className="p-4 pt-0 border-t text-sm leading-relaxed" style={{ borderColor: getOpacityStyle('text', 0.1), color: getOpacityStyle('text', 0.8) }}>
                               {answer}
                             </div>
-                          </motion.div>
+                          </m.div>
                         )}
                       </AnimatePresence>
                     </div>
@@ -1680,8 +1693,8 @@ export default function InvitationViewer({ templateId, flowData, guestName }: In
                     </CardContent>
                   </Card>
                 ) : (
-                  <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 200 }} className="text-center py-10">
-                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2, type: 'spring', stiffness: 300 }} className="mb-4">
+                  <m.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 200 }} className="text-center py-10">
+                    <m.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2, type: 'spring', stiffness: 300 }} className="mb-4">
                       {rsvpStatus === 'accept' ? (
                         <div className="w-16 h-16 rounded-full border flex items-center justify-center mx-auto" style={{ backgroundColor: getOpacityStyle('border', 0.2), borderColor: getOpacityStyle('border', 0.4) }}>
                           <Check className="w-8 h-8" style={{ color: theme.accent }} />
@@ -1691,7 +1704,7 @@ export default function InvitationViewer({ templateId, flowData, guestName }: In
                           <Heart className="w-8 h-8" style={{ color: theme.accent }} />
                         </div>
                       )}
-                    </motion.div>
+                    </m.div>
                     <h3 className={`${theme.fontDisplay} text-xl mb-2`} style={{ color: theme.accent }}>
                       {rsvpStatus === 'accept' ? t('joyfullyAccepted', 'Joyfully Accepted!') : t('thankYou', 'Thank You!')}
                     </h3>
@@ -1700,7 +1713,7 @@ export default function InvitationViewer({ templateId, flowData, guestName }: In
                         ? `We can't wait to celebrate with you, ${rsvpName}! 🎉`
                         : `We'll miss you, ${rsvpName}. You'll be in our hearts! 💌`}
                     </p>
-                  </motion.div>
+                  </m.div>
                 )}
               </div>
             </div>
@@ -1724,7 +1737,7 @@ export default function InvitationViewer({ templateId, flowData, guestName }: In
                     const displayName = language === 'ur' && wish.translatedName ? wish.translatedName : wish.name
                     const displayMessage = language === 'ur' && wish.translatedMessage ? wish.translatedMessage : wish.message
                     return (
-                      <motion.div
+                      <m.div
                         key={`${wish.name}-${idx}`}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -1741,7 +1754,7 @@ export default function InvitationViewer({ templateId, flowData, guestName }: In
                             <p className="text-sm leading-relaxed" style={{ color: getOpacityStyle('text', 0.8) }}>{displayMessage}</p>
                           </div>
                         </div>
-                      </motion.div>
+                      </m.div>
                     )
                   })
                 )}
@@ -1789,19 +1802,13 @@ export default function InvitationViewer({ templateId, flowData, guestName }: In
           </div>
           <p className="text-xs tracking-wider" style={{ color: getOpacityStyle('text', 0.3) }}>{t('madeWithLove', 'Made with love by ShaadiLink')}</p>
         </div>
-      </motion.div>
+      </m.div>
 
       {/* ═══ Inline SVG ClipPaths ─── */}
-      <svg width="0" height="0" className="absolute pointer-events-none">
-        <defs>
-          <clipPath id="heart-clip" clipPathUnits="userSpaceOnUse">
-            <path d={getHeartSvgPath(320, 300)} />
-          </clipPath>
-        </defs>
-      </svg>
     </div>
   )
 }
+
 
 import { GoldDivider, HeartDivider, WaveDivider } from './ui/dividers';
 import { CornerOrnament } from './ui/ornaments';
@@ -1822,3 +1829,10 @@ import { PhotoGallery } from './features/photo-gallery';
 import { drawHeartPath, getHeartSvgPath } from './ui/shapes';
 import { RevealSection, getMapEmbedQuery } from './ui/reveal-section';
 
+export default function InvitationViewer(props: InvitationViewerProps) {
+  const RoyalViewer = props.templateId ? ROYAL_TEMPLATE_MAP[props.templateId] : null
+  if (RoyalViewer) {
+    return <RoyalViewer {...props} />
+  }
+  return <ClassicViewer {...props} />
+}

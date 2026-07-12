@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Eye, Heart, Sparkles, Star, Search, X, Check, Crown, Gem, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -241,7 +241,7 @@ function TemplateCard({
   const [liked, setLiked] = useState(false);
 
   return (
-    <motion.div
+    <m.div
       layout
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
@@ -313,7 +313,7 @@ function TemplateCard({
           )}
         </div>
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -420,7 +420,7 @@ export function TemplatesPage({
                   {filterTemplates(classicTemplates).length} premium designs included with Classic plan
                 </p>
               </div>
-              <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <m.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 <AnimatePresence mode="popLayout">
                   {filterTemplates(classicTemplates).map((template) => (
                     <TemplateCard
@@ -431,7 +431,7 @@ export function TemplatesPage({
                     />
                   ))}
                 </AnimatePresence>
-              </motion.div>
+              </m.div>
               {filterTemplates(classicTemplates).length === 0 && (
                 <EmptyState onClear={() => setSearch("")} />
               )}
@@ -447,7 +447,7 @@ export function TemplatesPage({
                   {filterTemplates(royalTemplates).length} cinematic designs with premium animations
                 </p>
               </div>
-              <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <m.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 <AnimatePresence mode="popLayout">
                   {filterTemplates(royalTemplates).map((template) => (
                     <TemplateCard
@@ -459,7 +459,7 @@ export function TemplatesPage({
                     />
                   ))}
                 </AnimatePresence>
-              </motion.div>
+              </m.div>
               {filterTemplates(royalTemplates).length === 0 && (
                 <EmptyState onClear={() => setSearch("")} />
               )}
@@ -474,11 +474,11 @@ export function TemplatesPage({
 /* ---------- Empty State ---------- */
 function EmptyState({ onClear }: { onClear: () => void }) {
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20">
+    <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20">
       <Sparkles className="w-12 h-12 text-gold/30 mx-auto mb-4" />
       <h3 className="font-display text-xl font-semibold text-foreground mb-2">No templates found</h3>
       <p className="text-muted-foreground text-sm">Try adjusting your search terms.</p>
       <Button variant="outline" className="mt-4 border-gold/30 text-gold hover:bg-gold/10" onClick={onClear}>Clear Search</Button>
-    </motion.div>
+    </m.div>
   );
 }

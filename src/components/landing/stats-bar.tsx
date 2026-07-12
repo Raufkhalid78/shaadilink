@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, useInView } from "framer-motion";
+import { m, useInView } from "framer-motion";
 import { Heart, Users, MessageCircle } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 
@@ -131,13 +131,13 @@ export function StatsBar() {
 
         {/* Zero-state banner */}
         {allZero && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             className="mb-6 mx-auto max-w-xl rounded-xl border border-gold/20 bg-gold/5 px-5 py-3 text-center text-sm text-gold/80"
           >
             {t('stats.zeroState')}
-          </motion.div>
+          </m.div>
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-gold/10 rounded-2xl overflow-hidden border border-gold/10 shadow-lg shadow-black/30">
@@ -145,7 +145,7 @@ export function StatsBar() {
             const Icon = stat.icon;
             const value = statsData[stat.key];
             return (
-              <motion.div
+              <m.div
                 key={stat.translationKey}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -184,7 +184,7 @@ export function StatsBar() {
                 <p className="text-xs sm:text-sm text-muted-foreground font-medium text-center leading-tight">
                   {t(stat.translationKey)}
                 </p>
-              </motion.div>
+              </m.div>
             );
           })}
         </div>

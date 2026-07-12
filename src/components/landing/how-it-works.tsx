@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, useInView } from "framer-motion";
+import { m, useInView } from "framer-motion";
 import {
   MapPin,
   Heart,
@@ -37,7 +37,7 @@ function ConnectingLine({ direction = "horizontal" }: { direction?: "horizontal"
 
   return (
     <div className={`flex items-center justify-center ${isHorizontal ? "py-4 lg:py-0" : "py-2"}`}>
-      <motion.div
+      <m.div
         className={`${isHorizontal ? "w-16 h-px lg:w-24" : "w-px h-16"} relative`}
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
@@ -54,7 +54,7 @@ function ConnectingLine({ direction = "horizontal" }: { direction?: "horizontal"
           }}
         />
         {/* Animated glow pulse */}
-        <motion.div
+        <m.div
           className="absolute inset-0"
           style={{
             background: isHorizontal
@@ -66,7 +66,7 @@ function ConnectingLine({ direction = "horizontal" }: { direction?: "horizontal"
           }}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
         />
-      </motion.div>
+      </m.div>
     </div>
   );
 }
@@ -111,7 +111,7 @@ function FormMockup() {
             const Icon = field.icon;
             const isActive = index === activeField;
             return (
-              <motion.div
+              <m.div
                 key={field.label}
                 className="space-y-1"
                 animate={isActive ? { scale: [1, 1.02, 1] } : {}}
@@ -140,7 +140,7 @@ function FormMockup() {
                     {field.value}
                   </span>
                 </div>
-              </motion.div>
+              </m.div>
             );
           })}
         </div>
@@ -161,42 +161,42 @@ function TransformVisual() {
         className="relative w-28 h-28 rounded-full bg-gradient-to-br from-gold/20 to-emerald/20 border-2 border-gold/30 flex items-center justify-center gold-border-pulse"
       >
         {/* Inner sparkle */}
-        <motion.div
+        <m.div
           animate={{ rotate: 360, scale: [1, 1.2, 1] }}
           transition={{ rotate: { duration: 8, repeat: Infinity, ease: "linear" }, scale: { duration: 2, repeat: Infinity } }}
         >
           <Sparkles className="w-8 h-8 text-gold" />
-        </motion.div>
+        </m.div>
 
         {/* Orbiting sparkle 1 */}
-        <motion.div
+        <m.div
           className="absolute inset-0"
           animate={{ rotate: 360 }}
           transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
         >
           <Sparkles className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 text-gold/70" />
-        </motion.div>
+        </m.div>
 
         {/* Orbiting sparkle 2 */}
-        <motion.div
+        <m.div
           className="absolute inset-0"
           animate={{ rotate: -360 }}
           transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
         >
           <Sparkles className="absolute top-1/2 -right-2 -translate-y-1/2 w-3 h-3 text-emerald/60" />
-        </motion.div>
+        </m.div>
 
         {/* Orbiting sparkle 3 */}
-        <motion.div
+        <m.div
           className="absolute inset-0"
           animate={{ rotate: 360 }}
           transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
         >
           <Sparkles className="absolute -bottom-1 left-1/4 w-2.5 h-2.5 text-gold/50" />
-        </motion.div>
+        </m.div>
 
         {/* Glow pulse ring */}
-        <motion.div
+        <m.div
           className="absolute inset-[-8px] rounded-full border border-gold/20"
           animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.6, 0.3] }}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
@@ -204,13 +204,13 @@ function TransformVisual() {
       </div>
 
       {/* "We handle the magic" text */}
-      <motion.p
+      <m.p
         className="mt-5 text-sm text-muted-foreground italic"
         animate={{ opacity: [0.7, 1, 0.7] }}
         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
       >
         We handle the magic ✨
-      </motion.p>
+      </m.p>
     </div>
   );
 }
@@ -218,7 +218,7 @@ function TransformVisual() {
 /* ---------- Step 3: Invitation Card Preview ---------- */
 function InvitationPreview() {
   return (
-    <motion.div
+    <m.div
       className="relative w-full max-w-sm mx-auto"
       animate={{ y: [0, -6, 0] }}
       transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
@@ -242,27 +242,27 @@ function InvitationPreview() {
         <div className="absolute bottom-3 right-3 w-8 h-8 border-r-2 border-b-2 border-gold/30" />
 
         {/* Floating sparkle decorations */}
-        <motion.div
+        <m.div
           className="absolute top-6 right-6"
           animate={{ opacity: [0.3, 0.7, 0.3], scale: [1, 1.3, 1] }}
           transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
         >
           <Sparkles className="w-3 h-3 text-gold/40" />
-        </motion.div>
-        <motion.div
+        </m.div>
+        <m.div
           className="absolute bottom-8 left-6"
           animate={{ opacity: [0.2, 0.6, 0.2], scale: [1, 1.2, 1] }}
           transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
         >
           <Sparkles className="w-3 h-3 text-gold/30" />
-        </motion.div>
-        <motion.div
+        </m.div>
+        <m.div
           className="absolute top-1/3 left-4"
           animate={{ opacity: [0.15, 0.5, 0.15], scale: [1, 1.4, 1] }}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 1 }}
         >
           <Sparkles className="w-2 h-2 text-gold/20" />
-        </motion.div>
+        </m.div>
 
         {/* Card content */}
         <div className="px-8 py-10 text-center space-y-4 relative z-10">
@@ -303,26 +303,26 @@ function InvitationPreview() {
 
       {/* Sharing icons below */}
       <div className="flex items-center justify-center gap-4 mt-5">
-        <motion.div
+        <m.div
           className="flex items-center justify-center w-9 h-9 rounded-full bg-emerald/10 text-emerald"
           whileHover={{ scale: 1.1, backgroundColor: "rgba(15,107,78,0.2)" }}
         >
           <MessageCircle className="w-4 h-4" />
-        </motion.div>
-        <motion.div
+        </m.div>
+        <m.div
           className="flex items-center justify-center w-9 h-9 rounded-full bg-emerald/10 text-emerald"
           whileHover={{ scale: 1.1, backgroundColor: "rgba(15,107,78,0.2)" }}
         >
           <Link2 className="w-4 h-4" />
-        </motion.div>
-        <motion.div
+        </m.div>
+        <m.div
           className="flex items-center justify-center w-9 h-9 rounded-full bg-emerald/10 text-emerald"
           whileHover={{ scale: 1.1, backgroundColor: "rgba(15,107,78,0.2)" }}
         >
           <Share2 className="w-4 h-4" />
-        </motion.div>
+        </m.div>
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -388,7 +388,7 @@ export function HowItWorks() {
         </div>
 
         {/* 3-Step Layout */}
-        <motion.div
+        <m.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
@@ -398,13 +398,13 @@ export function HowItWorks() {
           {/* Desktop: 3 columns with connecting lines */}
           <div className="hidden lg:grid grid-cols-[1fr_auto_1fr_auto_1fr] items-stretch gap-0">
             {/* Step 1 */}
-            <motion.div variants={itemVariants} className="flex flex-col h-full space-y-4 text-center">
+            <m.div variants={itemVariants} className="flex flex-col h-full space-y-4 text-center">
               <StepBadge number="01" label={t('hiw.step1.label')} />
               <FormMockup />
               <p className="text-center text-sm text-muted-foreground mt-4 max-w-xs mx-auto">
                 {t('hiw.step1.desc')}
               </p>
-            </motion.div>
+            </m.div>
 
             {/* Connecting Line 1 */}
             <div className="flex items-center justify-center h-full pb-12">
@@ -412,13 +412,13 @@ export function HowItWorks() {
             </div>
 
             {/* Step 2 */}
-            <motion.div variants={itemVariants} className="flex flex-col h-full justify-center space-y-4 text-center">
+            <m.div variants={itemVariants} className="flex flex-col h-full justify-center space-y-4 text-center">
               <StepBadge number="02" label={t('hiw.step2.label')} />
               <TransformVisual />
               <p className="text-center text-sm text-muted-foreground mt-4 max-w-xs mx-auto">
                 {t('hiw.step2.desc')}
               </p>
-            </motion.div>
+            </m.div>
 
             {/* Connecting Line 2 */}
             <div className="flex items-center justify-center h-full pb-12">
@@ -426,46 +426,46 @@ export function HowItWorks() {
             </div>
 
             {/* Step 3 */}
-            <motion.div variants={itemVariants} className="flex flex-col h-full space-y-4 text-center">
+            <m.div variants={itemVariants} className="flex flex-col h-full space-y-4 text-center">
               <StepBadge number="03" label={t('hiw.step3.label')} />
               <InvitationPreview />
               <p className="text-center text-sm text-muted-foreground mt-4 max-w-xs mx-auto">
                 {t('hiw.step3.desc')}
               </p>
-            </motion.div>
+            </m.div>
           </div>
 
           {/* Mobile: vertical stack with connecting lines */}
           <div className="lg:hidden space-y-0">
-            <motion.div variants={itemVariants} className="space-y-4 text-center">
+            <m.div variants={itemVariants} className="space-y-4 text-center">
               <StepBadge number="01" label={t('hiw.step1.label')} />
               <FormMockup />
               <p className="text-center text-sm text-muted-foreground mt-4 max-w-xs mx-auto">
                 {t('hiw.step1.desc')}
               </p>
-            </motion.div>
+            </m.div>
 
             <ConnectingLine direction="vertical" />
 
-            <motion.div variants={itemVariants} className="space-y-4 text-center">
+            <m.div variants={itemVariants} className="space-y-4 text-center">
               <StepBadge number="02" label={t('hiw.step2.label')} />
               <TransformVisual />
               <p className="text-center text-sm text-muted-foreground mt-4 max-w-xs mx-auto">
                 {t('hiw.step2.desc')}
               </p>
-            </motion.div>
+            </m.div>
 
             <ConnectingLine direction="vertical" />
 
-            <motion.div variants={itemVariants} className="space-y-4 text-center">
+            <m.div variants={itemVariants} className="space-y-4 text-center">
               <StepBadge number="03" label={t('hiw.step3.label')} />
               <InvitationPreview />
               <p className="text-center text-sm text-muted-foreground mt-4 max-w-xs mx-auto">
                 {t('hiw.step3.desc')}
               </p>
-            </motion.div>
+            </m.div>
           </div>
-        </motion.div>
+        </m.div>
       </div>
     </section>
   );

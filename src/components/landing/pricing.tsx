@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Check, Crown, Sparkles, ArrowRight, Lock, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -105,7 +105,7 @@ export function Pricing({ onSelectPlan }: PricingProps) {
         </div>
 
         {/* Pricing Cards */}
-        <motion.div
+        <m.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
@@ -115,7 +115,7 @@ export function Pricing({ onSelectPlan }: PricingProps) {
           {plans.map((plan) => {
             const isHovered = hovered === plan.id;
             return (
-              <motion.div
+              <m.div
                 key={plan.id}
                 variants={cardVariants}
                 onMouseEnter={() => setHovered(plan.id)}
@@ -243,13 +243,13 @@ export function Pricing({ onSelectPlan }: PricingProps) {
                     <p className="text-xs text-muted-foreground mt-2 text-center">{t("pricing.guarantee")}</p>
                   </div>
                 </div>
-              </motion.div>
+              </m.div>
             );
           })}
-        </motion.div>
+        </m.div>
 
         {/* Add-ons Section */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -294,10 +294,10 @@ export function Pricing({ onSelectPlan }: PricingProps) {
               {language === 'en' ? 'Add to Plan' : 'شامل کریں'}
             </Button>
           </div>
-        </motion.div>
+        </m.div>
 
         {/* Bottom notices */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -322,7 +322,7 @@ export function Pricing({ onSelectPlan }: PricingProps) {
             <Lock className="w-3.5 h-3.5 text-emerald shrink-0" />
             {language === 'en' ? 'Secure payments · SSL encrypted' : 'محفوظ ادائیگی · SSL انکرپٹڈ'}
           </div>
-        </motion.div>
+        </m.div>
       </div>
     </section>
   );

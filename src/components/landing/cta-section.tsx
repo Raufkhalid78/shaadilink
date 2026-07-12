@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Sparkles, Heart, ArrowRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/components/language-provider";
@@ -73,7 +73,7 @@ export function CTASection({ onGetStarted }: CTASectionProps) {
       <div className="absolute bottom-0 right-0 w-12 h-12 sm:w-20 sm:h-20 border-r-2 border-b-2 border-gold/20" />
 
       <div className="relative z-10 mx-auto max-w-3xl px-4 sm:px-6 text-center">
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -87,7 +87,7 @@ export function CTASection({ onGetStarted }: CTASectionProps) {
           </div>
 
           {/* Premium badge */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
@@ -103,7 +103,7 @@ export function CTASection({ onGetStarted }: CTASectionProps) {
             <span className="text-xs text-white/40">
               {language === 'en' ? 'Handcrafted digital designs' : 'نفاست سے تیار کردہ ڈیزائنز'}
             </span>
-          </motion.div>
+          </m.div>
 
           <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight">
             {language === 'en' ? 'Ready to Create Your ' : 'کیا آپ اپنا '}
@@ -117,7 +117,7 @@ export function CTASection({ onGetStarted }: CTASectionProps) {
           </p>
 
           {/* Benefits list */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -130,16 +130,16 @@ export function CTASection({ onGetStarted }: CTASectionProps) {
                 <span className="text-sm text-white/60">{benefit}</span>
               </div>
             ))}
-          </motion.div>
+          </m.div>
 
-          <motion.div
+          <m.div
             className="mt-8 flex flex-col items-center justify-center gap-4"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.4 }}
           >
-            <motion.div
+            <m.div
               className="transform-gpu will-change-transform"
               animate={{ scale: [1, 1.02, 1] }}
               transition={{
@@ -157,13 +157,13 @@ export function CTASection({ onGetStarted }: CTASectionProps) {
                 {language === 'en' ? 'Start Creating Your Invitation' : 'دعوت نامہ بنانا شروع کریں'}
                 <ArrowRight className="w-4 h-4" />
               </Button>
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
 
           <p className="mt-6 text-sm text-white/30">
             {language === 'en' ? 'Starting from Rs. 3,499 • One-time payment' : 'صرف 3,499 روپے سے شروع • یک وقتی ادائیگی'}
           </p>
-        </motion.div>
+        </m.div>
       </div>
     </section>
   );

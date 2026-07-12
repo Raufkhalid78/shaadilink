@@ -3,7 +3,7 @@
 
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { createPortal } from 'react-dom'
-import { motion, AnimatePresence, useInView } from 'framer-motion'
+import { m, AnimatePresence, useInView } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -21,7 +21,7 @@ export function RevealSection({ children, className = '', delay = 0 }: { childre
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-60px' })
   return (
-    <motion.div
+    <m.div
       ref={ref}
       initial={{ opacity: 0, y: 40 }}
       animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
@@ -29,7 +29,7 @@ export function RevealSection({ children, className = '', delay = 0 }: { childre
       className={className}
     >
       {children}
-    </motion.div>
+    </m.div>
   )
 }
 

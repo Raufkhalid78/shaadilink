@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import {
   ArrowLeft, ArrowRight, Calendar, Heart, MapPin, Music, MessageSquare,
@@ -337,7 +337,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
       <PageBreadcrumb crumbs={crumbs} />
 
       <main id="main-content" className="flex-1 px-4 py-8 sm:py-12">
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -663,8 +663,10 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
               </div>
             </section>
 
-            {/* Dress Code */}
-            <section className="space-y-4">
+            {flowData.selectedPlan === "royal" && (
+              <>
+                {/* Dress Code */}
+                <section className="space-y-4">
               <div className="flex items-center gap-2 mb-3">
                 <Shirt className="w-4 h-4 text-gold" />
                 <h2 className="font-display text-lg font-semibold text-foreground">Dress Code</h2>
@@ -844,6 +846,8 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                 </div>
               </div>
             </section>
+            </>
+            )}
 
             {/* Background Music */}
             <section className="space-y-4">
@@ -1017,7 +1021,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
               </Button>
             </div>
           </div>
-        </motion.div>
+        </m.div>
       </main>
     </div>
   );

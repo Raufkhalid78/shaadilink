@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { ChevronDown, Sparkles, Shield, Star, Heart, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/components/language-provider";
@@ -55,7 +55,7 @@ interface ParticleData {
 
 function GoldParticle({ size, left, delay, duration, opacity, driftX }: ParticleData) {
   return (
-    <motion.div
+    <m.div
       className="absolute rounded-full bg-gold pointer-events-none transform-gpu will-change-transform"
       style={{
         width: size,
@@ -144,9 +144,9 @@ function CornerFrame({ position }: { position: "tl" | "tr" | "bl" | "br" }) {
 
 function AnimatedWord({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <motion.span variants={wordVariants} className={className}>
+    <m.span variants={wordVariants} className={className}>
       {children}
-    </motion.span>
+    </m.span>
   );
 }
 
@@ -263,20 +263,20 @@ function InvitationCardMockup() {
           </div>
 
           {/* Floating sparkle decorations */}
-          <motion.div
+          <m.div
             className="absolute top-8 right-8 z-20"
             animate={{ opacity: [0.3, 0.7, 0.3], scale: [1, 1.2, 1] }}
             transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
           >
             <Sparkles className="w-3 h-3 text-gold/40" />
-          </motion.div>
-          <motion.div
+          </m.div>
+          <m.div
             className="absolute bottom-12 left-8 z-20"
             animate={{ opacity: [0.2, 0.6, 0.2], scale: [1, 1.3, 1] }}
             transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
           >
             <Sparkles className="w-2.5 h-2.5 text-gold/30" />
-          </motion.div>
+          </m.div>
         </div>
 
         {/* Glow effect underneath */}
@@ -354,7 +354,7 @@ export function Hero({ onViewTemplates, onGetStarted, onViewDemo }: HeroProps) {
       />
 
       {/* Animated radial glow in center */}
-      <motion.div
+      <m.div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full pointer-events-none"
         style={{
           background: "radial-gradient(circle, rgba(180,145,77,0.08) 0%, transparent 70%)",
@@ -412,12 +412,12 @@ export function Hero({ onViewTemplates, onGetStarted, onViewDemo }: HeroProps) {
             {/* Decorative divider with subtle pulse */}
             <div className="flex items-center justify-center lg:justify-start gap-4 mb-8 ss-animate-in" style={{ animationDelay: '300ms' }}>
               <div className="h-px w-12 sm:w-20 bg-gradient-to-r from-transparent to-gold/50" />
-              <motion.div
+              <m.div
                 animate={{ scale: [1, 1.2, 1], opacity: [0.7, 1, 0.7] }}
                 transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
               >
                 <Sparkles className="h-5 w-5 text-gold" />
-              </motion.div>
+              </m.div>
               <div className="h-px w-12 sm:w-20 bg-gradient-to-l from-transparent to-gold/50" />
             </div>
 
@@ -542,7 +542,7 @@ export function Hero({ onViewTemplates, onGetStarted, onViewDemo }: HeroProps) {
       </div>
 
       {/* Scroll indicator */}
-      <motion.div
+      <m.div
         className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
         animate={{ y: [0, 8, 0] }}
         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
@@ -555,7 +555,7 @@ export function Hero({ onViewTemplates, onGetStarted, onViewDemo }: HeroProps) {
           <span className="text-[10px] tracking-[0.2em] uppercase">Scroll</span>
           <ChevronDown className="h-5 w-5" />
         </a>
-      </motion.div>
+      </m.div>
     </section>
   );
 }

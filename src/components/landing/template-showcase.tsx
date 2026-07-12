@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 
@@ -234,7 +234,7 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
           {/* Left Arrow */}
           <AnimatePresence>
             {canScrollLeft && (
-              <motion.button
+              <m.button
                 initial={{ opacity: 0, x: 10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 10 }}
@@ -243,14 +243,14 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
                 aria-label="Previous templates"
               >
                 <ChevronLeft className="w-5 h-5" />
-              </motion.button>
+              </m.button>
             )}
           </AnimatePresence>
 
           {/* Right Arrow */}
           <AnimatePresence>
             {canScrollRight && (
-              <motion.button
+              <m.button
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -10 }}
@@ -259,7 +259,7 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
                 aria-label="Next templates"
               >
                 <ChevronRight className="w-5 h-5" />
-              </motion.button>
+              </m.button>
             )}
           </AnimatePresence>
 
@@ -270,7 +270,7 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             {templates.map((template, index) => (
-              <motion.div
+              <m.div
                 key={template.name}
                 className="flex-shrink-0 snap-center"
                 initial={{ opacity: 0, y: 30 }}
@@ -278,7 +278,7 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.08 }}
               >
-                <motion.div
+                <m.div
                   whileHover={{ scale: 1.03, y: -4 }}
                   transition={{ duration: 0.3 }}
                   className="relative w-[280px] sm:w-[300px] aspect-[3/4] rounded-2xl overflow-hidden border border-gold/20 hover:border-gold/50 hover:shadow-2xl hover:shadow-gold/10 transition-all duration-300 cursor-pointer group"
@@ -378,8 +378,8 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
                   <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gold/[0.12] to-transparent -translate-x-full animate-[blockShimmerComposited_3s_infinite]" />
                   </div>
-                </motion.div>
-              </motion.div>
+                </m.div>
+              </m.div>
             ))}
           </div>
 

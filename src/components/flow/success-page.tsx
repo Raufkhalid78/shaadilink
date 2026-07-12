@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   Check, Copy, ExternalLink, Share2, Sparkles, PartyPopper, LayoutDashboard, QrCode
 } from "lucide-react";
@@ -94,14 +94,14 @@ export function SuccessPage({ flowData, onViewInvitation, onGoToDashboard, crumb
       <PageBreadcrumb crumbs={crumbs} />
 
       <main id="main-content" className="flex-1 flex items-center justify-center px-4 py-12">
-        <motion.div
+        <m.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="w-full max-w-lg text-center"
         >
           {/* Animated success icon */}
-          <motion.div
+          <m.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ duration: 0.5, delay: 0.2, type: "spring" }}
@@ -109,36 +109,36 @@ export function SuccessPage({ flowData, onViewInvitation, onGoToDashboard, crumb
           >
             <div className="relative inline-flex">
               <div className="w-20 h-20 rounded-full bg-emerald/10 flex items-center justify-center">
-                <motion.div
+                <m.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ duration: 0.3, delay: 0.5 }}
                   className="w-14 h-14 rounded-full bg-emerald flex items-center justify-center"
                 >
                   <Check className="w-7 h-7 text-primary-foreground" />
-                </motion.div>
+                </m.div>
               </div>
-              <motion.div
+              <m.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: -10 }}
                 transition={{ delay: 0.8, duration: 0.5 }}
                 className="absolute -top-2 -right-2"
               >
                 <PartyPopper className="w-6 h-6 text-gold" />
-              </motion.div>
-              <motion.div
+              </m.div>
+              <m.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: -10 }}
                 transition={{ delay: 1, duration: 0.5 }}
                 className="absolute -bottom-1 -left-2"
               >
                 <Sparkles className="w-5 h-5 text-gold/60" />
-              </motion.div>
+              </m.div>
             </div>
-          </motion.div>
+          </m.div>
 
           {/* Title */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
@@ -150,10 +150,10 @@ export function SuccessPage({ flowData, onViewInvitation, onGoToDashboard, crumb
               Your beautiful <span className="text-gold font-semibold">{templateName}</span>{" "}
               invitation has been created. Share it with your guests!
             </p>
-          </motion.div>
+          </m.div>
 
           {/* Invitation Link */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
@@ -185,10 +185,10 @@ export function SuccessPage({ flowData, onViewInvitation, onGoToDashboard, crumb
                 {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               </Button>
             </div>
-          </motion.div>
+          </m.div>
 
           {/* Action buttons */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8 }}
@@ -220,10 +220,10 @@ export function SuccessPage({ flowData, onViewInvitation, onGoToDashboard, crumb
                 Dashboard
               </Button>
             </div>
-          </motion.div>
+          </m.div>
 
           {/* Summary card */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1 }}
@@ -262,8 +262,8 @@ export function SuccessPage({ flowData, onViewInvitation, onGoToDashboard, crumb
                 </div>
               )}
             </div>
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       </main>
     </div>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Heart, ChevronDown, LayoutDashboard, LogOut, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -95,7 +95,7 @@ export function Navbar({
   }, []);
 
   return (
-    <motion.header
+    <m.header
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
@@ -253,7 +253,7 @@ export function Navbar({
       {/* Animated gold gradient line at bottom when scrolled */}
       <AnimatePresence>
         {scrolled && (
-          <motion.div
+          <m.div
             initial={{ scaleX: 0, opacity: 0 }}
             animate={{ scaleX: 1, opacity: 1 }}
             exit={{ scaleX: 0, opacity: 0 }}
@@ -266,6 +266,6 @@ export function Navbar({
           />
         )}
       </AnimatePresence>
-    </motion.header>
+    </m.header>
   );
 }

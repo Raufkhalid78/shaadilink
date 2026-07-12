@@ -8,7 +8,7 @@ import { DoorHandle, DoorHinges } from './door-hardware';
 
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { createPortal } from 'react-dom'
-import { motion, AnimatePresence, useInView } from 'framer-motion'
+import { m, AnimatePresence, useInView } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -554,7 +554,7 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
         }} />
         {/* Starfield */}
         {stars.map((star, i) => (
-          <motion.div
+          <m.div
             key={i}
             className="absolute rounded-full"
             initial={{ opacity: 0, scale: 0 }}
@@ -583,7 +583,7 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
           </div>
         )}
         {doorsOpened && (
-          <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.2 }} className="absolute inset-0" style={{ background: `radial-gradient(ellipse at center, rgba(${a},0.22) 0%, rgba(${a},0.08) 40%, transparent 70%)` }} />
+          <m.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.2 }} className="absolute inset-0" style={{ background: `radial-gradient(ellipse at center, rgba(${a},0.22) 0%, rgba(${a},0.08) 40%, transparent 70%)` }} />
         )}
       </div>
 
@@ -596,9 +596,22 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
       </div>
 
       {/* Left Panel */}
-      <div
-        className={`absolute top-0 left-0 w-1/2 h-full ${anim.left} ${!doorsOpened ? idleClass : ''}`}
+      <m.div
+        className={`absolute top-0 left-0 w-1/2 h-full ${!doorsOpened ? idleClass : ''}`}
         style={{ transformOrigin: 'left center', transformStyle: 'preserve-3d', willChange: 'transform' }}
+        initial={{ rotateY: 0, x: 0, rotateZ: 0, scaleX: 1, y: 0 }}
+        animate={
+          doorsOpened
+            ? ds.type === 'curtains' ? { x: '-100%' }
+            : ds.type === 'petals' || ds.type === 'lotus' ? { rotateZ: -45, opacity: 0 }
+            : ds.type === 'scroll' ? { scaleX: 0 }
+            : ds.type === 'split-screen' || ds.type === 'geometric' ? { x: '-100%' }
+            : ds.type === 'dome' ? { rotateY: -100 }
+            : ds.type === 'lantern' ? { y: '-100%', opacity: 0 }
+            : { rotateY: -110 }
+            : {}
+        }
+        transition={{ duration: 2.6, ease: [0.25, 1, 0.5, 1] }}
       >
         {/* Front face of door */}
         <div className="relative w-full h-full border-r overflow-hidden"
@@ -635,12 +648,25 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
         </div>
         {/* 3D Edge face (door thickness) */}
         {renderEdgeFace('left')}
-      </div>
+      </m.div>
 
       {/* Right Panel */}
-      <div
-        className={`absolute top-0 right-0 w-1/2 h-full ${anim.right} ${!doorsOpened ? idleClass : ''}`}
+      <m.div
+        className={`absolute top-0 right-0 w-1/2 h-full ${!doorsOpened ? idleClass : ''}`}
         style={{ transformOrigin: 'right center', transformStyle: 'preserve-3d', willChange: 'transform' }}
+        initial={{ rotateY: 0, x: 0, rotateZ: 0, scaleX: 1, y: 0 }}
+        animate={
+          doorsOpened
+            ? ds.type === 'curtains' ? { x: '100%' }
+            : ds.type === 'petals' || ds.type === 'lotus' ? { rotateZ: 45, opacity: 0 }
+            : ds.type === 'scroll' ? { scaleX: 0 }
+            : ds.type === 'split-screen' || ds.type === 'geometric' ? { x: '100%' }
+            : ds.type === 'dome' ? { rotateY: 100 }
+            : ds.type === 'lantern' ? { y: '100%', opacity: 0 }
+            : { rotateY: 110 }
+            : {}
+        }
+        transition={{ duration: 2.6, ease: [0.25, 1, 0.5, 1] }}
       >
         {/* Front face of door */}
         <div className="relative w-full h-full border-l overflow-hidden"
@@ -677,7 +703,7 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
         </div>
         {/* 3D Edge face (door thickness) */}
         {renderEdgeFace('right')}
-      </div>
+      </m.div>
 
       {/* Center tap-to-open button (invisible click target) */}
       {!doorsOpened && (

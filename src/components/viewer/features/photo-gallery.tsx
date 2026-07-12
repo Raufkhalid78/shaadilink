@@ -3,7 +3,7 @@
 
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { createPortal } from 'react-dom'
-import { motion, AnimatePresence, useInView } from 'framer-motion'
+import { m, AnimatePresence, useInView } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -53,7 +53,7 @@ export function PhotoGallery({ theme, images: propImages }: { theme: TemplateThe
           style={{ border: `1px solid ${theme.getOpacityStyle('border', 0.2)}`, boxShadow: `0 10px 15px -3px ${theme.getOpacityStyle('border', 0.05)}` }}
         >
           {images.map((img, idx) => (
-            <motion.img
+            <m.img
               key={idx}
               src={img.src}
               alt={img.alt}
@@ -91,7 +91,7 @@ export function PhotoGallery({ theme, images: propImages }: { theme: TemplateThe
       {mounted && createPortal(
         <AnimatePresence>
           {lightboxOpen && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -112,7 +112,7 @@ export function PhotoGallery({ theme, images: propImages }: { theme: TemplateThe
               </button>
 
               <div className="relative w-full max-w-5xl px-4 sm:px-16 aspect-[16/9] sm:aspect-auto sm:h-[80vh] flex flex-col items-center justify-center" onClick={(e) => e.stopPropagation()}>
-                <motion.img
+                <m.img
                   key={activeIndex}
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -133,7 +133,7 @@ export function PhotoGallery({ theme, images: propImages }: { theme: TemplateThe
               >
                 <ChevronRight className="w-6 h-6" />
               </button>
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>,
         document.body

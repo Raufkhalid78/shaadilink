@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   ArrowLeft, ArrowRight, Check, CreditCard, Shield, Lock, Crown, Sparkles, Loader2,
 } from "lucide-react";
@@ -130,7 +130,7 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
       <PageBreadcrumb crumbs={crumbs} />
 
       <main id="main-content" className="flex-1 px-4 py-8 sm:py-12">
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -297,7 +297,7 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
               </div>
             </div>
           </div>
-        </motion.div>
+        </m.div>
       </main>
     </div>
   );

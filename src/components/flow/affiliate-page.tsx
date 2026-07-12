@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   ArrowLeft,
   Heart,
@@ -115,7 +115,7 @@ export function AffiliatePage({ onBack }: AffiliatePageProps) {
         <section className="relative py-16 sm:py-24 px-4 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-gold/5 via-transparent to-emerald/5" />
           <div className="relative z-10 mx-auto max-w-3xl text-center">
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
@@ -134,7 +134,7 @@ export function AffiliatePage({ onBack }: AffiliatePageProps) {
                 Share ShaadiLink with your audience and earn commissions on every
                 successful referral. It&apos;s free to join!
               </p>
-            </motion.div>
+            </m.div>
           </div>
         </section>
 
@@ -195,13 +195,13 @@ export function AffiliatePage({ onBack }: AffiliatePageProps) {
 
                 {submitted ? (
                   <div className="text-center py-8">
-                    <motion.div
+                    <m.div
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{ type: "spring", duration: 0.6 }}
                     >
                       <CheckCircle className="w-16 h-16 text-emerald mx-auto mb-4" />
-                    </motion.div>
+                    </m.div>
                     <h3 className="font-display text-xl font-bold text-foreground mb-2">
                       Application Submitted!
                     </h3>

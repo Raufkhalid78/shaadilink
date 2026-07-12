@@ -80,7 +80,7 @@ const InvitationViewer = dynamic(() => import("@/components/viewer/invitation-vi
 });
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Eye, Sparkles, Shield, Loader2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import type { FlowData, FlowStep } from "@/lib/flow-types";
 import { initialFlowData } from "@/lib/flow-types";
 import { getTheme } from "@/components/viewer/utils";
@@ -102,7 +102,7 @@ function AppPurposeSection({ onGetStarted }: { onGetStarted?: () => void }) {
       <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(15,107,78,0.08) 0%, transparent 70%)' }} />
       <div className="max-w-5xl mx-auto relative z-10">
         {/* Heading */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -122,12 +122,12 @@ function AppPurposeSection({ onGetStarted }: { onGetStarted?: () => void }) {
           <p className="mt-3 text-muted-foreground/80 text-xs sm:text-sm max-w-2xl mx-auto leading-relaxed border-t border-gold/20 pt-3 italic">
             🔐 <strong>{t('purpose.auth.badge')}:</strong> {t('purpose.auth.text')}
           </p>
-        </motion.div>
+        </m.div>
 
         {/* Feature grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
           {features.map((f, i) => (
-            <motion.div
+            <m.div
               key={f.label}
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -140,13 +140,13 @@ function AppPurposeSection({ onGetStarted }: { onGetStarted?: () => void }) {
                 <p className="text-sm font-semibold text-foreground">{f.label}</p>
                 <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{f.desc}</p>
               </div>
-            </motion.div>
+            </m.div>
           ))}
         </div>
 
         {/* CTA */}
         {onGetStarted && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -160,7 +160,7 @@ function AppPurposeSection({ onGetStarted }: { onGetStarted?: () => void }) {
               <Sparkles className="w-4 h-4" />
               Create Your Invitation — Starting Rs. 3,499
             </button>
-          </motion.div>
+          </m.div>
         )}
       </div>
     </section>
@@ -170,7 +170,7 @@ function AppPurposeSection({ onGetStarted }: { onGetStarted?: () => void }) {
 /* Wrapper for page transitions */
 function InfoPageWrapper({ children, stepKey }: { children: React.ReactNode; stepKey: string }) {
   return (
-    <motion.div
+    <m.div
       key={stepKey}
       initial={{ opacity: 0, x: 40 }}
       animate={{ opacity: 1, x: 0 }}
@@ -179,7 +179,7 @@ function InfoPageWrapper({ children, stepKey }: { children: React.ReactNode; ste
       className="flex-1"
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -192,6 +192,7 @@ function HomeInner() {
     if (typeof window !== "undefined") {
       const url = new URL(window.location.href);
       url.searchParams.set("step", step);
+      if (step !== "demo") url.searchParams.delete("theme");
       window.history.pushState({ step }, "", url.pathname + url.search);
     }
   }, []);
@@ -211,6 +212,12 @@ function HomeInner() {
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
+
+  const [flowData, setFlowData] = useState<FlowData>(initialFlowData);
+  const [previewTemplateId, setPreviewTemplateId] = useState<string | null>(null);
+  // Track previous step so Details → Back works correctly
+  const [stepBeforeDetails, setStepBeforeDetails] = useState<FlowStep>("signup");
+
   // Initialize step from URL query parameter on first load
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -219,12 +226,15 @@ function HomeInner() {
       if (stepParam) {
         setCurrentStepInternal(stepParam);
       }
+      const themeParam = params.get("theme");
+      if (themeParam) {
+        setPreviewTemplateId(themeParam);
+      } else {
+        setPreviewTemplateId("emerald-noir");
+      }
     }
   }, []);
-  const [flowData, setFlowData] = useState<FlowData>(initialFlowData);
-  const [previewTemplateId, setPreviewTemplateId] = useState<string | null>(null);
-  // Track previous step so Details → Back works correctly
-  const [stepBeforeDetails, setStepBeforeDetails] = useState<FlowStep>("signup");
+
   useScrollReveal(currentStep);
   const { t, language } = useLanguage();
   const router = useRouter();
@@ -243,6 +253,20 @@ function HomeInner() {
       return;
     }
 
+    if (start === "create") {
+      setCurrentStep("templates");
+      setIsLoadingParams(false);
+      return;
+    } else if (start === "demo") {
+      const themeParam = searchParams.get("theme") || searchParams.get("template");
+      if (themeParam) {
+        setPreviewTemplateId(themeParam);
+      }
+      setCurrentStep("demo");
+      setIsLoadingParams(false);
+      return;
+    }
+
     const supabase = createClient();
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session?.user) {
@@ -257,10 +281,7 @@ function HomeInner() {
       };
       setFlowData(mergedData);
 
-      if (start === "create") {
-        setCurrentStep("templates");
-        setIsLoadingParams(false);
-      } else if (editId) {
+      if (editId) {
         fetch(`/api/invitations/${editId}`)
           .then((r) => r.json())
           .then(({ invitation }) => {
@@ -387,7 +408,7 @@ function HomeInner() {
   // Restore session and flowData on mount
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get("edit") || params.get("upgrade") || params.get("buyMoreLinks") || params.get("start") === "create") {
+    if (params.get("edit") || params.get("upgrade") || params.get("buyMoreLinks") || params.get("start") === "create" || params.get("start") === "demo") {
       return;
     }
 
@@ -836,9 +857,15 @@ function HomeInner() {
 
   const goToDemo = (templateId?: string) => {
     setDemoSourceStep(currentStep);
-    if (templateId) setPreviewTemplateId(templateId);
-    else setPreviewTemplateId(flowData.selectedTemplateId);
-    setCurrentStep("demo");
+    const themeToUse = templateId || flowData.selectedTemplateId || "emerald-noir";
+    setPreviewTemplateId(themeToUse);
+    setCurrentStepInternal("demo");
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("step", "demo");
+      url.searchParams.set("theme", themeToUse);
+      window.history.pushState({ step: "demo" }, "", url.pathname + url.search);
+    }
   };
 
   const goToAbout = () => setCurrentStep("about");
@@ -859,7 +886,7 @@ function HomeInner() {
       <AnimatePresence mode="wait">
         {/* ── Demo / Invitation Viewer ── */}
         {currentStep === "demo" && (
-          <motion.div
+          <m.div
             key="demo"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -901,7 +928,7 @@ function HomeInner() {
               templateId={previewTemplateId || flowData.selectedTemplateId || undefined}
               flowData={(demoSourceStep === "landing" || demoSourceStep === "templates") ? initialFlowData : flowData}
             />
-          </motion.div>
+          </m.div>
         )}
 
         {/* ── Templates ── */}
@@ -1061,7 +1088,7 @@ function HomeInner() {
 
         {/* ── Landing ── */}
         {currentStep === "landing" && (
-          <motion.div
+          <m.div
             key="landing"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -1122,7 +1149,7 @@ function HomeInner() {
               onLegalClick={goToLegal}
               onAffiliateClick={goToAffiliate}
             />
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>
