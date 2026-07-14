@@ -92,7 +92,8 @@ export type FlowStep =
   | "privacy"
   | "refund"
   | "shipping"
-  | "dashboard";
+  | "dashboard"
+  | "bank-transfer";
 
 export const planDetails = {
   classic: {

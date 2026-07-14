@@ -44,6 +44,11 @@ const PaymentPage = dynamic(() => import("@/components/flow/payment-page").then(
   loading: () => <div className="min-h-screen bg-background flex items-center justify-center text-gold">Loading payment...</div>
 });
 
+const BankTransferPage = dynamic(() => import("@/components/flow/bank-transfer-page").then(m => m.BankTransferPage), {
+  ssr: false,
+  loading: () => <div className="min-h-screen bg-background flex items-center justify-center text-gold">Loading bank details...</div>
+});
+
 const SuccessPage = dynamic(() => import("@/components/flow/success-page").then(m => m.SuccessPage), {
   ssr: false,
   loading: () => <div className="min-h-screen bg-background" />
@@ -547,16 +552,6 @@ function HomeInner() {
           console.error("Failed to load invitation on success redirect:", err);
           toast.error("Failed to load invitation details.");
         });
-    } else if (step === "payment") {
-      if (currentStep !== "payment") {
-        setCurrentStep("payment");
-      }
-      const paymentError = searchParams.get("paymentError");
-      if (paymentError) {
-        toast.error(paymentError);
-        // Clean URL to prevent error toast re-firing on refresh
-        window.history.replaceState({}, '', '/?step=payment');
-      }
     }
   }, [searchParams, currentStep, setCurrentStep]);
 
@@ -617,7 +612,7 @@ function HomeInner() {
   };
 
   const handlePaymentComplete = () => {
-    setCurrentStep("success");
+    setCurrentStep("bank-transfer");
   };
 
   const handleViewInvitation = () => {
@@ -1026,6 +1021,33 @@ function HomeInner() {
                       { label: "Templates", onClick: () => setCurrentStep("templates") },
                       { label: "Details", onClick: () => setCurrentStep("details") },
                       { label: "Complete Payment" },
+                    ]
+              }
+            />
+          </InfoPageWrapper>
+        )}
+
+        {/* ── Bank Transfer ── */}
+        {currentStep === "bank-transfer" && (
+          <InfoPageWrapper stepKey="bank-transfer">
+            <BankTransferPage
+              flowData={flowData}
+              onBack={() => setCurrentStep("payment")}
+              onGoDashboard={handleGoToDashboard}
+              crumbs={
+                stepBeforeDetails === "dashboard"
+                  ? [
+                      { label: "Home", onClick: handleGoHome },
+                      { label: "Dashboard", onClick: handleGoToDashboard },
+                      { label: "Edit Invitation", onClick: () => setCurrentStep("details") },
+                      { label: "Bank Transfer" },
+                    ]
+                  : [
+                      { label: "Home", onClick: handleGoHome },
+                      { label: "Templates", onClick: () => setCurrentStep("templates") },
+                      { label: "Details", onClick: () => setCurrentStep("details") },
+                      { label: "Payment", onClick: () => setCurrentStep("payment") },
+                      { label: "Bank Transfer" },
                     ]
               }
             />

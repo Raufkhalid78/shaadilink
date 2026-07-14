@@ -58,40 +58,9 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
   // The Safepay callback naturally handles redirection upon successful payment.
 
   const handlePayment = async () => {
-    setProcessing(true);
-
-    try {
-      if (!flowData.invitationId) {
-        toast.error("Invitation ID is missing. Please restart the process.");
-        return;
-      }
-
-      const res = await fetch("/api/payment/initiate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          invitationId: flowData.invitationId,
-          plan: flowData.selectedPlan || "classic",
-          guestLinksQuota: flowData.guestLinksQuota || 0,
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        toast.error(data.error || "Failed to initiate payment session. Please try again.");
-        return;
-      }
-
-      if (data.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
-      } else {
-        toast.error("Checkout URL not returned by payment gateway.");
-      }
-    } catch (err) {
-      console.error("Payment initiation error:", err);
-      toast.error("An error occurred initiating checkout. Please try again.");
-    } finally {
-      setProcessing(false);
+    // Navigate to bank transfer page instead of Safepay
+    if (onContinue) {
+      onContinue();
     }
   };
 
@@ -158,19 +127,15 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                 <div className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center mx-auto mb-4">
                   <Shield className="w-6 h-6 text-gold" />
                 </div>
-                <h2 className="font-display text-lg font-semibold text-gold-light">Secure Checkout via Safepay</h2>
+                <h2 className="font-display text-lg font-semibold text-gold-light">Manual Bank Transfer</h2>
                 <p className="text-muted-foreground text-xs leading-relaxed">
                   You are purchasing the <strong className="text-white capitalize">{flowData.selectedPlan || "classic"} Plan</strong>.
-                  You will be redirected to the secure Safepay portal to complete your payment.
+                  Click below to view our bank details and complete your order.
                 </p>
                 
                 {/* Payment Method Badges */}
                 <div className="flex flex-wrap justify-center items-center gap-2 pt-2">
-                  <div className="px-2.5 py-1 rounded bg-[#1434CB] text-white text-[10px] font-bold tracking-wide">VISA</div>
-                  <div className="px-2.5 py-1 rounded bg-[#FF5F00] text-white text-[10px] font-bold tracking-wide flex">
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#EB001B] -mr-1 mix-blend-multiply opacity-80"></div>
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#F79E1B] mix-blend-multiply opacity-80"></div>
-                  </div>
+                  <div className="px-2.5 py-1 rounded bg-[#1434CB] text-white text-[10px] font-bold tracking-wide">Bank Transfer</div>
                   <div className="px-2.5 py-1 rounded bg-[#41B649] text-white text-[10px] font-bold tracking-wide">
                     easypaisa
                   </div>
@@ -180,7 +145,7 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                 </div>
 
                 <div className="flex justify-center items-center gap-6 pt-3 text-xs text-muted-foreground border-t border-gold/10 mt-4">
-                  <span className="flex items-center gap-1.5"><Lock className="w-3.5 h-3.5 text-gold" /> 256-bit SSL</span>
+                  <span className="flex items-center gap-1.5"><Lock className="w-3.5 h-3.5 text-gold" /> Secure</span>
                   <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-emerald" /> Money-Back Guarantee</span>
                 </div>
               </div>
@@ -191,11 +156,7 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                 disabled={processing}
                 className="w-full h-12 bg-gold hover:bg-gold-light text-emerald-dark font-semibold text-base gap-2"
               >
-                {processing ? (
-                  <><Loader2 className="w-4 h-4 animate-spin" /> Preparing checkout...</>
-                ) : (
-                  <>Pay Rs. {formattedTotal} & Publish <ArrowRight className="w-4 h-4" /></>
-                )}
+                <>Place Order & View Bank Details <ArrowRight className="w-4 h-4" /></>
               </Button>
             </div>
 
