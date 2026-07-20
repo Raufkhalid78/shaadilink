@@ -697,7 +697,12 @@ function HomeInner() {
   };
 
   const handleGoHome = () => {
-    setFlowData(initialFlowData);
+    setFlowData((prev) => ({
+      ...initialFlowData,
+      userId: prev.userId,
+      email: prev.email,
+      fullName: prev.fullName,
+    }));
     setPreviewTemplateId(null);
     setCurrentStep("landing");
   };
