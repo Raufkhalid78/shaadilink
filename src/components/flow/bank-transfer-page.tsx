@@ -82,7 +82,10 @@ Here is my payment screenshot:`;
               Manual Bank Transfer
             </h1>
             <p className="mt-2 text-muted-foreground text-sm">
-              Please transfer the exact amount to the account below to activate your invitation.
+              {flowData.paymentDone && addedQuota > 0
+                ? `Transfer the exact amount below to top up ${addedQuota} guest links on your invitation.`
+                : 'Please transfer the exact amount to the account below to activate your invitation.'
+              }
             </p>
           </div>
 

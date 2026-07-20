@@ -158,6 +158,14 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
           showQuranVerse: flowData.showQuranVerse,
           youtubeVideoId: flowData.youtubeVideoId,
           slug: flowData.slug || undefined,
+          hostBrideFamily: flowData.hostBrideFamily,
+          hostGroomFamily: flowData.hostGroomFamily,
+          hostBrideCity: flowData.hostBrideCity,
+          hostGroomCity: flowData.hostGroomCity,
+          contactPhone: flowData.contactPhone,
+          isSegregated: flowData.isSegregated,
+          venueDetailsSegregated: flowData.venueDetailsSegregated,
+          showNikahRegistration: flowData.showNikahRegistration,
         }),
       });
 
@@ -394,6 +402,53 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
               </div>
             </section>
 
+            {/* Host Families / Parents (Optional) */}
+            <section className="space-y-4">
+              <div className="flex items-center gap-2 mb-3">
+                <User className="w-4 h-4 text-gold" />
+                <h2 className="font-display text-lg font-semibold text-foreground">Host Families (Optional)</h2>
+              </div>
+              <p className="text-xs text-muted-foreground mb-4">
+                In Pakistani invitations, it is customary to include the names of the parents or families hosting the wedding.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                    Partner 1 Family / Parents
+                  </label>
+                  <Input
+                    value={flowData.hostBrideFamily || ""}
+                    onChange={(e) => onUpdateData({ hostBrideFamily: e.target.value })}
+                    placeholder="e.g. Mr. & Mrs. Tariq Hussain"
+                    className="h-11"
+                  />
+                  <Input
+                    value={flowData.hostBrideCity || ""}
+                    onChange={(e) => onUpdateData({ hostBrideCity: e.target.value })}
+                    placeholder="City (e.g. from Lahore)"
+                    className="h-11 mt-2 text-sm"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                    Partner 2 Family / Parents
+                  </label>
+                  <Input
+                    value={flowData.hostGroomFamily || ""}
+                    onChange={(e) => onUpdateData({ hostGroomFamily: e.target.value })}
+                    placeholder="e.g. Mr. & Mrs. Imran Sheikh"
+                    className="h-11"
+                  />
+                  <Input
+                    value={flowData.hostGroomCity || ""}
+                    onChange={(e) => onUpdateData({ hostGroomCity: e.target.value })}
+                    placeholder="City (e.g. from Karachi)"
+                    className="h-11 mt-2 text-sm"
+                  />
+                </div>
+              </div>
+            </section>
+
             {/* Custom Invitation Link (Slug) */}
             <section className="space-y-4">
               <div className="flex items-center gap-2 mb-3">
@@ -564,6 +619,41 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                     Paste the direct Google Maps share link to your venue so guests can navigate easily.
                   </p>
                 </div>
+
+                {/* Purdah / Segregation Toggle */}
+                <div className="pt-2">
+                  <div
+                    className="flex items-center justify-between rounded-xl border border-border p-4 cursor-pointer hover:bg-muted/30 transition-colors"
+                    onClick={() => onUpdateData({ isSegregated: !flowData.isSegregated })}
+                  >
+                    <div className="flex-1 pr-4">
+                      <p className="text-sm font-medium text-foreground">Separate Ladies/Gents Setup</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Adds a polite Purdah/segregation note to the invitation.
+                      </p>
+                    </div>
+                    <div
+                      className={`relative flex-shrink-0 w-12 h-6 rounded-full transition-colors duration-300 ${flowData.isSegregated ? "bg-gold" : "bg-muted"}`}
+                    >
+                      <div
+                        className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-300 ${flowData.isSegregated ? "translate-x-7" : "translate-x-1"}`}
+                      />
+                    </div>
+                  </div>
+                  {flowData.isSegregated && (
+                    <div className="mt-3">
+                      <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase mb-1.5 block">
+                        Venue Details (Ladies/Gents)
+                      </label>
+                      <Input
+                        value={flowData.venueDetailsSegregated || ""}
+                        onChange={(e) => onUpdateData({ venueDetailsSegregated: e.target.value })}
+                        placeholder="e.g. Ladies: Hall A, Gents: Hall B"
+                        className="h-11"
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
             </section>
 
@@ -660,6 +750,48 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                     </div>
                   </div>
                 ))}
+              </div>
+
+              {/* Nikah Registration Note Toggle */}
+              <div
+                className="mt-4 flex items-center justify-between rounded-xl border border-border p-4 cursor-pointer hover:bg-muted/30 transition-colors"
+                onClick={() => onUpdateData({ showNikahRegistration: !flowData.showNikahRegistration })}
+              >
+                <div className="flex-1 pr-4">
+                  <p className="text-sm font-medium text-foreground">Show Nikah Registration Note</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Adds a small formal note indicating the Nikah will be registered.
+                  </p>
+                </div>
+                <div
+                  className={`relative flex-shrink-0 w-12 h-6 rounded-full transition-colors duration-300 ${flowData.showNikahRegistration ? "bg-gold" : "bg-muted"}`}
+                >
+                  <div
+                    className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-300 ${flowData.showNikahRegistration ? "translate-x-7" : "translate-x-1"}`}
+                  />
+                </div>
+              </div>
+            </section>
+
+            {/* Contact Phone Number (Available for all plans) */}
+            <section className="space-y-4">
+              <div className="flex items-center gap-2 mb-3">
+                <MessageSquare className="w-4 h-4 text-gold" />
+                <h2 className="font-display text-lg font-semibold text-foreground">Contact Phone</h2>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                  Host Contact Number (Optional)
+                </label>
+                <Input
+                  value={flowData.contactPhone || ""}
+                  onChange={(e) => onUpdateData({ contactPhone: e.target.value })}
+                  placeholder="e.g. +92 300 1234567"
+                  className="h-11"
+                />
+                <p className="text-[10px] text-muted-foreground">
+                  This number will be displayed at the bottom of the invitation and in the FAQ section so guests can contact the host directly.
+                </p>
               </div>
             </section>
 

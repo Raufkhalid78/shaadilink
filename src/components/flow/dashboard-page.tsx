@@ -94,7 +94,20 @@ export function DashboardPage({
   const [guestLinksDrawerOpen, setGuestLinksDrawerOpen] = useState(false);
   const [guestLinksInvId, setGuestLinksInvId] = useState<string | null>(null);
   const [newGuestName, setNewGuestName] = useState("");
-  const [generatedLinks, setGeneratedLinks] = useState<{name: string, url: string}[]>([]);
+  const [selectedEventSlugs, setSelectedEventSlugs] = useState<string[]>([]);
+  const [guestSeats, setGuestSeats] = useState<number>(1);
+  const [generatedLinks, setGeneratedLinks] = useState<{id: string, name: string, url: string, events?: string[], seats?: number | null}[]>([]);
+  const [guestLinksLoading, setGuestLinksLoading] = useState(false);
+
+  // Normalise a DB guest_link row → frontend shape
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const mapLink = (row: any) => ({
+    id: row.id,
+    name: row.guest_name ?? row.name ?? '',
+    url: row.url,
+    events: row.allowed_events ?? row.events ?? [],
+    seats: row.seats ?? null,
+  });
 
 
   const loadInvitations = useCallback(async () => {
@@ -134,37 +147,134 @@ export function DashboardPage({
   };
 
 
-  const handleOpenGuestLinks = (invId: string) => {
+  const handleOpenGuestLinks = async (invId: string) => {
     setGuestLinksInvId(invId);
     setGuestLinksDrawerOpen(true);
-    const stored = localStorage.getItem(`guestLinks_${invId}`);
-    if (stored) {
-      setGeneratedLinks(JSON.parse(stored));
+    setNewGuestName("");
+    setGuestSeats(1);
+    setGeneratedLinks([]);
+    // Pre-select all events by default
+    const inv = invitations.find(i => i.id === invId);
+    if (inv?.events) {
+      setSelectedEventSlugs(inv.events.map(e => e.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')));
     } else {
-      setGeneratedLinks([]);
+      setSelectedEventSlugs([]);
+    }
+    // Fetch from DB
+    setGuestLinksLoading(true);
+    try {
+      const res = await fetch(`/api/invitations/${invId}/guest-links`);
+      if (res.ok) {
+        const data = await res.json();
+        const dbLinks = data.links ?? [];
+        // One-time migration: if DB is empty but localStorage has data, migrate silently
+        if (dbLinks.length === 0) {
+          const stored = localStorage.getItem(`guestLinks_${invId}`);
+          if (stored) {
+            const oldLinks: {name: string; url: string; events?: string[]; seats?: number}[] = JSON.parse(stored);
+            for (const old of oldLinks) {
+              const slug = old.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+              await fetch(`/api/invitations/${invId}/guest-links`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  guestName: old.name,
+                  guestSlug: slug,
+                  url: old.url,
+                  allowedEvents: old.events ?? null,
+                  seats: old.seats ?? 1,
+                }),
+              });
+            }
+            localStorage.removeItem(`guestLinks_${invId}`);
+            // Re-fetch after migration
+            const res2 = await fetch(`/api/invitations/${invId}/guest-links`);
+            if (res2.ok) {
+              const data2 = await res2.json();
+              setGeneratedLinks((data2.links ?? []).map(mapLink));
+            }
+          }
+        } else {
+          setGeneratedLinks(dbLinks.map(mapLink));
+        }
+      } else {
+        toast.error('Failed to load guest links.');
+      }
+    } catch {
+      toast.error('Error loading guest links.');
+    } finally {
+      setGuestLinksLoading(false);
     }
   };
 
-  const handleGenerateLink = () => {
+  const toggleEventSlug = (slug: string) => {
+    setSelectedEventSlugs(prev =>
+      prev.includes(slug) ? prev.filter(s => s !== slug) : [...prev, slug]
+    );
+  };
+
+  const handleGenerateLink = async () => {
     if (!newGuestName.trim() || !guestLinksInvId) return;
     const inv = invitations.find(i => i.id === guestLinksInvId);
     if (!inv) return;
-    const quota = inv.guest_links_quota || 0;
-    if (generatedLinks.length >= quota) {
-      toast.error(`You have reached your limit of ${quota} personalized links.`);
-      return;
-    }
     const invSlug = inv.slug || guestLinksInvId;
-    const slug = newGuestName.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const guestSlug = newGuestName.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
     const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://shaadilink.com.pk';
-    const newUrl = `${baseUrl}/inv/${invSlug}?guest=${slug}`;
-    
-    const newLink = { name: newGuestName.trim(), url: newUrl };
-    const updated = [newLink, ...generatedLinks];
-    setGeneratedLinks(updated);
-    localStorage.setItem(`guestLinks_${guestLinksInvId}`, JSON.stringify(updated));
-    setNewGuestName("");
-    toast.success("Guest link generated!");
+
+    // Build URL with optional event filter and seat count
+    const allEventSlugs = (inv.events || []).map(e => e.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'));
+    const isAllEvents = allEventSlugs.length === 0 || selectedEventSlugs.length === allEventSlugs.length;
+    let newUrl = `${baseUrl}/inv/${invSlug}?guest=${guestSlug}`;
+    if (!isAllEvents && selectedEventSlugs.length > 0) {
+      newUrl += `&events=${selectedEventSlugs.join(',')}`;
+    }
+    if (guestSeats >= 0) {
+      newUrl += `&seats=${guestSeats}`;
+    }
+
+    // POST to API (quota enforced server-side)
+    try {
+      const res = await fetch(`/api/invitations/${guestLinksInvId}/guest-links`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          guestName: newGuestName.trim(),
+          guestSlug,
+          url: newUrl,
+          allowedEvents: isAllEvents ? null : selectedEventSlugs,
+          seats: guestSeats,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error ?? 'Failed to generate link.');
+        return;
+      }
+      setGeneratedLinks(prev => [mapLink(data.link), ...prev]);
+      setNewGuestName("");
+      setGuestSeats(1);
+      toast.success("Guest link generated!");
+    } catch {
+      toast.error('Error generating link.');
+    }
+  };
+
+  const handleDeleteLink = async (linkId: string) => {
+    if (!guestLinksInvId) return;
+    try {
+      const res = await fetch(`/api/invitations/${guestLinksInvId}/guest-links/${linkId}`, {
+        method: 'DELETE',
+      });
+      if (res.ok) {
+        setGeneratedLinks(prev => prev.filter(l => l.id !== linkId));
+        toast.success('Guest link removed.');
+      } else {
+        const data = await res.json();
+        toast.error(data.error ?? 'Failed to remove link.');
+      }
+    } catch {
+      toast.error('Error removing link.');
+    }
   };
 
   const handleSendWhatsApp = (guestName: string, url: string) => {
@@ -956,18 +1066,75 @@ export function DashboardPage({
                 </div>
 
                 {/* Generator Input */}
-                <div className="shrink-0 flex gap-2">
-                  <input 
-                    type="text" 
-                    value={newGuestName}
-                    onChange={(e) => setNewGuestName(e.target.value)}
-                    placeholder="Enter guest name (e.g. Ali Family)"
-                    className="flex-1 px-3 py-2 text-sm rounded-md border border-input bg-transparent shadow-sm focus:outline-none focus:ring-1 focus:ring-emerald"
-                    onKeyDown={(e) => e.key === 'Enter' && handleGenerateLink()}
-                  />
-                  <Button onClick={handleGenerateLink} className="bg-emerald hover:bg-emerald-dark text-white">
-                    Generate
-                  </Button>
+                <div className="shrink-0 space-y-3">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={newGuestName}
+                      onChange={(e) => setNewGuestName(e.target.value)}
+                      placeholder="Enter guest name (e.g. Ali Family)"
+                      className="flex-1 px-3 py-2 text-sm rounded-md border border-input bg-transparent shadow-sm focus:outline-none focus:ring-1 focus:ring-emerald"
+                      onKeyDown={(e) => e.key === 'Enter' && handleGenerateLink()}
+                    />
+                  </div>
+
+                  {/* Event Selection */}
+                  {(() => {
+                    const inv = invitations.find(i => i.id === guestLinksInvId);
+                    const events = inv?.events || [];
+                    if (events.length === 0) return null;
+                    return (
+                      <div className="space-y-1.5">
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Invite to Events</p>
+                        <div className="grid grid-cols-2 gap-1.5">
+                          {events.sort((a, b) => a.order_index - b.order_index).map(event => {
+                            const slug = event.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                            const checked = selectedEventSlugs.includes(slug);
+                            return (
+                              <button
+                                key={event.id}
+                                onClick={() => toggleEventSlug(slug)}
+                                className={`flex items-center gap-2 px-2.5 py-1.5 rounded-md border text-xs font-medium transition-all ${
+                                  checked
+                                    ? 'border-emerald bg-emerald/10 text-emerald'
+                                    : 'border-border/50 bg-muted/20 text-muted-foreground hover:border-emerald/40'
+                                }`}
+                              >
+                                <span className={`w-3.5 h-3.5 rounded-sm border flex items-center justify-center shrink-0 transition-all ${
+                                  checked ? 'bg-emerald border-emerald' : 'border-border'
+                                }`}>
+                                  {checked && <Check className="w-2.5 h-2.5 text-white" />}
+                                </span>
+                                {event.name}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Seat Count + Generate */}
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 border border-border/50 rounded-md px-2.5 py-1.5 bg-muted/20">
+                      <Users className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                      <span className="text-xs text-muted-foreground">Seats</span>
+                      <input
+                        type="number"
+                        min={0}
+                        max={100}
+                        value={guestSeats}
+                        onChange={(e) => setGuestSeats(Math.max(0, parseInt(e.target.value) || 0))}
+                        className="w-12 text-sm text-center bg-transparent focus:outline-none text-foreground font-medium"
+                      />
+                      {guestSeats === 0 && (
+                        <span className="text-xs text-amber-400 font-medium whitespace-nowrap">= Whole Family</span>
+                      )}
+                    </div>
+                    <Button onClick={handleGenerateLink} className="flex-1 bg-emerald hover:bg-emerald-dark text-white">
+                      Generate Link
+                    </Button>
+                  </div>
                 </div>
 
                 {/* Usage Stats */}
@@ -975,24 +1142,41 @@ export function DashboardPage({
                   {(() => {
                     const inv = invitations.find(i => i.id === guestLinksInvId);
                     const quota = inv?.guest_links_quota || 0;
+                    const used = generatedLinks.length;
+                    const pct = quota > 0 ? Math.min((used / quota) * 100, 100) : 0;
                     return (
                       <>
                         <div className="flex justify-between items-center w-full">
-                          <span>{generatedLinks.length} / {quota} Links Generated</span>
+                          {quota === 0 ? (
+                            <span className="text-amber-400 font-medium">No guest links purchased yet</span>
+                          ) : (
+                            <span>
+                              <span className={used >= quota ? 'text-red-400 font-semibold' : ''}>
+                                {used} / {quota}
+                              </span>
+                              {' '}Links Generated
+                              {used >= quota && <span className="ml-1 text-red-400">(Limit reached)</span>}
+                            </span>
+                          )}
                           <button
                             onClick={() => {
                               if (guestLinksInvId) {
                                 onBuyMoreLinks?.(guestLinksInvId);
                               }
                             }}
-                            className="text-xs text-gold hover:text-gold-light font-semibold underline cursor-pointer"
+                            className="text-xs text-gold hover:text-gold-light font-semibold underline cursor-pointer ml-2 shrink-0"
                           >
-                            Buy More Links
+                            {quota === 0 ? 'Buy Links' : 'Buy More'}
                           </button>
                         </div>
-                        <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
-                          <div className="bg-emerald h-full rounded-full" style={{ width: `${Math.min((generatedLinks.length / (quota || 1)) * 100, 100)}%` }} />
-                        </div>
+                        {quota > 0 && (
+                          <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
+                            <div
+                              className={`h-full rounded-full transition-all ${pct >= 100 ? 'bg-red-400' : pct >= 80 ? 'bg-amber-400' : 'bg-emerald'}`}
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                        )}
                       </>
                     );
                   })()}
@@ -1000,25 +1184,62 @@ export function DashboardPage({
 
                 {/* Content */}
                 <div className="flex-1 overflow-y-auto space-y-3 pr-1">
-                  {generatedLinks.length === 0 ? (
+                  {guestLinksLoading ? (
+                    <div className="flex items-center justify-center py-20 text-muted-foreground gap-2">
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span className="text-sm">Loading guest links…</span>
+                    </div>
+                  ) : generatedLinks.length === 0 ? (
                     <div className="text-center py-20 text-muted-foreground">
                       <ExternalLink className="w-8 h-8 mx-auto mb-2 opacity-30" />
                       <p className="text-sm">No links generated yet.</p>
                     </div>
                   ) : (
-                    generatedLinks.map((link, idx) => (
+                    generatedLinks.map((link) => (
                       <div
-                        key={idx}
-                        className="p-3.5 rounded-xl border border-border/40 bg-muted/10 flex flex-col gap-2 relative group"
+                        key={link.id}
+                        className="p-3.5 rounded-xl border border-border/40 bg-muted/10 flex flex-col gap-2"
                       >
-                        <div className="font-medium text-sm text-foreground">{link.name}</div>
+                        {/* Header: name + seats badge + delete */}
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <div className="w-7 h-7 rounded-full bg-emerald/10 border border-emerald/20 flex items-center justify-center shrink-0">
+                              <span className="text-xs font-bold text-emerald">{link.name.charAt(0).toUpperCase()}</span>
+                            </div>
+                            <div className="font-semibold text-sm text-foreground truncate">{link.name}</div>
+                          </div>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            {link.seats != null && (
+                              <span className="flex items-center gap-1 text-xs text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full whitespace-nowrap">
+                                <Users className="w-3 h-3" />
+                                {link.seats === 0 ? 'Whole Family' : link.seats === 1 ? '1 person' : `${link.seats} persons`}
+                              </span>
+                            )}
+                            <button
+                              onClick={() => handleDeleteLink(link.id)}
+                              className="p-1.5 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                              title={`Remove ${link.name}`}
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                        {link.events && link.events.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {link.events.map(ev => (
+                              <span key={ev} className="text-xs px-2 py-0.5 rounded-full bg-emerald/10 text-emerald border border-emerald/20 capitalize">
+                                {ev.replace(/-/g, ' ')}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                         <div className="text-xs text-muted-foreground truncate bg-background p-2 rounded border border-border/50 select-all">
                           {link.url}
                         </div>
                         <div className="flex gap-2 mt-1">
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
+                          <Button
+                            variant="outline"
+                            size="sm"
                             className="flex-1 text-xs h-8"
                             onClick={() => {
                               navigator.clipboard.writeText(link.url);
@@ -1028,9 +1249,9 @@ export function DashboardPage({
                             <Copy className="w-3 h-3 mr-1.5" />
                             Copy
                           </Button>
-                          <Button 
-                            variant="default" 
-                            size="sm" 
+                          <Button
+                            variant="default"
+                            size="sm"
                             className="flex-1 text-xs h-8 bg-[#25D366] hover:bg-[#1DA851] text-white border-none"
                             onClick={() => handleSendWhatsApp(link.name, link.url)}
                           >

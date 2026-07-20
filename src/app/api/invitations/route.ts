@@ -58,6 +58,14 @@ export async function POST(request: NextRequest) {
         is_active: false,
         show_bismillah: body.showBismillah ?? true,
         show_quran_verse: body.showQuranVerse ?? true,
+        host_bride_family: body.hostBrideFamily || null,
+        host_groom_family: body.hostGroomFamily || null,
+        host_bride_city: body.hostBrideCity || null,
+        host_groom_city: body.hostGroomCity || null,
+        contact_phone: body.contactPhone || null,
+        is_segregated: body.isSegregated || false,
+        venue_details_segregated: body.venueDetailsSegregated || null,
+        show_nikah_registration: body.showNikahRegistration || false,
         slug: finalSlug,
       })
       .select()

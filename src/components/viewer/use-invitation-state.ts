@@ -65,19 +65,31 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
 
   // ─── Events ───
   const dynamicEvents = useMemo(() => {
+    let evs;
     if (flowData?.events && flowData.events.some(e => e.date || e.time)) {
-      return flowData.events.filter(e => e.name).map(e => ({
+      evs = flowData.events.filter(e => e.name).map(e => ({
         name: e.name, time: e.time || 'TBD', date: e.date || 'TBD',
         description: e.venue ? `At ${e.venue}` : `Join us for the ${e.name} celebration.`,
       }))
+    } else {
+      evs = [
+        { name: 'Mehfil-e-Milad', time: '5:00 PM', date: 'March 11, 2027', description: 'A blessed gathering to begin the festivities with prayers and recitations.' },
+        { name: 'Dholki', time: '8:00 PM', date: 'March 12, 2027', description: 'An intimate evening of traditional folk songs, dhol beats, and family bonding.' },
+        { name: 'Mayoon', time: '6:00 PM', date: 'March 13, 2027', description: 'The traditional ubtan ceremony marking the bride\'s formal preparation.' },
+        { name: 'Mehndi', time: '7:00 PM', date: 'March 14, 2027', description: 'A night of colors, henna, and celebration with traditional music and dance.' },
+        { name: 'Baraat & Nikkah', time: '7:00 PM', date: 'March 15, 2027', description: 'The grand wedding procession followed by the sacred Islamic marriage ceremony.' },
+        { name: 'Walima', time: '8:00 PM', date: 'March 16, 2027', description: 'The wedding reception hosted by the groom — feast, blessings, and joy.' },
+      ]
     }
-    return [
-      { name: 'Mehndi', time: '6:00 PM', date: 'March 14, 2027', description: 'A night of colors, henna, and celebration with traditional music and dance.' },
-      { name: 'Baraat', time: '7:00 PM', date: 'March 15, 2027', description: 'The grand wedding procession — dhol beats, dancing, and joyful arrival.' },
-      { name: 'Nikkah', time: '7:30 PM', date: 'March 15, 2027', description: 'The sacred Islamic marriage ceremony — the signing of the Nikkah Nama.' },
-      { name: 'Walima', time: '8:00 PM', date: 'March 16, 2027', description: 'The wedding reception hosted by the groom — feast, blessings, and joy.' },
-    ]
-  }, [flowData?.events])
+    // Filter events for guest-specific links
+    const allowed = flowData?.guestAllowedEvents;
+    if (allowed && allowed.length > 0 && guestName) {
+      evs = evs.filter(e =>
+        allowed.includes(e.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'))
+      );
+    }
+    return evs;
+  }, [flowData?.events, flowData?.guestAllowedEvents, guestName])
 
   const firstEvent = useMemo(() => {
     if (!dynamicEvents.length) return { date: 'March 15, 2027', time: '7:00 PM', name: 'Wedding' }
@@ -126,12 +138,12 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
 
   // ─── Effects ───
   useEffect(() => {
-    if (guestName && (flowData?.guestLinksQuota || 0) > 0) {
+    if (guestName) {
       setGuestNameFromUrl(guestName)
       if (!rsvpName) setRsvpName(guestName)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [guestName, flowData?.guestLinksQuota])
+  }, [guestName])
 
   useEffect(() => {
     if (flowData?.invitationId) {

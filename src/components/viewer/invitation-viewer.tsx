@@ -192,22 +192,32 @@ function ClassicViewer({ templateId, flowData, guestName }: InvitationViewerProp
   const youtubeVideoId = flowData?.youtubeVideoId?.trim() || (isDemo ? "dQw4w9WgXcQ" : "")
 
   const dynamicEvents = useMemo(() => {
+    let evs;
     if (flowData?.events && flowData.events.some(e => e.date || e.time)) {
-      return flowData.events.filter(e => e.name).map(e => ({
+      evs = flowData.events.filter(e => e.name).map(e => ({
         name: e.name,
         time: e.time || 'TBD',
         date: e.date || 'TBD',
         description: e.venue ? `At ${e.venue}` : `Join us for the ${e.name} celebration.`,
       }))
+    } else {
+      // Default demo events
+      evs = [
+        { name: 'Mehndi', time: '6:00 PM', date: 'March 14, 2027', description: 'A night of colors, henna, and celebration with traditional music and dance.' },
+        { name: 'Baraat', time: '7:00 PM', date: 'March 15, 2027', description: 'The grand wedding procession — dhol beats, dancing, and joyful arrival.' },
+        { name: 'Nikkah', time: '7:30 PM', date: 'March 15, 2027', description: 'The sacred Islamic marriage ceremony — the signing of the Nikkah Nama.' },
+        { name: 'Walima', time: '8:00 PM', date: 'March 16, 2027', description: 'The wedding reception hosted by the groom — feast, blessings, and joy.' },
+      ]
     }
-    // Default demo events
-    return [
-      { name: 'Mehndi', time: '6:00 PM', date: 'March 14, 2027', description: 'A night of colors, henna, and celebration with traditional music and dance.' },
-      { name: 'Baraat', time: '7:00 PM', date: 'March 15, 2027', description: 'The grand wedding procession — dhol beats, dancing, and joyful arrival.' },
-      { name: 'Nikkah', time: '7:30 PM', date: 'March 15, 2027', description: 'The sacred Islamic marriage ceremony — the signing of the Nikkah Nama.' },
-      { name: 'Walima', time: '8:00 PM', date: 'March 16, 2027', description: 'The wedding reception hosted by the groom — feast, blessings, and joy.' },
-    ]
-  }, [flowData?.events])
+    // Filter events for guest-specific links
+    const allowed = flowData?.guestAllowedEvents;
+    if (allowed && allowed.length > 0 && guestName) {
+      evs = evs.filter(e =>
+        allowed.includes(e.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'))
+      );
+    }
+    return evs;
+  }, [flowData?.events, flowData?.guestAllowedEvents, guestName])
 
   const firstEvent = useMemo(() => {
     if (!dynamicEvents.length) {
@@ -238,12 +248,12 @@ function ClassicViewer({ templateId, flowData, guestName }: InvitationViewerProp
   const [rsvpStatus, setRsvpStatus] = useState<'accept' | 'decline' | null>(null)
   
   useEffect(() => {
-    if (guestName && (flowData?.guestLinksQuota || 0) > 0) {
+    if (guestName) {
       setGuestNameFromUrl(guestName)
       if (!rsvpName) setRsvpName(guestName)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [guestName, flowData?.guestLinksQuota])
+  }, [guestName])
   const [wishName, setWishName] = useState('')
   const [wishMessage, setWishMessage] = useState('')
   const [musicPlaying, setMusicPlaying] = useState(false)
@@ -943,12 +953,37 @@ function ClassicViewer({ templateId, flowData, guestName }: InvitationViewerProp
           </div>
 
           <div className="relative z-10 max-w-lg text-center">
-            <p
-              className={`ss-animate-in ${theme.fontCalligraphy} text-sm sm:text-base tracking-[0.4em] uppercase mb-8`}
-              style={{ color: theme.textSecondary, animationDelay: '0.3s' }}
-            >
-              {t('gettingMarried', "We're getting married")}
-            </p>
+            {/* Host Families / Parents (Optional Pakistani Feature) */}
+            {(flowData?.hostBrideFamily || flowData?.hostGroomFamily) ? (
+              <div
+                className="ss-animate-in mb-8 flex flex-col items-center gap-1"
+                style={{ animationDelay: '0.3s' }}
+              >
+                {flowData.hostGroomFamily && (
+                  <p className={`${theme.fontCalligraphy} text-lg sm:text-xl`} style={{ color: theme.textSecondary }}>
+                    {flowData.hostGroomFamily} <span className="text-xs opacity-75">{flowData.hostGroomCity ? `(from ${flowData.hostGroomCity})` : ''}</span>
+                  </p>
+                )}
+                {flowData.hostBrideFamily && flowData.hostGroomFamily && (
+                  <span className="text-sm my-1" style={{ color: getOpacityStyle('text', 0.5) }}>&amp;</span>
+                )}
+                {flowData.hostBrideFamily && (
+                  <p className={`${theme.fontCalligraphy} text-lg sm:text-xl`} style={{ color: theme.textSecondary }}>
+                    {flowData.hostBrideFamily} <span className="text-xs opacity-75">{flowData.hostBrideCity ? `(from ${flowData.hostBrideCity})` : ''}</span>
+                  </p>
+                )}
+                <p className={`mt-4 text-xs tracking-[0.2em] uppercase`} style={{ color: getOpacityStyle('text', 0.6) }}>
+                  {language === 'ur' ? 'کی جانب سے شادی کی دعوت' : 'request the honour of your presence at the marriage of their children'}
+                </p>
+              </div>
+            ) : (
+              <p
+                className={`ss-animate-in ${theme.fontCalligraphy} text-sm sm:text-base tracking-[0.4em] uppercase mb-8`}
+                style={{ color: theme.textSecondary, animationDelay: '0.3s' }}
+              >
+                {t('gettingMarried', "We're getting married")}
+              </p>
+            )}
 
             <h1
               className={`ss-animate-in ${theme.fontDisplay} text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-[0.08em] mb-2`}
@@ -986,7 +1021,7 @@ function ClassicViewer({ templateId, flowData, guestName }: InvitationViewerProp
               className={`ss-animate-in ${theme.fontCalligraphy} text-base sm:text-lg tracking-[0.15em]`}
               style={{ color: theme.textSecondary, animationDelay: '1.4s' }}
             >
-              {t('requestHonour', 'Request the honour of your presence')}
+              {!(flowData?.hostBrideFamily || flowData?.hostGroomFamily) && t('requestHonour', 'Request the honour of your presence')}
             </p>
           </div>
 
@@ -1009,10 +1044,29 @@ function ClassicViewer({ templateId, flowData, guestName }: InvitationViewerProp
           <section className="py-16 md:py-20 px-6">
             <div className="max-w-lg mx-auto text-center">
               {guestNameFromUrl && (
-                <m.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-                  <h3 className={`${theme.fontDisplay} text-3xl md:text-4xl capitalize mb-8`} style={{ color: theme.accent }}>
+                <m.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="flex flex-col items-center gap-4 mb-8">
+                  <h3 className={`${theme.fontDisplay} text-3xl md:text-4xl capitalize`} style={{ color: theme.accent }}>
                     {language === 'ur' ? 'محترم' : 'Dear'} {guestNameFromUrl},
                   </h3>
+                  {flowData?.guestSeats != null && (
+                    <m.div
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.15 }}
+                      className="flex items-center gap-2 px-5 py-2 rounded-full border"
+                      style={{ borderColor: getOpacityStyle('border', 0.3), backgroundColor: getOpacityStyle('bg', 0.1) }}
+                    >
+                      <User className="w-4 h-4 shrink-0" style={{ color: theme.accent }} />
+                      <span className={`${theme.fontDisplay} text-sm font-semibold tracking-wide`} style={{ color: theme.accentLight }}>
+                        {flowData.guestSeats === 0
+                          ? (language === 'ur' ? 'پوری فیملی مدعو' : 'Whole Family Invited')
+                          : flowData.guestSeats === 1
+                          ? (language === 'ur' ? '۱ مہمان مدعو' : '1 Person Invited')
+                          : (language === 'ur' ? `${flowData.guestSeats} مہمان مدعو` : `${flowData.guestSeats} Persons Invited`)}
+                      </span>
+                    </m.div>
+                  )}
                 </m.div>
               )}
               <WaveDivider accentColor={theme.accent} />
@@ -1184,6 +1238,14 @@ function ClassicViewer({ templateId, flowData, guestName }: InvitationViewerProp
                           </div>
                           <h3 className={`${theme.fontDisplay} text-xl font-semibold mb-1`} style={{ color: theme.accent }}>{te.name}</h3>
                           <p className="text-sm leading-relaxed mb-3" style={{ color: getOpacityStyle('text', 0.5) }}>{te.description}</p>
+                          
+                          {/* Nikah Registration Note (Optional Pakistani Feature) */}
+                          {flowData?.showNikahRegistration && (event.name.toLowerCase().includes('nikkah') || event.name.toLowerCase().includes('nikah') || te.name.includes('نکاح')) && (
+                            <div className="mb-4 inline-flex items-center gap-2 px-3 py-1.5 rounded border backdrop-blur-sm" style={{ backgroundColor: getOpacityStyle('bg', 0.05), borderColor: theme.borderSubtle }}>
+                              <span className="text-xs font-semibold" style={{ color: theme.accent }}>{language === 'ur' ? 'نکاح کی باقاعدہ رجسٹریشن کی جائے گی' : 'Nikah will be formally registered'}</span>
+                            </div>
+                          )}
+
                           <AddToCalendarDropdown
                             event={event}
                             partner1={partner1}
@@ -1211,7 +1273,7 @@ function ClassicViewer({ templateId, flowData, guestName }: InvitationViewerProp
                 <h2 className={`${theme.fontCalligraphy} text-3xl sm:text-4xl text-center`} style={{ color: theme.accent }}>{t('dressCode', 'Dress Code')}</h2>
                 <HeartDivider themeId={theme.id} accentColor={theme.accent} />
                 
-                <div className="grid grid-cols-2 gap-6 w-full">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
                   {/* Women's Dress Code */}
                   {dressCodeWomen && (
                     <div className="flex flex-col items-center p-5 rounded-xl border text-center backdrop-blur-sm" style={{ backgroundColor: getOpacityStyle('text', 0.03), borderColor: theme.borderSubtle }}>
@@ -1326,6 +1388,20 @@ function ClassicViewer({ templateId, flowData, guestName }: InvitationViewerProp
               <div className="text-center space-y-2">
                 <h3 className={`${theme.fontDisplay} text-2xl`} style={{ color: theme.accent }}>{translatedVenueName}</h3>
                 <p className="text-sm" style={{ color: getOpacityStyle('text', 0.6) }}>{translatedVenueAddress}</p>
+                
+                {/* Purdah / Segregation Note (Optional Pakistani Feature) */}
+                {flowData?.isSegregated && (
+                  <div className="mt-4 p-3 rounded-lg border mx-auto max-w-sm" style={{ backgroundColor: getOpacityStyle('bg', 0.05), borderColor: theme.borderSubtle }}>
+                    <p className="text-sm font-semibold mb-1" style={{ color: theme.accent }}>
+                      {language === 'ur' ? 'خواتین اور حضرات کے لیے پردے کا الگ انتظام ہے' : 'Strict Purdah / Separate setup for Ladies and Gents'}
+                    </p>
+                    {flowData.venueDetailsSegregated && (
+                      <p className="text-xs" style={{ color: getOpacityStyle('text', 0.7) }}>
+                        {flowData.venueDetailsSegregated}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Real Map Embed */}
@@ -1543,8 +1619,8 @@ function ClassicViewer({ templateId, flowData, guestName }: InvitationViewerProp
               <div className="w-full flex flex-col gap-4">
                 {[
                   {
-                    q_en: 'Can I bring a plus one?',
-                    q_ur: 'کیا میں اپنے ساتھ کسی اور کو لا سکتا ہوں؟',
+                    q_en: 'Can I bring my family?',
+                    q_ur: 'کیا میں اپنے گھر والوں کو بھی ساتھ لا سکتا ہوں؟',
                     a_en: 'Please refer to your invitation card or contact the hosts directly. Seating is specifically reserved.',
                     a_ur: 'مہربانی فرما کر اپنے دعوتی کارڈ پر دیکھیں یا میزبانوں سے رابطہ کریں۔ نشستیں مخصوص کی گئی ہیں۔',
                   },
@@ -1561,10 +1637,10 @@ function ClassicViewer({ templateId, flowData, guestName }: InvitationViewerProp
                     a_ur: 'جی ہاں، تمام مہمانوں کے لیے ہال پر ویلے پارکنگ کی سہولت دستیاب ہے۔',
                   },
                   {
-                    q_en: 'Who can I contact for travel queries?',
-                    q_ur: 'سفر اور رہائش کے حوالے سے میں کس سے رابطہ کروں؟',
-                    a_en: 'Please refer to the Travel Coordinator details listed in the Travel section or contact the hosts.',
-                    a_ur: 'برائے مہربانی سفر کے سیکشن میں درج کوآرڈینیٹر کی تفصیلات دیکھیں یا میزبانوں سے رابطہ کریں۔',
+                    q_en: 'Who can I contact for queries?',
+                    q_ur: 'کسی بھی سوال کے لیے میں کس سے رابطہ کروں؟',
+                    a_en: flowData?.contactPhone ? `Please contact the hosts at ${flowData.contactPhone}.` : 'Please refer to the Travel Coordinator details listed in the Travel section or contact the hosts.',
+                    a_ur: flowData?.contactPhone ? `برائے مہربانی میزبانوں سے اس نمبر پر رابطہ کریں: ${flowData.contactPhone}` : 'برائے مہربانی سفر کے سیکشن میں درج کوآرڈینیٹر کی تفصیلات دیکھیں یا میزبانوں سے رابطہ کریں۔',
                   }
                 ].map((item, idx) => {
                   const isExpanded = !!faqOpen[idx];
@@ -1619,6 +1695,26 @@ function ClassicViewer({ templateId, flowData, guestName }: InvitationViewerProp
             <div className="flex flex-col items-center gap-8 max-w-md mx-auto">
               <h2 className={`${theme.fontCalligraphy} text-3xl sm:text-4xl text-center`} style={{ color: theme.accent }}>{t('willYouAttend', 'Will You Attend?')}</h2>
               <HeartDivider themeId={theme.id} accentColor={theme.accent} />
+
+              {/* Guest seat count badge */}
+              {guestNameFromUrl && flowData?.guestSeats != null && (
+                <m.div
+                  initial={{ opacity: 0, y: 8 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-full border"
+                  style={{ borderColor: getOpacityStyle('border', 0.25), backgroundColor: getOpacityStyle('bg', 0.07) }}
+                >
+                  <User className="w-4 h-4" style={{ color: theme.accent }} />
+                  <span className={`${theme.fontDisplay} text-sm font-medium`} style={{ color: theme.accentLight }}>
+                    {flowData.guestSeats === 0
+                      ? (language === 'ur' ? `${guestNameFromUrl} — پوری فیملی مدعو` : `${guestNameFromUrl} — Whole Family Invited`)
+                      : flowData.guestSeats === 1
+                      ? `${guestNameFromUrl} — 1 Person Invited`
+                      : `${guestNameFromUrl} — ${flowData.guestSeats} ${flowData.guestSeats === 1 ? 'Person' : 'Persons'} Invited`}
+                  </span>
+                </m.div>
+              )}
 
               <div className="relative w-full">
                 {/* Decorative corner borders */}

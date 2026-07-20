@@ -58,6 +58,8 @@ export async function POST(request: NextRequest) {
         amount: totalAmount,
         currency: 'PKR',
         status: 'pending',
+        // Store the final quota target so the webhook can apply it even if the browser callback is missed
+        target_guest_links_quota: guestLinksQuota || 0,
       })
       .select()
       .single()

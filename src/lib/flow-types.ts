@@ -35,6 +35,10 @@ export interface FlowData {
   guestLinksQuota: number;
   // Baseline quota for tracking new additions during upgrades
   originalGuestLinksQuota?: number;
+  // Guest-specific event filtering (null = show all events)
+  guestAllowedEvents?: string[] | null;
+  // How many persons are invited via this guest link
+  guestSeats?: number | null;
   // Backend IDs — set after API calls
   userId?: string;
   invitationId?: string;
@@ -42,6 +46,15 @@ export interface FlowData {
   showBismillah: boolean;
   showQuranVerse: boolean;
   slug?: string;
+  // Pakistani Wedding Optional Features
+  hostBrideFamily?: string;
+  hostGroomFamily?: string;
+  hostBrideCity?: string;
+  hostGroomCity?: string;
+  contactPhone?: string;
+  isSegregated?: boolean;
+  venueDetailsSegregated?: string;
+  showNikahRegistration?: boolean;
 }
 
 export const initialFlowData: FlowData = {
@@ -74,6 +87,14 @@ export const initialFlowData: FlowData = {
   guestLinksQuota: 0,
   originalGuestLinksQuota: 0,
   slug: "",
+  hostBrideFamily: "",
+  hostGroomFamily: "",
+  hostBrideCity: "",
+  hostGroomCity: "",
+  contactPhone: "",
+  isSegregated: false,
+  venueDetailsSegregated: "",
+  showNikahRegistration: false,
 };
 
 export type FlowStep =

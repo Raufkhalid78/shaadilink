@@ -56,10 +56,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: orderErr.message }, { status: 500 })
     }
 
-    // Activate invitation
+    // Activate invitation (optionally with a quota top-up if provided)
+    const invUpdate: Record<string, unknown> = { is_active: true, plan }
+    const guestLinksQuota = typeof body.guestLinksQuota === 'number' ? body.guestLinksQuota : undefined
+    if (guestLinksQuota !== undefined && guestLinksQuota > 0) {
+      invUpdate.guest_links_quota = guestLinksQuota
+    }
     await service
       .from('invitations')
-      .update({ is_active: true, plan })
+      .update(invUpdate)
       .eq('id', invitationId)
 
     // Update profile plan

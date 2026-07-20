@@ -129,8 +129,10 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                 </div>
                 <h2 className="font-display text-lg font-semibold text-gold-light">Manual Bank Transfer</h2>
                 <p className="text-muted-foreground text-xs leading-relaxed">
-                  You are purchasing the <strong className="text-white capitalize">{flowData.selectedPlan || "classic"} Plan</strong>.
-                  Click below to view our bank details and complete your order.
+                  {flowData.paymentDone && addedQuota > 0
+                    ? <>You are purchasing <strong className="text-white">{addedQuota} additional guest links</strong> for your invitation.</>
+                    : <>You are purchasing the <strong className="text-white capitalize">{flowData.selectedPlan || "classic"} Plan</strong>. Click below to view our bank details and complete your order.</>
+                  }
                 </p>
                 
                 {/* Payment Method Badges */}
@@ -153,10 +155,12 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
               {/* Pay button */}
               <Button
                 onClick={handlePayment}
-                disabled={processing}
+                disabled={processing || total <= 0}
                 className="w-full h-12 bg-gold hover:bg-gold-light text-emerald-dark font-semibold text-base gap-2"
               >
-                <>Place Order & View Bank Details <ArrowRight className="w-4 h-4" /></>
+                {total <= 0
+                  ? 'No Changes to Pay'
+                  : <><span>{flowData.paymentDone && addedQuota > 0 ? 'Top Up Links' : 'Place Order'}</span> &amp; View Bank Details <ArrowRight className="w-4 h-4" /></>}
               </Button>
             </div>
 

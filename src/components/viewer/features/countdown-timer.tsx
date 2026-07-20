@@ -176,11 +176,10 @@ export function AddToCalendarDropdown({
 
       {open && (
         <div
-          className="absolute bottom-full mb-1.5 left-0 z-50 rounded-xl border backdrop-blur-md shadow-2xl overflow-hidden min-w-[170px]"
+          className="absolute bottom-full mb-1.5 left-0 z-50 rounded-xl border backdrop-blur-xl shadow-2xl overflow-hidden min-w-[170px]"
           style={{
-            backgroundColor: theme.getOpacityStyle('bg', 0.04),
+            backgroundColor: theme.getOpacityStyle('bg', 0.95),
             borderColor: theme.borderSubtle,
-            backdropFilter: 'blur(16px)',
             boxShadow: `0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px ${theme.getOpacityStyle('border', 0.08)}`,
           }}
         >

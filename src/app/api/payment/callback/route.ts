@@ -113,8 +113,12 @@ async function handleCallback(request: NextRequest) {
 
     // Activate the invitation and update the selected plan
     const updatePayload: any = { is_active: true, plan: order.plan }
-    if (searchParams.has('guest_links_quota')) {
-      updatePayload.guest_links_quota = targetGuestLinksQuota || 0
+    // Prefer the quota from the callback URL param; fall back to what was stored in the order
+    const resolvedQuota = (searchParams.has('guest_links_quota') && targetGuestLinksQuota > 0)
+      ? targetGuestLinksQuota
+      : (order.target_guest_links_quota > 0 ? order.target_guest_links_quota : null)
+    if (resolvedQuota !== null) {
+      updatePayload.guest_links_quota = resolvedQuota
     }
 
     const { error: updateInvErr } = await service

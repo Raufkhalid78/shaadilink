@@ -318,6 +318,14 @@ function HomeInner() {
                 paymentDone: invitation.is_active,
                 showBismillah: invitation.show_bismillah ?? true,
                 showQuranVerse: invitation.show_quran_verse ?? true,
+                hostBrideFamily: invitation.host_bride_family ?? "",
+                hostGroomFamily: invitation.host_groom_family ?? "",
+                hostBrideCity: invitation.host_bride_city ?? "",
+                hostGroomCity: invitation.host_groom_city ?? "",
+                contactPhone: invitation.contact_phone ?? "",
+                isSegregated: invitation.is_segregated ?? false,
+                venueDetailsSegregated: invitation.venue_details_segregated ?? "",
+                showNikahRegistration: invitation.show_nikah_registration ?? false,
                 slug: invitation.slug ?? "",
               }));
               setStepBeforeDetails("dashboard");
@@ -357,6 +365,14 @@ function HomeInner() {
                 paymentDone: false,
                 showBismillah: invitation.show_bismillah ?? true,
                 showQuranVerse: invitation.show_quran_verse ?? true,
+                hostBrideFamily: invitation.host_bride_family ?? "",
+                hostGroomFamily: invitation.host_groom_family ?? "",
+                hostBrideCity: invitation.host_bride_city ?? "",
+                hostGroomCity: invitation.host_groom_city ?? "",
+                contactPhone: invitation.contact_phone ?? "",
+                isSegregated: invitation.is_segregated ?? false,
+                venueDetailsSegregated: invitation.venue_details_segregated ?? "",
+                showNikahRegistration: invitation.show_nikah_registration ?? false,
                 slug: invitation.slug ?? "",
               }));
               setStepBeforeDetails("dashboard");
@@ -396,6 +412,14 @@ function HomeInner() {
                 paymentDone: true,
                 showBismillah: invitation.show_bismillah ?? true,
                 showQuranVerse: invitation.show_quran_verse ?? true,
+                hostBrideFamily: invitation.host_bride_family ?? "",
+                hostGroomFamily: invitation.host_groom_family ?? "",
+                hostBrideCity: invitation.host_bride_city ?? "",
+                hostGroomCity: invitation.host_groom_city ?? "",
+                contactPhone: invitation.contact_phone ?? "",
+                isSegregated: invitation.is_segregated ?? false,
+                venueDetailsSegregated: invitation.venue_details_segregated ?? "",
+                showNikahRegistration: invitation.show_nikah_registration ?? false,
                 slug: invitation.slug ?? "",
               }));
               setStepBeforeDetails("dashboard");
@@ -540,6 +564,14 @@ function HomeInner() {
               paymentDone: invitation.is_active,
               showBismillah: invitation.show_bismillah ?? true,
               showQuranVerse: invitation.show_quran_verse ?? true,
+              hostBrideFamily: invitation.host_bride_family ?? "",
+              hostGroomFamily: invitation.host_groom_family ?? "",
+              hostBrideCity: invitation.host_bride_city ?? "",
+              hostGroomCity: invitation.host_groom_city ?? "",
+              contactPhone: invitation.contact_phone ?? "",
+              isSegregated: invitation.is_segregated ?? false,
+              venueDetailsSegregated: invitation.venue_details_segregated ?? "",
+              showNikahRegistration: invitation.show_nikah_registration ?? false,
               slug: invitation.slug ?? "",
             }));
             setCurrentStep("success");
@@ -701,6 +733,16 @@ function HomeInner() {
           slideshowImages: invitation.slideshow_image_urls || [],
           youtubeVideoId: invitation.youtube_video_id ?? "",
           guestLinksQuota: invitation.guest_links_quota ?? 0,
+          showBismillah: invitation.show_bismillah ?? true,
+          showQuranVerse: invitation.show_quran_verse ?? true,
+          hostBrideFamily: invitation.host_bride_family ?? "",
+          hostGroomFamily: invitation.host_groom_family ?? "",
+          hostBrideCity: invitation.host_bride_city ?? "",
+          hostGroomCity: invitation.host_groom_city ?? "",
+          contactPhone: invitation.contact_phone ?? "",
+          isSegregated: invitation.is_segregated ?? false,
+          venueDetailsSegregated: invitation.venue_details_segregated ?? "",
+          showNikahRegistration: invitation.show_nikah_registration ?? false,
           events: (invitation.events || []).sort(
             (a: { order_index: number }, b: { order_index: number }) => a.order_index - b.order_index
           ).map((e: { name: string; date: string; time: string; venue?: string }) => ({
@@ -745,6 +787,16 @@ function HomeInner() {
           slideshowImages: invitation.slideshow_image_urls || [],
           youtubeVideoId: invitation.youtube_video_id ?? "",
           guestLinksQuota: invitation.guest_links_quota ?? 0,
+          showBismillah: invitation.show_bismillah ?? true,
+          showQuranVerse: invitation.show_quran_verse ?? true,
+          hostBrideFamily: invitation.host_bride_family ?? "",
+          hostGroomFamily: invitation.host_groom_family ?? "",
+          hostBrideCity: invitation.host_bride_city ?? "",
+          hostGroomCity: invitation.host_groom_city ?? "",
+          contactPhone: invitation.contact_phone ?? "",
+          isSegregated: invitation.is_segregated ?? false,
+          venueDetailsSegregated: invitation.venue_details_segregated ?? "",
+          showNikahRegistration: invitation.show_nikah_registration ?? false,
           events: (invitation.events || []).sort(
             (a: { order_index: number }, b: { order_index: number }) => a.order_index - b.order_index
           ).map((e: { name: string; date: string; time: string; venue?: string }) => ({
@@ -790,14 +842,22 @@ function HomeInner() {
           slideshowImages: invitation.slideshow_image_urls ?? [],
           youtubeVideoId: invitation.youtube_video_id ?? "",
           guestLinksQuota: invitation.guest_links_quota ?? 0,
+          showBismillah: invitation.show_bismillah ?? true,
+          showQuranVerse: invitation.show_quran_verse ?? true,
+          hostBrideFamily: invitation.host_bride_family ?? "",
+          hostGroomFamily: invitation.host_groom_family ?? "",
+          hostBrideCity: invitation.host_bride_city ?? "",
+          hostGroomCity: invitation.host_groom_city ?? "",
+          contactPhone: invitation.contact_phone ?? "",
+          isSegregated: invitation.is_segregated ?? false,
+          venueDetailsSegregated: invitation.venue_details_segregated ?? "",
+          showNikahRegistration: invitation.show_nikah_registration ?? false,
           originalGuestLinksQuota: invitation.guest_links_quota ?? 0,
           events: ((invitation.events as { name: string; date: string; time: string; venue?: string; order_index: number }[]) || [])
             .sort((a, b) => a.order_index - b.order_index)
             .map((e) => ({ name: e.name, date: e.date, time: e.time, venue: e.venue })),
           selectedPlan: invitation.plan,
           paymentDone: true, // We are editing/upgrading a paid invitation, but buying an add-on
-          showBismillah: invitation.show_bismillah ?? true,
-          showQuranVerse: invitation.show_quran_verse ?? true,
           slug: invitation.slug ?? "",
         });
         setStepBeforeDetails("dashboard");

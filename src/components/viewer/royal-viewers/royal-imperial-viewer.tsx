@@ -310,16 +310,48 @@ export default function RoyalImperialViewer({ templateId, flowData, guestName }:
           <section className="py-16 md:py-20 px-6" style={{ background: `linear-gradient(180deg, ${theme.bgPrimary} 0%, ${theme.bgSecondary} 50%, ${theme.bgPrimary} 100%)` }}>
             <div className="max-w-lg mx-auto text-center">
               {s.guestNameFromUrl && (
-                <m.h3 initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                  className="text-3xl md:text-4xl capitalize mb-8 font-[var(--font-cinzel-dec)]" style={{ color: theme.accent }}>
-                  {s.language === 'ur' ? 'محترم' : 'Dear'} {s.guestNameFromUrl},
-                </m.h3>
+                <m.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="flex flex-col items-center gap-4 mb-8">
+                  <h3 className="text-3xl md:text-4xl capitalize font-[var(--font-cinzel-dec)]" style={{ color: theme.accent }}>
+                    {s.language === 'ur' ? 'محترم' : 'Dear'} {s.guestNameFromUrl},
+                  </h3>
+                  {s.flowData?.guestSeats != null && (
+                    <m.div initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: 0.15 }}
+                      className="flex items-center gap-2 px-5 py-2 rounded-full border"
+                      style={{ borderColor: `rgba(${theme.accentRgb},0.3)`, backgroundColor: `rgba(${theme.accentRgb},0.1)` }}>
+                      <User className="w-4 h-4 shrink-0" style={{ color: theme.accent }} />
+                      <span className="text-sm font-semibold tracking-wide font-[var(--font-cinzel-dec)]" style={{ color: theme.accentLight }}>
+                        {s.flowData.guestSeats === 0 ? (s.language === 'ur' ? 'پوری فیملی مدعو' : 'Whole Family Invited') : s.flowData.guestSeats === 1 ? (s.language === 'ur' ? '۱ مہمان مدعو' : '1 Person Invited') : (s.language === 'ur' ? `${s.flowData.guestSeats} مہمان مدعو` : `${s.flowData.guestSeats} Persons Invited`)}
+                      </span>
+                    </m.div>
+                  )}
+                </m.div>
               )}
               <ImperialDivider accent={theme.accent} />
               <p className="text-xl md:text-2xl leading-relaxed italic my-8 font-[var(--font-great-vibes)] whitespace-pre-wrap break-words"
                 style={{ color: theme.accentLight, textShadow: `0 0 15px ${getOpacityStyle('text', 0.2)}` }}>
                 {s.translatedWelcomeMsg}
               </p>
+              
+              {/* Host Families */}
+              {(flowData?.hostBrideFamily || flowData?.hostGroomFamily) && (
+                <div className="flex flex-col gap-6 my-8">
+                  {flowData?.hostBrideFamily && (
+                    <m.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="flex flex-col items-center">
+                      <span className="text-[10px] tracking-widest uppercase mb-1" style={{ color: theme.textMuted }}>{s.language === 'ur' ? 'دلہن کے اہل خانہ' : 'Host (Bride)'}</span>
+                      <span className="text-lg font-semibold" style={{ color: theme.textPrimary }}>{flowData.hostBrideFamily}</span>
+                      {flowData.hostBrideCity && <span className="text-xs mt-1" style={{ color: getOpacityStyle('text', 0.6) }}>{flowData.hostBrideCity}</span>}
+                    </m.div>
+                  )}
+                  {flowData?.hostGroomFamily && (
+                    <m.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="flex flex-col items-center">
+                      <span className="text-[10px] tracking-widest uppercase mb-1" style={{ color: theme.textMuted }}>{s.language === 'ur' ? 'دلہے کے اہل خانہ' : 'Host (Groom)'}</span>
+                      <span className="text-lg font-semibold" style={{ color: theme.textPrimary }}>{flowData.hostGroomFamily}</span>
+                      {flowData.hostGroomCity && <span className="text-xs mt-1" style={{ color: getOpacityStyle('text', 0.6) }}>{flowData.hostGroomCity}</span>}
+                    </m.div>
+                  )}
+                </div>
+              )}
+
               <ImperialDivider accent={theme.accent} />
             </div>
           </section>
@@ -414,7 +446,17 @@ export default function RoyalImperialViewer({ templateId, flowData, guestName }:
                             <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {te.time}</span>
                           </div>
                           <p className="text-sm leading-relaxed" style={{ color: getOpacityStyle('text', 0.6) }}>{te.description}</p>
-                          <AddToCalendarDropdown event={event} partner1={s.partner1} partner2={s.partner2} theme={theme} label={s.t('addToCalendar', 'Add to Calendar')} location={[s.venueName, s.rawVenueAddress].filter(Boolean).join(', ')} />
+                          
+                          {/* Nikah Registration Note (Optional Pakistani Feature) */}
+                          {flowData?.showNikahRegistration && (event.name.toLowerCase().includes('nikkah') || event.name.toLowerCase().includes('nikah') || te.name.includes('نکاح')) && (
+                            <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border" style={{ backgroundColor: getOpacityStyle('bg', 0.1), borderColor: theme.accent }}>
+                              <span className="text-xs font-semibold tracking-wide" style={{ color: theme.accent }}>{s.language === 'ur' ? 'نکاح کی باقاعدہ رجسٹریشن کی جائے گی' : 'Nikah will be formally registered'}</span>
+                            </div>
+                          )}
+
+                          <div className="pt-2">
+                            <AddToCalendarDropdown event={event} partner1={s.partner1} partner2={s.partner2} theme={theme} label={s.t('addToCalendar', 'Add to Calendar')} location={[s.venueName, s.rawVenueAddress].filter(Boolean).join(', ')} />
+                          </div>
                         </div>
                       </div>
                     </RevealSection>
@@ -481,6 +523,13 @@ export default function RoyalImperialViewer({ templateId, flowData, guestName }:
                 <h3 className="text-2xl font-[var(--font-cinzel-dec)]" style={{ color: theme.accent }}>{s.translatedVenueName}</h3>
                 <p className="text-sm" style={{ color: getOpacityStyle('text', 0.6) }}>{s.translatedVenueAddress}</p>
               </div>
+
+              {flowData?.isSegregated && (
+                <div className="w-full text-center p-4 border rounded-xl" style={{ backgroundColor: getOpacityStyle('bg', 0.05), borderColor: theme.borderSubtle }}>
+                  <p className="text-sm font-semibold mb-1" style={{ color: theme.accent }}>{s.language === 'ur' ? 'خواتین اور حضرات کا پردے کے ساتھ الگ انتظام ہے' : 'Separate setup for Ladies & Gents'}</p>
+                  {flowData.venueDetailsSegregated && <p className="text-xs" style={{ color: getOpacityStyle('text', 0.7) }}>{flowData.venueDetailsSegregated}</p>}
+                </div>
+              )}
               <div className="w-full rounded-2xl overflow-hidden border" style={{ borderColor: theme.borderSubtle }}>
                 <iframe title="Venue Location Map" width="100%" height="220" style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg) grayscale(10%)' }} src={`https://maps.google.com/maps?q=${encodeURIComponent(s.mapQuery)}&t=&z=15&ie=UTF8&iwloc=&output=embed`} allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
               </div>
@@ -536,7 +585,7 @@ export default function RoyalImperialViewer({ templateId, flowData, guestName }:
               <h2 className="text-3xl sm:text-4xl text-center font-[var(--font-great-vibes)]" style={{ color: theme.accent }}>{s.t('faq', 'Frequently Asked Questions')}</h2>
               <ImperialDivider accent={theme.accent} />
               <div className="w-full flex flex-col gap-4">
-                {[{ q_en: 'Can I bring a plus one?', q_ur: 'کیا میں اپنے ساتھ کسی اور کو لا سکتا ہوں؟', a_en: 'Please refer to your invitation card or contact the hosts directly.', a_ur: 'مہربانی فرما کر اپنے دعوتی کارڈ پر دیکھیں یا میزبانوں سے رابطہ کریں۔' }, { q_en: 'What time should I arrive?', q_ur: 'مجھے کس وقت پہنچنا چاہیے؟', a_en: 'We suggest arriving 15-30 minutes before the scheduled event time.', a_ur: 'ہم مشورہ دیتے ہیں کہ تقریب شروع ہونے سے 15-30 منٹ پہلے پہنچیں۔' }, { q_en: 'Is parking available?', q_ur: 'کیا پارکنگ کی سہولت دستیاب ہے؟', a_en: 'Yes, valet parking is available for all guests.', a_ur: 'جی ہاں، تمام مہمانوں کے لیے ویلے پارکنگ دستیاب ہے۔' }, { q_en: 'Who do I contact for queries?', q_ur: 'سوالات کے لیے کس سے رابطہ کریں؟', a_en: 'Please refer to the Travel section or contact the hosts.', a_ur: 'برائے مہربانی سفر کے سیکشن میں دیکھیں یا میزبانوں سے رابطہ کریں۔' }].map((item, idx) => {
+                {[{ q_en: 'Can I bring a plus one?', q_ur: 'کیا میں اپنے ساتھ کسی اور کو لا سکتا ہوں؟', a_en: 'Please refer to your invitation card or contact the hosts directly.', a_ur: 'مہربانی فرما کر اپنے دعوتی کارڈ پر دیکھیں یا میزبانوں سے رابطہ کریں۔' }, { q_en: 'What time should I arrive?', q_ur: 'مجھے کس وقت پہنچنا چاہیے؟', a_en: 'We suggest arriving 15-30 minutes before the scheduled event time.', a_ur: 'ہم مشورہ دیتے ہیں کہ تقریب شروع ہونے سے 15-30 منٹ پہلے پہنچیں۔' }, { q_en: 'Is parking available?', q_ur: 'کیا پارکنگ کی سہولت دستیاب ہے؟', a_en: 'Yes, valet parking is available for all guests.', a_ur: 'جی ہاں، تمام مہمانوں کے لیے ویلے پارکنگ دستیاب ہے۔' }, { q_en: 'Who do I contact for queries?', q_ur: 'سوالات کے لیے کس سے رابطہ کریں؟', a_en: flowData?.contactPhone ? `Please contact the hosts at ${flowData.contactPhone}.` : 'Please refer to the Travel section or contact the hosts.', a_ur: flowData?.contactPhone ? `میزبانوں سے ${flowData.contactPhone} پر رابطہ کریں۔` : 'برائے مہربانی سفر کے سیکشن میں دیکھیں یا میزبانوں سے رابطہ کریں۔' }].map((item, idx) => {
                   const isExpanded = !!s.faqOpen[idx]
                   return (
                     <div key={idx} className="border rounded-xl overflow-hidden" style={{ backgroundColor: getOpacityStyle('bg', 0.02), borderColor: theme.borderSubtle }}>

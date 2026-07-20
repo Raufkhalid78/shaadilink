@@ -64,10 +64,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Failed to update order" }, { status: 500 })
     }
 
-    // 2. Update invitation status
+    // 2. Update invitation status and quota (if a quota top-up was ordered)
+    const invUpdate: Record<string, unknown> = { is_active: true, plan: order.plan }
+    if (order.target_guest_links_quota > 0) {
+      invUpdate.guest_links_quota = order.target_guest_links_quota
+    }
     await service
       .from('invitations')
-      .update({ is_active: true, plan: order.plan })
+      .update(invUpdate)
       .eq('id', order.invitation_id)
 
     // 3. Update profile plan

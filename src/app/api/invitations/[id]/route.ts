@@ -83,6 +83,14 @@ export async function PUT(
       youtubeVideoId: 'youtube_video_id',
       guestLinksQuota: 'guest_links_quota',
       slug: 'slug',
+      hostBrideFamily: 'host_bride_family',
+      hostGroomFamily: 'host_groom_family',
+      hostBrideCity: 'host_bride_city',
+      hostGroomCity: 'host_groom_city',
+      contactPhone: 'contact_phone',
+      isSegregated: 'is_segregated',
+      venueDetailsSegregated: 'venue_details_segregated',
+      showNikahRegistration: 'show_nikah_registration',
     }
     for (const [jsKey, dbKey] of Object.entries(fieldMap)) {
       if (body[jsKey] !== undefined) {
