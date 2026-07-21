@@ -112,7 +112,7 @@ export function AIChatFAB() {
                 {/* Chat Messages */}
                 <div 
                   ref={scrollRef}
-                  className="flex-1 overflow-y-auto p-4 space-y-4 bg-muted/20 min-h-[200px]"
+                  className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4 bg-muted/20 min-h-[200px]"
                 >
                   <div className="flex gap-2 max-w-[85%]">
                     <div className="w-6 h-6 rounded-full bg-primary/10 flex-shrink-0 flex items-center justify-center mt-1">
