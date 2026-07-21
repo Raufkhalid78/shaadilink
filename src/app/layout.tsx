@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Amiri, Inter, Cinzel_Decorative, Great_Vibes } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
-import { WhatsAppFAB } from "@/components/whatsapp-fab";
+import { AIChatFAB } from "@/components/ai-chat-fab";
 import { LanguageProvider } from "@/components/language-provider";
 import { FramerMotionProvider } from "@/components/framer-provider";
 
@@ -180,10 +180,10 @@ export default function RootLayout({
         />
         <LanguageProvider>
           <FramerMotionProvider>
+            <AIChatFAB />
             <div id="main-content">
               {children}
             </div>
-            <WhatsAppFAB />
           </FramerMotionProvider>
           <Toaster 
             position="bottom-center"
