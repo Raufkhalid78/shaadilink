@@ -72,9 +72,18 @@ export function SignupPage({
     if (!flowData.email.trim()) newErrors.email = "Email is required";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(flowData.email))
       newErrors.email = "Please enter a valid email";
-    if (!password) newErrors.password = "Password is required";
-    else if (password.length < 8)
+    if (!password) {
+      newErrors.password = "Password is required";
+    } else if (password.length < 8) {
       newErrors.password = "Password must be at least 8 characters";
+    } else if (!/[A-Z]/.test(password)) {
+      newErrors.password = "Password must contain an uppercase letter";
+    } else if (!/[0-9]/.test(password)) {
+      newErrors.password = "Password must contain a number";
+    } else if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+      newErrors.password = "Password must contain a special character";
+    }
+
     if (password !== confirmPassword)
       newErrors.confirmPassword = "Passwords do not match";
     setErrors(newErrors);

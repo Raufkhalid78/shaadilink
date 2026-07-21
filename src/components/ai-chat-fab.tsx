@@ -48,7 +48,7 @@ export function AIChatFAB() {
                 initial={{ opacity: 0, y: 20, scale: 0.9 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 20, scale: 0.9 }}
-                className="bg-card border border-border rounded-2xl shadow-2xl w-80 sm:w-96 mb-2 flex flex-col origin-bottom-right overflow-hidden"
+                className="bg-card border border-border rounded-2xl shadow-2xl w-[calc(100vw-2rem)] sm:w-96 mb-2 flex flex-col origin-bottom-right overflow-hidden"
                 style={{ maxHeight: "calc(100vh - 120px)" }}
               >
                 {/* Header */}
@@ -88,7 +88,7 @@ export function AIChatFAB() {
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
-                      className="bg-muted border-b overflow-hidden"
+                      className="bg-muted border-b overflow-hidden flex-shrink-0"
                     >
                       <div className="p-5 flex flex-col items-center text-center space-y-4">
                         <p className="text-sm text-muted-foreground">Scan to chat with a human on WhatsApp</p>
@@ -112,7 +112,7 @@ export function AIChatFAB() {
                 {/* Chat Messages */}
                 <div 
                   ref={scrollRef}
-                  className="flex-1 overflow-y-auto p-4 space-y-4 bg-muted/20 min-h-[300px]"
+                  className="flex-1 overflow-y-auto p-4 space-y-4 bg-muted/20 min-h-[200px]"
                 >
                   <div className="flex gap-2 max-w-[85%]">
                     <div className="w-6 h-6 rounded-full bg-primary/10 flex-shrink-0 flex items-center justify-center mt-1">
