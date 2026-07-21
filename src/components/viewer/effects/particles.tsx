@@ -23,12 +23,12 @@ export function BackgroundParticles({ accentColor }: { accentColor?: string }) {
   const [particles, setParticles] = useState<Particle[]>([])
 
   useEffect(() => {
-    const generated = Array.from({ length: 18 }).map(() => ({
+    const generated = Array.from({ length: 25 }).map(() => ({
       left: Math.random() * 100,
-      size: 1 + Math.random() * 2,
-      duration: 15 + Math.random() * 25,
-      delay: Math.random() * 20,
-      opacity: 0.06 + Math.random() * 0.12,
+      size: 2 + Math.random() * 3,
+      duration: 12 + Math.random() * 20,
+      delay: Math.random() * 15,
+      opacity: 0.2 + Math.random() * 0.3,
       drift: (Math.random() - 0.5) * 50,
     }))
     setParticles(generated)

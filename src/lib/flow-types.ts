@@ -68,8 +68,12 @@ export const initialFlowData: FlowData = {
   venueAddress: "",
   welcomeMessage: "",
   events: [
+    { name: "Qawali Night", date: "", time: "" },
+    { name: "Dholki", date: "", time: "" },
+    { name: "Mayoon", date: "", time: "" },
     { name: "Mehndi", date: "", time: "" },
     { name: "Baraat", date: "", time: "" },
+    { name: "Baraat & Nikkah", date: "", time: "" },
     { name: "Walima", date: "", time: "" },
   ],
   backgroundMusic: "soft-sitar",

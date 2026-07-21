@@ -73,7 +73,7 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
       }))
     } else {
       evs = [
-        { name: 'Mehfil-e-Milad', time: '5:00 PM', date: 'March 11, 2027', description: 'A blessed gathering to begin the festivities with prayers and recitations.' },
+        { name: 'Qawali Night', time: '5:00 PM', date: 'March 11, 2027', description: 'A mystical evening of sufi music, devotion, and celebration.' },
         { name: 'Dholki', time: '8:00 PM', date: 'March 12, 2027', description: 'An intimate evening of traditional folk songs, dhol beats, and family bonding.' },
         { name: 'Mayoon', time: '6:00 PM', date: 'March 13, 2027', description: 'The traditional ubtan ceremony marking the bride\'s formal preparation.' },
         { name: 'Mehndi', time: '7:00 PM', date: 'March 14, 2027', description: 'A night of colors, henna, and celebration with traditional music and dance.' },

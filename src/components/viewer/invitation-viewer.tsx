@@ -1098,7 +1098,7 @@ function ClassicViewer({ templateId, flowData, guestName }: InvitationViewerProp
           <RevealSection>
             <section className="py-16 md:py-20 px-6">
               <div 
-                className="max-w-2xl mx-auto text-center space-y-6 md:space-y-8 py-10 px-6 md:px-10 rounded-2xl border backdrop-blur-md relative overflow-hidden transition-all duration-500 shadow-xl"
+                className="max-w-2xl mx-auto text-center space-y-6 md:space-y-8 py-10 px-6 md:px-10 rounded-2xl border relative overflow-hidden transition-all duration-500 shadow-xl"
                 style={{ 
                   borderColor: getOpacityStyle('border', 0.15), 
                   backgroundColor: getOpacityStyle('bg', 0.3) || 'rgba(0,0,0,0.15)',
@@ -1114,9 +1114,9 @@ function ClassicViewer({ templateId, flowData, guestName }: InvitationViewerProp
 
                 {/* Arabic Calligraphy Verse */}
                 <p 
-                  className="font-arabic text-2xl md:text-3xl leading-loose text-gold px-2 bismillah-glow" 
+                  className="font-arabic text-2xl md:text-3xl leading-loose text-gold px-2" 
                   dir="rtl"
-                  style={{ color: theme.accentLight || '#d4af37', textShadow: `0 0 15px ${getOpacityStyle('text', 0.2)}` }}
+                  style={{ color: theme.accentLight || '#d4af37' }}
                 >
                   وَمِنْ ءَايَـٰتِهِۦٓ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَٰجًا لِّتَسْکُنُوٓا۟ إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً ۚ إِنَّ فِى ذَٰلِكَ لَـَٔايَـٰتٍ لِّقَوْمٍ يَتَفَكَّرُونَ
                 </p>
@@ -1897,7 +1897,17 @@ function ClassicViewer({ templateId, flowData, guestName }: InvitationViewerProp
             <Heart className="w-3 h-3" style={{ color: getOpacityStyle('text', 0.3) }} />
             <div className="w-8 h-px" style={{ backgroundColor: getOpacityStyle('bg', 0.2) }} />
           </div>
-          <p className="text-xs tracking-wider" style={{ color: getOpacityStyle('text', 0.3) }}>{t('madeWithLove', 'Made with love by ShaadiLink')}</p>
+          <p className="text-xs tracking-wider" style={{ color: getOpacityStyle('text', 0.4) }}>
+            {t('madeWithLove', 'Made with love by ShaadiLink').split(/(ShaadiLink|شادی لنک)/i).map((part, i) => 
+              part.toLowerCase() === 'shaadilink' || part === 'شادی لنک' ? (
+                <a key={i} href="https://www.shaadilink.com.pk/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline' }}>
+                  {part}
+                </a>
+              ) : (
+                <span key={i}>{part}</span>
+              )
+            )}
+          </p>
         </div>
       </m.div>
 

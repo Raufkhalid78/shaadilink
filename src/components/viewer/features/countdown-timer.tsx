@@ -176,11 +176,11 @@ export function AddToCalendarDropdown({
 
       {open && (
         <div
-          className="absolute bottom-full mb-1.5 left-0 z-50 rounded-xl border backdrop-blur-xl shadow-2xl overflow-hidden min-w-[170px]"
+          className="absolute bottom-full mb-1.5 left-0 z-50 rounded-xl border shadow-2xl overflow-hidden min-w-[170px]"
           style={{
-            backgroundColor: theme.getOpacityStyle('bg', 0.95),
+            backgroundColor: theme.isLight ? theme.bgSecondary : theme.bgPrimary,
             borderColor: theme.borderSubtle,
-            boxShadow: `0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px ${theme.getOpacityStyle('border', 0.08)}`,
+            boxShadow: theme.isLight ? '0 8px 32px rgba(0,0,0,0.1)' : `0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px ${theme.getOpacityStyle('border', 0.08)}`,
           }}
         >
           {options.map((opt) => (
@@ -191,7 +191,7 @@ export function AddToCalendarDropdown({
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setOpen(false)}
-                  className="flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-medium transition-colors duration-150 hover:bg-white/5"
+                  className={`flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-medium transition-colors duration-150 ${theme.isLight ? 'hover:bg-black/5' : 'hover:bg-white/5'}`}
                   style={{ color: theme.textPrimary }}
                 >
                   <span style={{ color: theme.accent, opacity: 0.8 }}>{opt.icon}</span>
@@ -200,7 +200,7 @@ export function AddToCalendarDropdown({
               ) : (
                 <button
                   onClick={opt.onClick}
-                  className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-medium transition-colors duration-150 hover:bg-white/5 text-left"
+                  className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-medium transition-colors duration-150 text-left ${theme.isLight ? 'hover:bg-black/5' : 'hover:bg-white/5'}`}
                   style={{ color: theme.textPrimary }}
                 >
                   <span style={{ color: theme.accent, opacity: 0.8 }}>{opt.icon}</span>
