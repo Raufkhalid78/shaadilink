@@ -10,7 +10,7 @@ import type { FlowData } from '@/lib/flow-types'
 export function useInvitationState(templateId: string | undefined, flowData: FlowData | undefined, guestName: string | null | undefined) {
   const theme = useMemo(() => getTheme(templateId), [templateId])
 
-  const getOpacityStyle = useCallback((type: 'text' | 'bg' | 'border', defaultOpacity: number) => {
+  const getOpacityStyle = useCallback((type: 'text' | 'bg' | 'border' | 'accent', defaultOpacity: number) => {
     if (!theme.isLight) return `rgba(${theme.accentRgb},${defaultOpacity})`
     if (type === 'text') {
       const textRgb = hexToRgb(theme.textPrimary)

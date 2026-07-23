@@ -19,7 +19,7 @@ export function getTheme(templateId?: string | null): TemplateTheme {
   const theme = !templateId ? DEFAULT_THEME : (TEMPLATE_THEMES[templateId] || DEFAULT_THEME)
   const isRoyal = templateId ? (['royal-imperial', 'royal-elegance', 'geometric-gold', 'dark-velvet'].includes(templateId)) : false
   
-  const getOpacityStyle = (type: 'text' | 'bg' | 'border', defaultOpacity: number) => {
+  const getOpacityStyle = (type: 'text' | 'bg' | 'border' | 'accent', defaultOpacity: number) => {
     if (!theme.isLight) {
       return `rgba(${theme.accentRgb},${defaultOpacity})`
     }

@@ -46,7 +46,7 @@ export interface TemplateTheme {
   fontCalligraphy?: string
   isLight?: boolean
   isRoyal?: boolean
-  getOpacityStyle: (type: 'text' | 'bg' | 'border', defaultOpacity: number) => string
+  getOpacityStyle: (type: 'text' | 'bg' | 'border' | 'accent', defaultOpacity: number) => string
 }
 
 export const TEMPLATE_THEMES: Record<string, Omit<TemplateTheme, 'getOpacityStyle'>> = {
