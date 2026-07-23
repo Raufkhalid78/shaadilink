@@ -437,7 +437,7 @@ export function ScratchCard({
             style={{
               width: CARD_W,
               height: CARD_H,
-              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"), radial-gradient(circle at 50% 40%, ${theme.bgCard} 0%, ${theme.bgPrimary} 140%)`,
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"), radial-gradient(circle at 50% 40%, ${theme.bgSecondary} 0%, ${theme.bgPrimary} 140%)`,
               backgroundBlendMode: 'overlay, normal',
               border: isRoyal 
                 ? 'none' 
@@ -482,7 +482,7 @@ export function ScratchCard({
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.25, duration: 0.4 }}
                   className={`${theme.fontCalligraphy} ${isRoyal ? 'text-xl' : 'text-2xl sm:text-3xl'} font-bold text-center leading-tight`}
-                  style={{ color: theme.text, textShadow: `0 2px 4px rgba(0,0,0,0.15), 0 0 20px ${theme.getOpacityStyle('accent', 0.3)}` }}
+                  style={{ color: theme.textPrimary, textShadow: `0 2px 4px rgba(0,0,0,0.15), 0 0 20px ${theme.getOpacityStyle('accent', 0.3)}` }}
                 >
                   {language === 'ur' ? (translations.youreInvited || 'آپ مدعو ہیں!') : "You're Invited!"}
                 </m.p>
@@ -498,7 +498,7 @@ export function ScratchCard({
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.5, duration: 0.4 }}
                   className={`${theme.fontDisplay} ${isRoyal ? 'text-xl sm:text-2xl' : 'text-2xl sm:text-3xl'} font-bold text-center leading-tight tracking-wide`}
-                  style={{ color: theme.text, textShadow: `0 2px 8px rgba(0,0,0,0.1), 0 0 15px ${theme.getOpacityStyle('accent', 0.2)}` }}
+                  style={{ color: theme.textPrimary, textShadow: `0 2px 8px rgba(0,0,0,0.1), 0 0 15px ${theme.getOpacityStyle('accent', 0.2)}` }}
                 >
                   {scratchDateInfo.date}
                 </m.p>
@@ -541,7 +541,7 @@ export function ScratchCard({
                 />
                 <p
                   className={`${theme.fontDisplay} ${isRoyal ? 'text-xl sm:text-2xl' : 'text-2xl sm:text-3xl'} font-bold text-center leading-tight`}
-                  style={{ color: theme.text, textShadow: `0 0 10px ${theme.getOpacityStyle('text', 0.1)}` }}
+                  style={{ color: theme.textPrimary, textShadow: `0 0 10px ${theme.getOpacityStyle('text', 0.1)}` }}
                 >
                   {scratchDateInfo.date}
                 </p>
