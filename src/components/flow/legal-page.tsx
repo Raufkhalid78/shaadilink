@@ -46,7 +46,7 @@ const legalDataEn: Record<
       {
         heading: "4. Payment Terms",
         content:
-          "All prices are listed in Pakistani Rupees (PKR). Payment is one-time with no recurring charges or hidden fees. We accept all major credit/debit cards, JazzCash, EasyPaisa, and bank transfers. All payments are processed securely with SSL encryption.",
+          "All prices are listed in Pakistani Rupees (PKR). Payment is one-time with no recurring charges or hidden fees. We accept all major credit/debit cards, JazzCash, EasyPaisa, and bank transfers. All payments are securely processed through Safepay (Private) Limited. By making a payment, you agree to Safepay's applicable terms of service and PCI-DSS compliance standards.",
       },
       {
         heading: "5. Service Delivery",
@@ -103,7 +103,7 @@ const legalDataEn: Record<
       {
         heading: "4. Payment Data",
         content:
-          "Payment processing is handled by our secure payment partners. ShaadiLink does not store your full credit card details. All payment data is transmitted via encrypted SSL connections and processed in compliance with PCI-DSS standards.",
+          "Payment processing is securely handled by our authorized partner, Safepay (Private) Limited. ShaadiLink does not store your full credit card details. Payment data is transmitted via encrypted SSL connections and processed in accordance with Safepay's Privacy Policy and PCI-DSS standards.",
       },
       {
         heading: "5. Data Protection",
@@ -140,12 +140,12 @@ const legalDataEn: Record<
       {
         heading: "2. Duplicate Payments",
         content:
-          `If a duplicate payment occurs due to a technical error, we will review the transaction and process a refund after deducting applicable processing charges. Please contact us at ${CONTACT_CONFIG.email} with your transaction details.`,
+          `If a duplicate payment occurs due to a technical error, we will review the transaction and process a refund. Please note that a 5% processing fee will be deducted from the total refund amount to cover non-refundable payment gateway charges. Contact us at ${CONTACT_CONFIG.email} with your transaction details.`,
       },
       {
         heading: "3. Erroneous Payments",
         content:
-          "In cases of clearly erroneous payments (e.g., wrong amount charged), we will investigate and process a refund within 7–10 business days after verification.",
+          "In cases of clearly erroneous payments (e.g., wrong amount charged), we will investigate and process a refund within 7–10 business days after verification, subject to the same 5% processing fee deduction.",
       },
       {
         heading: "4. Coupon Codes",
@@ -230,7 +230,7 @@ const legalDataUr: Record<
       {
         heading: "4۔ ادائیگی کی شرائط",
         content:
-          "تمام قیمتیں پاکستانی روپوں (PKR) میں ہیں۔ ادائیگی یک وقتی ہے اور اس میں کوئی ماہانہ چارجز یا پوشیدہ فیس نہیں ہے۔ ہم تمام کریڈٹ/ڈیبیٹ کارڈز، جاز کیش، ایزی پیسہ، اور بینک ٹرانسفرز قبول کرتے ہیں۔ تمام ادائیگیاں SSL انکرپشن کے ساتھ محفوظ طریقے سے عمل میں لائی جاتی ہیں۔",
+          "تمام قیمتیں پاکستانی روپوں (PKR) میں ہیں۔ ادائیگی یک وقتی ہے اور اس میں کوئی ماہانہ چارجز یا پوشیدہ فیس نہیں ہے۔ ہم تمام کریڈٹ/ڈیبیٹ کارڈز، جاز کیش، ایزی پیسہ، اور بینک ٹرانسفرز قبول کرتے ہیں۔ تمام ادائیگیاں Safepay (Private) Limited کے ذریعے محفوظ طریقے سے عمل میں لائی جاتی ہیں۔ ادائیگی کر کے آپ Safepay کی شرائط و ضوابط سے اتفاق کرتے ہیں۔",
       },
       {
         heading: "5۔ سروس کی فراہمی",
@@ -287,7 +287,7 @@ const legalDataUr: Record<
       {
         heading: "4۔ پیمنٹ ڈیٹا سیکیورٹی",
         content:
-          "پیمنٹ کا عمل ہمارے محفوظ ادائیگی کے پارٹنرز سنبھالتے ہیں۔ شادی لنک آپ کے کارڈ کی تفصیلات محفوظ نہیں کرتا۔ تمام ادائیگی SSL سیکیورٹی کے تحت عمل میں لائی جاتی ہے۔",
+          "پیمنٹ کا عمل ہمارے مجاز پارٹنر، Safepay (Private) Limited کے ذریعے محفوظ طریقے سے سنبھالا جاتا ہے۔ شادی لنک آپ کے کارڈ کی مکمل تفصیلات محفوظ نہیں کرتا۔ پیمنٹ کا ڈیٹا Safepay کی پرائیویسی پالیسی اور PCI-DSS معیارات کے مطابق پروسیس کیا جاتا ہے۔",
       },
       {
         heading: "5۔ ڈیٹا کی حفاظت",
@@ -324,12 +324,12 @@ const legalDataUr: Record<
       {
         heading: "2۔ دوہری ادائیگی",
         content:
-          `اگر کسی تکنیکی خرابی کی وجہ سے دو بار ادائیگی ہو جائے، تو ہم جائزہ لے کر پروسیسنگ چارجز منہا کرنے کے بعد رقم واپس کر دیں گے۔ برائے مہربانی ٹرانزیکشن کی تفصیلات کے ساتھ ${CONTACT_CONFIG.email} پر رابطہ کریں۔`,
+          `اگر کسی تکنیکی خرابی کی وجہ سے دو بار ادائیگی ہو جائے، تو ہم جائزہ لے کر رقم واپس کر دیں گے۔ براہ کرم نوٹ کریں کہ کل رقم میں سے 5% پروسیسنگ فیس منہا کی جائے گی تاکہ ادائیگی کے گیٹ وے کے ناقابل واپسی چارجز کو پورا کیا جا سکے۔ تفصیلات کے ساتھ ${CONTACT_CONFIG.email} پر رابطہ کریں۔`,
       },
       {
         heading: "3۔ غلط ادائیگی",
         content:
-          "کسی بھی واضح تکنیکی غلطی (مثلاً غلط رقم چارج ہونا) کی صورت میں، ہم تصدیق کے بعد 7 سے 10 کاروباری دنوں کے اندر رقم واپس کر دیں گے۔",
+          "کسی بھی واضح تکنیکی غلطی (مثلاً غلط رقم چارج ہونا) کی صورت میں، ہم تصدیق کے بعد 7 سے 10 کاروباری دنوں کے اندر رقم واپس کر دیں گے، جس پر وہی 5% پروسیسنگ فیس منہا کی جائے گی۔",
       },
       {
         heading: "4۔ کوپن کوڈز",

@@ -222,8 +222,12 @@ export function ScratchCard({
     sCtx.setTransform(dpr, 0, 0, dpr, 0, 0)
 
     function animateSparkles() {
-      sCtx.clearRect(0, 0, CARD_W, CARD_H)
       const sparkles = sparklesRef.current
+      if (sparkles.length === 0) {
+        sparkleAnimRef.current = requestAnimationFrame(animateSparkles)
+        return
+      }
+      sCtx.clearRect(0, 0, CARD_W, CARD_H)
       for (let i = sparkles.length - 1; i >= 0; i--) {
         const s = sparkles[i]
         s.x += s.vx
@@ -250,6 +254,9 @@ export function ScratchCard({
         sCtx.fill()
       }
       sCtx.globalAlpha = 1
+      if (sparkles.length === 0) {
+         sCtx.clearRect(0, 0, CARD_W, CARD_H)
+      }
       sparkleAnimRef.current = requestAnimationFrame(animateSparkles)
     }
     sparkleAnimRef.current = requestAnimationFrame(animateSparkles)
@@ -418,27 +425,28 @@ export function ScratchCard({
           width: CARD_W,
           height: CARD_H,
           boxShadow: revealed
-            ? `0 0 50px ${theme.getOpacityStyle('text', 0.5)}, 0 0 100px ${theme.getOpacityStyle('border', 0.2)}, rgba(0,0,0,0.3) 0px 4px 12px`
-            : `${theme.getOpacityStyle('text', 0.3)} 0px 8px 40px, rgba(0,0,0,0.3) 0px 4px 12px`,
+            ? `0 0 50px ${theme.getOpacityStyle('accent', 0.15)}, 0 0 100px ${theme.getOpacityStyle('border', 0.2)}, rgba(0,0,0,0.4) 0px 10px 30px`
+            : `${theme.getOpacityStyle('text', 0.25)} 0px 8px 40px, rgba(0,0,0,0.3) 0px 4px 12px`,
           borderRadius: isRoyal ? '0' : '1rem',
           clipPath: isRoyal ? `url(#heart-clip-${clipId})` : undefined,
           WebkitClipPath: isRoyal ? `url(#heart-clip-${clipId})` : undefined
         }}
       >
-        <div
-          className={`absolute inset-0 flex flex-col items-center justify-center ${isRoyal ? '' : 'rounded-2xl'} transition-all duration-1000 ${revealed ? 'gold-border-pulse' : ''}`}
-          style={{
-            width: CARD_W,
-            height: CARD_H,
-            background: `linear-gradient(135deg, ${theme.scratchBg[1]} 0%, ${theme.bgDoor} 30%, ${theme.scratchBg[2]} 50%, ${theme.bgDoor} 70%, ${theme.scratchBg[1]} 100%)`,
-            border: isRoyal 
-              ? 'none' 
-              : revealed ? `2px solid ${theme.getOpacityStyle('text', 0.8)}` : `2px solid ${theme.getOpacityStyle('text', 0.4)}`,
-            boxShadow: revealed
-              ? `0 0 40px ${theme.getOpacityStyle('text', 0.5)}, 0 0 80px ${theme.getOpacityStyle('border', 0.2)}, inset 0 0 40px ${theme.getOpacityStyle('border', 0.12)}`
-              : `inset 0 0 30px ${theme.getOpacityStyle('bg', 0.05)}`,
-          }}
-        >
+          <div
+            className={`absolute inset-0 flex flex-col items-center justify-center ${isRoyal ? '' : 'rounded-2xl'} transition-all duration-1000 ${revealed ? 'gold-border-pulse luxury-shimmer' : ''}`}
+            style={{
+              width: CARD_W,
+              height: CARD_H,
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"), radial-gradient(circle at 50% 40%, ${theme.bgCard} 0%, ${theme.bgPrimary} 140%)`,
+              backgroundBlendMode: 'overlay, normal',
+              border: isRoyal 
+                ? 'none' 
+                : revealed ? `2px solid ${theme.getOpacityStyle('accent', 0.6)}` : `2px solid ${theme.getOpacityStyle('text', 0.4)}`,
+              boxShadow: revealed
+                ? `inset 0 0 60px ${theme.getOpacityStyle('bg', 0.1)}, inset 0 0 20px ${theme.getOpacityStyle('accent', 0.05)}`
+                : `inset 0 0 30px ${theme.getOpacityStyle('bg', 0.05)}`,
+            }}
+          >
           {isRoyal ? (
             <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox={`0 0 ${CARD_W} ${CARD_H}`} fill="none">
               <path d={getHeartSvgPath(CARD_W, CARD_H, 4)} stroke={theme.getOpacityStyle('text', 0.8)} strokeWidth="2.5" />
@@ -446,10 +454,10 @@ export function ScratchCard({
             </svg>
           ) : (
             <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox={`0 0 ${CARD_W} ${CARD_H}`} fill="none">
-              <path d="M20 4 L4 4 L4 20" stroke={theme.scratchAccent} strokeWidth="1.5" opacity="0.5" />
-              <path d={`M${CARD_W - 20} 4 L${CARD_W - 4} 4 L${CARD_W - 4} 20`} stroke={theme.scratchAccent} strokeWidth="1.5" opacity="0.5" />
-              <path d={`M4 ${CARD_H - 20} L4 ${CARD_H - 4} L20 ${CARD_H - 4}`} stroke={theme.scratchAccent} strokeWidth="1.5" opacity="0.5" />
-              <path d={`M${CARD_W - 4} ${CARD_H - 20} L${CARD_W - 4} ${CARD_H - 4} L${CARD_W - 20} ${CARD_H - 4}`} stroke={theme.scratchAccent} strokeWidth="1.5" opacity="0.5" />
+              <path d="M24 12 L12 12 L12 24" stroke={theme.accent} strokeWidth="2" opacity="0.6" strokeLinecap="round" strokeLinejoin="round" />
+              <path d={`M${CARD_W - 24} 12 L${CARD_W - 12} 12 L${CARD_W - 12} 24`} stroke={theme.accent} strokeWidth="2" opacity="0.6" strokeLinecap="round" strokeLinejoin="round" />
+              <path d={`M12 ${CARD_H - 24} L12 ${CARD_H - 12} L24 ${CARD_H - 12}`} stroke={theme.accent} strokeWidth="2" opacity="0.6" strokeLinecap="round" strokeLinejoin="round" />
+              <path d={`M${CARD_W - 12} ${CARD_H - 24} L${CARD_W - 12} ${CARD_H - 12} L${CARD_W - 24} ${CARD_H - 12}`} stroke={theme.accent} strokeWidth="2" opacity="0.6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           )}
 
@@ -467,14 +475,14 @@ export function ScratchCard({
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.15, duration: 0.4 }}
                 >
-                  <Sparkles className="w-5 h-5 mx-auto" style={{ color: theme.accentLight }} />
+                  <Sparkles className="w-5 h-5 mx-auto" style={{ color: theme.accent, filter: `drop-shadow(0 0 8px ${theme.getOpacityStyle('accent', 0.5)})` }} />
                 </m.div>
                 <m.p
                   initial={{ y: -8, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.25, duration: 0.4 }}
                   className={`${theme.fontCalligraphy} ${isRoyal ? 'text-xl' : 'text-2xl sm:text-3xl'} font-bold text-center leading-tight`}
-                  style={{ color: theme.accentLight, textShadow: `0 0 20px ${theme.getOpacityStyle('text', 0.4)}` }}
+                  style={{ color: theme.text, textShadow: `0 2px 4px rgba(0,0,0,0.15), 0 0 20px ${theme.getOpacityStyle('accent', 0.3)}` }}
                 >
                   {language === 'ur' ? (translations.youreInvited || 'آپ مدعو ہیں!') : "You're Invited!"}
                 </m.p>
@@ -489,8 +497,8 @@ export function ScratchCard({
                   initial={{ y: 8, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.5, duration: 0.4 }}
-                  className={`${theme.fontDisplay} ${isRoyal ? 'text-xl sm:text-2xl' : 'text-2xl sm:text-3xl'} font-bold text-center leading-tight`}
-                  style={{ color: theme.textSecondary, textShadow: `0 0 12px ${theme.getOpacityStyle('text', 0.3)}` }}
+                  className={`${theme.fontDisplay} ${isRoyal ? 'text-xl sm:text-2xl' : 'text-2xl sm:text-3xl'} font-bold text-center leading-tight tracking-wide`}
+                  style={{ color: theme.text, textShadow: `0 2px 8px rgba(0,0,0,0.1), 0 0 15px ${theme.getOpacityStyle('accent', 0.2)}` }}
                 >
                   {scratchDateInfo.date}
                 </m.p>
@@ -499,7 +507,7 @@ export function ScratchCard({
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.6, duration: 0.4 }}
                   className={`${theme.fontCalligraphy} ${isRoyal ? 'text-base' : 'text-lg'}`}
-                  style={{ color: theme.accent }}
+                  style={{ color: theme.textSecondary }}
                 >
                   {scratchDateInfo.day}
                 </m.p>
@@ -507,10 +515,10 @@ export function ScratchCard({
                   initial={{ y: 8, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.7, duration: 0.4 }}
-                  className="text-sm text-center"
-                  style={{ color: theme.accentLight }}
+                  className="text-sm text-center font-medium tracking-wide"
+                  style={{ color: theme.textSecondary }}
                 >
-                  {scratchTimeFormatted} <span style={{ color: theme.accentLight, fontWeight: 600 }}>{language === 'ur' ? 'پاکستانی وقت' : 'PKT'}</span>
+                  {scratchTimeFormatted} <span style={{ color: theme.textSecondary, fontWeight: 600 }}>{language === 'ur' ? 'پاکستانی وقت' : 'PKT'}</span>
                 </m.p>
               </m.div>
             ) : (
@@ -523,7 +531,7 @@ export function ScratchCard({
                 <Sparkles className="w-5 h-5 mx-auto" style={{ color: theme.accent }} />
                 <p
                   className={`${theme.fontCalligraphy} ${isRoyal ? 'text-xl' : 'text-2xl sm:text-3xl'} font-bold text-center leading-tight`}
-                  style={{ color: theme.accentLight, textShadow: `0 0 15px ${theme.getOpacityStyle('text', 0.25)}` }}
+                  style={{ color: theme.accent, textShadow: `0 0 15px ${theme.getOpacityStyle('text', 0.15)}` }}
                 >
                   {language === 'ur' ? (translations.youreInvited || 'آپ مدعو ہیں!') : "You're Invited!"}
                 </p>
@@ -533,21 +541,21 @@ export function ScratchCard({
                 />
                 <p
                   className={`${theme.fontDisplay} ${isRoyal ? 'text-xl sm:text-2xl' : 'text-2xl sm:text-3xl'} font-bold text-center leading-tight`}
-                  style={{ color: theme.textSecondary, textShadow: `0 0 10px ${theme.getOpacityStyle('text', 0.15)}` }}
+                  style={{ color: theme.text, textShadow: `0 0 10px ${theme.getOpacityStyle('text', 0.1)}` }}
                 >
                   {scratchDateInfo.date}
                 </p>
                 <p
                   className={`${theme.fontCalligraphy} ${isRoyal ? 'text-base' : 'text-lg'}`}
-                  style={{ color: theme.accentLight }}
+                  style={{ color: theme.textSecondary }}
                 >
                   {scratchDateInfo.day}
                 </p>
                 <p
                   className="text-sm text-center"
-                  style={{ color: theme.accent }}
+                  style={{ color: theme.textSecondary }}
                 >
-                  {scratchTimeFormatted} <span style={{ color: theme.accentLight, fontWeight: 600 }}>{language === 'ur' ? 'پاکستانی وقت' : 'PKT'}</span>
+                  {scratchTimeFormatted} <span style={{ color: theme.textSecondary, fontWeight: 600 }}>{language === 'ur' ? 'پاکستانی وقت' : 'PKT'}</span>
                 </p>
               </m.div>
             )}

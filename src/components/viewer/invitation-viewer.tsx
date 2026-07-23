@@ -56,6 +56,9 @@ import type { FlowData } from '@/lib/flow-types'
 import { TemplateTheme, TEMPLATE_THEMES, DEFAULT_THEME } from './themes';
 
 import { InvitationViewerProps, hexToRgb, getTheme, extractColors, parseGiftDetails, getCalendarDates, getGoogleCalendarLink, generateICSContent, getOutlookWebLink, formatScratchDate, formatScratchTime } from './utils';
+
+const ScratchCard = dynamic(() => import('./features/scratch-card').then(mod => mod.ScratchCard), { ssr: false });
+
 /* ─── Decorative Divider ─── */
 /* ─── Add to Calendar Dropdown ─── */
 /* ─── Wave SVG Divider ─── */
@@ -1930,7 +1933,7 @@ import { DoorFrame, CurtainEdge, DomeCap, ArchwayCap, ScrollCap, LightLeak } fro
 import { DoorPanelLayout, DoorPanelInset, DoorPanelContent, DoorSurface } from './door/door-panels';
 import { DoorHandle, DoorHinges } from './door/door-hardware';
 import { DoorSvgPattern } from './door/door-patterns';
-import { ScratchCard } from './features/scratch-card';
+
 import { CountdownTimer, AddToCalendarDropdown, getCountdownTarget } from './features/countdown-timer';
 import { PhotoGallery } from './features/photo-gallery';
 import { drawHeartPath, getHeartSvgPath } from './ui/shapes';

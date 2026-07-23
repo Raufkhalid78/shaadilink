@@ -4,7 +4,10 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import { m, AnimatePresence, useInView } from 'framer-motion'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
+
+const MotionImage = m.create(Image)
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent } from '@/components/ui/card'
@@ -53,14 +56,16 @@ export function PhotoGallery({ theme, images: propImages }: { theme: TemplateThe
           style={{ border: `1px solid ${theme.getOpacityStyle('border', 0.2)}`, boxShadow: `0 10px 15px -3px ${theme.getOpacityStyle('border', 0.05)}` }}
         >
           {images.map((img, idx) => (
-            <m.img
+            <MotionImage
               key={idx}
               src={img.src}
               alt={img.alt}
+              fill
+              sizes="(max-width: 768px) 100vw, 800px"
               initial={false}
               animate={{ opacity: idx === activeIndex ? 1 : 0, scale: idx === activeIndex ? 1.05 : 1 }}
               transition={{ duration: 1.2, ease: 'easeInOut' }}
-              className="absolute inset-0 w-full h-full object-cover"
+              className="object-cover"
             />
           ))}
           <div className="absolute inset-x-0 bottom-0 h-1/4" style={{ background: `linear-gradient(to top, ${theme.bgPrimary}cc, transparent)` }} />
@@ -112,7 +117,7 @@ export function PhotoGallery({ theme, images: propImages }: { theme: TemplateThe
               </button>
 
               <div className="relative w-full max-w-5xl px-4 sm:px-16 aspect-[16/9] sm:aspect-auto sm:h-[80vh] flex flex-col items-center justify-center" onClick={(e) => e.stopPropagation()}>
-                <m.img
+                <MotionImage
                   key={activeIndex}
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -120,7 +125,9 @@ export function PhotoGallery({ theme, images: propImages }: { theme: TemplateThe
                   transition={{ duration: 0.3 }}
                   src={images[activeIndex].src}
                   alt={images[activeIndex].alt}
-                  className="max-w-full max-h-full object-contain rounded-lg"
+                  fill
+                  sizes="100vw"
+                  className="object-contain rounded-lg p-4 sm:p-8"
                 />
                 <p className="mt-4 text-white/70 text-sm tracking-widest uppercase font-display">
                   {activeIndex + 1} / {images.length}

@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import type { FlowData } from "@/lib/flow-types";
 import { planDetails } from "@/lib/flow-types";
@@ -33,6 +34,7 @@ function formatExpiry(value: string) {
 
 export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs }: PaymentPageProps) {
   const [processing, setProcessing] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [cardNumber, setCardNumber] = useState("");
   const [expiry, setExpiry] = useState("");
   const [cvc, setCvc] = useState("");
@@ -152,10 +154,23 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                 </div>
               </div>
 
+              {/* Legal Checkbox */}
+              <div className="flex items-start gap-3 mt-6 mb-4">
+                <Checkbox 
+                  id="terms-checkbox" 
+                  checked={acceptedTerms}
+                  onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
+                  className="mt-1 border-gold data-[state=checked]:bg-gold data-[state=checked]:text-emerald-dark"
+                />
+                <label htmlFor="terms-checkbox" className="text-sm text-muted-foreground leading-tight cursor-pointer">
+                  I agree to the <a href="/terms" target="_blank" className="text-gold hover:underline">Terms & Conditions</a> and acknowledge that all purchases are subject to the <a href="/refund" target="_blank" className="text-gold hover:underline">Refund Policy</a>.
+                </label>
+              </div>
+
               {/* Pay button */}
               <Button
                 onClick={handlePayment}
-                disabled={processing || total <= 0}
+                disabled={processing || total <= 0 || !acceptedTerms}
                 className="w-full h-12 bg-gold hover:bg-gold-light text-emerald-dark font-semibold text-base gap-2"
               >
                 {total <= 0

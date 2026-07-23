@@ -9,14 +9,15 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent } from '@/components/ui/card'
 import { useInvitationState } from '../use-invitation-state'
-import { DoorOverlay } from '../door/door-overlay'
-import { FireworksDisplay } from '../effects/fireworks'
-import { ConfettiDisplay } from '../effects/confetti'
-import { GoldDustSplash } from '../effects/gold-dust'
-import { BackgroundParticles } from '../effects/particles'
+import dynamic from 'next/dynamic'
+const DoorOverlay = dynamic(() => import('../door/door-overlay').then(m => m.DoorOverlay), { ssr: false })
+const FireworksDisplay = dynamic(() => import('../effects/fireworks').then(m => m.FireworksDisplay), { ssr: false })
+const ConfettiDisplay = dynamic(() => import('../effects/confetti').then(m => m.ConfettiDisplay), { ssr: false })
+const GoldDustSplash = dynamic(() => import('../effects/gold-dust').then(m => m.GoldDustSplash), { ssr: false })
+const BackgroundParticles = dynamic(() => import('../effects/particles').then(m => m.BackgroundParticles), { ssr: false })
 import { MusicToggle } from '../ui/music-toggle'
 import { RevealSection, getMapEmbedQuery } from '../ui/reveal-section'
-import { ScratchCard } from '../features/scratch-card'
+const ScratchCard = dynamic(() => import('../features/scratch-card').then(m => m.ScratchCard), { ssr: false })
 import { CountdownTimer, AddToCalendarDropdown } from '../features/countdown-timer'
 import { PhotoGallery } from '../features/photo-gallery'
 import { getHeartSvgPath } from '../ui/shapes'
