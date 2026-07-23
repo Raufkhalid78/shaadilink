@@ -437,8 +437,7 @@ export function ScratchCard({
             style={{
               width: CARD_W,
               height: CARD_H,
-              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"), radial-gradient(circle at 50% 40%, ${theme.bgSecondary} 0%, ${theme.bgPrimary} 140%)`,
-              backgroundBlendMode: 'overlay, normal',
+              backgroundImage: `radial-gradient(circle at 50% 40%, ${theme.bgSecondary} 0%, ${theme.bgPrimary} 140%)`,
               border: isRoyal 
                 ? 'none' 
                 : revealed ? `2px solid ${theme.getOpacityStyle('accent', 0.6)}` : `2px solid ${theme.getOpacityStyle('text', 0.4)}`,
