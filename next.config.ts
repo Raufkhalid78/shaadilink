@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: "/(.*)\\.(png|jpg|jpeg|gif|svg|webp|ico)",
+        source: "/og-image.png",
         headers: [
           {
             key: "Access-Control-Allow-Origin",

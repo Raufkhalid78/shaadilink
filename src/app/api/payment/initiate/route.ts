@@ -98,29 +98,22 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    const trackerToken = sessionResponse.data?.token || sessionResponse.token || sessionResponse.tracker?.token;
+    const trackerToken = sessionResponse.data?.tracker?.token || sessionResponse.data?.token || sessionResponse.tracker?.token;
     if (!trackerToken) {
-      throw new Error("Safepay failed to return a tracker token");
+      throw new Error(`Safepay failed to return a tracker token. Response: ${JSON.stringify(sessionResponse)}`);
     }
 
     // Update order with the tracker token for webhook reconciliation
     await service.from('orders').update({ tracker: trackerToken }).eq('id', order.id);
 
-    // Generate Passport Auth Token
-    const passportResponse = await safepay.auth.passport.create();
-    const tbtToken = passportResponse.data?.token || passportResponse.token;
-
-    // Generate Checkout URL
-    const checkoutResponse = await safepay.checkouts.payment.create({
+    // Generate Checkout URL using the Safepay helper
+    const checkoutUrl = safepay.checkout.createCheckoutUrl({
       tracker: trackerToken,
-      tbt: tbtToken,
+      cancelUrl: `${siteUrl}/order/cancel`,
+      redirectUrl: `${siteUrl}/order/complete`,
+      source: 'custom',
       environment: process.env.SAFEPAY_ENVIRONMENT === 'production' ? 'production' : 'sandbox',
-      source: 'hosted',
-      redirect_url: `${siteUrl}/order/complete`,
-      cancel_url: `${siteUrl}/order/cancel`
     });
-
-    const checkoutUrl = checkoutResponse.data?.redirectUrl || checkoutResponse.redirectUrl || checkoutResponse.url || checkoutResponse;
 
     return NextResponse.json({
       orderId: order.id,
