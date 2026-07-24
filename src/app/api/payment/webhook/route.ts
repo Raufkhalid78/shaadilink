@@ -17,10 +17,10 @@ export async function POST(request: NextRequest) {
 
     // Initialize the official SDK to verify the webhook signature
     const { Safepay } = await import('@sfpy/node-sdk')
-    const safepayEnv = (process.env.SAFEPAY_ENVIRONMENT || 'sandbox') as 'sandbox' | 'development' | 'production'
+    const safepayEnv = (process.env.SAFEPAY_ENVIRONMENT || process.env.NEXT_PUBLIC_SAFEPAY_ENVIRONMENT || 'sandbox') as 'sandbox' | 'development' | 'production'
     const safepay = new Safepay({
       environment: safepayEnv as any,
-      apiKey: process.env.SAFEPAY_API_KEY || '',
+      apiKey: process.env.SAFEPAY_API_KEY || process.env.NEXT_PUBLIC_SAFEPAY_API_KEY || '',
       v1Secret: process.env.SAFEPAY_V1_SECRET || '',
       webhookSecret: secret,
     })
@@ -90,6 +90,22 @@ export async function POST(request: NextRequest) {
     // Only process if pending
     if (order.status === 'paid') {
       return NextResponse.json({ received: true, already_paid: true })
+    }
+
+    // Verify payment amount matches order amount
+    const paidAmount = eventData.purchase_totals?.base_amount?.amount || 
+                       eventData.amount || 
+                       eventData.notification?.amount;
+
+    if (paidAmount !== undefined && paidAmount !== null) {
+      // Handle potential denomination differences (e.g., amount in Paisa vs PKR)
+      const numericPaid = Number(paidAmount);
+      const isMatch = numericPaid === order.amount || numericPaid === order.amount * 100 || numericPaid === order.amount / 100;
+      
+      if (!isMatch) {
+        console.error(`Security alert: Payment amount mismatch for order ${orderId}. Expected: ${order.amount}, Got: ${paidAmount}`);
+        return NextResponse.json({ error: "Payment amount mismatch. Security verification failed." }, { status: 400 });
+      }
     }
 
     // 1. Update order status

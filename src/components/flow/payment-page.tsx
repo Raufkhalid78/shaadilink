@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import type { FlowData } from "@/lib/flow-types";
 import { planDetails } from "@/lib/flow-types";
 import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
+import { SafepayButton } from "@/components/payment/safepay-button";
 
 interface PaymentPageProps {
   flowData: FlowData;
@@ -35,6 +36,7 @@ function formatExpiry(value: string) {
 export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs }: PaymentPageProps) {
   const [processing, setProcessing] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [checkoutSession, setCheckoutSession] = useState<{ orderId: string; amount: number } | null>(null);
   const [cardNumber, setCardNumber] = useState("");
   const [expiry, setExpiry] = useState("");
   const [cvc, setCvc] = useState("");
@@ -59,6 +61,11 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
   // Webhook verification is no longer done here to avoid redirect loops during upgrades.
   // The Safepay callback naturally handles redirection upon successful payment.
 
+  // Reset checkout session if quota or plan changes
+  useEffect(() => {
+    setCheckoutSession(null);
+  }, [flowData.selectedPlan, flowData.guestLinksQuota]);
+
   const handlePayment = async () => {
     setProcessing(true);
     try {
@@ -78,15 +85,29 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
       }
 
       const data = await res.json();
-      if (data.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
+      if (data.orderId && data.totalAmount > 0) {
+        setCheckoutSession({ orderId: data.orderId, amount: data.totalAmount });
       } else {
-        throw new Error("No checkout URL returned from payment gateway");
+        throw new Error("Invalid order data returned from server");
       }
     } catch (err: any) {
       toast.error(err.message || "An unexpected error occurred during checkout");
+    } finally {
       setProcessing(false);
     }
+  };
+
+  const handleSafepaySuccess = (data: any) => {
+    // Redirect to the callback route with the tracker and order_id so the backend can verify and redirect
+    const tracker = data?.tracker?.token || data?.payment?.token || data?.token || '';
+    if (checkoutSession?.orderId) {
+       window.location.href = `/api/payment/callback?order_id=${checkoutSession.orderId}&tracker=${tracker}&guest_links_quota=${flowData.guestLinksQuota || 0}`;
+    }
+  };
+
+  const handleSafepayCancel = () => {
+    toast.info("Payment was cancelled");
+    setCheckoutSession(null);
   };
 
   return (
@@ -221,19 +242,30 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                   </div>
 
                   {/* Pay button */}
-                  <Button
-                    onClick={handlePayment}
-                    disabled={processing || total <= 0 || !acceptedTerms}
-                    className="w-full h-12 bg-gold hover:bg-gold-light text-emerald-dark font-semibold text-base gap-2 shrink-0"
-                  >
-                    {processing ? (
-                      <><Loader2 className="w-4 h-4 animate-spin" /> Processing...</>
-                    ) : total <= 0 ? (
-                      'No Changes to Pay'
-                    ) : (
-                      <><Lock className="w-4 h-4 mr-1" /> <span>{flowData.paymentDone && addedQuota > 0 ? 'Top Up Links securely' : 'Place Order securely'}</span> <ArrowRight className="w-4 h-4 ml-1" /></>
-                    )}
-                  </Button>
+                  {checkoutSession && checkoutSession.amount > 0 ? (
+                    <div className="w-full mt-2">
+                      <SafepayButton
+                        orderId={checkoutSession.orderId}
+                        amount={checkoutSession.amount}
+                        onPayment={handleSafepaySuccess}
+                        onCancel={handleSafepayCancel}
+                      />
+                    </div>
+                  ) : (
+                    <Button
+                      onClick={handlePayment}
+                      disabled={processing || total <= 0 || !acceptedTerms}
+                      className="w-full h-12 bg-gold hover:bg-gold-light text-emerald-dark font-semibold text-base gap-2 shrink-0"
+                    >
+                      {processing ? (
+                        <><Loader2 className="w-4 h-4 animate-spin" /> Processing...</>
+                      ) : total <= 0 ? (
+                        'No Changes to Pay'
+                      ) : (
+                        <><Lock className="w-4 h-4 mr-1" /> <span>{flowData.paymentDone && addedQuota > 0 ? 'Top Up Links securely' : 'Proceed to Payment'}</span> <ArrowRight className="w-4 h-4 ml-1" /></>
+                      )}
+                    </Button>
+                  )}
 
                   {/* Review Details button */}
                   <Button
