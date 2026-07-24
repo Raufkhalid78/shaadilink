@@ -58,10 +58,10 @@ export default function Error({
             variant="outline"
             className="gap-2 border-gold/30 hover:bg-gold/10"
           >
-            <Link href="/">
+            <a href="/">
               <Home className="h-4 w-4" />
               Return Home
-            </Link>
+            </a>
           </Button>
         </div>
       </div>
