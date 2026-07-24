@@ -58,7 +58,6 @@ export async function POST(request: NextRequest) {
         amount: totalAmount,
         currency: 'PKR',
         status: 'pending',
-        // Store the final quota target so the webhook can apply it even if the browser callback is missed
         target_guest_links_quota: guestLinksQuota || 0,
       })
       .select()
@@ -69,12 +68,57 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to initialize order record' }, { status: 500 })
     }
 
-    // Since we are using Safepay Express Checkout (embedded UI),
-    // we return the orderId and amount back to the client.
-    // The client will render the Safepay Button using these details.
+    // Initialize Safepay SDK
+    const safepayFactory = require('@sfpy/node-core');
+    const safepay = safepayFactory(process.env.SAFEPAY_SECRET_KEY || process.env.SAFEPAY_API_KEY, {
+      authType: 'secret',
+      host: process.env.SAFEPAY_HOST || 'https://sandbox.api.getsafepay.com',
+    });
+
+    const host = request.headers.get('host') || 'localhost:3000'
+    const protocol = request.headers.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https')
+    const siteUrl = `${protocol}://${host}`
+
+    // Create Payment Session
+    const sessionResponse = await safepay.payments.session.setup({
+      merchant_api_key: process.env.SAFEPAY_MERCHANT_API_KEY || process.env.SAFEPAY_API_KEY,
+      intent: 'CYBERSOURCE',
+      mode: 'payment',
+      currency: 'PKR',
+      amount: Math.round(totalAmount * 100), // Lowest denomination (Paisa)
+      metadata: {
+        order_id: order.id,
+      }
+    });
+
+    const trackerToken = sessionResponse.data?.token || sessionResponse.token || sessionResponse.tracker?.token;
+    if (!trackerToken) {
+      throw new Error("Safepay failed to return a tracker token");
+    }
+
+    // Update order with the tracker token for webhook reconciliation
+    await service.from('orders').update({ tracker: trackerToken }).eq('id', order.id);
+
+    // Generate Passport Auth Token
+    const passportResponse = await safepay.auth.passport.create();
+    const tbtToken = passportResponse.data?.token || passportResponse.token;
+
+    // Generate Checkout URL
+    const checkoutResponse = await safepay.checkouts.payment.create({
+      tracker: trackerToken,
+      tbt: tbtToken,
+      environment: process.env.SAFEPAY_ENVIRONMENT === 'production' ? 'production' : 'sandbox',
+      source: 'hosted',
+      redirect_url: `${siteUrl}/order/complete`,
+      cancel_url: `${siteUrl}/order/cancel`
+    });
+
+    const checkoutUrl = checkoutResponse.data?.redirectUrl || checkoutResponse.redirectUrl || checkoutResponse.url || checkoutResponse;
+
     return NextResponse.json({
       orderId: order.id,
       totalAmount: totalAmount,
+      checkoutUrl: checkoutUrl
     })
   } catch (error) {
     console.error('POST /api/payment/initiate error:', error)
