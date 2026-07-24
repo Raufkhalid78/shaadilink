@@ -15,7 +15,7 @@ export async function middleware(request: NextRequest) {
     form-action 'self';
     frame-src 'self' https://www.youtube.com https://sandbox.api.getsafepay.com https://api.getsafepay.com https://getsafepay.com https://maps.google.com https://www.google.com;
     frame-ancestors 'none';
-    connect-src 'self' https://nldoyrprekstnifrlblo.supabase.co https://sandbox.api.getsafepay.com https://api.getsafepay.com;
+    connect-src 'self' https://nldoyrprekstnifrlblo.supabase.co https://sandbox.api.getsafepay.com https://api.getsafepay.com https://unpkg.com;
     upgrade-insecure-requests;
   `.replace(/\s{2,}/g, ' ').trim()
 

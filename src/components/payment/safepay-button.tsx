@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import ReactDOM from "react-dom";
+import React, { useEffect, useState, useRef } from "react";
 import Script from "next/script";
 
 interface SafepayButtonProps {
@@ -18,35 +17,47 @@ export function SafepayButton({
   onCancel,
 }: SafepayButtonProps) {
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
-  const [SafepayComponent, setSafepayComponent] = useState<React.ElementType | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const renderedRef = useRef(false);
 
-  useEffect(() => {
-    // If it was already loaded (e.g. fast refresh or navigating back)
+  const renderSafepay = () => {
+    if (!containerRef.current || renderedRef.current) return;
     if (typeof window !== "undefined" && (window as any).safepay) {
-      if (!SafepayComponent) {
-        const SafepayButtonInstance = (window as any).safepay.Button.driver("react", {
-          React: React,
-          ReactDOM: ReactDOM,
-        });
-        setSafepayComponent(() => SafepayButtonInstance);
-      }
-      setIsScriptLoaded(true);
-    }
-  }, [SafepayComponent]);
+      const env = (process.env.NEXT_PUBLIC_SAFEPAY_ENVIRONMENT || "sandbox") as "sandbox" | "production";
+      const apiKey = process.env.NEXT_PUBLIC_SAFEPAY_API_KEY || "";
 
-  const handleScriptLoad = () => {
-    if (typeof window !== "undefined" && (window as any).safepay) {
-      const SafepayButtonInstance = (window as any).safepay.Button.driver("react", {
-        React: React,
-        ReactDOM: ReactDOM,
-      });
-      setSafepayComponent(() => SafepayButtonInstance);
-      setIsScriptLoaded(true);
+      (window as any).safepay.Button.render({
+        env: env,
+        client: {
+          [env]: apiKey,
+        },
+        style: {
+          mode: "light",
+          size: "large",
+          variant: "primary",
+        },
+        orderId: orderId,
+        payment: {
+          currency: "PKR",
+          amount: amount,
+        },
+        onPayment: onPayment,
+        onCancel: onCancel,
+      }, containerRef.current);
+      
+      renderedRef.current = true;
     }
   };
 
-  const env = (process.env.NEXT_PUBLIC_SAFEPAY_ENVIRONMENT || "sandbox") as "sandbox" | "production";
-  const apiKey = process.env.NEXT_PUBLIC_SAFEPAY_API_KEY || "";
+  useEffect(() => {
+    if (isScriptLoaded) {
+      renderSafepay();
+    }
+  }, [isScriptLoaded, orderId, amount]);
+
+  const handleScriptLoad = () => {
+    setIsScriptLoaded(true);
+  };
 
   return (
     <>
@@ -55,30 +66,16 @@ export function SafepayButton({
         strategy="lazyOnload"
         onLoad={handleScriptLoad}
       />
-      {!isScriptLoaded || !SafepayComponent ? (
-        <div className="h-12 w-full animate-pulse bg-gold/20 rounded-lg flex items-center justify-center text-sm text-gold-dark font-medium">
-          Loading Secure Checkout...
-        </div>
-      ) : (
-        <SafepayComponent
-          env={env}
-          client={{
-            [env]: apiKey,
-          }}
-          style={{
-            mode: "light",
-            size: "large",
-            variant: "primary",
-          }}
-          orderId={orderId}
-          payment={{
-            currency: "PKR",
-            amount: amount,
-          }}
-          onPayment={onPayment}
-          onCancel={onCancel}
-        />
-      )}
+      <div 
+        ref={containerRef} 
+        className="w-full min-h-[50px] flex items-center justify-center"
+      >
+        {!isScriptLoaded && (
+          <div className="h-12 w-full animate-pulse bg-gold/20 rounded-lg flex items-center justify-center text-sm text-gold-dark font-medium">
+            Loading Secure Checkout...
+          </div>
+        )}
+      </div>
     </>
   );
 }
