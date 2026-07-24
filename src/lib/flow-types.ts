@@ -117,13 +117,12 @@ export type FlowStep =
   | "privacy"
   | "refund"
   | "shipping"
-  | "dashboard"
-  | "bank-transfer";
+  | "dashboard";
 
 export const planDetails = {
   classic: {
     name: "Classic",
-    price: "3,499",
+    price: "100",
     priceNote: "One-time payment",
     features: [
       "1 Invitation Webpage",

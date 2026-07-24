@@ -44,11 +44,6 @@ const PaymentPage = dynamic(() => import("@/components/flow/payment-page").then(
   loading: () => <div className="min-h-screen bg-background flex items-center justify-center text-gold">Loading payment...</div>
 });
 
-const BankTransferPage = dynamic(() => import("@/components/flow/bank-transfer-page").then(m => m.BankTransferPage), {
-  ssr: false,
-  loading: () => <div className="min-h-screen bg-background flex items-center justify-center text-gold">Loading bank details...</div>
-});
-
 const SuccessPage = dynamic(() => import("@/components/flow/success-page").then(m => m.SuccessPage), {
   ssr: false,
   loading: () => <div className="min-h-screen bg-background" />
@@ -644,7 +639,7 @@ function HomeInner() {
   };
 
   const handlePaymentComplete = () => {
-    setCurrentStep("bank-transfer");
+    setCurrentStep("success");
   };
 
   const handleViewInvitation = () => {
@@ -1092,32 +1087,6 @@ function HomeInner() {
           </InfoPageWrapper>
         )}
 
-        {/* ── Bank Transfer ── */}
-        {currentStep === "bank-transfer" && (
-          <InfoPageWrapper stepKey="bank-transfer">
-            <BankTransferPage
-              flowData={flowData}
-              onBack={() => setCurrentStep("payment")}
-              onGoDashboard={handleGoToDashboard}
-              crumbs={
-                stepBeforeDetails === "dashboard"
-                  ? [
-                      { label: "Home", onClick: handleGoHome },
-                      { label: "Dashboard", onClick: handleGoToDashboard },
-                      { label: "Edit Invitation", onClick: () => setCurrentStep("details") },
-                      { label: "Bank Transfer" },
-                    ]
-                  : [
-                      { label: "Home", onClick: handleGoHome },
-                      { label: "Templates", onClick: () => setCurrentStep("templates") },
-                      { label: "Details", onClick: () => setCurrentStep("details") },
-                      { label: "Payment", onClick: () => setCurrentStep("payment") },
-                      { label: "Bank Transfer" },
-                    ]
-              }
-            />
-          </InfoPageWrapper>
-        )}
 
         {/* ── Success ── */}
         {currentStep === "success" && (

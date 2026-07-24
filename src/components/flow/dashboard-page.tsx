@@ -17,6 +17,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { FlowData } from "@/lib/flow-types";
 import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
 import { TEMPLATE_THEMES } from "@/components/viewer/themes";
+import { Star } from "lucide-react";
 
 interface Invitation {
   id: string;
@@ -89,6 +90,14 @@ export function DashboardPage({
   const [wishesInvId, setWishesInvId] = useState<string | null>(null);
   const [wishesList, setWishesList] = useState<Wish[]>([]);
   const [wishesLoading, setWishesLoading] = useState(false);
+
+  // Review states
+  const [reviewDrawerOpen, setReviewDrawerOpen] = useState(false);
+  const [reviewInvId, setReviewInvId] = useState("");
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewMessage, setReviewMessage] = useState("");
+  const [reviewLoading, setReviewLoading] = useState(false);
+  const [reviewSubmittedMap, setReviewSubmittedMap] = useState<Record<string, boolean>>({});
 
   // Guest Links Drawer State
   const [guestLinksDrawerOpen, setGuestLinksDrawerOpen] = useState(false);
@@ -396,6 +405,50 @@ export function DashboardPage({
     await supabase.auth.signOut();
     toast.success("Signed out successfully.");
     onSignOut();
+  };
+
+  const handleSubmitReview = async () => {
+    if (reviewRating === 0 || !reviewMessage.trim()) {
+      toast.error("Please provide a rating and a message.");
+      return;
+    }
+    setReviewLoading(true);
+    const supabase = createClient();
+    try {
+      const inv = invitations.find(i => i.id === reviewInvId);
+      const templateName = inv?.template_id?.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ") || "Template";
+      
+      // Get user id
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("You must be logged in to leave a review.");
+        return;
+      }
+
+      const res = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          invitation_id: reviewInvId,
+          rating: reviewRating,
+          message: reviewMessage,
+          template_name: templateName
+        })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        toast.success("Thank you! Your review is pending approval.");
+        setReviewSubmittedMap(prev => ({ ...prev, [reviewInvId]: true }));
+        setReviewDrawerOpen(false);
+      } else {
+        toast.error(data.error || "Failed to submit review");
+      }
+    } catch (e) {
+      toast.error("An error occurred");
+    } finally {
+      setReviewLoading(false);
+    }
   };
 
   const formatDate = (dateStr: string) => {
@@ -814,7 +867,7 @@ export function DashboardPage({
                         </p>
 
                         {/* Action buttons */}
-                        <div className="flex gap-2 pt-1">
+                        <div className="flex flex-wrap gap-2 pt-1">
                           <Button
                             size="sm"
                             onClick={() => onViewInvitation(inv.id)}
@@ -901,6 +954,25 @@ export function DashboardPage({
                             ) : (
                               <Trash2 className="w-3.5 h-3.5" />
                             )}
+                          </Button>
+                          {/* Review Button */}
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              if (reviewSubmittedMap[inv.id]) {
+                                toast.info("You have already submitted a review for this invitation. Thank you!");
+                                return;
+                              }
+                              setReviewInvId(inv.id);
+                              setReviewRating(0);
+                              setReviewMessage("");
+                              setReviewDrawerOpen(true);
+                            }}
+                            className="flex-1 h-8 border-gold/30 text-gold hover:bg-gold/10 text-xs gap-1"
+                          >
+                            <Star className="w-3 h-3" />
+                            Review
                           </Button>
                         </div>
                       </CardContent>
@@ -1397,6 +1469,58 @@ export function DashboardPage({
                   Close
                 </Button>
               </div>
+            </m.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Review Drawer Modal */}
+      <AnimatePresence>
+        {reviewDrawerOpen && (
+          <div
+            className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            onClick={() => setReviewDrawerOpen(false)}
+          >
+            <m.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="bg-card border border-border/50 rounded-2xl p-6 flex flex-col gap-4 max-w-sm w-full"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between">
+                <h3 className="font-display font-semibold text-lg text-foreground">Leave a Review</h3>
+                <Button variant="ghost" size="icon" onClick={() => setReviewDrawerOpen(false)} className="rounded-full w-8 h-8">
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                How was your experience using ShaadiLink for this invitation? Your review will be featured on our homepage!
+              </p>
+              <div className="flex justify-center gap-2 py-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    onClick={() => setReviewRating(star)}
+                    className="focus:outline-none transition-transform hover:scale-110"
+                  >
+                    <Star className={`w-8 h-8 ${reviewRating >= star ? 'fill-gold text-gold' : 'text-muted-foreground/30'}`} />
+                  </button>
+                ))}
+              </div>
+              <textarea
+                value={reviewMessage}
+                onChange={e => setReviewMessage(e.target.value)}
+                placeholder="Write your review here..."
+                className="w-full h-32 bg-background border border-border rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-gold resize-none"
+              />
+              <Button
+                onClick={handleSubmitReview}
+                disabled={reviewLoading || reviewRating === 0 || !reviewMessage.trim()}
+                className="w-full bg-gold hover:bg-gold-light text-emerald-dark font-semibold mt-2"
+              >
+                {reviewLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Submit Review'}
+              </Button>
             </m.div>
           </div>
         )}

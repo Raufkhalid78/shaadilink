@@ -60,9 +60,32 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
   // The Safepay callback naturally handles redirection upon successful payment.
 
   const handlePayment = async () => {
-    // Navigate to bank transfer page instead of Safepay
-    if (onContinue) {
-      onContinue();
+    setProcessing(true);
+    try {
+      const res = await fetch("/api/payment/initiate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          invitationId: flowData.invitationId,
+          plan: flowData.selectedPlan || "classic",
+          guestLinksQuota: flowData.guestLinksQuota || 0,
+        }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Failed to initiate checkout");
+      }
+
+      const data = await res.json();
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      } else {
+        throw new Error("No checkout URL returned from payment gateway");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "An unexpected error occurred during checkout");
+      setProcessing(false);
     }
   };
 
@@ -118,81 +141,127 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
 
           <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
             {/* Payment Form */}
-            <div className="md:col-span-3 space-y-6">
+            <div className="md:col-span-3 flex flex-col h-full order-2 md:order-1">
               {paymentError && (
                 <div className="p-4 rounded-xl border border-destructive/30 bg-destructive/5 text-destructive text-sm text-center">
                   ⚠️ {paymentError}
                 </div>
               )}
 
-              <div className="p-6 rounded-2xl border border-gold/30 bg-gold/5 space-y-4 text-center">
-                <div className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center mx-auto mb-4">
+              <div className="p-6 rounded-2xl border border-gold/30 bg-gold/5 flex flex-col h-full text-center">
+                <div className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center mx-auto mb-4 shrink-0">
                   <Shield className="w-6 h-6 text-gold" />
                 </div>
-                <h2 className="font-display text-lg font-semibold text-gold-light">Manual Bank Transfer</h2>
-                <p className="text-muted-foreground text-xs leading-relaxed">
+                <h2 className="font-display text-lg font-semibold text-gold-light shrink-0">Secure Online Checkout</h2>
+                <p className="text-muted-foreground text-xs leading-relaxed shrink-0">
                   {flowData.paymentDone && addedQuota > 0
                     ? <>You are purchasing <strong className="text-white">{addedQuota} additional guest links</strong> for your invitation.</>
-                    : <>You are purchasing the <strong className="text-white capitalize">{flowData.selectedPlan || "classic"} Plan</strong>. Click below to view our bank details and complete your order.</>
+                    : <>You are purchasing the <strong className="text-white capitalize">{flowData.selectedPlan || "classic"} Plan</strong>. Click below to securely process your payment.</>
                   }
                 </p>
                 
                 {/* Payment Method Badges */}
-                <div className="flex flex-wrap justify-center items-center gap-2 pt-2">
-                  <div className="px-2.5 py-1 rounded bg-[#1434CB] text-white text-[10px] font-bold tracking-wide">Bank Transfer</div>
-                  <div className="px-2.5 py-1 rounded bg-[#41B649] text-white text-[10px] font-bold tracking-wide">
-                    easypaisa
-                  </div>
-                  <div className="px-2.5 py-1 rounded bg-[#EE232A] text-white text-[10px] font-bold tracking-wide">
-                    JazzCash
-                  </div>
+                <div className="flex flex-wrap justify-center items-center gap-3 pt-2 shrink-0">
+                  <CreditCard className="w-5 h-5 text-muted-foreground/80" />
+                  <span className="text-[11px] font-medium text-muted-foreground/80 uppercase tracking-wider">Visa / Mastercard / UnionPay / PayPak</span>
                 </div>
 
-                <div className="flex justify-center items-center gap-6 pt-3 text-xs text-muted-foreground border-t border-gold/10 mt-4">
+                <div className="flex justify-center items-center gap-6 pt-3 text-xs text-muted-foreground border-t border-gold/10 mt-4 shrink-0">
                   <span className="flex items-center gap-1.5"><Lock className="w-3.5 h-3.5 text-gold" /> Secure</span>
                   <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-emerald" /> Money-Back Guarantee</span>
                 </div>
-              </div>
 
-              {/* Legal Checkbox */}
-              <div className="flex items-start gap-3 mt-6 mb-4">
-                <Checkbox 
-                  id="terms-checkbox" 
-                  checked={acceptedTerms}
-                  onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
-                  className="mt-1 border-gold data-[state=checked]:bg-gold data-[state=checked]:text-emerald-dark"
-                />
-                <label htmlFor="terms-checkbox" className="text-sm text-muted-foreground leading-tight cursor-pointer">
-                  I agree to the <a href="/terms" target="_blank" className="text-gold hover:underline">Terms & Conditions</a> and acknowledge that all purchases are subject to the <a href="/refund" target="_blank" className="text-gold hover:underline">Refund Policy</a>.
-                </label>
-              </div>
+                {/* What happens next? */}
+                <div className="mt-5 mb-auto text-left border-t border-gold/10 pt-5">
+                  <h3 className="text-sm font-semibold text-foreground mb-3 font-display">What happens next?</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <div className="w-6 h-6 rounded-full bg-emerald/10 flex items-center justify-center shrink-0 mt-0.5">
+                        <CreditCard className="w-3.5 h-3.5 text-emerald" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-foreground leading-tight">Payment Processed Securely</p>
+                        <p className="text-xs text-muted-foreground mt-1">Your transaction is encrypted and instantly verified by Safepay.</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-6 h-6 rounded-full bg-emerald/10 flex items-center justify-center shrink-0 mt-0.5">
+                        <Sparkles className="w-3.5 h-3.5 text-emerald" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-foreground leading-tight">Instant Activation</p>
+                        <p className="text-xs text-muted-foreground mt-1">Your invitation link goes live the moment payment succeeds.</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-6 h-6 rounded-full bg-emerald/10 flex items-center justify-center shrink-0 mt-0.5">
+                        <ArrowRight className="w-3.5 h-3.5 text-emerald" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-foreground leading-tight">Ready to Share</p>
+                        <p className="text-xs text-muted-foreground mt-1">Send your personalized link to all your guests right away.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-              {/* Pay button */}
-              <Button
-                onClick={handlePayment}
-                disabled={processing || total <= 0 || !acceptedTerms}
-                className="w-full h-12 bg-gold hover:bg-gold-light text-emerald-dark font-semibold text-base gap-2"
-              >
-                {total <= 0
-                  ? 'No Changes to Pay'
-                  : <><span>{flowData.paymentDone && addedQuota > 0 ? 'Top Up Links' : 'Place Order'}</span> &amp; View Bank Details <ArrowRight className="w-4 h-4" /></>}
-              </Button>
+                {/* Pushes the following content to the bottom */}
+                <div className="mt-5 pt-4 flex flex-col gap-4 text-left border-t border-gold/10">
+                  {/* Legal Checkbox */}
+                  <div className="flex items-start gap-3">
+                    <Checkbox 
+                      id="terms-checkbox" 
+                      checked={acceptedTerms}
+                      onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
+                      className="mt-1 border-gold data-[state=checked]:bg-gold data-[state=checked]:text-emerald-dark shrink-0"
+                    />
+                    <label htmlFor="terms-checkbox" className="text-sm text-muted-foreground leading-tight cursor-pointer">
+                      I agree to the <a href="/terms" target="_blank" className="text-gold hover:underline">Terms & Conditions</a> and acknowledge that all purchases are subject to the <a href="/refund" target="_blank" className="text-gold hover:underline">Refund Policy</a>.
+                    </label>
+                  </div>
+
+                  {/* Pay button */}
+                  <Button
+                    onClick={handlePayment}
+                    disabled={processing || total <= 0 || !acceptedTerms}
+                    className="w-full h-12 bg-gold hover:bg-gold-light text-emerald-dark font-semibold text-base gap-2 shrink-0"
+                  >
+                    {processing ? (
+                      <><Loader2 className="w-4 h-4 animate-spin" /> Processing...</>
+                    ) : total <= 0 ? (
+                      'No Changes to Pay'
+                    ) : (
+                      <><Lock className="w-4 h-4 mr-1" /> <span>{flowData.paymentDone && addedQuota > 0 ? 'Top Up Links securely' : 'Place Order securely'}</span> <ArrowRight className="w-4 h-4 ml-1" /></>
+                    )}
+                  </Button>
+
+                  {/* Review Details button */}
+                  <Button
+                    variant="outline"
+                    onClick={onBack}
+                    disabled={processing}
+                    className="w-full h-12 border-gold/20 text-muted-foreground hover:text-foreground hover:bg-gold/5 font-medium text-sm gap-2 shrink-0 mt-1"
+                  >
+                    <ArrowLeft className="w-4 h-4" /> Review & Edit Details
+                  </Button>
+                </div>
+              </div>
             </div>
 
             {/* Order Summary */}
-            <div className="md:col-span-2">
-              <div className="p-5 rounded-2xl border border-gold/20 bg-card sticky top-24">
+            <div className="md:col-span-2 flex flex-col h-full order-1 md:order-2">
+              <div className="p-5 rounded-2xl border border-gold/20 bg-card h-full flex flex-col">
                 <h3 className="font-display text-base font-semibold mb-4 flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-gold" />
                   Order Summary
                 </h3>
 
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between">
+                <div className="flex flex-col flex-1 text-sm">
+                  <div className="flex justify-between mb-3">
                     <span className="text-muted-foreground">Template</span>
                     <span className="font-medium">{templateName}</span>
                   </div>
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center mb-3">
                     <span className="text-muted-foreground">Plan</span>
                     <Badge
                       className={
@@ -206,23 +275,23 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                     </Badge>
                   </div>
 
-                  <div className="border-t border-border/50 pt-3 mt-3">
-                    <div className="space-y-1.5">
-                      {plan.features.slice(0, 5).map((f) => (
+                  <div className="border-t border-border/50 pt-4 mb-4 flex-1">
+                    <div className="space-y-2">
+                      {plan.features.slice(0, 8).map((f) => (
                         <div key={f} className="flex items-center gap-2 text-xs">
                           <Check className="w-3 h-3 text-emerald shrink-0" />
                           <span className="text-muted-foreground">{f}</span>
                         </div>
                       ))}
-                      {plan.features.length > 5 && (
-                        <p className="text-xs text-muted-foreground pl-5">
-                          +{plan.features.length - 5} more features
+                      {plan.features.length > 8 && (
+                        <p className="text-xs text-muted-foreground pl-5 pt-1">
+                          +{plan.features.length - 8} more features
                         </p>
                       )}
                     </div>
                   </div>
 
-                  <div className="border-t border-border/50 pt-3 mt-3 space-y-3">
+                  <div className="border-t border-border/50 pt-4 mb-4">
                     <div className="flex items-start justify-between">
                       <div className="flex flex-col gap-1 pr-4">
                         <span className="font-medium text-sm">Personalized Guest Links</span>
@@ -254,7 +323,7 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                     </div>
                   </div>
 
-                  <div className="border-t border-border/50 pt-3 mt-3">
+                  <div className="mt-auto border-t border-border/50 pt-4">
                     <div className="flex justify-between items-baseline">
                       <span className="text-muted-foreground">Total</span>
                       <div className="text-right">

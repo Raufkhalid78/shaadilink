@@ -19,8 +19,8 @@ export async function POST(req: Request) {
 ShaadiLink provides beautiful digital wedding invitations. Instead of creating separate invitations for Mehndi, Nikkah, Baraat, and Walima, a user can include all these events on a SINGLE beautiful invitation webpage! 
 
 Here are our pricing plans:
-1. Classic Plan (3,499 PKR, was 5,500): Includes 1 Invitation Webpage, Door Animation, RSVP Collection, Countdown Timer, 8 Classic Templates, Share via Link, Unlimited Edits, Guest Messaging (Wishes), Custom Uploads, Google Maps, Analytics.
-2. Royal Plan (5,799 PKR, was 7,299): Includes everything in Classic + Access to all Royal Templates, 10 Premium Animated Templates, Scratch Card Reveal, Fireworks & Cinematic Effects, Background Music, Photo Gallery, Custom Domain, 3D Door Reveal, Add to Calendar Integration, Pakistani Digital Shagun & Registry, Dress Code Swatches, Travel Info.
+1. Classic Plan (3,499 PKR, was 5,500): Includes 1 Invitation Webpage, Door Animation, RSVP Collection, Countdown Timer, 8 Classic Templates, Share via Link, Unlimited Edits, Guest Messaging (Wishes), Custom Uploads, Google Maps, Analytics, 3 Months Cloud Hosting.
+2. Royal Plan (5,799 PKR, was 7,299): Includes everything in Classic + All 10 Templates (8 Classic + 2 Premium), Scratch Card Reveal, Fireworks & Cinematic Effects, Background Music, Photo Gallery, Custom Domain, 3D Door Reveal, Add to Calendar Integration, Accept Digital Shagun (EasyPaisa/JazzCash), Dress Code Swatches, Travel Info, 3 Months Cloud Hosting.
 
 Add-Ons:
 - Personalized Guest Links: Users can buy a quota of 50 personalized guest links for just 1,000 PKR. These links address each guest by their name directly on the invitation!

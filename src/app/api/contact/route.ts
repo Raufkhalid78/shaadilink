@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { Resend } from 'resend'
+
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,6 +28,26 @@ export async function POST(request: NextRequest) {
     if (error) {
       console.error('Contact insert error:', error)
       return NextResponse.json({ error: 'Failed to save message' }, { status: 500 })
+    }
+
+    // Try to send email, but don't fail the request if it fails
+    try {
+      if (process.env.RESEND_API_KEY) {
+        const { data, error } = await resend.emails.send({
+          from: 'ShaadiLink Contact <hello@shaadilink.com.pk>',
+          to: 'hello@shaadilink.com.pk', // Using standard admin email
+          subject: `New Contact Form Message from ${name.trim()}`,
+          text: `Name: ${name.trim()}\nEmail: ${email.trim()}\n\nMessage:\n${message.trim()}`,
+        })
+        
+        if (error) {
+          console.error('Resend API Error:', error)
+        } else {
+          console.log('Resend API Success:', data)
+        }
+      }
+    } catch (emailError) {
+      console.error('Failed to send email notification:', emailError)
     }
 
     return NextResponse.json({ success: true }, { status: 201 })

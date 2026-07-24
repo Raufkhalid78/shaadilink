@@ -24,9 +24,18 @@ export async function POST(request: NextRequest) {
 
     const payload = JSON.parse(rawBody)
     const eventData = payload.data || payload
+    
+    // Safely extract the event name/type (handles both v1.0.0 and v2.0.0 webhook formats)
+    const eventName = payload.name || payload.type || payload.event || ''
 
-    // Some Safepay events are 'payment:created' or 'payment.succeeded'
-    // We will just proceed if there is a valid order_id
+    // ONLY proceed with fulfilling the order if it's a confirmed success event
+    const successEvents = ['payment.succeeded', 'payment:created']
+    if (!successEvents.includes(eventName)) {
+      console.log(`Webhook received non-success event: ${eventName}. Ignoring.`)
+      return NextResponse.json({ received: true, ignored: true, reason: 'Not a success event' })
+    }
+
+    // Safely extract orderId from various possible payload locations
     const orderId = eventData.notification?.metadata?.order_id || 
                     eventData.notification?.reference || 
                     eventData.reference || 
