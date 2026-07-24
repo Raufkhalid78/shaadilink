@@ -78,7 +78,7 @@ export function SafepayButton({
       />
       <div 
         ref={containerRef} 
-        className="w-full min-h-[50px] flex items-center justify-center"
+        className="w-full min-h-[50px] block"
       >
         {!isScriptLoaded && (
           <div className="h-12 w-full animate-pulse bg-gold/20 rounded-lg flex items-center justify-center text-sm text-gold-dark font-medium">
