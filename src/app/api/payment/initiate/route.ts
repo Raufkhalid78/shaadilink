@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
     }
 
     const safepayApiKey = process.env.SAFEPAY_API_KEY
-    const safepayEnv = process.env.SAFEPAY_ENVIRONMENT || 'sandbox'
+    const safepayEnv = (process.env.SAFEPAY_ENVIRONMENT || 'sandbox') as 'sandbox' | 'development' | 'production'
     
     // Dynamically resolve site URL from request headers (supports local dev and Vercel automatically)
     const host = request.headers.get('host') || 'localhost:3000'
@@ -82,48 +82,45 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Payment gateway configuration error' }, { status: 500 })
     }
 
-    // Call Safepay /order/v1/init
-    const initUrl = safepayEnv === 'production' 
-      ? 'https://api.getsafepay.com/order/v1/init'
-      : 'https://sandbox.api.getsafepay.com/order/v1/init'
-
-    const safepayRes = await fetch(initUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        client: safepayApiKey,
-        amount: totalAmount,
-        currency: 'PKR',
-        environment: safepayEnv,
-      }),
+    // Initialize the official SDK
+    const { Safepay } = await import('@sfpy/node-sdk')
+    const safepay = new Safepay({
+      environment: safepayEnv as any,
+      apiKey: safepayApiKey,
+      v1Secret: process.env.SAFEPAY_V1_SECRET || '', // Required by SDK types but not used for standard checkout
+      webhookSecret: process.env.SAFEPAY_WEBHOOK_SECRET || '',
     })
 
-    if (!safepayRes.ok) {
-      const errorText = await safepayRes.text()
-      console.error('Safepay session initiation failed:', errorText)
+    let trackerToken: string
+    try {
+      const { token } = await safepay.payments.create({
+        amount: totalAmount,
+        currency: 'PKR',
+      })
+      trackerToken = token
+    } catch (paymentErr) {
+      console.error('Safepay session initiation failed via SDK:', paymentErr)
       return NextResponse.json({ error: 'Failed to initiate checkout session with payment gateway' }, { status: 502 })
     }
 
-    const safepayData = await safepayRes.json()
-    const trackerToken = safepayData?.data?.token
-
     if (!trackerToken) {
-      console.error('Safepay response missing token:', safepayData)
+      console.error('Safepay response missing token')
       return NextResponse.json({ error: 'Payment gateway did not return a valid session token' }, { status: 502 })
     }
-
-    // Build the Safepay checkout redirect URL
-    const checkoutBase = safepayEnv === 'production'
-      ? 'https://api.getsafepay.com/checkout/pay'
-      : 'https://sandbox.api.getsafepay.com/checkout/pay'
 
     // Embed the order ID and the target guest links quota into the callback URL
     const callbackUrl = `${siteUrl}/api/payment/callback?order_id=${order.id}&guest_links_quota=${guestLinksQuota || 0}`
     const cancelUrl = `${siteUrl}/?step=payment`
 
-    const checkoutUrl = `${checkoutBase}?env=${safepayEnv}&beacon=${trackerToken}&client=${safepayApiKey}&order_id=${order.id}&reference=${order.id}&redirect_url=${encodeURIComponent(callbackUrl)}&cancel_url=${encodeURIComponent(cancelUrl)}&source=custom`
+    // Generate the Safepay checkout redirect URL using the SDK
+    const checkoutUrl = safepay.checkout.create({
+      token: trackerToken,
+      orderId: order.id,
+      cancelUrl: cancelUrl,
+      redirectUrl: callbackUrl,
+      source: 'custom',
+      webhooks: true,
+    })
 
     return NextResponse.json({ checkoutUrl })
   } catch (error) {

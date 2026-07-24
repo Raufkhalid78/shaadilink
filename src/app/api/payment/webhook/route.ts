@@ -13,16 +13,46 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 });
     }
 
+    const payload = JSON.parse(rawBody)
+
+    // Initialize the official SDK to verify the webhook signature
+    const { Safepay } = await import('@sfpy/node-sdk')
+    const safepayEnv = (process.env.SAFEPAY_ENVIRONMENT || 'sandbox') as 'sandbox' | 'development' | 'production'
+    const safepay = new Safepay({
+      environment: safepayEnv as any,
+      apiKey: process.env.SAFEPAY_API_KEY || '',
+      v1Secret: process.env.SAFEPAY_V1_SECRET || '',
+      webhookSecret: secret,
+    })
+
     const sigHeader = request.headers.get('x-sfpy-signature') || ''
-    const computedSig = crypto.createHmac('sha256', secret).update(rawBody).digest('hex')
-    if (sigHeader !== computedSig) {
+    
+    // We try to verify using the SDK's built-in verifier which uses sha512.
+    // As a fallback for older webhook versions, we also check sha256 of the raw body.
+    let isValid = false
+    try {
+      isValid = safepay.verify.webhook({
+        body: payload,
+        headers: { 'x-sfpy-signature': sigHeader }
+      })
+    } catch (err) {
+      console.warn("SDK webhook validation error:", err)
+    }
+
+    if (!isValid) {
+      const fallbackSig = crypto.createHmac('sha256', secret).update(rawBody).digest('hex')
+      if (sigHeader === fallbackSig) {
+        isValid = true
+        console.log("Webhook validated using legacy sha256 fallback")
+      }
+    }
+
+    if (!isValid) {
       console.warn("Invalid webhook signature")
       return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
     }
 
     const service = createServiceClient()
-
-    const payload = JSON.parse(rawBody)
     const eventData = payload.data || payload
     
     // Safely extract the event name/type (handles both v1.0.0 and v2.0.0 webhook formats)
