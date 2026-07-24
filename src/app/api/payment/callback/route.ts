@@ -42,37 +42,28 @@ async function handleCallback(request: NextRequest) {
       }
     }
 
-    if (!tracker || !sig || !orderId) {
-      console.warn('Callback missing required fields:', { tracker, sig, orderId })
+    // In Safepay V3, the browser redirect might not include tracker and sig.
+    // However, the webhook will process the payment in the background.
+    // If the signature is missing, we must rely solely on the database state.
+    let isSignatureValid = false;
+    let signatureError = '';
+
+    if (tracker && sig && orderId) {
+      const secret = process.env.SAFEPAY_V1_SECRET;
+      if (!secret) {
+        signatureError = 'Payment gateway secret key is not configured';
+      } else {
+        const computedSig = crypto.createHmac('sha256', secret).update(tracker).digest('hex');
+        isSignatureValid = secureCompare(computedSig, sig);
+        if (!isSignatureValid) {
+          signatureError = 'Invalid payment signature verification failed';
+        }
+      }
+    } else if (!orderId) {
       return NextResponse.redirect(
-        `${siteUrl}/?step=payment&paymentError=${encodeURIComponent('Missing payment signature parameters')}`,
+        `${siteUrl}/?step=payment&paymentError=${encodeURIComponent('Missing order ID in payment callback')}`,
         { status: 303 }
-      )
-    }
-
-    const secret = process.env.SAFEPAY_V1_SECRET
-    if (!secret) {
-      console.error('SAFEPAY_V1_SECRET environment variable is missing')
-      return NextResponse.redirect(
-        `${siteUrl}/?step=payment&paymentError=${encodeURIComponent('Payment gateway secret key is not configured')}`,
-        { status: 303 }
-      )
-    }
-
-    // Compute expected HMAC SHA256 signature
-    const computedSig = crypto
-      .createHmac('sha256', secret)
-      .update(tracker)
-      .digest('hex')
-
-    const isValid = secureCompare(computedSig, sig)
-
-    if (!isValid) {
-      console.warn('Invalid signature comparison:', { computedSig, sig })
-      return NextResponse.redirect(
-        `${siteUrl}/?step=payment&paymentError=${encodeURIComponent('Invalid payment signature verification failed')}`,
-        { status: 303 }
-      )
+      );
     }
 
     const service = createServiceClient()
@@ -92,10 +83,32 @@ async function handleCallback(request: NextRequest) {
       )
     }
 
-    // If order was already paid, just redirect to success page
+    // If order was already paid (e.g. by webhook), just redirect to success page
     if (order.status === 'paid') {
       return NextResponse.redirect(`${siteUrl}/?step=success&invitationId=${order.invitation_id}`, { status: 303 })
     }
+
+    // If order is not paid yet, and we don't have a valid signature from the redirect URL,
+    // we cannot mark it as paid. We must wait for the webhook.
+    if (!isSignatureValid) {
+      // If there was a signature but it was invalid, return error
+      if (signatureError) {
+        return NextResponse.redirect(
+          `${siteUrl}/?step=payment&paymentError=${encodeURIComponent(signatureError)}`,
+          { status: 303 }
+        );
+      }
+      
+      // If there was simply no signature (V3 browser redirect), and the order is still pending,
+      // it means the webhook hasn't processed it yet. 
+      // We can redirect the user to a pending state, or back to the payment page with a gentle message.
+      return NextResponse.redirect(
+        `${siteUrl}/?step=payment&paymentError=${encodeURIComponent('Payment is processing. Please wait a moment and refresh.')}`,
+        { status: 303 }
+      );
+    }
+
+    // Order fetch already happened above. Now we just process the paid logic if signature is valid.
 
     // Update order status to paid
     const { error: updateOrderErr } = await service

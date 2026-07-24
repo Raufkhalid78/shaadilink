@@ -122,7 +122,7 @@ export type FlowStep =
 export const planDetails = {
   classic: {
     name: "Classic",
-    price: "100",
+    price: "3,499",
     priceNote: "One-time payment",
     features: [
       "1 Invitation Webpage",
