@@ -6,16 +6,16 @@ export async function middleware(request: NextRequest) {
   
   const cspHeader = `
     default-src 'self';
-    script-src 'self' 'unsafe-eval' 'unsafe-inline';
+    script-src 'self' 'unsafe-eval' 'unsafe-inline' https://unpkg.com;
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
     img-src 'self' blob: data: https://nldoyrprekstnifrlblo.supabase.co https://images.unsplash.com https://lh3.googleusercontent.com;
     font-src 'self' data: https://fonts.gstatic.com;
     object-src 'none';
     base-uri 'self';
     form-action 'self';
-    frame-src 'self' https://www.youtube.com https://sandbox.api.getsafepay.com https://maps.google.com https://www.google.com;
+    frame-src 'self' https://www.youtube.com https://sandbox.api.getsafepay.com https://api.getsafepay.com https://getsafepay.com https://maps.google.com https://www.google.com;
     frame-ancestors 'none';
-    connect-src 'self' https://nldoyrprekstnifrlblo.supabase.co;
+    connect-src 'self' https://nldoyrprekstnifrlblo.supabase.co https://sandbox.api.getsafepay.com https://api.getsafepay.com;
     upgrade-insecure-requests;
   `.replace(/\s{2,}/g, ' ').trim()
 
