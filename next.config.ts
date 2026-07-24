@@ -3,6 +3,19 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   compress: true,
   output: "standalone",
+  async headers() {
+    return [
+      {
+        source: "/(.*)\\.(png|jpg|jpeg|gif|svg|webp|ico)",
+        headers: [
+          {
+            key: "Access-Control-Allow-Origin",
+            value: "*",
+          },
+        ],
+      },
+    ];
+  },
   /* config options here */
   typescript: {
     ignoreBuildErrors: false,

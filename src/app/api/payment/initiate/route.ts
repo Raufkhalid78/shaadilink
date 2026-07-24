@@ -69,8 +69,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Initialize Safepay SDK
+    const safepaySecret = process.env.SAFEPAY_SECRET_KEY || process.env.SAFEPAY_API_KEY;
+    const safepayMerchantKey = process.env.SAFEPAY_MERCHANT_API_KEY;
+
+    if (!safepaySecret) throw new Error("SAFEPAY_SECRET_KEY is not configured.");
+    if (!safepayMerchantKey) throw new Error("SAFEPAY_MERCHANT_API_KEY is not configured. Please add your Public API Key (starts with api_) to your Vercel environment variables.");
+
     const safepayFactory = require('@sfpy/node-core');
-    const safepay = safepayFactory(process.env.SAFEPAY_SECRET_KEY || process.env.SAFEPAY_API_KEY, {
+    const safepay = safepayFactory(safepaySecret, {
       authType: 'secret',
       host: process.env.SAFEPAY_HOST || 'https://sandbox.api.getsafepay.com',
     });
@@ -81,7 +87,7 @@ export async function POST(request: NextRequest) {
 
     // Create Payment Session
     const sessionResponse = await safepay.payments.session.setup({
-      merchant_api_key: process.env.SAFEPAY_MERCHANT_API_KEY || process.env.SAFEPAY_API_KEY,
+      merchant_api_key: safepayMerchantKey,
       intent: 'CYBERSOURCE',
       mode: 'payment',
       currency: 'PKR',
@@ -120,9 +126,11 @@ export async function POST(request: NextRequest) {
       totalAmount: totalAmount,
       checkoutUrl: checkoutUrl
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('POST /api/payment/initiate error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    // Safepay SDK errors usually have error.message or error.data
+    const errorMessage = error.message || (error.data && error.data.message) || 'Internal server error'
+    return NextResponse.json({ error: errorMessage }, { status: 500 })
   }
 }
 
