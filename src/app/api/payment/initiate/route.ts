@@ -69,16 +69,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Initialize Safepay SDK
-    const safepaySecret = process.env.SAFEPAY_SECRET_KEY || process.env.SAFEPAY_API_KEY;
-    const safepayMerchantKey = process.env.SAFEPAY_MERCHANT_API_KEY;
+    // Safepay confusingly calls the public key "sec_..." and the secret key a long hex string
+    const safepaySecret = process.env.SAFEPAY_V1_SECRET || process.env.SAFEPAY_SECRET_KEY;
+    const safepayMerchantKey = process.env.SAFEPAY_API_KEY || process.env.SAFEPAY_MERCHANT_API_KEY;
 
-    if (!safepaySecret) throw new Error("SAFEPAY_SECRET_KEY is not configured.");
-    if (!safepayMerchantKey) throw new Error("SAFEPAY_MERCHANT_API_KEY is not configured. Please add your Public API Key (starts with api_) to your Vercel environment variables.");
+    if (!safepaySecret) throw new Error("SAFEPAY_V1_SECRET is not configured.");
+    if (!safepayMerchantKey) throw new Error("SAFEPAY_API_KEY is not configured.");
 
     const safepayFactory = require('@sfpy/node-core');
     const safepay = safepayFactory(safepaySecret, {
       authType: 'secret',
-      host: process.env.SAFEPAY_HOST || 'https://sandbox.api.getsafepay.com',
+      host: process.env.SAFEPAY_HOST || (process.env.SAFEPAY_ENVIRONMENT === 'sandbox' ? 'https://sandbox.api.getsafepay.com' : 'https://api.getsafepay.com'),
     });
 
     const host = request.headers.get('host') || 'localhost:3000'
