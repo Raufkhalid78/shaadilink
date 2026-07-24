@@ -26,26 +26,36 @@ export function SafepayButton({
       const env = (process.env.NEXT_PUBLIC_SAFEPAY_ENVIRONMENT || "sandbox") as "sandbox" | "production";
       const apiKey = process.env.NEXT_PUBLIC_SAFEPAY_API_KEY || "";
 
-      (window as any).safepay.Button.render({
-        env: env,
-        client: {
-          [env]: apiKey,
-        },
-        style: {
-          mode: "light",
-          size: "large",
-          variant: "primary",
-        },
-        orderId: orderId,
-        payment: {
-          currency: "PKR",
-          amount: amount,
-        },
-        onPayment: onPayment,
-        onCancel: onCancel,
-      }, containerRef.current);
-      
-      renderedRef.current = true;
+      const SafepayButton = (window as any).safepay.Button;
+      if (SafepayButton && typeof SafepayButton === 'function') {
+        const buttonInstance = SafepayButton({
+          env: env,
+          client: {
+            [env]: apiKey,
+          },
+          style: {
+            mode: "light",
+            size: "large",
+            variant: "primary",
+          },
+          orderId: orderId,
+          payment: {
+            currency: "PKR",
+            amount: amount,
+          },
+          onPayment: onPayment,
+          onCancel: onCancel,
+        });
+
+        if (buttonInstance && buttonInstance.render) {
+          buttonInstance.render(containerRef.current);
+          renderedRef.current = true;
+        } else {
+          console.error("Safepay button instance does not have a render method.");
+        }
+      } else {
+        console.error("safepay.Button is not a valid zoid component function.");
+      }
     }
   };
 
