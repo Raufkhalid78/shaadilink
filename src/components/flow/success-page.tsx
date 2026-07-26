@@ -24,7 +24,7 @@ export function SuccessPage({ flowData, onViewInvitation, onGoToDashboard, crumb
   // Use real invitationId for unique link; fall back to template for demo mode
   const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
   const invitationLink = flowData.invitationId
-    ? `${baseUrl}/inv/${flowData.invitationId}`
+    ? `${baseUrl}/inv/${flowData.slug || flowData.invitationId}`
     : `${baseUrl}/demo/${flowData.selectedTemplateId || "emerald-noir"}`;
 
   const handleCopy = async () => {
@@ -195,7 +195,7 @@ export function SuccessPage({ flowData, onViewInvitation, onGoToDashboard, crumb
             className="mt-8 space-y-3"
           >
             <Button
-              onClick={onViewInvitation}
+              onClick={() => window.open(invitationLink, "_blank", "noopener,noreferrer")}
               className="w-full max-w-md h-12 bg-emerald hover:bg-emerald-dark text-primary-foreground border border-gold/30 font-semibold text-base gap-2"
             >
               <ExternalLink className="w-4 h-4" />
