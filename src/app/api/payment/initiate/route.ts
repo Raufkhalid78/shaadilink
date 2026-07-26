@@ -107,12 +107,22 @@ export async function POST(request: NextRequest) {
     await service.from('orders').update({ tracker: trackerToken }).eq('id', order.id);
 
     // Generate Checkout URL using the Safepay helper
+// Step 1: Create a short-lived auth token (required by Safepay for the checkout URL)
+    const passportResponse = await safepay.client.passport.create();
+    const tbt = passportResponse.data;
+    if (!tbt) {
+      throw new Error(`Safepay failed to return an auth token. Response: ${JSON.stringify(passportResponse)}`);
+    }
+
+    // Step 2: Generate Checkout URL using the Safepay helper — note the correct param names
+    const env = process.env.SAFEPAY_ENVIRONMENT === 'production' ? 'production' : 'sandbox';
     const checkoutUrl = safepay.checkout.createCheckoutUrl({
+      env,                 // NOT "environment"
       tracker: trackerToken,
-      cancelUrl: `${siteUrl}/order/cancel`,
-      redirectUrl: `${siteUrl}/order/complete`,
-      source: 'custom',
-      environment: process.env.SAFEPAY_ENVIRONMENT === 'production' ? 'production' : 'sandbox',
+      tbt,                 // the auth token from Step 1 — was missing entirely
+      cancel_url: `${siteUrl}/order/cancel`,     // NOT "cancelUrl"
+      redirect_url: `${siteUrl}/order/complete`, // NOT "redirectUrl"
+      source: 'hosted',    // "custom" isn't a documented/valid value — see note below
     });
 
     return NextResponse.json({
