@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     const eventData = payload.data || payload
     
     // Safely extract the event name/type
-    const eventName = payload.name || payload.type || payload.event || ''
+    const eventName = (payload.name || payload.type || payload.event || '').toLowerCase()
 
     const successEvents = ['payment.succeeded', 'payment:created']
     const failedEvents = ['payment.failed', 'payment:failed']
@@ -62,6 +62,11 @@ export async function POST(request: NextRequest) {
       console.error("Order not found for webhook tracker:", trackerToken)
       return NextResponse.json({ error: "Order not found" }, { status: 404 })
     }
+
+ if (order.status === 'paid') {
+      return NextResponse.json({ received: true, status: 'already_paid' })
+    }
+
 
     if (failedEvents.includes(eventName)) {
       // Just mark it as failed, but it can be retried, so be careful.
