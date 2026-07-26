@@ -56,6 +56,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Rating must be between 1 and 5' }, { status: 400 });
     }
 
+    // Verify the user actually owns this invitation before letting them review it
+    const { data: inv } = await supabaseServer
+      .from('invitations')
+      .select('user_id')
+      .eq('id', invitation_id)
+      .single();
+
+    if (!inv || inv.user_id !== user.id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     const { data, error } = await supabaseAdmin
       .from('reviews')
       .insert({
