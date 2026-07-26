@@ -91,7 +91,7 @@ export async function PUT(
       venueDetailsSegregated: 'venue_details_segregated',
       showNikahRegistration: 'show_nikah_registration',
     }
-    for (const [jsKey, dbKey] of Object.entries(fieldMap)) {
+for (const [jsKey, dbKey] of Object.entries(fieldMap)) {
       if (body[jsKey] !== undefined) {
         if (jsKey === 'slug') {
           let updatedSlug = (body[jsKey] as string)?.trim()
@@ -115,6 +115,10 @@ export async function PUT(
           updateData[dbKey] = body[jsKey]
         }
       }
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 })
     }
 
     const { data: updated, error } = await supabase
