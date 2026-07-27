@@ -870,7 +870,7 @@ export function DashboardPage({
                         <div className="flex flex-wrap gap-2 pt-1">
                           <Button
                             size="sm"
-                            onClick={() => onViewInvitation(inv.id)}
+                            onClick={() => window.open(`${window.location.origin}/inv/${inv.slug || inv.id}`, "_blank", "noopener,noreferrer")}
                             className="flex-1 h-8 bg-emerald hover:bg-emerald-dark text-primary-foreground text-xs gap-1"
                           >
                             <ExternalLink className="w-3 h-3" />
