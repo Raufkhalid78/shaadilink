@@ -1,1 +1,42 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><radialGradient id="a" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#0f211b"/><stop offset="100%" stop-color="#050a08"/></radialGradient><linearGradient id="b" x1="0%" x2="100%" y1="0%" y2="100%"><stop offset="0%" stop-color="#b4914d"/><stop offset="30%" stop-color="#f0d78c"/><stop offset="50%" stop-color="#d4a853"/><stop offset="75%" stop-color="#fff4d0"/><stop offset="100%" stop-color="#8b6d2f"/></linearGradient></defs><rect width="96" height="96" x="2" y="2" fill="url(#a)" stroke="url(#b)" stroke-width="3" rx="24"/><rect width="86" height="86" x="7" y="7" fill="none" stroke="url(#b)" stroke-dasharray="3,3" stroke-width=".75" opacity=".6" rx="19"/><g fill="none" stroke="url(#b)" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" transform="translate(18 22)scale(1.35)"><path d="M12 6s-2-3-5.5-3c-3 0-5 2-5 5 0 4 5.5 8 10.5 11.5C17 16 22.5 12 22.5 8c0-3-2-5-5-5C14 3 12 6 12 6"/><path d="M22 10s-2-3-5.5-3c-3 0-5 2-5 5 0 4 5.5 8 10.5 11.5C27 20 32.5 16 32.5 12c0-3-2-5-5-5C24 7 22 10 22 10" opacity=".9"/></g><path fill="url(#b)" d="M78 22q0 6 6 6-6 0-6 6 0-6-6-6 6 0 6-6"/><path fill="url(#b)" d="M22 72q0 4 4 4-4 0-4 4 0-4-4-4 4 0 4-4"/></svg>
+<svg width="512" height="512" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E8C766"/>
+      <stop offset="100%" stop-color="#C79A2E"/>
+    </linearGradient>
+    <linearGradient id="emeraldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2A9370"/>
+      <stop offset="100%" stop-color="#155A42"/>
+    </linearGradient>
+  </defs>
+
+  <!-- outer badge rings -->
+  <circle cx="100" cy="100" r="94" fill="none" stroke="url(#goldGrad)" stroke-width="2.5"/>
+  <circle cx="100" cy="100" r="86" fill="none" stroke="url(#goldGrad)" stroke-width="1" opacity="0.55"/>
+
+  <!-- four seal accents -->
+  <g fill="#D4AF37">
+    <path d="M100,4 l3.2,7.2 -3.2,3 -3.2,-3 Z"/>
+    <path d="M100,196 l3.2,-7.2 -3.2,-3 -3.2,3 Z"/>
+    <path d="M4,100 l7.2,3.2 3,-3.2 -3,-3.2 Z"/>
+    <path d="M196,100 l-7.2,3.2 -3,-3.2 3,-3.2 Z"/>
+  </g>
+
+  <!-- interlocked hearts: emerald (left) -->
+  <g transform="translate(77,110) rotate(-16) scale(0.66)">
+    <path d="M50,90 C18,66 4,44 4,24 C4,6 20,-2 36,7 C43,11 47,17 50,24 C53,17 57,11 64,7 C80,-2 96,6 96,24 C96,44 82,66 50,90 Z"
+          transform="translate(-50,-44)"
+          fill="url(#emeraldGrad)" stroke="#0f1a16" stroke-width="3.5" stroke-linejoin="round"/>
+  </g>
+
+  <!-- interlocked hearts: gold (right) -->
+  <g transform="translate(123,110) rotate(16) scale(0.66)">
+    <path d="M50,90 C18,66 4,44 4,24 C4,6 20,-2 36,7 C43,11 47,17 50,24 C53,17 57,11 64,7 C80,-2 96,6 96,24 C96,44 82,66 50,90 Z"
+          transform="translate(-50,-44)"
+          fill="url(#goldGrad)" stroke="#0f1a16" stroke-width="3.5" stroke-linejoin="round"/>
+  </g>
+
+  <!-- center jewel where the hearts meet -->
+  <circle cx="100" cy="76" r="6.5" fill="url(#emeraldGrad)" stroke="url(#goldGrad)" stroke-width="1.8"/>
+  <circle cx="100" cy="76" r="2.2" fill="#F0EAE0" opacity="0.85"/>
+</svg>
