@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 
 const PLAN_AMOUNTS: Record<string, number> = {
-  classic: 3499,
+  classic: 100,
   royal: 5799,
 }
 
