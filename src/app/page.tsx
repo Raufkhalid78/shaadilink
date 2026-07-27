@@ -187,12 +187,20 @@ function HomeInner() {
   const [currentStep, setCurrentStepInternal] = useState<FlowStep>("landing");
   const [demoSourceStep, setDemoSourceStep] = useState<FlowStep | null>(null);
 
-  const setCurrentStep = useCallback((step: FlowStep) => {
+const setCurrentStep = useCallback((step: FlowStep) => {
     setCurrentStepInternal(step);
     if (typeof window !== "undefined") {
       const url = new URL(window.location.href);
       url.searchParams.set("step", step);
       if (step !== "demo") url.searchParams.delete("theme");
+      // Once we've moved past the entry-point params, clear them so they don't
+      // stick around in the URL and re-trigger on a future refresh
+      if (step !== "details" && step !== "success") {
+        url.searchParams.delete("edit");
+        url.searchParams.delete("upgrade");
+        url.searchParams.delete("buyMoreLinks");
+        url.searchParams.delete("start");
+      }
       window.history.pushState({ step }, "", url.pathname + url.search);
     }
   }, []);

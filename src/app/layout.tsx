@@ -63,6 +63,7 @@ export const metadata: Metadata = {
     "premium wedding invitation",
   ],
   openGraph: {
+    url: "https://www.shaadilink.com.pk/",
     title: "ShaadiLink — Premium Digital Wedding Invitations",
     description:
       "Cinematic digital wedding invitations with 3D animations, scratch card reveals, live countdowns, and RSVP. Made for Pakistani weddings.",
