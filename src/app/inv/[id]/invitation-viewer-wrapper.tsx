@@ -7,12 +7,13 @@ interface Props {
   templateId: string;
   flowData: FlowData;
   guestName?: string | null;
+  guestSlug?: string | null;
 }
 
-export default function InvitationViewerWrapper({ templateId, flowData, guestName }: Props) {
+export default function InvitationViewerWrapper({ templateId, flowData, guestName, guestSlug }: Props) {
   return (
     <div className="min-h-screen">
-      <InvitationViewer templateId={templateId} flowData={flowData} guestName={guestName} />
+      <InvitationViewer templateId={templateId} flowData={flowData} guestName={guestName} guestSlug={guestSlug} />
     </div>
   );
 }

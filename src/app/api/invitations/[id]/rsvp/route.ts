@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { sendRsvpNotification } from '@/lib/resend'
 
 /* POST /api/invitations/[id]/rsvp — submit RSVP (public) */
 export async function POST(
@@ -21,8 +22,7 @@ export async function POST(
 
     const supabase = await createClient()
 
-    // Check invitation exists and is active
-    const { data: inv } = await supabase.from('invitations').select('is_active').eq('id', id).single()
+    const { data: inv } = await supabase.from('invitations').select('is_active, user_id').eq('id', id).single()
     if (!inv?.is_active) return NextResponse.json({ error: 'This invitation is not yet published' }, { status: 403 })
 
     // Check for existing RSVP
@@ -50,6 +50,21 @@ export async function POST(
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    // Fire and forget email notification
+    if (inv?.user_id) {
+      (async () => {
+        try {
+          const adminSupabase = createServiceClient()
+          const { data: profile } = await adminSupabase.from('profiles').select('email').eq('id', inv.user_id).single()
+          if (profile?.email) {
+            await sendRsvpNotification(profile.email, guestName.trim(), status)
+          }
+        } catch (emailErr) {
+          console.error('Failed to send RSVP notification email:', emailErr)
+        }
+      })()
     }
 
     return NextResponse.json({ rsvp: data }, { status: 201 })

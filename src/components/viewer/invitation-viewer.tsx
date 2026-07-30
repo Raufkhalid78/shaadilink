@@ -97,7 +97,7 @@ const GeometricGoldViewer = dynamic(() => import('./royal-viewers/geometric-gold
 const DarkVelvetViewer = dynamic(() => import('./royal-viewers/dark-velvet-viewer'), { ssr: false })
 
 /* ─── Royal Template Router ─── */
-const ROYAL_TEMPLATE_MAP: Record<string, React.ComponentType<{ templateId?: string; flowData?: FlowData; guestName?: string | null }>> = {
+const ROYAL_TEMPLATE_MAP: Record<string, React.ComponentType<{ templateId?: string; flowData?: FlowData; guestName?: string | null; guestSlug?: string | null }>> = {
   'royal-imperial': RoyalImperialViewer,
   'royal-elegance': RoyalEleganceViewer,
   'geometric-gold': GeometricGoldViewer,
@@ -105,7 +105,7 @@ const ROYAL_TEMPLATE_MAP: Record<string, React.ComponentType<{ templateId?: stri
 }
 
 /* ─── Main Invitation Viewer ─── */
-function ClassicViewer({ templateId, flowData, guestName }: InvitationViewerProps) {
+function ClassicViewer({ templateId, flowData, guestName, guestSlug }: InvitationViewerProps) {
 
   const theme = useMemo(() => getTheme(templateId), [templateId])
 
@@ -181,7 +181,11 @@ function ClassicViewer({ templateId, flowData, guestName }: InvitationViewerProp
     if (flowData?.invitationId && !isDemo) {
       // Small delay to ensure we only track real views, not quick bounces
       const timer = setTimeout(() => {
-        fetch(`/api/invitations/${flowData.invitationId}/view`, { method: 'POST' }).catch(() => {});
+        fetch(`/api/invitations/${flowData.invitationId}/view`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ guestSlug: guestSlug || undefined })
+        }).catch(() => {});
       }, 2000);
       return () => clearTimeout(timer);
     }

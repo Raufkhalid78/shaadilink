@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { GoogleGenAI } from '@google/genai'
+import { createOpenAI } from '@ai-sdk/openai'
+import { generateText } from 'ai'
+
+export const runtime = 'edge';
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,12 +18,14 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      const apiKey = process.env.GEMINI_API_KEY
-      if (!apiKey || apiKey === 'your_gemini_api_key_here') {
-        throw new Error('GEMINI_API_KEY is not configured')
+      if (!process.env.OPENROUTER_API_KEY) {
+        throw new Error('OPENROUTER_API_KEY is not configured')
       }
 
-      const ai = new GoogleGenAI({ apiKey })
+      const openrouter = createOpenAI({
+        baseURL: 'https://openrouter.ai/api/v1',
+        apiKey: process.env.OPENROUTER_API_KEY,
+      });
 
       const prompt = `You are a professional Urdu translator specializing in Pakistani wedding invitations. Translate all text values of the input JSON object to elegant, formal Urdu suitable for wedding invitations. Keep the JSON keys exactly identical. Do not translate names if they are already Urdu names (like Ahmed, Fatima, Ayesha) but write them in beautiful Urdu script. Translate addresses, timeline descriptions, welcome messages, dress codes, and blessings into high-quality, culturally appropriate Urdu.
 
@@ -29,20 +34,21 @@ Return ONLY a valid JSON object. Do not include markdown (do not wrap in backtic
 Input JSON to translate:
 ${JSON.stringify(texts)}`
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
-        config: {
-          responseMimeType: 'application/json',
-        }
+      const { text } = await generateText({
+        model: openrouter('google/gemini-2.5-flash'),
+        prompt: prompt,
+        maxTokens: 1500,
       })
 
-      const responseText = response.text || ''
+      // Extract JSON block in case the AI wraps it in markdown or adds conversational text
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      const cleanedText = jsonMatch ? jsonMatch[0] : text.replace(/```json\n?|\n?```/g, '').trim();
 
       let translations: Record<string, string> = {}
       try {
-        translations = JSON.parse(responseText)
-      } catch {
+        translations = JSON.parse(cleanedText)
+      } catch (parseErr) {
+        console.warn('Failed to parse AI translation JSON:', parseErr, 'Raw text:', text)
         // Fallback gracefully if parsing fails
         translations = texts as Record<string, string>
       }

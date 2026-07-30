@@ -262,6 +262,14 @@ const setCurrentStep = useCallback((step: FlowStep) => {
     }
 
     if (start === "create") {
+      localStorage.removeItem("shaadilink_pending_flow_data");
+      localStorage.removeItem("shaadilink_oauth_in_progress");
+      setFlowData((prev) => ({
+        ...JSON.parse(JSON.stringify(initialFlowData)),
+        userId: prev.userId,
+        email: prev.email,
+        fullName: prev.fullName,
+      }));
       setCurrentStep("templates");
       setIsLoadingParams(false);
       return;
@@ -897,7 +905,7 @@ const setCurrentStep = useCallback((step: FlowStep) => {
     localStorage.removeItem("shaadilink_oauth_in_progress");
     // Reset invitation-specific fields, keep user identity
     setFlowData((prev) => ({
-      ...initialFlowData,
+      ...JSON.parse(JSON.stringify(initialFlowData)),
       userId: prev.userId,
       email: prev.email,
       fullName: prev.fullName,
@@ -1004,6 +1012,7 @@ const setCurrentStep = useCallback((step: FlowStep) => {
               onSelectTemplate={handleSelectTemplate}
               crumbs={[
                 { label: "Home", onClick: handleGoHome },
+                ...(flowData.userId ? [{ label: "Dashboard", onClick: handleGoToDashboard }] : []),
                 { label: "Choose Your Template" },
               ]}
             />
@@ -1021,6 +1030,7 @@ const setCurrentStep = useCallback((step: FlowStep) => {
               onLogin={handleLoginClick}
               crumbs={[
                 { label: "Home", onClick: handleGoHome },
+                ...(flowData.userId ? [{ label: "Dashboard", onClick: handleGoToDashboard }] : []),
                 { label: "Templates", onClick: () => setCurrentStep("templates") },
                 { label: "Create Account" },
               ]}
@@ -1060,6 +1070,7 @@ const setCurrentStep = useCallback((step: FlowStep) => {
                     ]
                   : [
                       { label: "Home", onClick: handleGoHome },
+                      ...(flowData.userId ? [{ label: "Dashboard", onClick: handleGoToDashboard }] : []),
                       { label: "Templates", onClick: () => setCurrentStep("templates") },
                       { label: "Details" },
                     ]
@@ -1086,6 +1097,7 @@ const setCurrentStep = useCallback((step: FlowStep) => {
                     ]
                   : [
                       { label: "Home", onClick: handleGoHome },
+                      ...(flowData.userId ? [{ label: "Dashboard", onClick: handleGoToDashboard }] : []),
                       { label: "Templates", onClick: () => setCurrentStep("templates") },
                       { label: "Details", onClick: () => setCurrentStep("details") },
                       { label: "Complete Payment" },

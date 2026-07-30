@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { sendWishNotification } from '@/lib/resend'
 
 /* POST /api/invitations/[id]/wishes — submit wish (public) */
 export async function POST(
@@ -20,6 +21,10 @@ export async function POST(
     }
 
     const supabase = await createClient()
+
+    // Fetch invitation to get user_id for notification
+    const { data: inv } = await supabase.from('invitations').select('user_id').eq('id', id).single()
+
     const { data, error } = await supabase
       .from('wishes')
       .insert({
@@ -32,6 +37,21 @@ export async function POST(
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    // Fire and forget email notification
+    if (inv?.user_id) {
+      (async () => {
+        try {
+          const adminSupabase = createServiceClient()
+          const { data: profile } = await adminSupabase.from('profiles').select('email').eq('id', inv.user_id).single()
+          if (profile?.email) {
+            await sendWishNotification(profile.email, senderName.trim(), message.trim())
+          }
+        } catch (emailErr) {
+          console.error('Failed to send Wish notification email:', emailErr)
+        }
+      })()
     }
 
     return NextResponse.json({ wish: data }, { status: 201 })

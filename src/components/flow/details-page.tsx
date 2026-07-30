@@ -5,11 +5,12 @@ import { m, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import {
   ArrowLeft, ArrowRight, Calendar, Heart, MapPin, Music, MessageSquare,
-  Check, Plus, Trash2, User, Shirt, Car, Hotel, Gift, ImagePlus, X, Globe, Loader2, Video
+  Check, Plus, Trash2, User, Shirt, Car, Hotel, Gift, ImagePlus, X, Globe, Loader2, Video, Sparkles, Crown, Lock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import type { FlowData } from "@/lib/flow-types";
 import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
@@ -31,6 +32,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
   const slideshowInputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(!!flowData.slug);
+  const [currentStep, setCurrentStep] = useState<number>(1);
 
   // Auto-generate slug from partner names if it's not manually edited
   useEffect(() => {
@@ -85,6 +87,22 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
     onUpdateData({ venueAddress: combined });
   };
 
+  const validateStep = (step: number) => {
+    const newErrors: Record<string, string> = {};
+    if (step === 1) {
+      if (!flowData.partner1Name.trim()) newErrors.partner1Name = "Partner 1 name is required";
+      if (!flowData.partner2Name.trim()) newErrors.partner2Name = "Partner 2 name is required";
+    } else if (step === 2) {
+      if (!flowData.venue.trim()) newErrors.venue = "Venue name is required";
+      const eventWithNameButNoDate = flowData.events.find(e => e.name.trim() && !e.date.trim());
+      if (eventWithNameButNoDate) {
+        newErrors.events = `Please add a date for "${eventWithNameButNoDate.name}"`;
+      }
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const validate = () => {
     const newErrors: Record<string, string> = {};
     if (!flowData.partner1Name.trim()) newErrors.partner1Name = "Name is required";
@@ -107,7 +125,6 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
     
     const keys = Object.keys(newErrors);
     if (keys.length > 0) {
-      // Small delay to ensure React has updated the DOM with error messages
       setTimeout(() => {
         const firstErrorId = `field-${keys[0]}`;
         const el = document.getElementById(firstErrorId);
@@ -344,814 +361,935 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
       {/* Breadcrumb path — adapts for new vs edit mode */}
       <PageBreadcrumb crumbs={crumbs} />
 
-      <main id="main-content" className="flex-1 px-4 py-8 sm:py-12">
+      <main id="main-content" className="flex-1 px-4 py-6 sm:py-10">
         <m.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mx-auto max-w-2xl"
+          className="mx-auto max-w-7xl"
         >
-          <div className="text-center mb-8">
-            <h1 className="font-display text-2xl sm:text-3xl font-bold text-foreground">
+          {/* Header Title & Subtitle */}
+          <div className="text-center mb-8 max-w-2xl mx-auto space-y-2">
+            <h1 className="font-display text-2xl sm:text-4xl font-extrabold text-foreground">
               Fill Your Details
             </h1>
-            <p className="mt-2 text-muted-foreground text-sm">
-              Enter your wedding details — we&apos;ll transform them into a stunning invitation.
+            <p className="text-muted-foreground text-xs sm:text-sm">
+              Enter your wedding details — we&apos;ll transform them into a breathtaking digital invitation.
             </p>
-            {errors.events && <p className="text-sm text-red-500 mb-4">{errors.events}</p>}
+            {errors.events && <p className="text-sm text-red-500 font-semibold">{errors.events}</p>}
           </div>
 
-          <div className="space-y-8">
-            {/* Couple Names */}
-            <section className="space-y-4">
-              <div className="flex items-center gap-2 mb-3">
-                <Heart className="w-4 h-4 text-gold" />
-                <h2 className="font-display text-lg font-semibold text-foreground">Couple Names</h2>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5" id="field-partner1Name">
-                  <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                    Partner 1 Name
-                  </label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      value={flowData.partner1Name}
-                      onChange={(e) => onUpdateData({ partner1Name: e.target.value })}
-                      placeholder="e.g. Ahmed"
-                      className={`pl-10 h-11 ${errors.partner1Name ? "border-red-400" : ""}`}
-                    />
-                  </div>
-                  {errors.partner1Name && <p className="text-xs text-red-500">{errors.partner1Name}</p>}
-                </div>
-                <div className="space-y-1.5" id="field-partner2Name">
-                  <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                    Partner 2 Name
-                  </label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      value={flowData.partner2Name}
-                      onChange={(e) => onUpdateData({ partner2Name: e.target.value })}
-                      placeholder="e.g. Fatima"
-                      className={`pl-10 h-11 ${errors.partner2Name ? "border-red-400" : ""}`}
-                    />
-                  </div>
-                  {errors.partner2Name && <p className="text-xs text-red-500">{errors.partner2Name}</p>}
-                </div>
-              </div>
-            </section>
-
-            {/* Host Families / Parents (Optional) */}
-            <section className="space-y-4">
-              <div className="flex items-center gap-2 mb-3">
-                <User className="w-4 h-4 text-gold" />
-                <h2 className="font-display text-lg font-semibold text-foreground">Host Families (Optional)</h2>
-              </div>
-              <p className="text-xs text-muted-foreground mb-4">
-                In Pakistani invitations, it is customary to include the names of the parents or families hosting the wedding.
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                    Partner 1 Family / Parents
-                  </label>
-                  <Input
-                    value={flowData.hostBrideFamily || ""}
-                    onChange={(e) => onUpdateData({ hostBrideFamily: e.target.value })}
-                    placeholder="e.g. Mr. & Mrs. Tariq Hussain"
-                    className="h-11"
-                  />
-                  <Input
-                    value={flowData.hostBrideCity || ""}
-                    onChange={(e) => onUpdateData({ hostBrideCity: e.target.value })}
-                    placeholder="City (e.g. from Lahore)"
-                    className="h-11 mt-2 text-sm"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                    Partner 2 Family / Parents
-                  </label>
-                  <Input
-                    value={flowData.hostGroomFamily || ""}
-                    onChange={(e) => onUpdateData({ hostGroomFamily: e.target.value })}
-                    placeholder="e.g. Mr. & Mrs. Imran Sheikh"
-                    className="h-11"
-                  />
-                  <Input
-                    value={flowData.hostGroomCity || ""}
-                    onChange={(e) => onUpdateData({ hostGroomCity: e.target.value })}
-                    placeholder="City (e.g. from Karachi)"
-                    className="h-11 mt-2 text-sm"
-                  />
-                </div>
-              </div>
-            </section>
-
-            {/* Custom Invitation Link (Slug) */}
-            <section className="space-y-4">
-              <div className="flex items-center gap-2 mb-3">
-                <Globe className="w-4 h-4 text-gold" />
-                <h2 className="font-display text-lg font-semibold text-foreground">Custom Invitation Link</h2>
-              </div>
-              <div className="space-y-1.5" id="field-slug">
-                <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                  Personalized Web Link Slug
-                </label>
-                <div className="relative flex items-center">
-                  <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-border bg-muted text-muted-foreground text-xs h-11">
-                    shaadilink.com/inv/
-                  </span>
-                  <Input
-                    value={flowData.slug || ""}
-                    onChange={(e) => {
-                      setSlugManuallyEdited(true);
-                      const cleanVal = e.target.value
-                        .toLowerCase()
-                        .replace(/\s+/g, "-")
-                        .replace(/[^a-z0-9\-_]/g, "");
-                      onUpdateData({ slug: cleanVal });
-                    }}
-                    placeholder="e.g. ahmed-fatima-2026"
-                    className={`rounded-l-none h-11 ${errors.slug ? "border-red-400" : ""}`}
-                  />
-                </div>
-                <p className="text-[10px] text-muted-foreground">
-                  Create a memorable link to share (e.g. <b>ahmed-fatima-dec2026</b>). Only lowercase letters, numbers, hyphens, and underscores are allowed.
-                </p>
-                {errors.slug && <p className="text-xs text-red-500">{errors.slug}</p>}
-              </div>
-            </section>
-
-            {/* Bismillah Banner Toggle */}
-            <section className="space-y-3">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-base">☪️</span>
-                <h2 className="font-display text-lg font-semibold text-foreground">Bismillah Banner</h2>
-              </div>
-              <div
-                className="flex items-center justify-between rounded-xl border border-border p-4 cursor-pointer hover:bg-muted/30 transition-colors"
-                onClick={() => onUpdateData({ showBismillah: !flowData.showBismillah })}
-              >
-                <div className="flex-1 pr-4">
-                  <p className="text-sm font-medium text-foreground">Show Bismillah at the top</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Displays <span className="font-arabic text-gold" dir="rtl">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</span> as a beautiful header on your invitation.
-                  </p>
-                </div>
-                {/* Toggle switch */}
-                <div
-                  className={`relative flex-shrink-0 w-12 h-6 rounded-full transition-colors duration-300 ${flowData.showBismillah ? "bg-gold" : "bg-muted"}`}
+          {/* 4-Step Wizard Nav Pills */}
+          <div className="flex items-center justify-between gap-2 p-1.5 bg-card/80 border border-border/60 rounded-2xl mb-8 backdrop-blur-md shadow-lg overflow-x-auto max-w-4xl mx-auto">
+            {[
+              { step: 1, label: "1. Couple & Host", icon: Heart },
+              { step: 2, label: "2. Events & Venue", icon: MapPin },
+              { step: 3, label: "3. Media & Music", icon: Music },
+              { step: 4, label: "4. Details & Shagun", icon: Gift },
+            ].map((tab) => {
+              const Icon = tab.icon;
+              const isActive = currentStep === tab.step;
+              return (
+                <button
+                  key={tab.step}
+                  onClick={() => {
+                    if (tab.step > currentStep && !validateStep(currentStep)) return;
+                    setCurrentStep(tab.step);
+                  }}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
+                    isActive
+                      ? "bg-gold text-emerald-dark font-bold shadow-md"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
+                  }`}
                 >
-                  <div
-                    className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-300 ${flowData.showBismillah ? "translate-x-7" : "translate-x-1"}`}
-                  />
-                </div>
-              </div>
-              {flowData.showBismillah && (
-                <div className="text-center py-3 rounded-lg border border-gold/20 bg-gold/5">
-                  <p className="font-arabic text-2xl leading-loose tracking-wide" style={{ color: 'hsl(40 60% 55%)' }} dir="rtl">
-                    بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">In the name of Allah, the Most Gracious, the Most Merciful</p>
-                </div>
-              )}
-            </section>
+                  <Icon className="w-3.5 h-3.5" />
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
 
-            {/* Quranic Verse Toggle */}
-            <section className="space-y-3">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-base">📖</span>
-                <h2 className="font-display text-lg font-semibold text-foreground">Quranic Verse</h2>
-              </div>
-              <div
-                className="flex items-center justify-between rounded-xl border border-border p-4 cursor-pointer hover:bg-muted/30 transition-colors"
-                onClick={() => onUpdateData({ showQuranVerse: !flowData.showQuranVerse })}
-              >
-                <div className="flex-1 pr-4">
-                  <p className="text-sm font-medium text-foreground">Show Quranic Verse (30:21)</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Displays the beautiful verse about marriage in Arabic, English, and Urdu after the Scratch Card.
-                  </p>
-                </div>
-                {/* Toggle switch */}
-                <div
-                  className={`relative flex-shrink-0 w-12 h-6 rounded-full transition-colors duration-300 ${flowData.showQuranVerse ? "bg-gold" : "bg-muted"}`}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            {/* Left Column: 4-Step Form Wizard */}
+            <div className="lg:col-span-7 space-y-6">
+
+              {/* STEP 1: Couple & Host Information */}
+              {currentStep === 1 && (
+                <m.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="space-y-6"
                 >
-                  <div
-                    className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-300 ${flowData.showQuranVerse ? "translate-x-7" : "translate-x-1"}`}
-                  />
-                </div>
-              </div>
-              {flowData.showQuranVerse && (
-                <div className="text-center py-4 px-3 rounded-lg border border-gold/20 bg-gold/5 space-y-3">
-                  <p className="font-arabic text-xl md:text-2xl leading-loose" style={{ color: 'hsl(40 60% 55%)' }} dir="rtl">
-                    وَمِنْ ءَايَـٰتِهِۦٓ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَٰجًا لِّتَسْكُنُوٓا۟ إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً ۚ إِنَّ فِى ذَٰلِكَ لَـَٔايَـٰتٍ لِّقَوْمٍ يَتَفَكَّرُونَ
-                  </p>
-                  <p className="text-xs text-muted-foreground italic max-w-md mx-auto">
-                    &ldquo;And of His signs is that He created for you from yourselves mates that you may find tranquility in them; and He placed between you affection and mercy. Indeed in that are signs for a people who give thought.&rdquo; (30:21)
-                  </p>
-                  <p className="font-arabic text-sm leading-relaxed" style={{ color: 'hsl(40 60% 55%)' }} dir="rtl">
-                    &ldquo;اور اس کی نشانیوں میں سے ہے کہ اس نے تمہارے لیے تمہاری ہی جنس سے جوڑے پیدا کیے تاکہ تم ان سے آرام پاؤ اور اس نے تمہارے درمیان محبت اور رحمت پیدا کر دی، یقیناً اس میں غور و فکر کرنے والوں کے لیے نشانیاں ہیں۔&rdquo; (30:21)
-                  </p>
-                </div>
-              )}
-            </section>
-
-            {/* Venue */}
-            <section className="space-y-4">
-              <div className="flex items-center gap-2 mb-3">
-                <MapPin className="w-4 h-4 text-gold" />
-                <h2 className="font-display text-lg font-semibold text-foreground">Venue</h2>
-              </div>
-              <div className="space-y-3">
-                <div className="space-y-1.5" id="field-venue">
-                  <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                    Venue Name
-                  </label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      value={flowData.venue}
-                      onChange={(e) => onUpdateData({ venue: e.target.value })}
-                      placeholder="e.g. The Grand Palace, Lahore"
-                      className={`pl-10 h-11 ${errors.venue ? "border-red-400" : ""}`}
-                    />
-                  </div>
-                  {errors.venue && <p className="text-xs text-red-500">{errors.venue}</p>}
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                    Full Address
-                  </label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-3.5 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      value={addressText}
-                      onChange={(e) => {
-                        setAddressText(e.target.value);
-                        updateAddressAndMap(e.target.value, mapsUrl);
-                      }}
-                      placeholder="e.g. The Grand Palace, MM Alam Road, Gulberg III, Lahore"
-                      className="pl-10 h-11"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-1.5" id="field-mapsUrl">
-                  <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                    Google Maps Link (Optional)
-                  </label>
-                  <div className="relative">
-                    <Globe className="absolute left-3 top-3.5 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      value={mapsUrl}
-                      onChange={(e) => {
-                        setMapsUrl(e.target.value);
-                        updateAddressAndMap(addressText, e.target.value);
-                      }}
-                      placeholder="e.g. https://maps.app.goo.gl/..."
-                      className="pl-10 h-11"
-                    />
-                  </div>
-                  <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-                    <Globe className="w-3 h-3 text-gold" />
-                    Paste the direct Google Maps share link to your venue so guests can navigate easily.
-                  </p>
-                </div>
-
-                {/* Purdah / Segregation Toggle */}
-                <div className="pt-2">
-                  <div
-                    className="flex items-center justify-between rounded-xl border border-border p-4 cursor-pointer hover:bg-muted/30 transition-colors"
-                    onClick={() => onUpdateData({ isSegregated: !flowData.isSegregated })}
-                  >
-                    <div className="flex-1 pr-4">
-                      <p className="text-sm font-medium text-foreground">Separate Ladies/Gents Setup</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        Adds a polite Purdah/segregation note to the invitation.
-                      </p>
+                  {/* Couple Names */}
+                  <section className="p-6 rounded-3xl bg-card/70 border border-border/60 shadow-xl backdrop-blur-xl space-y-4">
+                    <div className="flex items-center gap-2.5 mb-1">
+                      <div className="w-8 h-8 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-gold">
+                        <Heart className="w-4 h-4" />
+                      </div>
+                      <h2 className="font-display text-lg font-bold text-foreground">Couple Names</h2>
                     </div>
-                    <div
-                      className={`relative flex-shrink-0 w-12 h-6 rounded-full transition-colors duration-300 ${flowData.isSegregated ? "bg-gold" : "bg-muted"}`}
-                    >
-                      <div
-                        className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-300 ${flowData.isSegregated ? "translate-x-7" : "translate-x-1"}`}
-                      />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5" id="field-partner1Name">
+                        <label className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                          Partner 1 Name
+                        </label>
+                        <div className="relative">
+                          <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <Input
+                            value={flowData.partner1Name}
+                            onChange={(e) => onUpdateData({ partner1Name: e.target.value })}
+                            placeholder="e.g. Ahmed"
+                            className={`pl-10 h-11 bg-background/80 ${errors.partner1Name ? "border-red-400" : ""}`}
+                          />
+                        </div>
+                        {errors.partner1Name && <p className="text-xs text-red-500">{errors.partner1Name}</p>}
+                      </div>
+                      <div className="space-y-1.5" id="field-partner2Name">
+                        <label className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                          Partner 2 Name
+                        </label>
+                        <div className="relative">
+                          <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <Input
+                            value={flowData.partner2Name}
+                            onChange={(e) => onUpdateData({ partner2Name: e.target.value })}
+                            placeholder="e.g. Fatima"
+                            className={`pl-10 h-11 bg-background/80 ${errors.partner2Name ? "border-red-400" : ""}`}
+                          />
+                        </div>
+                        {errors.partner2Name && <p className="text-xs text-red-500">{errors.partner2Name}</p>}
+                      </div>
                     </div>
-                  </div>
-                  {flowData.isSegregated && (
-                    <div className="mt-3">
-                      <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase mb-1.5 block">
-                        Venue Details (Ladies/Gents)
-                      </label>
-                      <Input
-                        value={flowData.venueDetailsSegregated || ""}
-                        onChange={(e) => onUpdateData({ venueDetailsSegregated: e.target.value })}
-                        placeholder="e.g. Ladies: Hall A, Gents: Hall B"
-                        className="h-11"
-                      />
+                  </section>
+
+                  {/* Host Families */}
+                  <section className="p-6 rounded-3xl bg-card/70 border border-border/60 shadow-xl backdrop-blur-xl space-y-4">
+                    <div className="flex items-center gap-2.5 mb-1">
+                      <div className="w-8 h-8 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-gold">
+                        <User className="w-4 h-4" />
+                      </div>
+                      <h2 className="font-display text-lg font-bold text-foreground">Host Families (Optional)</h2>
                     </div>
-                  )}
-                </div>
-              </div>
-            </section>
-
-            {/* Welcome Message */}
-            <section className="space-y-4">
-              <div className="flex items-center gap-2 mb-3">
-                <MessageSquare className="w-4 h-4 text-gold" />
-                <h2 className="font-display text-lg font-semibold text-foreground">Welcome Message</h2>
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                  Message to Your Guests
-                </label>
-                <Textarea
-                  value={flowData.welcomeMessage}
-                  onChange={(e) => onUpdateData({ welcomeMessage: e.target.value })}
-                  placeholder="With hearts full of love and joy, we warmly invite you..."
-                  className="min-h-[100px] resize-none"
-                />
-              </div>
-            </section>
-
-            {/* Events */}
-            <section className="space-y-4" id="field-events">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-gold" />
-                  <h2 className="font-display text-lg font-semibold text-foreground">Events</h2>
-                </div>
-                {!isEdit && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={addEvent}
-                    className="text-gold hover:text-gold-light gap-1"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    Add Event
-                  </Button>
-                )}
-              </div>
-
-              {isEdit && (
-                <div className="p-3.5 rounded-xl border border-gold/20 bg-gold/5 flex gap-2.5 text-xs text-gold">
-                  <Calendar className="w-4.5 h-4.5 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-semibold mb-0.5">Marriage Dates Locked</p>
-                    <p className="opacity-90 leading-relaxed">
-                      Marriage event dates cannot be changed after the invitation has been created. All other details (venue, times, dress codes, music, etc.) can be modified freely.
+                    <p className="text-xs text-muted-foreground">
+                      In Pakistani invitations, it is customary to include the names of parents or families hosting the wedding.
                     </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                          Partner 1 Family / Parents
+                        </label>
+                        <Input
+                          value={flowData.hostBrideFamily || ""}
+                          onChange={(e) => onUpdateData({ hostBrideFamily: e.target.value })}
+                          placeholder="e.g. Mr. & Mrs. Tariq Hussain"
+                          className="h-11 bg-background/80"
+                        />
+                        <Input
+                          value={flowData.hostBrideCity || ""}
+                          onChange={(e) => onUpdateData({ hostBrideCity: e.target.value })}
+                          placeholder="City (e.g. from Lahore)"
+                          className="h-11 mt-2 text-xs bg-background/80"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                          Partner 2 Family / Parents
+                        </label>
+                        <Input
+                          value={flowData.hostGroomFamily || ""}
+                          onChange={(e) => onUpdateData({ hostGroomFamily: e.target.value })}
+                          placeholder="e.g. Mr. & Mrs. Imran Sheikh"
+                          className="h-11 bg-background/80"
+                        />
+                        <Input
+                          value={flowData.hostGroomCity || ""}
+                          onChange={(e) => onUpdateData({ hostGroomCity: e.target.value })}
+                          placeholder="City (e.g. from Karachi)"
+                          className="h-11 mt-2 text-xs bg-background/80"
+                        />
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* Custom Invitation Link */}
+                  <section className="p-6 rounded-3xl bg-card/70 border border-border/60 shadow-xl backdrop-blur-xl space-y-4">
+                    <div className="flex items-center gap-2.5 mb-1">
+                      <div className="w-8 h-8 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-gold">
+                        <Globe className="w-4 h-4" />
+                      </div>
+                      <h2 className="font-display text-lg font-bold text-foreground">Custom Invitation Link</h2>
+                    </div>
+                    <div className="space-y-1.5" id="field-slug">
+                      <label className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                        Personalized Web Link Slug
+                      </label>
+                      <div className="relative flex items-center">
+                        <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-border bg-muted text-muted-foreground text-xs h-11">
+                          shaadilink.com/inv/
+                        </span>
+                        <Input
+                          value={flowData.slug || ""}
+                          onChange={(e) => {
+                            setSlugManuallyEdited(true);
+                            const cleanVal = e.target.value
+                              .toLowerCase()
+                              .replace(/\s+/g, "-")
+                              .replace(/[^a-z0-9\-_]/g, "");
+                            onUpdateData({ slug: cleanVal });
+                          }}
+                          placeholder="e.g. ahmed-fatima-2026"
+                          className={`rounded-l-none h-11 bg-background/80 ${errors.slug ? "border-red-400" : ""}`}
+                        />
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* Cultural & Religious Features Toggles */}
+                  <section className="p-6 rounded-3xl bg-card/70 border border-border/60 shadow-xl backdrop-blur-xl space-y-4">
+                    <div className="flex items-center justify-between rounded-2xl border border-border/60 p-4 cursor-pointer hover:bg-muted/30 transition-colors"
+                      onClick={() => onUpdateData({ showBismillah: !flowData.showBismillah })}
+                    >
+                      <div className="flex-1 pr-4">
+                        <p className="text-sm font-semibold text-foreground">Show Bismillah Header</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">Displays Bismillah in Arabic calligraphy at the top.</p>
+                      </div>
+                      <div className={`relative w-12 h-6 rounded-full transition-colors ${flowData.showBismillah ? "bg-gold" : "bg-muted"}`}>
+                        <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${flowData.showBismillah ? "translate-x-7" : "translate-x-1"}`} />
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between rounded-2xl border border-border/60 p-4 cursor-pointer hover:bg-muted/30 transition-colors"
+                      onClick={() => onUpdateData({ showQuranVerse: !flowData.showQuranVerse })}
+                    >
+                      <div className="flex-1 pr-4">
+                        <p className="text-sm font-semibold text-foreground">Show Quranic Verse (Surah Ar-Rum 30:21)</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">Displays marriage verse in Arabic, English &amp; Urdu.</p>
+                      </div>
+                      <div className={`relative w-12 h-6 rounded-full transition-colors ${flowData.showQuranVerse ? "bg-gold" : "bg-muted"}`}>
+                        <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${flowData.showQuranVerse ? "translate-x-7" : "translate-x-1"}`} />
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between rounded-2xl border border-border/60 p-4 cursor-pointer hover:bg-muted/30 transition-colors"
+                      onClick={() => onUpdateData({ showNikahRegistration: !flowData.showNikahRegistration })}
+                    >
+                      <div className="flex-1 pr-4">
+                        <p className="text-sm font-semibold text-foreground">Show Nikah Registration Note</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">Displays a formal note about Nikah registration.</p>
+                      </div>
+                      <div className={`relative w-12 h-6 rounded-full transition-colors ${flowData.showNikahRegistration ? "bg-gold" : "bg-muted"}`}>
+                        <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${flowData.showNikahRegistration ? "translate-x-7" : "translate-x-1"}`} />
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-border/60 overflow-hidden transition-colors">
+                      <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/30"
+                        onClick={() => onUpdateData({ isSegregated: !flowData.isSegregated })}
+                      >
+                        <div className="flex-1 pr-4">
+                          <p className="text-sm font-semibold text-foreground">Separate Ladies/Gents Setup</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">Indicate segregated seating at the venue.</p>
+                        </div>
+                        <div className={`relative w-12 h-6 rounded-full transition-colors ${flowData.isSegregated ? "bg-gold" : "bg-muted"}`}>
+                          <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${flowData.isSegregated ? "translate-x-7" : "translate-x-1"}`} />
+                        </div>
+                      </div>
+                      
+                      <AnimatePresence>
+                        {flowData.isSegregated && (
+                          <m.div 
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            className="px-4 pb-4 bg-muted/20"
+                          >
+                            <Input
+                              value={flowData.venueDetailsSegregated || ""}
+                              onChange={(e) => onUpdateData({ venueDetailsSegregated: e.target.value })}
+                              placeholder="e.g. Hall A for Ladies, Hall B for Gents"
+                              className="h-10 text-xs bg-background/80 mt-2"
+                            />
+                          </m.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  </section>
+
+                  <div className="flex justify-end pt-2">
+                    <Button
+                      onClick={() => {
+                        if (validateStep(1)) setCurrentStep(2);
+                      }}
+                      className="bg-gold hover:bg-gold-light text-emerald-dark font-bold gap-2 shadow-lg"
+                    >
+                      Next: Events &amp; Venue <ArrowRight className="w-4 h-4" />
+                    </Button>
                   </div>
-                </div>
+                </m.div>
               )}
 
-              <div className="space-y-3">
-                {flowData.events.map((event, index) => (
-                  <div
-                    key={index}
-                    className="p-4 rounded-xl border border-border/50 bg-muted/20 space-y-3"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                        Event {index + 1}
-                      </span>
-                      {!isEdit && flowData.events.length > 1 && (
-                        <button
-                          onClick={() => removeEvent(index)}
-                          className="text-muted-foreground hover:text-red-400 transition-colors"
+              {/* STEP 2: Events & Venue Location */}
+              {currentStep === 2 && (
+                <m.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="space-y-6"
+                >
+                  {/* Venue Details */}
+                  <section className="p-6 rounded-3xl bg-card/70 border border-border/60 shadow-xl backdrop-blur-xl space-y-4">
+                    <div className="flex items-center gap-2.5 mb-1">
+                      <div className="w-8 h-8 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-gold">
+                        <MapPin className="w-4 h-4" />
+                      </div>
+                      <h2 className="font-display text-lg font-bold text-foreground">Venue Location</h2>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="space-y-1.5" id="field-venue">
+                        <label className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                          Venue Name
+                        </label>
+                        <Input
+                          value={flowData.venue}
+                          onChange={(e) => onUpdateData({ venue: e.target.value })}
+                          placeholder="e.g. The Grand Palace, Lahore"
+                          className={`h-11 bg-background/80 ${errors.venue ? "border-red-400" : ""}`}
+                        />
+                        {errors.venue && <p className="text-xs text-red-500">{errors.venue}</p>}
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                          Full Address
+                        </label>
+                        <Input
+                          value={addressText}
+                          onChange={(e) => {
+                            setAddressText(e.target.value);
+                            updateAddressAndMap(e.target.value, mapsUrl);
+                          }}
+                          placeholder="e.g. MM Alam Road, Gulberg III, Lahore"
+                          className="h-11 bg-background/80"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                          Google Maps Link (Optional)
+                        </label>
+                        <Input
+                          value={mapsUrl}
+                          onChange={(e) => {
+                            setMapsUrl(e.target.value);
+                            updateAddressAndMap(addressText, e.target.value);
+                          }}
+                          placeholder="e.g. https://maps.app.goo.gl/..."
+                          className="h-11 bg-background/80"
+                        />
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* Dynamic Multi-Events */}
+                  <section className="p-6 rounded-3xl bg-card/70 border border-border/60 shadow-xl backdrop-blur-xl space-y-4">
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-gold">
+                          <Calendar className="w-4 h-4" />
+                        </div>
+                        <h2 className="font-display text-lg font-bold text-foreground">Events Schedule</h2>
+                      </div>
+                      {!isEdit && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={addEvent}
+                          className="text-gold hover:text-gold-light gap-1"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                          <Plus className="w-3.5 h-3.5" /> Add Event
+                        </Button>
                       )}
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <Input
-                        value={event.name}
-                        onChange={(e) => updateEvent(index, "name", e.target.value)}
-                        placeholder="Event name (e.g. Mehndi)"
-                        className="h-10"
-                      />
-                      <Input
-                        type="date"
-                        value={event.date}
-                        onChange={(e) => updateEvent(index, "date", e.target.value)}
-                        disabled={isEdit}
-                        className="h-10 disabled:opacity-75 disabled:cursor-not-allowed disabled:bg-muted/50 disabled:border-muted-foreground/35"
-                      />
-                      <Input
-                        type="time"
-                        value={event.time}
-                        onChange={(e) => updateEvent(index, "time", e.target.value)}
-                        className="h-10"
-                      />
+
+                    <div className="space-y-3">
+                      {flowData.events.map((event, index) => (
+                        <div key={index} className="p-4 rounded-2xl border border-border/50 bg-muted/20 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-gold uppercase tracking-wider">Event {index + 1}</span>
+                            {!isEdit && flowData.events.length > 1 && (
+                              <button onClick={() => removeEvent(index)} className="text-muted-foreground hover:text-red-400">
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <Input
+                              value={event.name}
+                              onChange={(e) => updateEvent(index, "name", e.target.value)}
+                              placeholder="Event name (e.g. Baraat)"
+                              className="h-10 bg-background/80"
+                            />
+                            <Input
+                              type="date"
+                              value={event.date}
+                              onChange={(e) => updateEvent(index, "date", e.target.value)}
+                              disabled={isEdit}
+                              className="h-10 bg-background/80"
+                            />
+                            <Input
+                              type="time"
+                              value={event.time}
+                              onChange={(e) => updateEvent(index, "time", e.target.value)}
+                              className="h-10 bg-background/80"
+                            />
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  </div>
-                ))}
-              </div>
+                  </section>
 
-              {/* Nikah Registration Note Toggle */}
-              <div
-                className="mt-4 flex items-center justify-between rounded-xl border border-border p-4 cursor-pointer hover:bg-muted/30 transition-colors"
-                onClick={() => onUpdateData({ showNikahRegistration: !flowData.showNikahRegistration })}
-              >
-                <div className="flex-1 pr-4">
-                  <p className="text-sm font-medium text-foreground">Show Nikah Registration Note</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Adds a small formal note indicating the Nikah will be registered.
-                  </p>
-                </div>
-                <div
-                  className={`relative flex-shrink-0 w-12 h-6 rounded-full transition-colors duration-300 ${flowData.showNikahRegistration ? "bg-gold" : "bg-muted"}`}
-                >
-                  <div
-                    className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-300 ${flowData.showNikahRegistration ? "translate-x-7" : "translate-x-1"}`}
-                  />
-                </div>
-              </div>
-            </section>
-
-            {/* Contact Phone Number (Available for all plans) */}
-            <section className="space-y-4">
-              <div className="flex items-center gap-2 mb-3">
-                <MessageSquare className="w-4 h-4 text-gold" />
-                <h2 className="font-display text-lg font-semibold text-foreground">Contact Phone</h2>
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                  Host Contact Number (Optional)
-                </label>
-                <Input
-                  value={flowData.contactPhone || ""}
-                  onChange={(e) => onUpdateData({ contactPhone: e.target.value })}
-                  placeholder="e.g. +92 300 1234567"
-                  className="h-11"
-                />
-                <p className="text-[10px] text-muted-foreground">
-                  This number will be displayed at the bottom of the invitation and in the FAQ section so guests can contact the host directly.
-                </p>
-              </div>
-            </section>
-
-            {flowData.selectedPlan === "royal" && (
-              <>
-                {/* Dress Code */}
-                <section className="space-y-4">
-              <div className="flex items-center gap-2 mb-3">
-                <Shirt className="w-4 h-4 text-gold" />
-                <h2 className="font-display text-lg font-semibold text-foreground">Dress Code</h2>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                    Women&apos;s Dress Code
-                  </label>
-                  <Input
-                    value={flowData.dressCodeWomen}
-                    onChange={(e) => onUpdateData({ dressCodeWomen: e.target.value })}
-                    placeholder="e.g. Elegant formal attire in pastel tones"
-                    className="h-11"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                    Men&apos;s Dress Code
-                  </label>
-                  <Input
-                    value={flowData.dressCodeMen}
-                    onChange={(e) => onUpdateData({ dressCodeMen: e.target.value })}
-                    placeholder="e.g. Suit or traditional shalwar kameez"
-                    className="h-11"
-                  />
-                </div>
-              </div>
-            </section>
-
-            {/* Transportation */}
-            <section className="space-y-4">
-              <div className="flex items-center gap-2 mb-3">
-                <Car className="w-4 h-4 text-gold" />
-                <h2 className="font-display text-lg font-semibold text-foreground">Transportation</h2>
-              </div>
-              <Textarea
-                value={flowData.transportation}
-                onChange={(e) => onUpdateData({ transportation: e.target.value })}
-                placeholder="e.g. Shuttle service will be available from the city center."
-                className="min-h-[70px] resize-none"
-              />
-            </section>
-
-            {/* Accommodation */}
-            <section className="space-y-4">
-              <div className="flex items-center gap-2 mb-3">
-                <Hotel className="w-4 h-4 text-gold" />
-                <h2 className="font-display text-lg font-semibold text-foreground">Accommodation</h2>
-              </div>
-              <Textarea
-                value={flowData.accommodation}
-                onChange={(e) => onUpdateData({ accommodation: e.target.value })}
-                placeholder="e.g. Special rates at The Grand Palace. Use code SHAADI2025."
-                className="min-h-[70px] resize-none"
-              />
-            </section>
-
-            {/* Digital Shagun & Registry */}
-            <section className="space-y-4">
-              <div className="flex items-center gap-2 mb-1">
-                <Gift className="w-4 h-4 text-gold" />
-                <h2 className="font-display text-lg font-semibold text-foreground">Digital Shagun &amp; Registry</h2>
-              </div>
-              <p className="text-xs text-muted-foreground leading-relaxed -mt-1">
-                Add your bank and mobile wallet details so guests can send shagun digitally. All fields are optional.
-              </p>
-
-              {/* Blessing / Personal Message */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                  Blessing Message (shown to guests)
-                </label>
-                <Textarea
-                  value={(() => {
-                    // Extract just the blessing line (before bank details)
-                    const raw = flowData.gifts || '';
-                    const blessingMatch = raw.match(/^([^,\n]+?)(?:\.|,\s*(?:Bank|For\s+Shagun|Transfer)|$)/i);
-                    return blessingMatch ? blessingMatch[1].trim() : raw.split(/[,\n]/)[0].trim();
-                  })()}
-                  onChange={(e) => {
-                    // Rebuild gifts string preserving banking details
-                    const blessing = e.target.value;
-                    const raw = flowData.gifts || '';
-                    const bankPart = raw.replace(/^[^,\n]*[,.]?\s*/, '');
-                    onUpdateData({ gifts: blessing + (bankPart ? '. For Shagun, you may transfer to ' + bankPart : '') });
-                  }}
-                  placeholder="e.g. Your prayers are our greatest gift."
-                  className="min-h-[60px] resize-none"
-                />
-              </div>
-
-              {/* Bank Details Card */}
-              <div className="rounded-xl border border-border/50 bg-muted/20 overflow-hidden">
-                <div className="px-4 py-2.5 border-b border-border/30 bg-muted/30">
-                  <span className="text-xs font-semibold text-foreground tracking-wide">🏦 Bank Account</span>
-                </div>
-                <div className="p-4 space-y-3">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">Bank Name</label>
-                      <Input
-                        value={(() => { const m = (flowData.gifts||'').match(/(?:Bank\s*(?:Name)?|Bank)\s*[:\-\s]+\s*([a-zA-Z\s.]+?)(?:,|\n|Account|Title|IBAN|$)/i); return m?.[1]?.trim()||''; })()}
-                        onChange={(e) => updateGiftsField('bankName', e.target.value)}
-                        placeholder="e.g. Meezan Bank"
-                        className="h-9 text-sm"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">Account Title</label>
-                      <Input
-                        value={(() => { const m = (flowData.gifts||'').match(/(?:Account\s*Title|Acc\s*Title|Title)\s*[:\-\s]+\s*([a-zA-Z\s.()]+?)(?:,|Account|IBAN|Raast|$)/i); return m?.[1]?.trim()||''; })()}
-                        onChange={(e) => updateGiftsField('accountTitle', e.target.value)}
-                        placeholder="e.g. Ahmed Khan"
-                        className="h-9 text-sm"
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">Account Number</label>
-                      <Input
-                        value={(() => { const m = (flowData.gifts||'').match(/(?:Account\s*(?:Number|No\.?)|Acc\s*(?:Number|No\.?))\s*[:\-\s]+\s*([0-9\-]+)/i); return m?.[1]?.trim()||''; })()}
-                        onChange={(e) => updateGiftsField('accountNumber', e.target.value)}
-                        placeholder="e.g. 028102384"
-                        className="h-9 text-sm font-mono"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">IBAN</label>
-                      <Input
-                        value={(() => { const m = (flowData.gifts||'').match(/IBAN\s*[:\-\s]+\s*([A-Z]{2}[0-9]{2}[A-Z0-9\s]{16,30})/i); return m?.[1]?.replace(/\s+/g,'').trim()||''; })()}
-                        onChange={(e) => updateGiftsField('iban', e.target.value.toUpperCase().replace(/\s/g,''))}
-                        placeholder="e.g. PK45MEZN00028102384"
-                        className="h-9 text-sm font-mono"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Mobile Wallets Card */}
-              <div className="rounded-xl border border-border/50 bg-muted/20 overflow-hidden">
-                <div className="px-4 py-2.5 border-b border-border/30 bg-muted/30">
-                  <span className="text-xs font-semibold text-foreground tracking-wide">📱 Mobile Wallets</span>
-                </div>
-                <div className="p-4 space-y-3">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">Raast ID</label>
-                      <Input
-                        value={(() => { const m = (flowData.gifts||'').match(/(?:Raast\s*(?:ID)?|Raast)\s*[:\-\s]+\s*([0-9+]+)/i); return m?.[1]?.trim()||''; })()}
-                        onChange={(e) => updateGiftsField('raastId', e.target.value)}
-                        placeholder="03xxxxxxxxx"
-                        className="h-9 text-sm font-mono"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">EasyPaisa</label>
-                      <Input
-                        value={(() => { const m = (flowData.gifts||'').match(/(?:EasyPaisa|Easy\s*Paisa)\s*[:\-\s]+\s*([0-9+]+)/i); return m?.[1]?.trim()||''; })()}
-                        onChange={(e) => updateGiftsField('easyPaisa', e.target.value)}
-                        placeholder="03xxxxxxxxx"
-                        className="h-9 text-sm font-mono"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">JazzCash</label>
-                      <Input
-                        value={(() => { const m = (flowData.gifts||'').match(/(?:JazzCash|Jazz\s*Cash)\s*[:\-\s]+\s*([0-9+]+)/i); return m?.[1]?.trim()||''; })()}
-                        onChange={(e) => updateGiftsField('jazzCash', e.target.value)}
-                        placeholder="03xxxxxxxxx"
-                        className="h-9 text-sm font-mono"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-            </>
-            )}
-
-            {/* Background Music */}
-            <section className="space-y-4">
-              <div className="flex items-center gap-2 mb-3">
-                <Music className="w-4 h-4 text-gold" />
-                <h2 className="font-display text-lg font-semibold text-foreground">Background Music</h2>
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {[
-                  { id: "soft-sitar", label: "Soft Sitar Melody" },
-                  { id: "tabla-beats", label: "Tabla Beats" },
-                  { id: "flute-raga", label: "Flute Raga" },
-                  { id: "shehnai", label: "Shehnai Classic" },
-                  { id: "sufi-qawwali", label: "Sufi Qawwali" },
-                  { id: "no-music", label: "No Music" },
-                ].map((option) => (
-                  <button
-                    key={option.id}
-                    onClick={() => handleMusicSelection(option.id)}
-                    className={`px-3 py-2.5 rounded-lg text-xs font-medium text-left transition-all ${
-                      flowData.backgroundMusic === option.id
-                        ? "bg-emerald text-primary-foreground border border-emerald shadow-sm"
-                        : "bg-muted/50 text-muted-foreground border border-border/50 hover:border-gold/30 hover:text-foreground"
-                    }`}
-                  >
-                    <Music className="w-3 h-3 inline mr-1.5" />
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-            </section>
-
-            {/* Photo Upload */}
-            <section className="space-y-4">
-              <div className="flex items-center gap-2 mb-3">
-                <ImagePlus className="w-4 h-4 text-gold" />
-                <h2 className="font-display text-lg font-semibold text-foreground">
-                  Photos
-                  {isUploading && (
-                    <span className="ml-2 text-xs text-muted-foreground font-normal inline-flex items-center gap-1">
-                      <Loader2 className="w-3 h-3 animate-spin" /> Uploading...
-                    </span>
-                  )}
-                </h2>
-              </div>
-
-              {/* Hero Image */}
-              <div className="space-y-2">
-                <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                  Hero Background Image
-                </label>
-                {flowData.heroImage ? (
-                  <div className="relative rounded-xl overflow-hidden border border-border/50 aspect-[16/9]">
-                    <Image
-                      src={flowData.heroImage}
-                      alt="Hero preview"
-                      fill
-                      className="object-cover"
-                    />
-                    <button
-                      onClick={() => onUpdateData({ heroImage: "" })}
-                      className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-red-500 transition-colors"
-                      aria-label="Remove hero image"
+                  <div className="flex justify-between pt-2">
+                    <Button variant="outline" onClick={() => setCurrentStep(1)}>
+                      <ArrowLeft className="w-4 h-4 mr-1" /> Previous
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        if (validateStep(2)) setCurrentStep(3);
+                      }}
+                      className="bg-gold hover:bg-gold-light text-emerald-dark font-bold gap-2 shadow-lg"
                     >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
+                      Next: Media &amp; Music <ArrowRight className="w-4 h-4" />
+                    </Button>
                   </div>
-                ) : (
-                  <button
-                    onClick={() => heroInputRef.current?.click()}
-                    disabled={isUploading}
-                    className="w-full p-6 rounded-xl border-2 border-dashed border-border/50 hover:border-gold/30 transition-colors flex flex-col items-center gap-2 text-muted-foreground hover:text-foreground disabled:opacity-50"
-                  >
-                    <ImagePlus className="w-8 h-8" />
-                    <span className="text-sm font-medium">Upload Hero Image</span>
-                    <span className="text-xs">Recommended: 1920×1080px</span>
-                  </button>
-                )}
-                <input
-                  ref={heroInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleFileChange(e, "hero")}
-                  className="hidden"
-                />
-              </div>
-
-              {/* Slideshow Images */}
-              <div className="space-y-2">
-                <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                  Slideshow Photos (up to 4)
-                </label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {flowData.slideshowImages.map((img, idx) => (
-                    <div
-                      key={idx}
-                      className="relative rounded-lg overflow-hidden border border-border/50 aspect-square"
-                    >
-                      <Image
-                        src={img}
-                        alt={`Slideshow ${idx + 1}`}
-                        fill
-                        className="object-cover"
-                      />
-                      <button
-                        onClick={() => removeSlideshowImage(idx)}
-                        className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-red-500 transition-colors"
-                        aria-label={`Remove photo ${idx + 1}`}
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ))}
-                  {flowData.slideshowImages.length < 4 && (
-                    <button
-                      onClick={() => slideshowInputRef.current?.click()}
-                      disabled={isUploading}
-                      className="rounded-lg border-2 border-dashed border-border/50 hover:border-gold/30 transition-colors flex flex-col items-center justify-center gap-1 text-muted-foreground hover:text-foreground aspect-square disabled:opacity-50"
-                    >
-                      <Plus className="w-5 h-5" />
-                      <span className="text-[10px]">Add Photo</span>
-                    </button>
-                  )}
-                </div>
-                <input
-                  ref={slideshowInputRef}
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={(e) => handleFileChange(e, "slideshow")}
-                  className="hidden"
-                />
-              </div>
-
-              {/* YouTube Video (Royal Only) */}
-              {flowData.selectedPlan === "royal" && (
-                <div className="space-y-2 mt-6">
-                  <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase flex items-center gap-2">
-                    <Video className="w-3.5 h-3.5 text-gold" />
-                    YouTube Video ID
-                  </label>
-                  <div className="relative">
-                    <Input
-                      value={flowData.youtubeVideoId || ""}
-                      onChange={(e) => onUpdateData({ youtubeVideoId: e.target.value })}
-                      placeholder="e.g. dQw4w9WgXcQ"
-                      className="bg-muted/50 border-border/50 focus:border-gold/40"
-                    />
-                    <p className="text-[10px] text-muted-foreground mt-1.5">
-                      Only paste the video ID (the part after v= in the URL).
-                    </p>
-                  </div>
-                </div>
+                </m.div>
               )}
-            </section>
 
-            {/* Submit */}
-            <div className="pt-4">
-              <Button
-                onClick={handleSubmit}
-                disabled={isSaving || isUploading}
-                className="w-full h-12 bg-gold hover:bg-gold-light text-emerald-dark font-semibold text-base gap-2"
-              >
-                {isSaving ? (
-                  <><Loader2 className="w-4 h-4 animate-spin" /> Saving Details...</>
-                ) : flowData.paymentDone ? (
-                  <>Save Changes<Check className="w-4 h-4" /></>
-                ) : (
-                  <>Continue to Payment<ArrowRight className="w-4 h-4" /></>
-                )}
-              </Button>
+              {/* STEP 3: Photos & Background Music */}
+              {currentStep === 3 && (
+                <m.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="space-y-6"
+                >
+                  {/* Photo Uploads */}
+                  <section className="p-6 rounded-3xl bg-card/70 border border-border/60 shadow-xl backdrop-blur-xl space-y-4">
+                    <div className="flex items-center gap-2.5 mb-1">
+                      <div className="w-8 h-8 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-gold">
+                        <ImagePlus className="w-4 h-4" />
+                      </div>
+                      <h2 className="font-display text-lg font-bold text-foreground">
+                        Photos &amp; Media
+                        {isUploading && (
+                          <span className="ml-2 text-xs text-muted-foreground font-normal inline-flex items-center gap-1">
+                            <Loader2 className="w-3 h-3 animate-spin" /> Uploading...
+                          </span>
+                        )}
+                      </h2>
+                    </div>
+
+                    {/* Hero Cover Image */}
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">Hero Cover Photo</label>
+                      {flowData.heroImage ? (
+                        <div className="relative rounded-2xl overflow-hidden border border-border/50 aspect-[16/9]">
+                          <Image src={flowData.heroImage} alt="Hero" fill className="object-cover" />
+                          <button
+                            onClick={() => onUpdateData({ heroImage: "" })}
+                            className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-red-500"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => heroInputRef.current?.click()}
+                          disabled={isUploading}
+                          className="w-full p-6 rounded-2xl border-2 border-dashed border-border/50 hover:border-gold/40 transition-colors flex flex-col items-center gap-2 text-muted-foreground"
+                        >
+                          <ImagePlus className="w-8 h-8 text-gold" />
+                          <span className="text-sm font-medium text-foreground">Upload Hero Cover Photo</span>
+                        </button>
+                      )}
+                      <input ref={heroInputRef} type="file" accept="image/*" onChange={(e) => handleFileChange(e, "hero")} className="hidden" />
+                    </div>
+
+                    {/* Slideshow Photos */}
+                    <div className="space-y-2 pt-2">
+                      <label className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">Slideshow Photos (up to 4)</label>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        {flowData.slideshowImages.map((img, idx) => (
+                          <div key={idx} className="relative rounded-xl overflow-hidden border border-border/50 aspect-square">
+                            <Image src={img} alt={`Slideshow ${idx + 1}`} fill className="object-cover" />
+                            <button
+                              onClick={() => removeSlideshowImage(idx)}
+                              className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-red-500"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ))}
+                        {flowData.slideshowImages.length < 4 && (
+                          <button
+                            onClick={() => slideshowInputRef.current?.click()}
+                            disabled={isUploading}
+                            className="rounded-xl border-2 border-dashed border-border/50 hover:border-gold/40 transition-colors flex flex-col items-center justify-center gap-1 text-muted-foreground aspect-square"
+                          >
+                            <Plus className="w-5 h-5 text-gold" />
+                            <span className="text-[10px]">Add Photo</span>
+                          </button>
+                        )}
+                      </div>
+                      <input ref={slideshowInputRef} type="file" accept="image/*" multiple onChange={(e) => handleFileChange(e, "slideshow")} className="hidden" />
+                    </div>
+
+                    {/* YouTube Video (Royal Plan) */}
+                    {flowData.selectedPlan === "royal" && (
+                      <div className="space-y-2 pt-2">
+                        <label className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase flex items-center gap-2">
+                          <Video className="w-3.5 h-3.5 text-gold" /> YouTube Video ID
+                        </label>
+                        <Input
+                          value={flowData.youtubeVideoId || ""}
+                          onChange={(e) => onUpdateData({ youtubeVideoId: e.target.value })}
+                          placeholder="e.g. dQw4w9WgXcQ"
+                          className="bg-background/80"
+                        />
+                      </div>
+                    )}
+                  </section>
+
+                  {/* Background Music Track Selector */}
+                  <section className="p-6 rounded-3xl bg-card/70 border border-border/60 shadow-xl backdrop-blur-xl space-y-4">
+                    <div className="flex items-center gap-2.5 mb-1">
+                      <div className="w-8 h-8 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-gold">
+                        <Music className="w-4 h-4" />
+                      </div>
+                      <h2 className="font-display text-lg font-bold text-foreground">Background Music</h2>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {[
+                        { id: "soft-sitar", label: "Soft Sitar Melody" },
+                        { id: "tabla-beats", label: "Tabla Beats" },
+                        { id: "flute-raga", label: "Flute Raga" },
+                        { id: "shehnai", label: "Shehnai Classic" },
+                        { id: "sufi-qawwali", label: "Sufi Qawwali" },
+                        { id: "no-music", label: "No Music" },
+                      ].map((track) => (
+                        <button
+                          key={track.id}
+                          onClick={() => handleMusicSelection(track.id)}
+                          className={`p-3 rounded-2xl border text-xs font-semibold transition-all flex items-center gap-2 ${
+                            flowData.backgroundMusic === track.id
+                              ? "bg-gold text-emerald-dark border-gold shadow-md font-bold"
+                              : "bg-background/80 text-muted-foreground border-border/60 hover:border-gold/40"
+                          }`}
+                        >
+                          <Music className="w-3.5 h-3.5 shrink-0" />
+                          <span className="truncate">{track.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </section>
+
+                  <div className="flex justify-between pt-2">
+                    <Button variant="outline" onClick={() => setCurrentStep(2)}>
+                      <ArrowLeft className="w-4 h-4 mr-1" /> Previous
+                    </Button>
+                    <Button onClick={() => setCurrentStep(4)} className="bg-gold hover:bg-gold-light text-emerald-dark font-bold gap-2 shadow-lg">
+                      Next: Details &amp; Shagun <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </m.div>
+              )}
+
+              {/* STEP 4: Custom Details & Digital Shagun */}
+              {currentStep === 4 && (
+                <m.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="space-y-6"
+                >
+                  {/* Welcome Message & Contact Phone */}
+                  <section className="p-6 rounded-3xl bg-card/70 border border-border/60 shadow-xl backdrop-blur-xl space-y-4">
+                    <div className="flex items-center gap-2.5 mb-1">
+                      <div className="w-8 h-8 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-gold">
+                        <MessageSquare className="w-4 h-4" />
+                      </div>
+                      <h2 className="font-display text-lg font-bold text-foreground">Welcome Message &amp; Contact</h2>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="space-y-1.5">
+                        <label className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">Welcome Message to Guests</label>
+                        <Textarea
+                          value={flowData.welcomeMessage}
+                          onChange={(e) => onUpdateData({ welcomeMessage: e.target.value })}
+                          placeholder="With hearts full of love and joy, we warmly invite you..."
+                          className="min-h-[90px] bg-background/80 resize-none"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">Host Contact Phone Number (Optional)</label>
+                        <Input
+                          value={flowData.contactPhone || ""}
+                          onChange={(e) => onUpdateData({ contactPhone: e.target.value })}
+                          placeholder="e.g. +92 300 1234567"
+                          className="h-11 bg-background/80"
+                        />
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* Royal Plan Extras (Dress Code, Transportation, Accommodation) */}
+                  {flowData.selectedPlan === "royal" ? (
+                    <section className="p-6 rounded-3xl bg-card/70 border border-border/60 shadow-xl backdrop-blur-xl space-y-4">
+                      <div className="flex items-center gap-2.5 mb-1">
+                        <div className="w-8 h-8 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-gold">
+                          <Shirt className="w-4 h-4" />
+                        </div>
+                        <h2 className="font-display text-lg font-bold text-foreground">Royal Plan Extras</h2>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <Input
+                          value={flowData.dressCodeWomen || ""}
+                          onChange={(e) => onUpdateData({ dressCodeWomen: e.target.value })}
+                          placeholder="Women's Dress Code (e.g. Formal)"
+                          className="h-10 bg-background/80"
+                        />
+                        <Input
+                          value={flowData.dressCodeMen || ""}
+                          onChange={(e) => onUpdateData({ dressCodeMen: e.target.value })}
+                          placeholder="Men's Dress Code (e.g. Black Tie)"
+                          className="h-10 bg-background/80"
+                        />
+                      </div>
+                      <Textarea
+                        value={flowData.transportation || ""}
+                        onChange={(e) => onUpdateData({ transportation: e.target.value })}
+                        placeholder="Transportation notes (e.g. Valet available)"
+                        className="min-h-[60px] bg-background/80 resize-none"
+                      />
+                      <Textarea
+                        value={flowData.accommodation || ""}
+                        onChange={(e) => onUpdateData({ accommodation: e.target.value })}
+                        placeholder="Accommodation notes (e.g. Hotel rates)"
+                        className="min-h-[60px] bg-background/80 resize-none"
+                      />
+                    </section>
+                  ) : (
+                    /* Locked Royal Extras Banner */
+                    <div className="p-6 rounded-3xl bg-card/40 border border-gold/30 backdrop-blur-md relative overflow-hidden space-y-4">
+                      <div className="flex items-center justify-between gap-4 border-b border-border/40 pb-3">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-gold">
+                            <Crown className="w-4 h-4" />
+                          </div>
+                          <h2 className="font-display text-base font-bold text-foreground">Dress Code, Transport &amp; Hotel Info</h2>
+                        </div>
+                        <Badge className="bg-gold/20 text-gold border-gold/30 text-[10px] font-bold">👑 Royal Plan</Badge>
+                      </div>
+
+                      <div className="space-y-3 opacity-50 pointer-events-none filter blur-[1px]">
+                        <div className="grid grid-cols-2 gap-3">
+                          <Input placeholder="Women's Dress Code" disabled className="h-10 bg-muted/40" />
+                          <Input placeholder="Men's Dress Code" disabled className="h-10 bg-muted/40" />
+                        </div>
+                        <Textarea placeholder="Valet Parking & Transportation Details" disabled className="h-12 bg-muted/40" />
+                      </div>
+
+                      <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 bg-gradient-to-r from-gold/10 via-amber-500/10 to-transparent p-4 rounded-2xl border border-gold/30">
+                        <p className="text-xs text-muted-foreground">
+                          Upgrade to the <strong className="text-gold">Royal Plan</strong> to include dress code guidelines, valet transport, and accommodation details.
+                        </p>
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            onUpdateData({ selectedPlan: 'royal' });
+                            toast.success("Switched to Royal Plan! Feature unlocked.");
+                          }}
+                          className="bg-gold hover:bg-gold-light text-emerald-dark font-bold text-xs gap-1.5 shrink-0 shadow-md"
+                        >
+                          <Sparkles className="w-3.5 h-3.5" /> Upgrade to Royal
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Digital Shagun Registry */}
+                  {flowData.selectedPlan === "royal" ? (
+                    <section className="p-6 rounded-3xl bg-card/70 border border-border/60 shadow-xl backdrop-blur-xl space-y-4">
+                      <div className="flex items-center gap-2.5 mb-1">
+                        <div className="w-8 h-8 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-gold">
+                          <Gift className="w-4 h-4" />
+                        </div>
+                        <h2 className="font-display text-lg font-bold text-foreground">Digital Shagun Registry</h2>
+                      </div>
+                      <p className="text-xs text-muted-foreground">Add your bank and mobile wallet details so guests can send shagun digitally.</p>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <Input
+                          value={(() => { const m = (flowData.gifts||'').match(/(?:Bank\s*(?:Name)?|Bank)\s*[:\-\s]+\s*([a-zA-Z\s.]+?)(?:,|\n|Account|Title|IBAN|$)/i); return m?.[1]?.trim()||''; })()}
+                          onChange={(e) => updateGiftsField('bankName', e.target.value)}
+                          placeholder="Bank Name (e.g. Meezan)"
+                          className="h-10 bg-background/80"
+                        />
+                        <Input
+                          value={(() => { const m = (flowData.gifts||'').match(/(?:Account\s*Title|Acc\s*Title|Title)\s*[:\-\s]+\s*([a-zA-Z\s.()]+?)(?:,|Account|IBAN|Raast|$)/i); return m?.[1]?.trim()||''; })()}
+                          onChange={(e) => updateGiftsField('accountTitle', e.target.value)}
+                          placeholder="Account Title"
+                          className="h-10 bg-background/80"
+                        />
+                        <Input
+                          value={(() => { const m = (flowData.gifts||'').match(/(?:Account\s*(?:Number|No\.?)|Acc\s*(?:Number|No\.?))\s*[:\-\s]+\s*([0-9\-]+)/i); return m?.[1]?.trim()||''; })()}
+                          onChange={(e) => updateGiftsField('accountNumber', e.target.value)}
+                          placeholder="Account Number"
+                          className="h-10 bg-background/80 font-mono"
+                        />
+                        <Input
+                          value={(() => { const m = (flowData.gifts||'').match(/IBAN\s*[:\-\s]+\s*([A-Z]{2}[0-9]{2}[A-Z0-9\s]{16,30})/i); return m?.[1]?.replace(/\s+/g,'').trim()||''; })()}
+                          onChange={(e) => updateGiftsField('iban', e.target.value.toUpperCase().replace(/\s/g,''))}
+                          placeholder="IBAN (e.g. PK45...)"
+                          className="h-10 bg-background/80 font-mono"
+                        />
+                        <Input
+                          value={(() => { const m = (flowData.gifts||'').match(/(?:EasyPaisa|Easy\s*Paisa)\s*[:\-\s]+\s*([0-9+]+)/i); return m?.[1]?.trim()||''; })()}
+                          onChange={(e) => updateGiftsField('easyPaisa', e.target.value)}
+                          placeholder="EasyPaisa 03xxxxxxxxx"
+                          className="h-10 bg-background/80 font-mono"
+                        />
+                        <Input
+                          value={(() => { const m = (flowData.gifts||'').match(/(?:JazzCash|Jazz\s*Cash)\s*[:\-\s]+\s*([0-9+]+)/i); return m?.[1]?.trim()||''; })()}
+                          onChange={(e) => updateGiftsField('jazzCash', e.target.value)}
+                          placeholder="JazzCash 03xxxxxxxxx"
+                          className="h-10 bg-background/80 font-mono"
+                        />
+                      </div>
+                    </section>
+                  ) : (
+                    /* Locked Digital Shagun Registry Banner */
+                    <div className="p-6 rounded-3xl bg-card/40 border border-gold/30 backdrop-blur-md relative overflow-hidden space-y-4">
+                      <div className="flex items-center justify-between gap-4 border-b border-border/40 pb-3">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-gold">
+                            <Gift className="w-4 h-4" />
+                          </div>
+                          <h2 className="font-display text-base font-bold text-foreground">Digital Shagun Registry</h2>
+                        </div>
+                        <Badge className="bg-gold/20 text-gold border-gold/30 text-[10px] font-bold">👑 Royal Plan</Badge>
+                      </div>
+
+                      <div className="space-y-3 opacity-50 pointer-events-none filter blur-[1px]">
+                        <div className="grid grid-cols-2 gap-3">
+                          <Input placeholder="Meezan Bank" disabled className="h-10 bg-muted/40" />
+                          <Input placeholder="Account Title" disabled className="h-10 bg-muted/40" />
+                          <Input placeholder="EasyPaisa 03xxxxxxxxx" disabled className="h-10 bg-muted/40" />
+                          <Input placeholder="JazzCash 03xxxxxxxxx" disabled className="h-10 bg-muted/40" />
+                        </div>
+                      </div>
+
+                      <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 bg-gradient-to-r from-gold/10 via-amber-500/10 to-transparent p-4 rounded-2xl border border-gold/30">
+                        <p className="text-xs text-muted-foreground">
+                          Upgrade to the <strong className="text-gold">Royal Plan</strong> to allow guests to transfer Digital Shagun via Bank, EasyPaisa, JazzCash &amp; Raast.
+                        </p>
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            onUpdateData({ selectedPlan: 'royal' });
+                            toast.success("Switched to Royal Plan! Feature unlocked.");
+                          }}
+                          className="bg-gold hover:bg-gold-light text-emerald-dark font-bold text-xs gap-1.5 shrink-0 shadow-md"
+                        >
+                          <Sparkles className="w-3.5 h-3.5" /> Upgrade to Royal
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between pt-4">
+                    <Button variant="outline" onClick={() => setCurrentStep(3)}>
+                      <ArrowLeft className="w-4 h-4 mr-1" /> Previous
+                    </Button>
+
+                    <Button
+                      onClick={handleSubmit}
+                      disabled={isSaving || isUploading}
+                      size="lg"
+                      className="bg-gold hover:bg-gold-light text-emerald-dark font-bold text-base gap-2 shadow-xl px-8"
+                    >
+                      {isSaving ? (
+                        <><Loader2 className="w-5 h-5 animate-spin" /> Saving Details...</>
+                      ) : flowData.paymentDone ? (
+                        <>Save Changes <Check className="w-5 h-5" /></>
+                      ) : (
+                        <>Continue to Payment <ArrowRight className="w-5 h-5" /></>
+                      )}
+                    </Button>
+                  </div>
+                </m.div>
+              )}
+
             </div>
+
+            {/* Right Column: Live Mobile Mockup Preview */}
+            <div className="hidden lg:block lg:col-span-5 sticky top-24">
+              <div className="p-6 rounded-3xl bg-card/70 border border-border/60 backdrop-blur-xl shadow-2xl flex flex-col items-center">
+                <div className="flex items-center justify-between w-full mb-4">
+                  <span className="text-xs font-bold uppercase tracking-wider text-gold flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5" /> Live Preview
+                  </span>
+                  <Badge className="bg-emerald/20 text-emerald border-0 text-[10px]">Real-Time Sync</Badge>
+                </div>
+
+                {/* Smartphone Container */}
+                <div className="relative w-[320px] h-[640px] rounded-[38px] border-[5px] border-gold/40 shadow-2xl bg-background overflow-hidden flex flex-col items-center justify-between p-4 text-center">
+                  {/* Camera Notch */}
+                  <div className="absolute top-2 w-24 h-4 bg-foreground/15 rounded-full z-20" />
+                  
+                  {/* Mini Invitation Preview Content */}
+                  <div className="w-full mt-6 space-y-3.5 overflow-y-auto max-h-[550px] pr-1.5 scrollbar-thin scrollbar-thumb-gold/30">
+                    
+                    {/* Bismillah Calligraphy Header */}
+                    {flowData.showBismillah && (
+                      <div className="py-1">
+                        <p className="font-arabic text-sm text-gold leading-loose" dir="rtl">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</p>
+                      </div>
+                    )}
+
+                    {/* Host Families / Parents */}
+                    {(flowData.hostBrideFamily || flowData.hostGroomFamily) && (
+                      <p className="text-[9px] text-muted-foreground italic leading-tight">
+                        Together with their families: <br />
+                        <strong className="text-foreground font-semibold">
+                          {flowData.hostBrideFamily} {flowData.hostGroomFamily && `& ${flowData.hostGroomFamily}`}
+                        </strong>
+                      </p>
+                    )}
+                    
+                    <p className="text-[8px] tracking-[0.25em] uppercase text-gold font-bold">We invite you to celebrate</p>
+                    
+                    {/* Couple Names */}
+                    <h3 className="font-display text-2xl font-extrabold text-foreground leading-tight">
+                      {flowData.partner1Name || "Partner 1"} <span className="text-gold font-serif italic">&amp;</span> {flowData.partner2Name || "Partner 2"}
+                    </h3>
+
+                    {/* Custom Slug Badge */}
+                    {flowData.slug && (
+                      <span className="inline-block px-2.5 py-0.5 rounded-full bg-emerald/10 border border-emerald/30 text-emerald text-[8px] font-mono">
+                        shaadilink.com/inv/{flowData.slug}
+                      </span>
+                    )}
+
+                    {/* Hero Image */}
+                    {flowData.heroImage && (
+                      <div className="relative w-full h-36 rounded-2xl overflow-hidden my-1.5 border border-gold/30 shadow-md">
+                        <Image src={flowData.heroImage} alt="Hero" fill className="object-cover" />
+                      </div>
+                    )}
+
+                    {/* Quranic Verse */}
+                    {flowData.showQuranVerse && (
+                      <div className="p-2.5 rounded-2xl bg-gold/10 border border-gold/20 text-[9px] space-y-1 text-center">
+                        <p className="font-arabic text-xs text-gold leading-relaxed" dir="rtl">وَمِنْ ءَايَـٰتِهِۦٓ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَٰجًا...</p>
+                        <p className="text-[8px] text-muted-foreground italic">&ldquo;And He created for you mates that you may find tranquility in them...&rdquo;</p>
+                      </div>
+                    )}
+
+                    {/* Welcome Message */}
+                    {flowData.welcomeMessage && (
+                      <div className="p-3 rounded-2xl bg-muted/40 border border-border/50 text-[10px] text-muted-foreground italic leading-relaxed text-left">
+                        &ldquo;{flowData.welcomeMessage}&rdquo;
+                      </div>
+                    )}
+
+                    {/* All Events List */}
+                    <div className="space-y-2 text-left">
+                      <p className="text-[9px] font-bold uppercase tracking-wider text-gold">Events Schedule ({flowData.events?.length || 1})</p>
+                      {flowData.events?.map((ev, i) => (
+                        <div key={i} className="p-2.5 rounded-2xl bg-card border border-border/60 text-[10px] flex items-center justify-between shadow-sm">
+                          <div>
+                            <p className="font-bold text-foreground">{ev.name || `Event ${i + 1}`}</p>
+                            <p className="text-[9px] text-muted-foreground">{ev.date || "Date TBA"} {ev.time && `at ${ev.time}`}</p>
+                          </div>
+                          <Badge className="bg-gold/15 text-gold border-gold/30 text-[8px]">Event {i + 1}</Badge>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Main Venue & Address */}
+                    <div className="p-3 rounded-2xl bg-card border border-border/60 text-[10px] text-left space-y-1 shadow-sm">
+                      <div className="flex items-center gap-1.5 text-gold font-bold">
+                        <MapPin className="w-3.5 h-3.5 shrink-0" />
+                        <span className="truncate">{flowData.venue || "Venue Location Name"}</span>
+                      </div>
+                      {addressText && <p className="text-[9px] text-muted-foreground leading-tight">{addressText}</p>}
+                      {mapsUrl && (
+                        <div className="pt-0.5 flex items-center gap-1 text-emerald text-[8px] font-semibold">
+                          <Globe className="w-2.5 h-2.5" /> Google Maps Link Attached
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Segregation & Nikah Notes */}
+                    {flowData.isSegregated && (
+                      <div className="p-2 rounded-xl bg-emerald/10 border border-emerald/30 text-[9px] text-emerald font-medium">
+                        ✨ Separate Ladies &amp; Gents Setup {flowData.venueDetailsSegregated && `(${flowData.venueDetailsSegregated})`}
+                      </div>
+                    )}
+
+                    {flowData.showNikahRegistration && (
+                      <div className="p-2 rounded-xl bg-gold/10 border border-gold/20 text-[9px] text-gold font-medium">
+                        📜 Formal Nikah Registration Note
+                      </div>
+                    )}
+
+                    {/* Royal Plan Dress Code & Accommodations */}
+                    {flowData.selectedPlan === "royal" && (
+                      <div className="p-3 rounded-2xl bg-card border border-border/60 text-[9px] text-left space-y-1 shadow-sm">
+                        <p className="font-bold text-gold uppercase tracking-wider">Dress Code &amp; Info</p>
+                        {flowData.dressCodeWomen && <p className="text-muted-foreground">👗 Women: {flowData.dressCodeWomen}</p>}
+                        {flowData.dressCodeMen && <p className="text-muted-foreground">👔 Men: {flowData.dressCodeMen}</p>}
+                        {flowData.transportation && <p className="text-muted-foreground">🚗 Transport: {flowData.transportation}</p>}
+                        {flowData.accommodation && <p className="text-muted-foreground">🏨 Hotel: {flowData.accommodation}</p>}
+                      </div>
+                    )}
+
+                    {/* Digital Shagun Details */}
+                    {(flowData.gifts || "").trim() && (
+                      <div className="p-3 rounded-2xl bg-card border border-gold/30 text-[9px] text-left space-y-1 shadow-sm">
+                        <div className="flex items-center gap-1.5 text-gold font-bold">
+                          <Gift className="w-3.5 h-3.5 shrink-0" />
+                          <span>Digital Shagun Registry</span>
+                        </div>
+                        <p className="text-muted-foreground leading-relaxed font-sans">{flowData.gifts}</p>
+                      </div>
+                    )}
+
+                    {/* Host Contact Phone */}
+                    {flowData.contactPhone && (
+                      <p className="text-[9px] text-muted-foreground">📞 Contact Host: <strong className="text-foreground">{flowData.contactPhone}</strong></p>
+                    )}
+
+                    {/* Music Player Bar */}
+                    {flowData.backgroundMusic && flowData.backgroundMusic !== "no-music" && (
+                      <div className="flex items-center justify-center gap-2 p-2.5 rounded-2xl bg-gradient-to-r from-gold/20 via-amber-500/10 to-gold/20 border border-gold/40 text-gold text-[10px] font-bold shadow-md">
+                        <Music className="w-3.5 h-3.5 animate-pulse" />
+                        <span className="truncate">Music: {flowData.backgroundMusic}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="w-full pt-2 border-t border-border/40 text-[9px] text-muted-foreground">
+                    <span>ShaadiLink Digital Invitation</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </m.div>
       </main>

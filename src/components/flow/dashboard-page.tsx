@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import Image from "next/image";
 import { m, AnimatePresence } from "framer-motion";
 import {
@@ -18,6 +18,9 @@ import type { FlowData } from "@/lib/flow-types";
 import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
 import { TEMPLATE_THEMES } from "@/components/viewer/themes";
 import { Star } from "lucide-react";
+import { AnalyticsDrawer } from "@/components/flow/analytics-drawer";
+import { PrintCardsDrawer } from "@/components/flow/print-cards-drawer";
+import Papa from "papaparse";
 
 interface Invitation {
   id: string;
@@ -79,6 +82,13 @@ export function DashboardPage({
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [qrInvUrl, setQrInvUrl] = useState<string | null>(null);
 
+  // Referral Code State
+  const [myReferralCode, setMyReferralCode] = useState<{code: string; discount_percent: number; current_uses: number} | null>(null);
+
+  // Search & Filter State
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "draft">("all");
+
   // RSVP Drawer State
   const [rsvpDrawerOpen, setRsvpDrawerOpen] = useState(false);
   const [rsvpInvId, setRsvpInvId] = useState<string | null>(null);
@@ -90,6 +100,10 @@ export function DashboardPage({
   const [wishesInvId, setWishesInvId] = useState<string | null>(null);
   const [wishesList, setWishesList] = useState<Wish[]>([]);
   const [wishesLoading, setWishesLoading] = useState(false);
+
+  // Analytics Drawer State
+  const [analyticsDrawerOpen, setAnalyticsDrawerOpen] = useState(false);
+  const [analyticsInvId, setAnalyticsInvId] = useState<string | null>(null);
 
   // Review states
   const [reviewDrawerOpen, setReviewDrawerOpen] = useState(false);
@@ -105,8 +119,15 @@ export function DashboardPage({
   const [newGuestName, setNewGuestName] = useState("");
   const [selectedEventSlugs, setSelectedEventSlugs] = useState<string[]>([]);
   const [guestSeats, setGuestSeats] = useState<number>(1);
-  const [generatedLinks, setGeneratedLinks] = useState<{id: string, name: string, url: string, events?: string[], seats?: number | null}[]>([]);
+  const [generatedLinks, setGeneratedLinks] = useState<{id: string, name: string, url: string, events?: string[], seats?: number | null, view_count?: number, last_viewed_at?: string | null}[]>([]);
   const [guestLinksLoading, setGuestLinksLoading] = useState(false);
+
+  // Print Cards Drawer State
+  const [printCardsDrawerOpen, setPrintCardsDrawerOpen] = useState(false);
+  const [printCardsInvId, setPrintCardsInvId] = useState<string | null>(null);
+
+  // CSV Upload Ref
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Normalise a DB guest_link row → frontend shape
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -116,6 +137,8 @@ export function DashboardPage({
     url: row.url,
     events: row.allowed_events ?? row.events ?? [],
     seats: row.seats ?? null,
+    view_count: row.view_count || 0,
+    last_viewed_at: row.last_viewed_at || null,
   });
 
 
@@ -134,6 +157,22 @@ export function DashboardPage({
     } finally {
       setIsLoading(false);
     }
+  }, []);
+
+  useEffect(() => {
+    // Fetch personal referral code
+    const fetchReferralCode = async () => {
+      try {
+        const res = await fetch('/api/user/referral');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.referralCode) setMyReferralCode(data.referralCode);
+        }
+      } catch (err) {
+        console.error("Failed to load referral code", err);
+      }
+    };
+    fetchReferralCode();
   }, []);
 
   const handleOpenRsvps = async (invId: string) => {
@@ -266,6 +305,91 @@ export function DashboardPage({
     } catch {
       toast.error('Error generating link.');
     }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !guestLinksInvId) return;
+
+    const currentInv = invitations.find((i) => i.id === guestLinksInvId);
+    if (!currentInv) return;
+    const quota = currentInv.guest_links_quota ?? 0;
+
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: async (results) => {
+        const rows = results.data as any[];
+        if (rows.length === 0) {
+          toast.error("CSV is empty");
+          return;
+        }
+
+        if (generatedLinks.length + rows.length > quota) {
+          toast.error(`Importing ${rows.length} rows exceeds your quota. You can only create ${Math.max(0, quota - generatedLinks.length)} more links.`);
+          return;
+        }
+
+        const guestsPayload = rows
+          .map((row) => {
+            const guestName = (row.GuestName || row.Name || row.guest_name || "").trim();
+            if (!guestName) return null;
+
+            const slug = guestName
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, '-')
+              .replace(/(^-|-$)/g, '');
+            const uniqueSlug = `${slug}-${Math.floor(Math.random() * 10000)}`;
+            const url = `${window.location.origin}/inv/${currentInv.slug || guestLinksInvId}?guest=${uniqueSlug}`;
+
+            let seats = parseInt(row.Seats || row.seats || "1");
+            if (isNaN(seats)) seats = 1;
+
+            let allowedEvents: string[] = [];
+            if (row.Events || row.events) {
+              allowedEvents = (row.Events || row.events)
+                .split(",")
+                .map((ev: string) => ev.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-'))
+                .filter(Boolean);
+            } else {
+              allowedEvents = currentInv.events?.map((ev) => ev.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')) || [];
+            }
+
+            return { guestName, guestSlug: uniqueSlug, url, allowedEvents, seats };
+          })
+          .filter(Boolean);
+
+        if (guestsPayload.length === 0) {
+          toast.error("No valid guests found in CSV");
+          return;
+        }
+
+        const toastId = toast.loading(`Importing ${guestsPayload.length} guests...`);
+        try {
+          const res = await fetch(`/api/invitations/${guestLinksInvId}/guest-links/bulk`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ guests: guestsPayload }),
+          });
+
+          if (!res.ok) {
+            const d = await res.json();
+            throw new Error(d.error || "Failed to bulk import links");
+          }
+
+          const data = await res.json();
+          setGeneratedLinks((prev) => [...data.links.map(mapLink), ...prev]);
+          toast.success(`Successfully imported ${guestsPayload.length} guests!`, { id: toastId });
+        } catch (err: any) {
+          toast.error(err.message, { id: toastId });
+        }
+      },
+      error: (error) => {
+        toast.error(`Error parsing CSV: ${error.message}`);
+      },
+    });
+
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleDeleteLink = async (linkId: string) => {
@@ -547,39 +671,98 @@ export function DashboardPage({
         ]}
       />
 
-      <main id="main-content" className="flex-1 px-4 py-8 sm:py-12">
-        <div className="mx-auto max-w-6xl">
-          {/* Page title */}
+      <main id="main-content" className="flex-1 px-4 py-6 sm:py-10">
+        <div className="mx-auto max-w-7xl space-y-8">
+          
+          {/* Hero Command Banner */}
           <m.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8"
+            className="relative p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-emerald-950/60 via-background to-gold/10 border border-gold/25 shadow-2xl overflow-hidden backdrop-blur-xl"
           >
-            <div>
-              <h1 className="font-display text-2xl sm:text-3xl font-bold text-foreground">
-                My Invitations
-              </h1>
-              <p className="text-muted-foreground text-sm mt-1">
-                Manage and share your digital wedding invitations
-              </p>
+            <div className="absolute top-0 right-0 w-96 h-96 bg-gold/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
+            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="space-y-2 max-w-2xl">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs font-semibold">
+                  <Sparkles className="w-3.5 h-3.5" /> Luxury Digital Suite
+                </div>
+                <h1 className="font-display text-2xl sm:text-4xl font-extrabold text-foreground tracking-tight">
+                  Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold via-amber-300 to-gold-light">{flowData.fullName || "Valued Host"}</span> ✨
+                </h1>
+                <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
+                  Manage your digital wedding invitations, monitor real-time guest RSVPs, create personalized links, and export 300 DPI print-ready cards.
+                </p>
+              </div>
+
+              <Button
+                onClick={onCreateNew}
+                size="lg"
+                className="bg-gradient-to-r from-gold via-amber-400 to-gold-light hover:brightness-110 text-emerald-dark font-bold gap-2.5 shrink-0 shadow-lg shadow-gold/20 hover:scale-105 transition-all duration-200"
+              >
+                <Plus className="w-5 h-5 stroke-[2.5]" />
+                Create New Invitation
+              </Button>
             </div>
-            <Button
-              onClick={onCreateNew}
-              className="bg-gold hover:bg-gold-light text-emerald-dark font-semibold gap-2 shrink-0"
-            >
-              <Plus className="w-4 h-4" />
-              Create New Invitation
-            </Button>
           </m.div>
 
-          {/* Stats row — 4 cards: 2×2 on mobile, 5-col on lg */}
-          {!isLoading && invitations.length > 0 && (
+          {/* Referral & Affiliate Hub */}
+          {myReferralCode && (
             <m.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.1 }}
-              className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-8"
+              className="p-5 rounded-2xl bg-card/70 border border-gold/30 backdrop-blur-md relative overflow-hidden group shadow-lg"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-gold/10 via-transparent to-emerald/5 opacity-60 pointer-events-none" />
+              <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-gold/15 border border-gold/40 flex items-center justify-center text-gold shrink-0 shadow-inner">
+                    <Crown className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-display font-bold text-base text-foreground">Affiliate &amp; Discount Code</span>
+                      <Badge className="bg-gold/20 text-gold border-gold/40 text-[10px]">10% OFF</Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Share your referral code with friends. They receive <strong className="text-gold">10% OFF</strong> any package and you help them create an exquisite invitation!
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3 w-full md:w-auto shrink-0">
+                  <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-background/80 border border-gold/40 text-gold font-mono font-bold text-sm tracking-wider shadow-inner">
+                    <span>{myReferralCode.code}</span>
+                  </div>
+
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      navigator.clipboard.writeText(myReferralCode.code);
+                      toast.success("Referral code copied to clipboard!");
+                    }}
+                    className="bg-gold hover:bg-gold-light text-emerald-dark font-semibold gap-1.5 shadow-md"
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                    Copy Code
+                  </Button>
+
+                  <span className="text-xs text-muted-foreground font-medium px-2.5 py-1.5 bg-muted/60 rounded-xl border border-border/40">
+                    {myReferralCode.current_uses} / 5 Uses
+                  </span>
+                </div>
+              </div>
+            </m.div>
+          )}
+
+          {/* Key Metrics Command Center */}
+          {!isLoading && invitations.length > 0 && (
+            <m.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.15 }}
+              className="grid grid-cols-2 lg:grid-cols-5 gap-3.5"
             >
               {[
                 {
@@ -587,47 +770,47 @@ export function DashboardPage({
                   value: invitations.length,
                   icon: Heart,
                   color: "text-emerald",
-                  bg: "bg-emerald/5 border-emerald/10",
+                  bg: "bg-emerald/5 border-emerald/20 hover:border-emerald/40",
                 },
                 {
                   label: "Live Now",
                   value: invitations.filter((i) => i.is_active).length,
                   icon: Activity,
                   color: "text-gold",
-                  bg: "bg-gold/5 border-gold/10",
+                  bg: "bg-gold/5 border-gold/20 hover:border-gold/40",
                 },
                 {
                   label: "Total RSVPs",
                   value: invitations.reduce((sum, inv) => sum + (inv.rsvps?.length || 0), 0),
                   icon: Users,
                   color: "text-blue-400",
-                  bg: "bg-blue-400/5 border-blue-400/10",
+                  bg: "bg-blue-400/5 border-blue-400/20 hover:border-blue-400/40",
                 },
                 {
                   label: "Total Wishes",
                   value: invitations.reduce((sum, inv) => sum + (inv.wishes?.length || 0), 0),
                   icon: MessageSquare,
                   color: "text-pink-400",
-                  bg: "bg-pink-400/5 border-pink-400/10",
+                  bg: "bg-pink-400/5 border-pink-400/20 hover:border-pink-400/40",
                 },
                 {
                   label: "Total Views",
                   value: invitations.reduce((sum, inv) => sum + (inv.view_count || 0), 0),
                   icon: Eye,
                   color: "text-indigo-400",
-                  bg: "bg-indigo-400/5 border-indigo-400/10",
+                  bg: "bg-indigo-400/5 border-indigo-400/20 hover:border-indigo-400/40",
                 },
               ].map((stat) => {
                 const Icon = stat.icon;
                 return (
-                  <Card key={stat.label} className={`border ${stat.bg}`}>
-                    <CardContent className="p-3 sm:p-4 flex items-center gap-3">
-                      <div className={`${stat.color} shrink-0`}>
+                  <Card key={stat.label} className={`border ${stat.bg} transition-all duration-300 hover:-translate-y-0.5 shadow-md`}>
+                    <CardContent className="p-4 flex items-center gap-3.5">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-background border border-border/40 ${stat.color} shrink-0 shadow-inner`}>
                         <Icon className="w-5 h-5" />
                       </div>
                       <div className="min-w-0">
-                        <p className="font-display text-xl font-bold text-foreground">{stat.value}</p>
-                        <p className="text-[10px] text-muted-foreground leading-tight">{stat.label}</p>
+                        <p className="font-display text-2xl font-bold text-foreground leading-none">{stat.value}</p>
+                        <p className="text-[11px] font-medium text-muted-foreground mt-1 leading-tight">{stat.label}</p>
                       </div>
                     </CardContent>
                   </Card>
@@ -636,13 +819,65 @@ export function DashboardPage({
             </m.div>
           )}
 
-          {/* Loading state */}
+          {/* Search & Filter Toolbar */}
+          {!isLoading && invitations.length > 0 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+              <div className="relative w-full sm:w-80">
+                <input
+                  type="text"
+                  placeholder="Search by couple name or venue..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-8 py-2 text-xs rounded-xl bg-card/80 border border-border/60 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-gold/50 transition-all shadow-inner"
+                />
+                <Eye className="w-4 h-4 text-muted-foreground absolute left-3 top-2.5" />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-2.5 top-2.5 text-muted-foreground hover:text-foreground text-xs"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Status Pills */}
+              <div className="flex items-center gap-1.5 p-1 bg-card/80 border border-border/60 rounded-xl shrink-0">
+                <button
+                  onClick={() => setStatusFilter("all")}
+                  className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    statusFilter === "all" ? "bg-emerald text-white shadow-md" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  All ({invitations.length})
+                </button>
+                <button
+                  onClick={() => setStatusFilter("active")}
+                  className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    statusFilter === "active" ? "bg-emerald text-white shadow-md" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  Live ({invitations.filter((i) => i.is_active).length})
+                </button>
+                <button
+                  onClick={() => setStatusFilter("draft")}
+                  className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    statusFilter === "draft" ? "bg-emerald text-white shadow-md" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  Drafts ({invitations.filter((i) => !i.is_active).length})
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Loading Skeleton */}
           {isLoading && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 py-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 py-6">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="bg-card border border-border/40 rounded-2xl p-5 h-96 flex flex-col justify-between animate-pulse">
+                <div key={i} className="bg-card border border-border/40 rounded-3xl p-5 h-96 flex flex-col justify-between animate-pulse">
                   <div className="space-y-3">
-                    <div className="h-40 bg-muted/60 rounded-xl w-full" />
+                    <div className="h-44 bg-muted/60 rounded-2xl w-full" />
                     <div className="h-6 bg-muted/60 rounded w-3/4" />
                     <div className="h-4 bg-muted/60 rounded w-1/2" />
                   </div>
@@ -655,331 +890,350 @@ export function DashboardPage({
             </div>
           )}
 
-          {/* Empty state — 3-step getting started guide */}
+          {/* Empty State Guide */}
           {!isLoading && invitations.length === 0 && (
             <m.div
               initial={{ opacity: 0, scale: 0.97 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.4 }}
-              className="flex flex-col items-center justify-center py-16 gap-6 text-center"
+              className="flex flex-col items-center justify-center py-16 gap-6 text-center bg-card/40 border border-border/40 rounded-3xl p-8 backdrop-blur-md"
             >
-              <div className="w-16 h-16 rounded-2xl bg-gold/10 flex items-center justify-center">
-                <Sparkles className="w-8 h-8 text-gold" />
+              <div className="w-16 h-16 rounded-2xl bg-gold/15 border border-gold/30 flex items-center justify-center text-gold shadow-inner">
+                <Sparkles className="w-8 h-8" />
               </div>
               <div>
-                <h2 className="font-display text-xl font-bold text-foreground">No invitations yet</h2>
-                <p className="text-muted-foreground text-sm mt-1 max-w-xs">
-                  Create your first beautiful digital wedding invitation and share it with your guests.
+                <h2 className="font-display text-2xl font-bold text-foreground">No invitations created yet</h2>
+                <p className="text-muted-foreground text-sm mt-1 max-w-sm">
+                  Create your first luxury digital wedding invitation and start sharing personalized links with your guests.
                 </p>
               </div>
 
-              {/* 3-step guide */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-xl mt-2">
+              {/* 3-Step Guide */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-2xl mt-2">
                 {[
-                  { step: "1", icon: "🎨", title: "Pick a Template", desc: "Choose from Classic or Royal designs" },
-                  { step: "2", icon: "✏️", title: "Add Your Details", desc: "Names, venue, events & photos" },
-                  { step: "3", icon: "💌", title: "Share the Link", desc: "Send to unlimited guests instantly" },
+                  { step: "1", icon: "🎨", title: "Pick a Template", desc: "Choose Classic, Emerald or Royal designs" },
+                  { step: "2", icon: "✏️", title: "Personalize Details", desc: "Names, venue, events, photos & schedule" },
+                  { step: "3", icon: "💌", title: "Share & Print", desc: "Send custom links or download 300 DPI cards" },
                 ].map((s) => (
-                  <div key={s.step} className="flex flex-col items-center gap-2 p-4 rounded-xl border border-border/50 bg-card/50">
-                    <span className="text-2xl">{s.icon}</span>
-                    <span className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground">Step {s.step}</span>
+                  <div key={s.step} className="flex flex-col items-center gap-2 p-5 rounded-2xl border border-border/50 bg-card/60">
+                    <span className="text-3xl">{s.icon}</span>
+                    <span className="text-[10px] font-bold tracking-widest uppercase text-gold">Step {s.step}</span>
                     <p className="text-sm font-semibold text-foreground">{s.title}</p>
-                    <p className="text-xs text-muted-foreground">{s.desc}</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{s.desc}</p>
                   </div>
                 ))}
               </div>
 
               <Button
                 onClick={onCreateNew}
-                className="bg-emerald hover:bg-emerald-dark text-primary-foreground font-semibold gap-2 mt-2"
+                size="lg"
+                className="bg-emerald hover:bg-emerald-dark text-primary-foreground font-semibold gap-2 mt-2 shadow-lg"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="w-5 h-5" />
                 Create Your First Invitation
               </Button>
             </m.div>
           )}
 
-          {/* Invitation cards */}
+          {/* Invitation Cards Grid */}
           {!isLoading && invitations.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {invitations.map((inv, idx) => {
-                const templateName = inv.template_id
-                  ?.split("-")
-                  .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-                  .join(" ") || "Template";
-                const acceptedRsvps = inv.rsvps?.filter((r) => r.status === "accept").length || 0;
-                const declinedRsvps = inv.rsvps?.filter((r) => r.status === "decline").length || 0;
-                const passed = isWeddingPassed(inv.events || []);
-                const theme = TEMPLATE_THEMES[inv.template_id] || TEMPLATE_THEMES['emerald-noir'];
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {invitations
+                .filter((inv) => {
+                  const nameMatch = `${inv.partner1_name} ${inv.partner2_name}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    (inv.venue && inv.venue.toLowerCase().includes(searchQuery.toLowerCase()));
+                  if (!nameMatch) return false;
+                  if (statusFilter === "active") return inv.is_active;
+                  if (statusFilter === "draft") return !inv.is_active;
+                  return true;
+                })
+                .map((inv, idx) => {
+                  const templateName = inv.template_id
+                    ?.split("-")
+                    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+                    .join(" ") || "Template";
+                  const acceptedRsvps = inv.rsvps?.filter((r) => r.status === "accept").length || 0;
+                  const declinedRsvps = inv.rsvps?.filter((r) => r.status === "decline").length || 0;
+                  const passed = isWeddingPassed(inv.events || []);
+                  const theme = TEMPLATE_THEMES[inv.template_id] || TEMPLATE_THEMES['emerald-noir'];
 
-                return (
-                  <m.div
-                    key={inv.id}
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: idx * 0.06 }}
-                  >
-                    <Card className="border-border/50 hover:border-gold/30 transition-all group overflow-hidden">
-                      {/* Hero image / placeholder */}
-                      <div 
-                        className="relative aspect-[16/9] overflow-hidden group/thumb"
-                        style={{
-                          background: inv.hero_image_url ? undefined : `linear-gradient(135deg, ${theme.bgPrimary}, ${theme.bgSecondary})`
-                        }}
-                      >
-                        {inv.hero_image_url ? (
-                          <Image
-                            src={inv.hero_image_url}
-                            alt="Invitation hero"
-                            fill
-                            className="object-cover transition-transform duration-500 group-hover:scale-105"
-                          />
-                        ) : (
-                          <div className="absolute inset-0 flex items-center justify-center transition-transform duration-500 group-hover:scale-105">
-                            <div 
-                              className="w-16 h-16 rounded-full flex flex-col items-center justify-center shadow-[0_0_20px_rgba(0,0,0,0.3)] backdrop-blur-sm relative"
-                              style={{ 
-                                backgroundColor: theme.bgDoor,
-                                border: `2px solid ${theme.accent}` 
-                              }}
-                            >
-                              <div 
-                                className="absolute inset-0 rounded-full opacity-20"
-                                style={{
-                                  background: `repeating-linear-gradient(45deg, transparent, transparent 5px, ${theme.accent} 5px, ${theme.accent} 6px)`
-                                }}
-                              />
-                              <Heart style={{ color: theme.accent, fill: theme.accent }} className="w-6 h-6 z-10 opacity-80" />
-                            </div>
-                            
-                            {/* Decorative elements based on theme */}
-                            <div 
-                              className="absolute inset-0 opacity-10 pointer-events-none"
-                              style={{
-                                backgroundImage: `radial-gradient(circle at 20% 20%, ${theme.accent} 0%, transparent 40%), radial-gradient(circle at 80% 80%, ${theme.accent} 0%, transparent 40%)`
-                              }}
+                  return (
+                    <m.div
+                      key={inv.id}
+                      initial={{ opacity: 0, y: 16 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: idx * 0.05 }}
+                    >
+                      <Card className="border-border/60 hover:border-gold/50 transition-all duration-300 group overflow-hidden rounded-3xl bg-card/70 backdrop-blur-md shadow-lg hover:shadow-2xl hover:-translate-y-1">
+                        
+                        {/* Cover Image / Gradient Header */}
+                        <div 
+                          className="relative aspect-[16/9] overflow-hidden group/thumb"
+                          style={{
+                            background: inv.hero_image_url ? undefined : `linear-gradient(135deg, ${theme.bgPrimary}, ${theme.bgSecondary})`
+                          }}
+                        >
+                          {inv.hero_image_url ? (
+                            <Image
+                              src={inv.hero_image_url}
+                              alt="Invitation hero"
+                              fill
+                              className="object-cover transition-transform duration-500 group-hover:scale-105"
                             />
-                          </div>
-                        )}
-                        {/* Active badge */}
-                        <div className="absolute top-2 left-2">
-                          {inv.is_active ? (
-                            <Badge className="bg-emerald/90 text-white text-[10px] border-0">
-                              ● Live
-                            </Badge>
                           ) : (
-                            <Badge className="bg-black/60 text-white/70 text-[10px] border-0">
-                              Draft
-                            </Badge>
-                          )}
-                        </div>
-                        {/* Plan badge & Upgrade option */}
-                        <div className="absolute top-2 right-2 flex flex-col items-end gap-1.5 z-10">
-                          <Badge
-                            className={
-                              inv.plan === "royal"
-                                ? "bg-gold/90 text-emerald-dark text-[10px] border-0"
-                                : "bg-white/20 text-white text-[10px] border-0"
-                            }
-                          >
-                            {inv.plan === "royal" && <Crown className="w-2.5 h-2.5 mr-0.5" />}
-                            {inv.plan}
-                          </Badge>
-                          {inv.plan !== "royal" && !passed && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onUpgradeInvitation?.(inv.id);
-                              }}
-                              className="text-[9px] bg-gold/20 hover:bg-gold/30 text-gold border border-gold/30 hover:border-gold/50 px-1.5 py-0.5 rounded transition-all flex items-center gap-0.5 font-semibold shadow-sm backdrop-blur-md cursor-pointer"
-                            >
-                              <Sparkles className="w-2.5 h-2.5 text-gold shrink-0 animate-pulse" />
-                              Upgrade to Royal
-                            </button>
-                          )}
-                        </div>
-                      </div>
-
-                      <CardContent className="p-4 space-y-3">
-                        {/* Names & template */}
-                        <div>
-                          <h3 className="font-display font-bold text-foreground leading-tight">
-                            {inv.partner1_name || "Partner 1"} &amp; {inv.partner2_name || "Partner 2"}
-                          </h3>
-                          <p className="text-xs text-muted-foreground mt-0.5">{templateName}</p>
-                          {/* Shareable URL for live invitations */}
-                          {inv.is_active && (
-                            <p className="text-[10px] text-emerald/70 font-mono mt-1 truncate">
-                              shaadilink.com.pk/inv/{inv.slug || inv.id.slice(0, 8)}
-                            </p>
-                          )}
-                        </div>
-
-                        {/* Stats row */}
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                          <button
-                            onClick={() => handleOpenRsvps(inv.id)}
-                            className="flex items-center gap-1 hover:text-gold transition-colors duration-200"
-                            aria-label="View RSVP details"
-                          >
-                            <Users className="w-3 h-3 text-emerald" />
-                            {acceptedRsvps} accepted · {declinedRsvps} declined
-                          </button>
-                          <button
-                            onClick={() => handleOpenWishes(inv.id)}
-                            className="flex items-center gap-1 hover:text-gold transition-colors duration-200"
-                            aria-label="Manage wishes"
-                          >
-                            <MessageSquare className="w-3 h-3 text-gold" />
-                            {inv.wishes?.length || 0} wishes
-                          </button>
-                        </div>
-
-                        {/* Event pills */}
-                        {inv.events && inv.events.length > 0 && (
-                          <div className="flex flex-wrap gap-1">
-                            {inv.events.slice(0, 3).map((ev, ei) => (
-                              <span
-                                key={ei}
-                                className="inline-flex items-center gap-1 text-[9px] px-2 py-0.5 rounded-full bg-muted border border-border/30 text-muted-foreground"
+                            <div className="absolute inset-0 flex items-center justify-center transition-transform duration-500 group-hover:scale-105">
+                              <div 
+                                className="w-16 h-16 rounded-2xl flex flex-col items-center justify-center shadow-xl backdrop-blur-sm relative"
+                                style={{ 
+                                  backgroundColor: theme.bgDoor,
+                                  border: `2px solid ${theme.accent}` 
+                                }}
                               >
-                                <Calendar className="w-2.5 h-2.5" />
-                                {ev.name || "Event"}{ev.date ? ` · ${formatDate(ev.date)}` : ""}
-                              </span>
-                            ))}
-                            {inv.events.length > 3 && (
-                              <span className="text-[9px] px-2 py-0.5 rounded-full bg-muted border border-border/30 text-muted-foreground">
-                                +{inv.events.length - 3} more
-                              </span>
+                                <Heart style={{ color: theme.accent, fill: theme.accent }} className="w-6 h-6 z-10 opacity-85" />
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Status Badge */}
+                          <div className="absolute top-3 left-3 z-10">
+                            {inv.is_active ? (
+                              <Badge className="bg-emerald/90 text-white text-[10px] border-0 shadow-md backdrop-blur-md">
+                                ● Live
+                              </Badge>
+                            ) : (
+                              <Badge className="bg-black/70 text-white/80 text-[10px] border-0 shadow-md backdrop-blur-md">
+                                Draft
+                              </Badge>
                             )}
                           </div>
-                        )}
 
-                        {/* Next event */}
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <Calendar className="w-3 h-3" />
-                          <span>Next: {getNextEventDate(inv.events || [])}</span>
-                        </div>
-
-                        {/* Created + updated dates */}
-                        <p className="text-[10px] text-muted-foreground/60">
-                          Created {formatDate(inv.created_at)}
-                        </p>
-
-                        {/* Action buttons */}
-                        <div className="flex flex-wrap gap-2 pt-1">
-                          <Button
-                            size="sm"
-                            onClick={() => window.open(`${window.location.origin}/inv/${inv.slug || inv.id}`, "_blank", "noopener,noreferrer")}
-                            className="flex-1 h-8 bg-emerald hover:bg-emerald-dark text-primary-foreground text-xs gap-1"
-                          >
-                            <ExternalLink className="w-3 h-3" />
-                            View
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            disabled={passed}
-                            onClick={() => onEditInvitation(inv.id)}
-                            className="flex-1 h-8 border-gold/30 text-gold hover:bg-gold/10 text-xs gap-1 disabled:opacity-60 disabled:cursor-not-allowed disabled:text-muted-foreground disabled:border-border"
-                          >
-                            {passed ? (
-                              <>
-                                <Lock className="w-3 h-3" />
-                                Locked
-                              </>
-                            ) : (
-                              inv.is_active ? "Edit" : "Complete Setup"
-                            )}
-                          </Button>
-                          {/* Share button */}
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              const link = `${window.location.origin}/inv/${inv.slug || inv.id}`;
-                              const text = encodeURIComponent(`You're invited! 🎉 View our wedding invitation: ${link}`);
-                              window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");
-                            }}
-                            className="h-8 px-2.5 border-emerald/30 text-emerald hover:bg-emerald/10"
-                            aria-label="Share via WhatsApp"
-                          >
-                            <Share2 className="w-3.5 h-3.5" />
-                          </Button>
-                          {inv.is_active && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleOpenGuestLinks(inv.id)}
-                              className="h-8 px-2.5 border-amber-500/30 text-amber-500 hover:bg-amber-500/10"
-                              aria-label="Generate Personalized Guest Links"
-                            >
-                              <Users className="w-3.5 h-3.5" />
-                            </Button>
-                          )}
-                          {inv.is_active && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => setQrInvUrl(`${window.location.origin}/inv/${inv.slug || inv.id}`)}
-                              className="h-8 px-2.5 border-indigo-400/30 text-indigo-400 hover:bg-indigo-400/10"
-                              aria-label="Show QR Code"
-                            >
-                              <QrCode className="w-3.5 h-3.5" />
-                            </Button>
-                          )}
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleCopyLink(inv.id)}
-                            className="h-8 px-2.5 border-gold/30 text-gold hover:bg-gold/10"
-                            aria-label="Copy invitation link"
-                          >
-                            {copiedId === inv.id ? (
-                              <Check className="w-3.5 h-3.5" />
-                            ) : (
-                              <Copy className="w-3.5 h-3.5" />
-                            )}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleDelete(inv.id, `${inv.partner1_name} & ${inv.partner2_name}`)}
-                            disabled={deletingId === inv.id}
-                            className="h-8 px-2.5 border-red-400/30 text-red-400 hover:bg-red-400/10"
-                            aria-label="Delete invitation"
-                          >
-                            {deletingId === inv.id ? (
-                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            ) : (
-                              <Trash2 className="w-3.5 h-3.5" />
-                            )}
-                          </Button>
-                          {/* Review Button */}
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              if (reviewSubmittedMap[inv.id]) {
-                                toast.info("You have already submitted a review for this invitation. Thank you!");
-                                return;
+                          {/* Plan Badge & Upgrade */}
+                          <div className="absolute top-3 right-3 flex flex-col items-end gap-1.5 z-10">
+                            <Badge
+                              className={
+                                inv.plan === "royal"
+                                  ? "bg-gold/90 text-emerald-dark text-[10px] border-0 font-bold shadow-md"
+                                  : "bg-white/20 text-white text-[10px] border-0 backdrop-blur-md"
                               }
-                              setReviewInvId(inv.id);
-                              setReviewRating(0);
-                              setReviewMessage("");
-                              setReviewDrawerOpen(true);
-                            }}
-                            className="flex-1 h-8 border-gold/30 text-gold hover:bg-gold/10 text-xs gap-1"
-                          >
-                            <Star className="w-3 h-3" />
-                            Review
-                          </Button>
+                            >
+                              {inv.plan === "royal" && <Crown className="w-2.5 h-2.5 mr-0.5" />}
+                              {inv.plan}
+                            </Badge>
+                            {inv.plan !== "royal" && !passed && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onUpgradeInvitation?.(inv.id);
+                                }}
+                                className="text-[9px] bg-gold/20 hover:bg-gold/30 text-gold border border-gold/40 px-2 py-0.5 rounded-full transition-all flex items-center gap-1 font-semibold shadow-md backdrop-blur-md"
+                              >
+                                <Sparkles className="w-2.5 h-2.5 text-gold shrink-0 animate-pulse" />
+                                Upgrade
+                              </button>
+                            )}
+                          </div>
                         </div>
-                      </CardContent>
-                    </Card>
-                  </m.div>
-                );
-              })}
+
+                        <CardContent className="p-5 space-y-4">
+                          {/* Names & Details */}
+                          <div>
+                            <div className="flex items-center justify-between gap-2">
+                              <h3 className="font-display font-bold text-lg text-foreground leading-tight truncate">
+                                {inv.partner1_name || "Partner 1"} &amp; {inv.partner2_name || "Partner 2"}
+                              </h3>
+                            </div>
+                            <div className="flex items-center justify-between text-xs text-muted-foreground mt-1">
+                              <span className="font-medium text-gold/90">{templateName}</span>
+                              <span>Created {formatDate(inv.created_at)}</span>
+                            </div>
+
+                            {/* Share Short Link */}
+                            {inv.is_active && (
+                              <div className="mt-2 flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-xl bg-muted/40 border border-border/40 text-[11px] text-emerald font-mono">
+                                <span className="truncate">shaadilink.com.pk/inv/{inv.slug || inv.id.slice(0, 8)}</span>
+                                <button
+                                  onClick={() => handleCopyLink(inv.id)}
+                                  className="text-muted-foreground hover:text-gold transition-colors shrink-0"
+                                  title="Copy Link"
+                                >
+                                  {copiedId === inv.id ? <Check className="w-3.5 h-3.5 text-emerald" /> : <Copy className="w-3.5 h-3.5" />}
+                                </button>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Quick Interactive Counters Bar */}
+                          <div className="grid grid-cols-4 gap-1 p-2 rounded-2xl bg-muted/30 border border-border/30 text-center text-[10px]">
+                            <button
+                              onClick={() => {
+                                setAnalyticsInvId(inv.id);
+                                setAnalyticsDrawerOpen(true);
+                              }}
+                              className="flex flex-col items-center hover:text-gold transition-colors p-1"
+                            >
+                              <Eye className="w-3.5 h-3.5 text-indigo-400 mb-0.5" />
+                              <span className="font-bold text-foreground">{inv.view_count || 0}</span>
+                              <span className="text-[9px] text-muted-foreground">Views</span>
+                            </button>
+
+                            <button
+                              onClick={() => handleOpenRsvps(inv.id)}
+                              className="flex flex-col items-center hover:text-gold transition-colors p-1"
+                            >
+                              <Users className="w-3.5 h-3.5 text-emerald mb-0.5" />
+                              <span className="font-bold text-foreground">{acceptedRsvps}</span>
+                              <span className="text-[9px] text-muted-foreground">RSVPs</span>
+                            </button>
+
+                            <button
+                              onClick={() => handleOpenWishes(inv.id)}
+                              className="flex flex-col items-center hover:text-gold transition-colors p-1"
+                            >
+                              <MessageSquare className="w-3.5 h-3.5 text-gold mb-0.5" />
+                              <span className="font-bold text-foreground">{inv.wishes?.length || 0}</span>
+                              <span className="text-[9px] text-muted-foreground">Wishes</span>
+                            </button>
+
+                            <button
+                              onClick={() => handleOpenGuestLinks(inv.id)}
+                              className="flex flex-col items-center hover:text-gold transition-colors p-1"
+                            >
+                              <Users className="w-3.5 h-3.5 text-amber-500 mb-0.5" />
+                              <span className="font-bold text-foreground">{inv.guest_links_quota || 0}</span>
+                              <span className="text-[9px] text-muted-foreground">Links</span>
+                            </button>
+                          </div>
+
+                          {/* Primary Action Buttons */}
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              onClick={() => window.open(`${window.location.origin}/inv/${inv.slug || inv.id}`, "_blank", "noopener,noreferrer")}
+                              className="flex-1 h-9 bg-emerald hover:bg-emerald-dark text-white font-semibold text-xs gap-1.5 shadow-md"
+                            >
+                              <ExternalLink className="w-3.5 h-3.5" />
+                              View Live
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              disabled={passed}
+                              onClick={() => onEditInvitation(inv.id)}
+                              className="flex-1 h-9 border-gold/40 text-gold hover:bg-gold/10 font-semibold text-xs gap-1.5"
+                            >
+                              {passed ? (
+                                <>
+                                  <Lock className="w-3.5 h-3.5" />
+                                  Locked
+                                </>
+                              ) : (
+                                inv.is_active ? "Edit Invitation" : "Setup"
+                              )}
+                            </Button>
+                          </div>
+
+                          {/* Secondary Toolbar (Guest Hub & Tools) */}
+                          <div className="flex flex-wrap items-center justify-between gap-1.5 pt-2 border-t border-border/40">
+                            {/* WhatsApp Share */}
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                const link = `${window.location.origin}/inv/${inv.slug || inv.id}`;
+                                const text = encodeURIComponent(`You're invited! 🎉 View our wedding invitation: ${link}`);
+                                window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");
+                              }}
+                              className="h-8 px-2 text-emerald hover:bg-emerald/10 text-xs gap-1"
+                              title="Share via WhatsApp"
+                            >
+                              <Share2 className="w-3.5 h-3.5" />
+                              <span className="text-[10px]">WhatsApp</span>
+                            </Button>
+
+                            {/* Guest Links */}
+                            {inv.is_active && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleOpenGuestLinks(inv.id)}
+                                className="h-8 px-2 text-amber-500 hover:bg-amber-500/10 text-xs gap-1"
+                                title="Guest Links"
+                              >
+                                <Users className="w-3.5 h-3.5" />
+                                <span className="text-[10px]">Guest Links</span>
+                              </Button>
+                            )}
+
+                            {/* Print Cards */}
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                setPrintCardsInvId(inv.id);
+                                setPrintCardsDrawerOpen(true);
+                              }}
+                              className="h-8 px-2 text-indigo-400 hover:bg-indigo-400/10 text-xs gap-1"
+                              title="Print Cards"
+                            >
+                              <Download className="w-3.5 h-3.5" />
+                              <span className="text-[10px]">Print</span>
+                            </Button>
+
+                            {/* QR Code */}
+                            {inv.is_active && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => setQrInvUrl(`${window.location.origin}/inv/${inv.slug || inv.id}`)}
+                                className="h-8 px-2 text-indigo-400 hover:bg-indigo-400/10 text-xs"
+                                title="QR Code"
+                              >
+                                <QrCode className="w-3.5 h-3.5" />
+                              </Button>
+                            )}
+
+                            {/* Review Button */}
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                if (reviewSubmittedMap[inv.id]) {
+                                  toast.info("You have already submitted a review for this invitation. Thank you!");
+                                  return;
+                                }
+                                setReviewInvId(inv.id);
+                                setReviewRating(0);
+                                setReviewMessage("");
+                                setReviewDrawerOpen(true);
+                              }}
+                              className="h-8 px-2 text-gold hover:bg-gold/10 text-xs"
+                              title="Review"
+                            >
+                              <Star className="w-3.5 h-3.5" />
+                            </Button>
+
+                            {/* Delete Button */}
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleDelete(inv.id, `${inv.partner1_name} & ${inv.partner2_name}`)}
+                              disabled={deletingId === inv.id}
+                              className="h-8 px-2 text-red-400 hover:bg-red-400/10 text-xs"
+                              title="Delete Invitation"
+                            >
+                              {deletingId === inv.id ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <Trash2 className="w-3.5 h-3.5" />
+                              )}
+                            </Button>
+                          </div>
+
+                        </CardContent>
+                      </Card>
+                    </m.div>
+                  );
+                })}
             </div>
           )}
         </div>
@@ -1097,6 +1351,19 @@ export function DashboardPage({
         )}
       </AnimatePresence>
 
+      {/* Analytics Drawer */}
+      <AnalyticsDrawer
+        isOpen={analyticsDrawerOpen}
+        onClose={() => setAnalyticsDrawerOpen(false)}
+        invitationId={analyticsInvId}
+        acceptedRsvps={
+          invitations.find(i => i.id === analyticsInvId)?.rsvps?.filter(r => r.status === "accept").length || 0
+        }
+        declinedRsvps={
+          invitations.find(i => i.id === analyticsInvId)?.rsvps?.filter(r => r.status === "decline").length || 0
+        }
+      />
+
 
       {/* Guest Links Modal/Drawer */}
       <AnimatePresence>
@@ -1123,9 +1390,24 @@ export function DashboardPage({
                 <div className="flex items-start justify-between shrink-0">
                   <div>
                     <h2 className="font-display text-xl font-bold text-foreground">Guest Links</h2>
-                    <p className="text-xs text-muted-foreground mt-0.5">
+                    <p className="text-xs text-muted-foreground mt-0.5 mb-2">
                       Generate personalized links for your guests
                     </p>
+                    <input 
+                      type="file" 
+                      accept=".csv" 
+                      className="hidden" 
+                      ref={fileInputRef} 
+                      onChange={handleFileUpload} 
+                    />
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="text-xs h-7 py-1"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Download className="w-3 h-3 mr-1" /> Import CSV
+                    </Button>
                   </div>
                   <Button
                     variant="ghost"
@@ -1295,6 +1577,24 @@ export function DashboardPage({
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
                           </div>
+                        </div>
+                        {/* Analytics Badge */}
+                        <div className="flex items-center gap-2 mb-1">
+                          {link.view_count ? (
+                            <Badge variant="outline" className="text-[10px] bg-emerald/10 text-emerald border-emerald/20 px-2 py-0">
+                              <Eye className="w-3 h-3 mr-1" />
+                              Opened {link.view_count} time{link.view_count !== 1 && 's'}
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-[10px] bg-muted/50 text-muted-foreground border-border/50 px-2 py-0">
+                              Not opened yet
+                            </Badge>
+                          )}
+                          {link.last_viewed_at && (
+                            <span className="text-[10px] text-muted-foreground">
+                              Last: {new Date(link.last_viewed_at).toLocaleDateString()}
+                            </span>
+                          )}
                         </div>
                         {link.events && link.events.length > 0 && (
                           <div className="flex flex-wrap gap-1">
@@ -1525,6 +1825,26 @@ export function DashboardPage({
           </div>
         )}
       </AnimatePresence>
+      {/* Print Cards Drawer */}
+      {printCardsInvId && (
+        <PrintCardsDrawer
+          isOpen={printCardsDrawerOpen}
+          onOpenChange={setPrintCardsDrawerOpen}
+          plan={invitations.find((i) => i.id === printCardsInvId)?.plan || "classic"}
+          flowData={
+            (invitations.find((i) => i.id === printCardsInvId)
+              ? {
+                  invitationId: printCardsInvId,
+                  partner1Name: invitations.find((i) => i.id === printCardsInvId)?.partner1_name || "",
+                  partner2Name: invitations.find((i) => i.id === printCardsInvId)?.partner2_name || "",
+                  venue: invitations.find((i) => i.id === printCardsInvId)?.venue || "",
+                  venueAddress: invitations.find((i) => i.id === printCardsInvId)?.venue || "", // Fallback
+                  events: invitations.find((i) => i.id === printCardsInvId)?.events || [],
+                }
+              : flowData) as FlowData
+          }
+        />
+      )}
     </div>
   );
 }

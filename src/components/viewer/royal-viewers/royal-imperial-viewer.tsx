@@ -30,6 +30,7 @@ interface RoyalViewerProps {
   templateId?: string
   flowData?: FlowData
   guestName?: string | null
+  guestSlug?: string | null
 }
 
 /* ─── Mughal Islamic Tile Background ─── */
@@ -145,8 +146,8 @@ function ScrollWishCard({ name, message, accent, bg, border }: { name: string; m
   )
 }
 
-export default function RoyalImperialViewer({ templateId, flowData, guestName }: RoyalViewerProps) {
-  const s = useInvitationState(templateId || 'royal-imperial', flowData, guestName)
+export default function RoyalImperialViewer({ templateId, flowData, guestName, guestSlug }: RoyalViewerProps) {
+  const s = useInvitationState(templateId || 'royal-imperial', flowData, guestName, guestSlug)
   const { theme, getOpacityStyle } = s
 
   // Countdown state from CountdownTimer — we render a custom UI but use theme data

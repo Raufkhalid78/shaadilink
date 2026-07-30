@@ -126,7 +126,7 @@ export async function GET() {
       .from('invitations')
       .select(`
         id, template_id, plan, partner1_name, partner2_name, venue,
-        hero_image_url, is_active, created_at, updated_at, slug, guest_links_quota,
+        hero_image_url, is_active, created_at, updated_at, slug, guest_links_quota, view_count,
         events(id, name, date, time, order_index),
         rsvps(id, status),
         wishes(id)

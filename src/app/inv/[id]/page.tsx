@@ -117,5 +117,5 @@ export default async function InvitationPage({ params, searchParams }: { params:
     guestSeats: guestSeats,
   };
 
-  return <InvitationViewerWrapper templateId={invitation.template_id} flowData={flowData} guestName={guestName} />;
+  return <InvitationViewerWrapper templateId={invitation.template_id} flowData={flowData} guestName={guestName} guestSlug={guest || null} />;
 }

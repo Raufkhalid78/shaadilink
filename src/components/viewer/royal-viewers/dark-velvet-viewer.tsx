@@ -30,6 +30,7 @@ interface RoyalViewerProps {
   templateId?: string
   flowData?: FlowData
   guestName?: string | null
+  guestSlug?: string | null
 }
 
 /* ─── Star Field (memoized, CSS keyframes only) ─── */
@@ -153,8 +154,8 @@ function CrystalCard({ children, accent, bg }: { children: React.ReactNode; acce
   )
 }
 
-export default function DarkVelvetViewer({ templateId, flowData, guestName }: RoyalViewerProps) {
-  const s = useInvitationState(templateId || 'dark-velvet', flowData, guestName)
+export default function DarkVelvetViewer({ templateId, flowData, guestName, guestSlug }: RoyalViewerProps) {
+  const s = useInvitationState(templateId || 'dark-velvet', flowData, guestName, guestSlug)
   const { theme, getOpacityStyle } = s
   const parsedGifts = useMemo(() => s.gifts ? s.parseGiftDetails(s.gifts) : null, [s.gifts])
 

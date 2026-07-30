@@ -7,7 +7,7 @@ import { getMapEmbedQuery } from './ui/reveal-section'
 import type { FlowData } from '@/lib/flow-types'
 
 
-export function useInvitationState(templateId: string | undefined, flowData: FlowData | undefined, guestName: string | null | undefined) {
+export function useInvitationState(templateId: string | undefined, flowData: FlowData | undefined, guestName: string | null | undefined, guestSlug?: string | null) {
   const theme = useMemo(() => getTheme(templateId), [templateId])
 
   const getOpacityStyle = useCallback((type: 'text' | 'bg' | 'border' | 'accent', defaultOpacity: number) => {
@@ -148,11 +148,15 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
   useEffect(() => {
     if (flowData?.invitationId) {
       const timer = setTimeout(() => {
-        fetch(`/api/invitations/${flowData.invitationId}/view`, { method: 'POST' }).catch(() => {})
+        fetch(`/api/invitations/${flowData.invitationId}/view`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ guestSlug: guestSlug || undefined })
+        }).catch(() => {})
       }, 2000)
       return () => clearTimeout(timer)
     }
-  }, [flowData?.invitationId, isDemo])
+  }, [flowData?.invitationId, isDemo, guestSlug])
 
   useEffect(() => {
     if (typeof window !== 'undefined' && flowData?.invitationId) {

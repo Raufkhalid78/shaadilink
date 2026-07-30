@@ -30,6 +30,7 @@ interface RoyalViewerProps {
   templateId?: string
   flowData?: FlowData
   guestName?: string | null
+  guestSlug?: string | null
 }
 
 /* ─── Hex Grid Background (pure SVG + CSS pan) ─── */
@@ -84,8 +85,8 @@ function ArtDecoEventCard({ children, accent, bg, border }: { children: React.Re
   )
 }
 
-export default function GeometricGoldViewer({ templateId, flowData, guestName }: RoyalViewerProps) {
-  const s = useInvitationState(templateId || 'geometric-gold', flowData, guestName)
+export default function GeometricGoldViewer({ templateId, flowData, guestName, guestSlug }: RoyalViewerProps) {
+  const s = useInvitationState(templateId || 'geometric-gold', flowData, guestName, guestSlug)
   const { theme, getOpacityStyle } = s
   const parsedGifts = useMemo(() => s.gifts ? s.parseGiftDetails(s.gifts) : null, [s.gifts])
 

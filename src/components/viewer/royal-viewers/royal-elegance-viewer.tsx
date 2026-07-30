@@ -30,6 +30,7 @@ interface RoyalViewerProps {
   templateId?: string
   flowData?: FlowData
   guestName?: string | null
+  guestSlug?: string | null
 }
 
 /* ─── Floating Rose Petals (Pure CSS) ─── */
@@ -139,8 +140,8 @@ function TheatreRSVPCard({ children, accent, bg, border }: { children: React.Rea
   )
 }
 
-export default function RoyalEleganceViewer({ templateId, flowData, guestName }: RoyalViewerProps) {
-  const s = useInvitationState(templateId || 'royal-elegance', flowData, guestName)
+export default function RoyalEleganceViewer({ templateId, flowData, guestName, guestSlug }: RoyalViewerProps) {
+  const s = useInvitationState(templateId || 'royal-elegance', flowData, guestName, guestSlug)
   const { theme, getOpacityStyle } = s
   const parsedGifts = useMemo(() => s.gifts ? s.parseGiftDetails(s.gifts) : null, [s.gifts])
 

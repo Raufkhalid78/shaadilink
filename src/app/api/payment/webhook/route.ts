@@ -117,6 +117,15 @@ export async function POST(request: NextRequest) {
       .from('profiles')
       .update({ plan: order.plan })
       .eq('id', order.user_id)
+      
+    // 4. Increment promo code usage if applied
+    if (order.promo_code) {
+      // Fetch the promo code to get current uses (since we can't do atomic update directly without RPC, we'll do read-modify-write for simplicity)
+      const { data: promo } = await service.from('referral_codes').select('id, current_uses').eq('code', order.promo_code).single()
+      if (promo) {
+        await service.from('referral_codes').update({ current_uses: (promo.current_uses || 0) + 1 }).eq('id', promo.id)
+      }
+    }
 
     console.log("Safepay webhook successfully processed payment for order:", order.id)
 

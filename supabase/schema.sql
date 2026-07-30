@@ -85,6 +85,7 @@ CREATE TABLE IF NOT EXISTS public.orders (
   amount          NUMERIC(10, 2) NOT NULL,
   currency        TEXT DEFAULT 'PKR',
   status          TEXT DEFAULT 'paid' CHECK (status IN ('pending', 'paid', 'failed')),
+  reminder_sent_at TIMESTAMPTZ,
   created_at      TIMESTAMPTZ DEFAULT NOW()
 );
 

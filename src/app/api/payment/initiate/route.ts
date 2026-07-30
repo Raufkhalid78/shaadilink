@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { invitationId, plan, guestLinksQuota } = body
+    const { invitationId, plan, guestLinksQuota, promoCode } = body
 
     if (!invitationId || !plan) {
       return NextResponse.json({ error: 'invitationId and plan are required' }, { status: 400 })
@@ -42,7 +42,23 @@ export async function POST(request: NextRequest) {
     const basePrice = inv.is_active ? 0 : (PLAN_AMOUNTS[plan] ?? PLAN_AMOUNTS.classic)
     const addedQuota = Math.max(0, (guestLinksQuota || 0) - (inv.guest_links_quota || 0))
     const addOnPrice = (addedQuota / 50) * 1000
-    const totalAmount = basePrice + addOnPrice
+    let totalAmount = basePrice + addOnPrice
+
+    // Apply promo code if provided
+    if (promoCode && totalAmount > 0) {
+      const { data: promo } = await service
+        .from('referral_codes')
+        .select('*')
+        .eq('code', promoCode.toUpperCase().trim())
+        .single()
+        
+      if (promo && (promo.max_uses === null || promo.current_uses < promo.max_uses)) {
+        if (promo.discount_percent) {
+          const discount = Math.floor(totalAmount * (promo.discount_percent / 100))
+          totalAmount = Math.max(0, totalAmount - discount)
+        }
+      }
+    }
 
     if (totalAmount <= 0) {
       return NextResponse.json({ error: 'No new charges to apply.' }, { status: 400 })
@@ -59,6 +75,7 @@ export async function POST(request: NextRequest) {
         currency: 'PKR',
         status: 'pending',
         target_guest_links_quota: guestLinksQuota || 0,
+        promo_code: promoCode ? promoCode.toUpperCase().trim() : null,
       })
       .select()
       .single()

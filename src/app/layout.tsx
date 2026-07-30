@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { AIChatFAB } from "@/components/ai-chat-fab";
 import { LanguageProvider } from "@/components/language-provider";
 import { FramerMotionProvider } from "@/components/framer-provider";
+import { SentryInit } from "@/components/sentry-init";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -171,7 +172,7 @@ export default function RootLayout({
       >
         <a 
           href="#main-content" 
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:p-4 focus:bg-background focus:text-foreground focus:rounded-md focus:shadow-md focus:outline-none focus:ring-2 focus:ring-primary"
+          className="absolute -translate-y-[200%] focus:translate-y-4 focus:absolute top-0 left-4 z-50 p-4 bg-background text-foreground rounded-md shadow-md outline-none ring-2 ring-primary transition-transform duration-200"
         >
           Skip to main content
         </a>
@@ -180,6 +181,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaJson) }}
         />
         <LanguageProvider>
+          <SentryInit />
           <FramerMotionProvider>
             <AIChatFAB />
             <div id="main-content">
