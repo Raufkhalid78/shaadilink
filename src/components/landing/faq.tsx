@@ -50,6 +50,11 @@ export function FAQ({ onContactClick }: { onContactClick?: () => void }) {
       question: t("faq.q5"),
       answer: t("faq.a5"),
     },
+    {
+      icon: "📄",
+      question: t("faq.q6"),
+      answer: t("faq.a6"),
+    },
   ];
 
   return (

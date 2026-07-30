@@ -61,6 +61,17 @@ export async function GET(
         views: viewsByDate[date],
       }))
 
+    // If there is only 1 data point, Recharts won't draw a line. 
+    // Add a 0-view point for the day before so the line goes up from 0.
+    if (chartData.length === 1) {
+      const prevDate = new Date(chartData[0].date)
+      prevDate.setDate(prevDate.getDate() - 1)
+      chartData.unshift({
+        date: prevDate.toISOString().split('T')[0],
+        views: 0
+      })
+    }
+
     return NextResponse.json({ chartData })
   } catch (error) {
     console.error('GET /api/invitations/[id]/analytics error:', error)

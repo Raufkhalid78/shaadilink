@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Loader2, PieChart as PieChartIcon, Activity } from "lucide-react";
 import { X } from "lucide-react";
 import { ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
+import { createClient } from "@/lib/supabase/client";
 
 interface AnalyticsDrawerProps {
   isOpen: boolean;
@@ -11,6 +12,7 @@ interface AnalyticsDrawerProps {
   invitationId: string | null;
   acceptedRsvps: number;
   declinedRsvps: number;
+  totalViews: number;
 }
 
 export function AnalyticsDrawer({
@@ -19,6 +21,7 @@ export function AnalyticsDrawer({
   invitationId,
   acceptedRsvps,
   declinedRsvps,
+  totalViews,
 }: AnalyticsDrawerProps) {
   const [chartData, setChartData] = useState<{ date: string; views: number }[]>([]);
   const [loading, setLoading] = useState(false);
@@ -26,14 +29,61 @@ export function AnalyticsDrawer({
   useEffect(() => {
     if (isOpen && invitationId) {
       setLoading(true);
-      fetch(`/api/invitations/${invitationId}/analytics`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.chartData) {
-            setChartData(data.chartData);
+      const fetchAnalytics = async () => {
+        try {
+          const supabase = createClient();
+          const thirtyDaysAgo = new Date();
+          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+          const { data, error } = await supabase
+            .from('invitation_views')
+            .select('viewed_at')
+            .eq('invitation_id', invitationId)
+            .gte('viewed_at', thirtyDaysAgo.toISOString());
+
+          if (error) {
+            console.error('Error fetching views:', error);
+            return;
           }
-        })
-        .finally(() => setLoading(false));
+
+          const viewsByDate: Record<string, number> = {};
+          if (data && data.length > 0) {
+            data.forEach((row) => {
+              const dateStr = new Date(row.viewed_at).toISOString().split('T')[0];
+              viewsByDate[dateStr] = (viewsByDate[dateStr] || 0) + 1;
+            });
+          } else if (totalViews > 0) {
+            // Legacy views: no records in invitation_views but view_count > 0
+            const todayStr = new Date().toISOString().split('T')[0];
+            viewsByDate[todayStr] = totalViews;
+          }
+
+          const formattedData = Object.keys(viewsByDate)
+            .sort()
+            .map((date) => ({
+              date,
+              views: viewsByDate[date],
+            }));
+
+          // Pad with 0 if only 1 data point so the line renders
+          if (formattedData.length === 1) {
+            const prevDate = new Date(formattedData[0].date);
+            prevDate.setDate(prevDate.getDate() - 1);
+            formattedData.unshift({
+              date: prevDate.toISOString().split('T')[0],
+              views: 0
+            });
+          }
+
+          setChartData(formattedData);
+        } catch (err) {
+          console.error('Failed to fetch analytics:', err);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchAnalytics();
     }
   }, [isOpen, invitationId]);
 
@@ -63,6 +113,7 @@ export function AnalyticsDrawer({
             </p>
           </div>
           <button 
+            type="button"
             onClick={onClose}
             className="p-2 hover:bg-muted rounded-full transition-colors"
           >

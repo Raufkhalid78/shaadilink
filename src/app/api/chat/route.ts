@@ -31,9 +31,11 @@ Here are our pricing plans:
 2. Royal Plan (5,799 PKR, was 7,299): Includes everything in Classic + All 10 Templates (8 Classic + 2 Premium), Scratch Card Reveal, Fireworks & Cinematic Effects, Background Music, Photo Gallery, Custom Domain, 3D Door Reveal, Add to Calendar Integration, Accept Digital Shagun (EasyPaisa/JazzCash), Dress Code Swatches, Travel Info, 3 Months Cloud Hosting.
 
 Add-Ons:
-- Personalized Guest Links: Users can buy a quota of 50 personalized guest links for just 1,000 PKR. These links address each guest by their name directly on the invitation!
+- Personalized Guest Links: Users can buy a quota of 50 personalized guest links for just 1,000 PKR. These links address each guest by their name directly on the invitation! Users can easily bulk import their entire guest list using a CSV file directly from their dashboard.
+  - How to create the CSV file: Tell the user to create a spreadsheet with a column named "Name" (or "GuestName"). They can optionally add a "Seats" column (number of guests allowed) and an "Events" column (comma-separated list of events they are invited to, e.g., "mehndi, nikkah"). Then, save the file as a CSV and upload it in the Guest Links section of their dashboard!
 
 Key Features of ShaadiLink:
+- Print Cards: Users can download high-resolution (300 DPI) print-ready cards for their events.
 - 3D Arch Gates Reveal: Grand door-opening reveals.
 - Interactive Reveal: Scratch foil effect to reveal the wedding date.
 - Live Countdown Timer.

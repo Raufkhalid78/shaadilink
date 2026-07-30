@@ -4,7 +4,7 @@ import { useRef, MouseEvent } from "react";
 import { m } from "framer-motion";
 import {
   Sparkles, Timer, MapPin, MessageCircleHeart, Share2,
-  Music, Crown, Languages
+  Music, Crown, Languages, Users
 } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 
@@ -320,8 +320,29 @@ export function Features() {
             </div>
           </BentoCard>
 
+          {/* Card 8: Multi-Language Support (1x1 Small) */}
+          <BentoCard gridClass="md:col-span-1 md:row-span-1" delay={0.48}>
+            <div className="flex flex-col h-full justify-between">
+              <div>
+                <Medallion icon={Languages} />
+                <h3 className="font-display font-bold text-base text-foreground mt-4 group-hover:text-gold transition-colors duration-300">
+                  {t("features.item.13.title")}
+                </h3>
+              </div>
+
+              {/* Rotating Translation elements */}
+              <div className="flex items-center justify-center gap-2.5 w-full border border-gold/5 bg-black/40 rounded-xl p-2 mt-4">
+                <span className="text-[9px] text-white/50">English</span>
+                <span className="text-gold/40 text-[8px]">✦</span>
+                <span className="text-[10px] font-amiri text-gold">اردو</span>
+                <span className="text-gold/40 text-[8px]">✦</span>
+                <span className="text-[9px] text-white/50">العربية</span>
+              </div>
+            </div>
+          </BentoCard>
+
           {/* Card 7: Unlimited Sharing (2x1 Wide) */}
-          <BentoCard gridClass="md:col-span-2 md:row-span-1" delay={0.48}>
+          <BentoCard gridClass="md:col-span-2 md:row-span-1" delay={0.56}>
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 h-full w-full">
               <div className="max-w-xs">
                 <Medallion icon={Share2} />
@@ -345,23 +366,29 @@ export function Features() {
             </div>
           </BentoCard>
 
-          {/* Card 8: Multi-Language Support (1x1 Small) */}
-          <BentoCard gridClass="md:col-span-1 md:row-span-1" delay={0.56}>
-            <div className="flex flex-col h-full justify-between">
-              <div>
-                <Medallion icon={Languages} />
-                <h3 className="font-display font-bold text-base text-foreground mt-4 group-hover:text-gold transition-colors duration-300">
-                  {t("features.item.13.title")}
+          {/* Card 9: Bulk CSV Guest Import (2x1 Wide) */}
+          <BentoCard gridClass="md:col-span-2 md:row-span-1" delay={0.64}>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 h-full w-full">
+              <div className="max-w-xs">
+                <Medallion icon={Users} />
+                <h3 className="font-display font-bold text-lg text-foreground mt-4 group-hover:text-gold transition-colors duration-300">
+                  {language === 'en' ? 'Bulk CSV Guest Import' : 'بلک مہمانوں کی فہرست'}
                 </h3>
+                <p className="text-muted-foreground text-xs leading-relaxed mt-1">
+                  {language === 'en' ? 'Upload a CSV file to instantly generate personalized guest links for your entire list. Supports Names, Seats, and Events.' : 'پوری مہمانوں کی فہرست کے لیے ذاتی نوعیت کے لنکس بنانے کے لیے CSV اپ لوڈ کریں۔'}
+                </p>
               </div>
 
-              {/* Rotating Translation elements */}
-              <div className="flex items-center justify-center gap-2.5 w-full border border-gold/5 bg-black/40 rounded-xl p-2 mt-4">
-                <span className="text-[9px] text-white/50">English</span>
-                <span className="text-gold/40 text-[8px]">✦</span>
-                <span className="text-[10px] font-amiri text-gold">اردو</span>
-                <span className="text-gold/40 text-[8px]">✦</span>
-                <span className="text-[9px] text-white/50">العربية</span>
+              {/* CSV Upload simulation */}
+              <div className="flex flex-col items-center justify-center p-3 rounded-xl bg-black/50 border border-gold/10 w-full sm:w-48 group-hover:border-gold/30 transition-colors">
+                <div className="flex items-center gap-2 text-[10px] text-white/70 mb-2">
+                  <div className="w-4 h-4 bg-emerald text-white rounded flex items-center justify-center font-bold text-[8px]">CSV</div>
+                  <span>guests_list.csv</span>
+                </div>
+                <div className="w-full bg-gold/10 rounded-full h-1.5 overflow-hidden">
+                  <div className="bg-gold h-full w-2/3 group-hover:w-full transition-all duration-1000 ease-out" />
+                </div>
+                <span className="text-[8px] text-gold/60 mt-1.5 uppercase tracking-wider">Generating Links...</span>
               </div>
             </div>
           </BentoCard>

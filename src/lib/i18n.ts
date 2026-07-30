@@ -176,6 +176,8 @@ export const translations = {
     'faq.a4': 'Once published, you will receive a unique link (e.g. shaadilink.com/inv/your-name). You can copy this link and send it via WhatsApp, Facebook, or email to all your guests. If you purchase Personalized Guest Links, you can generate unique links for each guest showing their name.',
     'faq.q5': 'What is Digital Shagun?',
     'faq.a5': 'Digital Shagun is a features on our Royal Plan that allows guests to send you wedding gifts (salami) directly via EasyPaisa, JazzCash, or bank transfer by displaying your account details neatly inside the invitation page.',
+    'faq.q6': 'Can I import my guest list in bulk?',
+    'faq.a6': 'Yes! You can upload a CSV file from your dashboard to instantly generate personalized guest links for your entire guest list. The CSV should have a "Name" column, and optionally "Seats" and "Events" columns.',
 
     // CTA Section
     'cta.title': 'Ready to Create Your Invitation?',
@@ -373,6 +375,8 @@ export const translations = {
     'faq.a4': 'شادی کارڈ مکمل ہونے پر آپ کو ایک لنک ملے گا جسے آپ کاپی کر کے واٹس ایپ، فیس بک یا کسی بھی ذریعے سے اپنے تمام مہمانوں کو بھیج سکتے ہیں۔',
     'faq.q5': 'ڈیجیٹل شگن کیا ہے؟',
     'faq.a5': 'اس کے ذریعے آپ کے مہمان کارڈ پر موجود آپ کے بینک یا ایزی پیسہ/جاز کیش اکاؤنٹ کی تفصیلات دیکھ کر آپ کو شگن (سلامی) براہ راست بھیج سکتے ہیں۔',
+    'faq.q6': 'کیا میں مہمانوں کی فہرست ایک ساتھ اپ لوڈ کر سکتا ہوں؟',
+    'faq.a6': 'جی ہاں! آپ ڈیش بورڈ سے CSV فائل اپ لوڈ کر کے اپنے تمام مہمانوں کے لیے ایک ساتھ ذاتی نوعیت کے لنکس بنا سکتے ہیں۔ CSV فائل میں "Name" (نام) کا کالم ہونا ضروری ہے، اور آپ چاہیں تو "Seats" اور "Events" کے کالم بھی شامل کر سکتے ہیں۔',
 
     // CTA Section
     'cta.title': 'کیا آپ اپنا کارڈ بنانے کے لیے تیار ہیں؟',

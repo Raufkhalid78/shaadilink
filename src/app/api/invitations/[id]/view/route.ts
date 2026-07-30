@@ -18,8 +18,8 @@ export async function POST(
     ).single()
 
     if (inv) {
-      // Call the RPC to increment the view count atomically and log the view
-      await service.rpc('increment_view_count', { inv_id: inv.id })
+      const { error: rpcError } = await service.rpc('increment_view_count', { inv_id: inv.id })
+      if (rpcError) console.error('RPC Error:', rpcError)
 
       // Handle guest link specific view count if guestSlug is provided
       try {

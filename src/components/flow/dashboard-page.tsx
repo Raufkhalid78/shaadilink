@@ -1165,19 +1165,21 @@ export function DashboardPage({
                             )}
 
                             {/* Print Cards */}
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => {
-                                setPrintCardsInvId(inv.id);
-                                setPrintCardsDrawerOpen(true);
-                              }}
-                              className="h-8 px-2 text-indigo-400 hover:bg-indigo-400/10 text-xs gap-1"
-                              title="Print Cards"
-                            >
-                              <Download className="w-3.5 h-3.5" />
-                              <span className="text-[10px]">Print</span>
-                            </Button>
+                            {inv.is_active && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => {
+                                  setPrintCardsInvId(inv.id);
+                                  setPrintCardsDrawerOpen(true);
+                                }}
+                                className="h-8 px-2 text-indigo-400 hover:bg-indigo-400/10 text-xs gap-1"
+                                title="Print Cards"
+                              >
+                                <Download className="w-3.5 h-3.5" />
+                                <span className="text-[10px]">Print</span>
+                              </Button>
+                            )}
 
                             {/* QR Code */}
                             {inv.is_active && (
@@ -1356,6 +1358,7 @@ export function DashboardPage({
         isOpen={analyticsDrawerOpen}
         onClose={() => setAnalyticsDrawerOpen(false)}
         invitationId={analyticsInvId}
+        totalViews={invitations.find(i => i.id === analyticsInvId)?.view_count || 0}
         acceptedRsvps={
           invitations.find(i => i.id === analyticsInvId)?.rsvps?.filter(r => r.status === "accept").length || 0
         }
