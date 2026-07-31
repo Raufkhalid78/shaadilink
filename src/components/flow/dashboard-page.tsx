@@ -732,21 +732,25 @@ export function DashboardPage({
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3 w-full md:w-auto shrink-0">
-                  <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-background/80 border border-gold/40 text-gold font-mono font-bold text-sm tracking-wider shadow-inner">
-                    <span>{myReferralCode.code}</span>
-                  </div>
+                  <div className="flex items-center justify-between gap-3 p-3 bg-muted/30 rounded-xl border border-border/50">
+                    <div className="flex flex-col">
+                      <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Your Discount Code</span>
+                      <span className="font-mono text-lg font-bold text-foreground">{myReferralCode.code}</span>
+                    </div>
 
-                  <Button
-                    size="sm"
-                    onClick={() => {
-                      navigator.clipboard.writeText(myReferralCode.code);
-                      toast.success("Referral code copied to clipboard!");
-                    }}
-                    className="bg-gold hover:bg-gold-light text-emerald-dark font-semibold gap-1.5 shadow-md"
-                  >
-                    <Copy className="w-3.5 h-3.5" />
-                    Copy Code
-                  </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        const copyText = `Use coupon code "${myReferralCode.code}" on ShaadiLink for 10% off! It can only be used for 5 persons.`;
+                        navigator.clipboard.writeText(copyText);
+                        toast.success("Discount code message copied to clipboard!");
+                      }}
+                      className="bg-gold hover:bg-gold-light text-emerald-dark font-semibold gap-1.5 shadow-md"
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                      Copy Code
+                    </Button>
+                  </div>
 
                   <span className="text-xs text-muted-foreground font-medium px-2.5 py-1.5 bg-muted/60 rounded-xl border border-border/40">
                     {myReferralCode.current_uses} / 5 Uses

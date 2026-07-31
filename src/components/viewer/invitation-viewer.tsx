@@ -557,6 +557,10 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
       const dynamicTexts: Record<string, string> = {}
       if (partner1) dynamicTexts.partner1 = partner1
       if (partner2) dynamicTexts.partner2 = partner2
+      if (flowData?.hostGroomFamily) dynamicTexts.hostGroomFamily = flowData.hostGroomFamily
+      if (flowData?.hostBrideFamily) dynamicTexts.hostBrideFamily = flowData.hostBrideFamily
+      if (flowData?.hostGroomCity) dynamicTexts.hostGroomCity = flowData.hostGroomCity.replace(/^from\s+/i, '')
+      if (flowData?.hostBrideCity) dynamicTexts.hostBrideCity = flowData.hostBrideCity.replace(/^from\s+/i, '')
       if (venueName) dynamicTexts.venueName = venueName
       if (venueAddress) dynamicTexts.venueAddress = venueAddress
       if (welcomeMsg) dynamicTexts.welcomeMsg = welcomeMsg
@@ -626,7 +630,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
     } finally {
       setIsTranslating(false)
     }
-  }, [language, partner1, partner2, venueName, venueAddress, welcomeMsg, dressCodeWomen, dressCodeMen, transportation, accommodation, gifts, events, translations])
+  }, [language, partner1, partner2, venueName, venueAddress, welcomeMsg, dressCodeWomen, dressCodeMen, transportation, accommodation, gifts, events, translations, flowData?.hostBrideFamily, flowData?.hostGroomFamily, flowData?.hostBrideCity, flowData?.hostGroomCity])
 
   // Update html element lang/dir attributes when language changes
   useEffect(() => {
@@ -956,19 +960,24 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
           <CornerOrnament position="br" themeId={theme.id} accentColor={theme.accent} />
           {/* Top gold line */}
           <div className="absolute top-16 md:top-20 left-1/2 -translate-x-1/2 w-64 md:w-80 z-10">
-            <GoldDivider themeId={theme.id} accentColor={theme.accent} />
+            {!(flowData?.hostBrideFamily || flowData?.hostGroomFamily) && (
+              <GoldDivider themeId={theme.id} accentColor={theme.accent} />
+            )}
           </div>
 
-          <div className="relative z-10 max-w-lg text-center">
+          <div className="relative z-10 max-w-4xl w-full px-4 text-center flex flex-col items-center justify-center">
             {/* Host Families / Parents (Optional Pakistani Feature) */}
             {(flowData?.hostBrideFamily || flowData?.hostGroomFamily) ? (
               <div
-                className="ss-animate-in mb-8 flex flex-col items-center gap-1"
+                className="ss-animate-in mb-8 flex flex-col items-center gap-1 w-full"
                 style={{ animationDelay: '0.3s' }}
               >
+                <div className="w-64 md:w-80 mb-6">
+                  <GoldDivider themeId={theme.id} accentColor={theme.accent} />
+                </div>
                 {flowData.hostGroomFamily && (
                   <p className={`${theme.fontCalligraphy} text-lg sm:text-xl`} style={{ color: theme.textSecondary }}>
-                    {flowData.hostGroomFamily} <span className="text-xs opacity-75">{flowData.hostGroomCity ? `(from ${flowData.hostGroomCity})` : ''}</span>
+                    {translations.hostGroomFamily || flowData.hostGroomFamily} <span className="text-xs opacity-75">{flowData.hostGroomCity ? `(${language === 'ur' ? '' : 'from '}${translations.hostGroomCity || flowData.hostGroomCity.replace(/^from\s+/i, '')}${language === 'ur' ? '  ' : ''})` : ''}</span>
                   </p>
                 )}
                 {flowData.hostBrideFamily && flowData.hostGroomFamily && (
