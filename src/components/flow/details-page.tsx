@@ -98,6 +98,12 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
       if (eventWithNameButNoDate) {
         newErrors.events = `Please add a date for "${eventWithNameButNoDate.name}"`;
       }
+      if (flowData.venueAddress && flowData.venueAddress.includes('|||')) {
+        const mapsUrl = flowData.venueAddress.split('|||')[1]?.trim();
+        if (mapsUrl && !mapsUrl.startsWith('https://maps.') && !mapsUrl.startsWith('https://goo.gl/') && !mapsUrl.startsWith('https://maps.app.goo.gl/') && !mapsUrl.includes('google.com/maps/')) {
+          newErrors.mapsUrl = 'Please enter a valid Google Maps URL (e.g. https://maps.app.goo.gl/...)';
+        }
+      }
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -125,13 +131,27 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
     
     const keys = Object.keys(newErrors);
     if (keys.length > 0) {
+      const firstError = keys[0];
+      
+      // Determine which step the error belongs to so we can navigate there
+      let errorStep = currentStep;
+      if (['partner1Name', 'partner2Name', 'slug'].includes(firstError)) {
+        errorStep = 1;
+      } else if (['venue', 'events', 'mapsUrl'].includes(firstError)) {
+        errorStep = 2;
+      }
+
+      if (errorStep !== currentStep) {
+        setCurrentStep(errorStep);
+      }
+
       setTimeout(() => {
-        const firstErrorId = `field-${keys[0]}`;
+        const firstErrorId = `field-${firstError}`;
         const el = document.getElementById(firstErrorId);
         if (el) {
           el.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
-      }, 50);
+      }, 100);
       return false;
     }
     
@@ -746,6 +766,12 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                               className="h-10 bg-background/80"
                             />
                           </div>
+                          <Input
+                            value={event.venue || ""}
+                            onChange={(e) => updateEvent(index, "venue", e.target.value)}
+                            placeholder="Specific venue for this event (Optional)"
+                            className="h-10 bg-background/80 w-full"
+                          />
                         </div>
                       ))}
                     </div>
