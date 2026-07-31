@@ -985,7 +985,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
                 )}
                 {flowData.hostBrideFamily && (
                   <p className={`${theme.fontCalligraphy} text-lg sm:text-xl`} style={{ color: theme.textSecondary }}>
-                    {flowData.hostBrideFamily} <span className="text-xs opacity-75">{flowData.hostBrideCity ? `(from ${flowData.hostBrideCity})` : ''}</span>
+                    {translations.hostBrideFamily || flowData.hostBrideFamily} <span className="text-xs opacity-75">{flowData.hostBrideCity ? `(${language === 'ur' ? '' : 'from '}${translations.hostBrideCity || flowData.hostBrideCity.replace(/^from\s+/i, '')}${language === 'ur' ? '  ' : ''})` : ''}</span>
                   </p>
                 )}
                 <p className={`mt-4 text-xs tracking-[0.2em] uppercase`} style={{ color: getOpacityStyle('text', 0.6) }}>
