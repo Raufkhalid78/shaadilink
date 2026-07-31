@@ -106,7 +106,19 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
       }
     }
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    
+    const keys = Object.keys(newErrors);
+    if (keys.length > 0) {
+      setTimeout(() => {
+        const firstErrorId = `field-${keys[0]}`;
+        const el = document.getElementById(firstErrorId);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 50);
+      return false;
+    }
+    return true;
   };
 
   const validate = () => {
