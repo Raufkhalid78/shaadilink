@@ -26,6 +26,7 @@ export function RevealSection({ children, className = '', delay = 0 }: { childre
       initial={{ opacity: 0, y: 40 }}
       animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
       transition={{ duration: 0.9, delay, ease: [0.25, 0.4, 0.25, 1] }}
+      style={{ willChange: 'opacity, transform' }}
       className={className}
     >
       {children}
