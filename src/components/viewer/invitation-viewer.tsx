@@ -975,17 +975,17 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
                 <div className="w-64 md:w-80 mb-6">
                   <GoldDivider themeId={theme.id} accentColor={theme.accent} />
                 </div>
-                {flowData.hostGroomFamily && (
+                {flowData.hostBrideFamily && (
                   <p className={`${theme.fontCalligraphy} text-lg sm:text-xl`} style={{ color: theme.textSecondary }}>
-                    {translations.hostGroomFamily || flowData.hostGroomFamily} <span className="text-xs opacity-75">{flowData.hostGroomCity ? `(${language === 'ur' ? '' : 'from '}${translations.hostGroomCity || flowData.hostGroomCity.replace(/^from\s+/i, '')}${language === 'ur' ? '  ' : ''})` : ''}</span>
+                    {translations.hostBrideFamily || flowData.hostBrideFamily} <span className="text-xs opacity-75">{flowData.hostBrideCity ? `(${language === 'ur' ? '' : 'from '}${translations.hostBrideCity || flowData.hostBrideCity.replace(/^from\s+/i, '')}${language === 'ur' ? '  ' : ''})` : ''}</span>
                   </p>
                 )}
                 {flowData.hostBrideFamily && flowData.hostGroomFamily && (
                   <span className="text-sm my-1" style={{ color: getOpacityStyle('text', 0.5) }}>&amp;</span>
                 )}
-                {flowData.hostBrideFamily && (
+                {flowData.hostGroomFamily && (
                   <p className={`${theme.fontCalligraphy} text-lg sm:text-xl`} style={{ color: theme.textSecondary }}>
-                    {translations.hostBrideFamily || flowData.hostBrideFamily} <span className="text-xs opacity-75">{flowData.hostBrideCity ? `(${language === 'ur' ? '' : 'from '}${translations.hostBrideCity || flowData.hostBrideCity.replace(/^from\s+/i, '')}${language === 'ur' ? '  ' : ''})` : ''}</span>
+                    {translations.hostGroomFamily || flowData.hostGroomFamily} <span className="text-xs opacity-75">{flowData.hostGroomCity ? `(${language === 'ur' ? '' : 'from '}${translations.hostGroomCity || flowData.hostGroomCity.replace(/^from\s+/i, '')}${language === 'ur' ? '  ' : ''})` : ''}</span>
                   </p>
                 )}
                 <p className={`mt-4 text-xs tracking-[0.2em] uppercase`} style={{ color: getOpacityStyle('text', 0.6) }}>
