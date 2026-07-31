@@ -708,7 +708,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                         />
                       </div>
 
-                      <div className="space-y-1.5">
+                      <div className="space-y-1.5" id="field-mapsUrl">
                         <label className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
                           Google Maps Link (Optional)
                         </label>
@@ -726,7 +726,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                   </section>
 
                   {/* Dynamic Multi-Events */}
-                  <section className="p-6 rounded-3xl bg-card/70 border border-border/60 shadow-xl backdrop-blur-xl space-y-4">
+                  <section id="field-events" className="p-6 rounded-3xl bg-card/70 border border-border/60 shadow-xl backdrop-blur-xl space-y-4">
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-2.5">
                         <div className="w-8 h-8 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-gold">
