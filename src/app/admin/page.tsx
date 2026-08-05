@@ -35,7 +35,7 @@ export default async function AdminOverview() {
     .limit(100);
 
   // Group by day for the last 7 days
-  const revenueData = [];
+  const revenueData: { name: string; total: number }[] = [];
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const today = new Date();
   
