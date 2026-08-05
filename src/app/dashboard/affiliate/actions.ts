@@ -9,15 +9,25 @@ export async function getAffiliateData() {
   
   if (!session) return { error: 'Unauthorized' };
 
-  // Check if they are an approved affiliate
+  // Check if they are an approved affiliate (match by user_id OR email)
   const { data: app } = await supabase
     .from('affiliate_applications')
     .select('*')
-    .eq('user_id', session.user.id)
-    .single();
+    .or(`user_id.eq.${session.user.id},email.eq.${session.user.email}`)
+    .limit(1)
+    .maybeSingle();
 
   if (!app) {
     return { error: 'Not an approved affiliate' };
+  }
+
+  // Auto-link user_id if it is missing
+  if (!app.user_id) {
+    await supabase
+      .from('affiliate_applications')
+      .update({ user_id: session.user.id })
+      .eq('id', app.id);
+    app.user_id = session.user.id;
   }
 
   if (app.status !== 'approved') {

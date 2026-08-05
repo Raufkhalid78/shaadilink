@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServiceClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,8 +17,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid email address' }, { status: 400 })
     }
 
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
     const service = createServiceClient()
     const { error } = await service.from('affiliate_applications').insert({
+      user_id: user?.id || null,
       name: name.trim(),
       email: email.trim().toLowerCase(),
       social_id: socialId?.trim() || null,
