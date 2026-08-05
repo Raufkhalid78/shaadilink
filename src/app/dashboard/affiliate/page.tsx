@@ -30,7 +30,7 @@ export default async function AffiliateDashboardPage() {
       <AffiliateDashboardClient 
         application={data.application}
         referralCode={data.referralCode}
-        commissions={data.commissions}
+        commissions={data.commissions || []}
         stats={data.stats!}
       />
     </div>
