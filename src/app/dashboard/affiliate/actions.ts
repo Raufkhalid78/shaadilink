@@ -16,8 +16,12 @@ export async function getAffiliateData() {
     .eq('user_id', session.user.id)
     .single();
 
-  if (!app || app.status !== 'approved') {
+  if (!app) {
     return { error: 'Not an approved affiliate' };
+  }
+
+  if (app.status !== 'approved') {
+    return { error: 'Not an approved affiliate', application: app };
   }
 
   // Get their referral code
