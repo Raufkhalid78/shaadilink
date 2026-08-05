@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, ShoppingBag, MessageSquare, CreditCard } from 'lucide-react';
-import { RevenueChart } from '@/components/admin/revenue-chart-wrapper';
+import { RevenueChart, OrdersChart } from '@/components/admin/revenue-chart-wrapper';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,12 +30,13 @@ export default async function AdminOverview() {
 
   const { data: recentOrders } = await supabase
     .from('orders')
-    .select('created_at, amount')
+    .select('created_at, amount, status')
     .order('created_at', { ascending: false })
     .limit(100);
 
   // Group by day for the last 7 days
   const revenueData: { name: string; total: number }[] = [];
+  const ordersData: { name: string; total: number }[] = [];
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const today = new Date();
   
@@ -44,15 +45,23 @@ export default async function AdminOverview() {
     date.setDate(date.getDate() - i);
     const dayName = days[date.getDay()];
     
-    // Sum orders for this day
-    const dayTotal = (recentOrders || [])
+    // Sum revenue for this day (only paid)
+    const dayRevenue = (recentOrders || [])
+      .filter(o => {
+        const d = new Date(o.created_at);
+        return o.status === 'paid' && d.getDate() === date.getDate() && d.getMonth() === date.getMonth() && d.getFullYear() === date.getFullYear();
+      })
+      .reduce((sum, order) => sum + (Number(order.amount) || 0), 0);
+      
+    // Count orders for this day (all statuses)
+    const dayOrders = (recentOrders || [])
       .filter(o => {
         const d = new Date(o.created_at);
         return d.getDate() === date.getDate() && d.getMonth() === date.getMonth() && d.getFullYear() === date.getFullYear();
-      })
-      .reduce((sum, order) => sum + (Number(order.amount) || 0), 0);
+      }).length;
 
-    revenueData.push({ name: dayName, total: dayTotal });
+    revenueData.push({ name: dayName, total: dayRevenue });
+    ordersData.push({ name: dayName, total: dayOrders });
   }
 
   return (
@@ -88,7 +97,16 @@ export default async function AdminOverview() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="border-border/50 bg-card/30">
           <CardHeader>
-            <CardTitle>Recent Revenue</CardTitle>
+            <CardTitle>Recent Orders</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <OrdersChart data={ordersData} />
+          </CardContent>
+        </Card>
+        
+        <Card className="border-border/50 bg-card/30">
+          <CardHeader>
+            <CardTitle>Recent Revenue (Paid)</CardTitle>
           </CardHeader>
           <CardContent>
             <RevenueChart data={revenueData} />

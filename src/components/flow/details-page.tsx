@@ -34,6 +34,8 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(!!flowData.slug);
   const [currentStep, setCurrentStep] = useState<number>(1);
+  const [isCheckingSlug, setIsCheckingSlug] = useState(false);
+  const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null);
 
   // Auto-generate slug from partner names if it's not manually edited
   useEffect(() => {
@@ -44,6 +46,44 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
       onUpdateData({ slug: autoSlug });
     }
   }, [flowData.partner1Name, flowData.partner2Name, isEdit, slugManuallyEdited, onUpdateData]);
+
+  // Debounced check for slug availability
+  useEffect(() => {
+    const currentSlug = flowData.slug;
+    if (!currentSlug) {
+      setSlugAvailable(null);
+      return;
+    }
+
+    const checkSlug = async () => {
+      setIsCheckingSlug(true);
+      try {
+        const excludeParam = isEdit && flowData.invitationId ? `&excludeId=${flowData.invitationId}` : '';
+        const res = await fetch(`/api/invitations/check-slug?slug=${encodeURIComponent(currentSlug)}${excludeParam}`);
+        if (res.ok) {
+          const data = await res.json();
+          setSlugAvailable(data.available);
+          
+          if (!data.available) {
+            setErrors(prev => ({ ...prev, slug: "This link is already taken" }));
+          } else {
+            setErrors(prev => {
+              const newErrors = { ...prev };
+              delete newErrors.slug;
+              return newErrors;
+            });
+          }
+        }
+      } catch (err) {
+        console.error("Failed to check slug availability", err);
+      } finally {
+        setIsCheckingSlug(false);
+      }
+    };
+
+    const timeoutId = setTimeout(checkSlug, 500);
+    return () => clearTimeout(timeoutId);
+  }, [flowData.slug, isEdit, flowData.invitationId]);
 
   // Play audio preview on selection
   const handleMusicSelection = (trackId: string) => {
@@ -93,6 +133,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
     if (step === 1) {
       if (!flowData.partner1Name.trim()) newErrors.partner1Name = "Partner 1 name is required";
       if (!flowData.partner2Name.trim()) newErrors.partner2Name = "Partner 2 name is required";
+      if (flowData.slug && slugAvailable === false) newErrors.slug = "This link is already taken";
     } else if (step === 2) {
       if (!flowData.venue.trim()) newErrors.venue = "Venue name is required";
       const eventWithNameButNoDate = flowData.events.find(e => e.name.trim() && !e.date.trim());
@@ -126,6 +167,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
     const newErrors: Record<string, string> = {};
     if (!flowData.partner1Name.trim()) newErrors.partner1Name = "Name is required";
     if (!flowData.partner2Name.trim()) newErrors.partner2Name = "Name is required";
+    if (flowData.slug && slugAvailable === false) newErrors.slug = "This link is already taken";
     if (!flowData.venue.trim()) newErrors.venue = "Venue is required";
 
     const eventWithNameButNoDate = flowData.events.find(e => e.name.trim() && !e.date.trim());
@@ -568,20 +610,37 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                         <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-border bg-muted text-muted-foreground text-xs h-11">
                           shaadilink.com/inv/
                         </span>
-                        <Input
-                          value={flowData.slug || ""}
-                          onChange={(e) => {
-                            setSlugManuallyEdited(true);
-                            const cleanVal = e.target.value
-                              .toLowerCase()
-                              .replace(/\s+/g, "-")
-                              .replace(/[^a-z0-9\-_]/g, "");
-                            onUpdateData({ slug: cleanVal });
-                          }}
-                          placeholder="e.g. ahmed-fatima-2026"
-                          className={`rounded-l-none h-11 bg-background/80 ${errors.slug ? "border-red-400" : ""}`}
-                        />
+                        <div className="relative flex-1">
+                          <Input
+                            value={flowData.slug || ""}
+                            onChange={(e) => {
+                              setSlugManuallyEdited(true);
+                              const cleanVal = e.target.value
+                                .toLowerCase()
+                                .replace(/\s+/g, "-")
+                                .replace(/[^a-z0-9\-_]/g, "");
+                              onUpdateData({ slug: cleanVal });
+                            }}
+                            placeholder="e.g. ahmed-fatima-2026"
+                            className={`rounded-l-none h-11 bg-background/80 pr-10 ${errors.slug ? "border-red-400" : (slugAvailable ? "border-emerald/50" : "")}`}
+                          />
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                            {isCheckingSlug ? (
+                              <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />
+                            ) : flowData.slug && slugAvailable ? (
+                              <Check className="w-4 h-4 text-emerald" />
+                            ) : flowData.slug && slugAvailable === false ? (
+                              <X className="w-4 h-4 text-red-500" />
+                            ) : null}
+                          </div>
+                        </div>
                       </div>
+                      {errors.slug && <p className="text-xs text-red-500">{errors.slug}</p>}
+                      {slugAvailable && flowData.slug && !errors.slug && (
+                        <p className="text-xs text-emerald font-medium flex items-center gap-1">
+                          <Check className="w-3 h-3" /> Link is available!
+                        </p>
+                      )}
                     </div>
                   </section>
 

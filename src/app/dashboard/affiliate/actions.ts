@@ -97,35 +97,69 @@ export async function updatePayoutDetails(formData: FormData) {
   return { success: true };
 }
 
-export async function generateReferralCode() {
+export async function generateReferralCode(customCode: string) {
   const authSupabase = await createClient();
   const { data: { session } } = await authSupabase.auth.getSession();
   
   if (!session) return { error: 'Unauthorized' };
 
-  // Get first name for the code prefix
-  const { data: app } = await authSupabase
-    .from('affiliate_applications')
-    .select('name')
-    .eq('user_id', session.user.id)
-    .single();
-    
-  if (!app) return { error: 'Affiliate not found' };
+  if (!customCode || customCode.length < 3) {
+    return { error: 'Code must be at least 3 characters long' };
+  }
 
-  const firstName = app.name.split(' ')[0].toUpperCase().replace(/[^A-Z]/g, '');
-  const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
-  const code = `${firstName}${randomSuffix}`;
+  // Validate alphanumeric and uppercase
+  const code = customCode.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (code !== customCode.toUpperCase()) {
+    return { error: 'Code can only contain letters and numbers' };
+  }
 
   const service = createServiceClient();
-  const { error } = await service.from('referral_codes').insert({
-    code,
-    discount_percent: 10,
-    max_uses: null, // unlimited
-    user_id: session.user.id
-  });
 
-  if (error) {
-    return { error: 'Failed to generate code' };
+  // Check if code is already taken by someone else
+  const { data: existingCode } = await service
+    .from('referral_codes')
+    .select('id, user_id')
+    .eq('code', code)
+    .maybeSingle();
+
+  if (existingCode && existingCode.user_id !== session.user.id) {
+    return { error: 'This code is already taken. Please choose another.' };
+  }
+
+  // Check if the user already has a referral code
+  const { data: userCode } = await service
+    .from('referral_codes')
+    .select('*')
+    .eq('user_id', session.user.id)
+    .maybeSingle();
+
+  if (userCode) {
+    if (userCode.max_uses === null) {
+      return { error: 'You have already created your custom affiliate code.' };
+    }
+    // Update existing code to the custom code, 10% discount, and unlimited uses
+    const { error: updateError } = await service
+      .from('referral_codes')
+      .update({
+        code,
+        discount_percent: 10,
+        max_uses: null
+      })
+      .eq('id', userCode.id);
+
+    if (updateError) return { error: 'Failed to update your code.' };
+  } else {
+    // Insert new code
+    const { error: insertError } = await service
+      .from('referral_codes')
+      .insert({
+        code,
+        discount_percent: 10,
+        max_uses: null, // unlimited
+        user_id: session.user.id
+      });
+
+    if (insertError) return { error: 'Failed to generate code.' };
   }
 
   revalidatePath('/dashboard/affiliate');

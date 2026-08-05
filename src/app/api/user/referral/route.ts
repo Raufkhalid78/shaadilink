@@ -27,14 +27,14 @@ export async function GET() {
     const emailPrefix = user.email ? user.email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '').toUpperCase() : 'USER'
     const shortPrefix = emailPrefix.slice(0, 5)
     const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase()
-    const newCode = `${shortPrefix}${randomSuffix}10` // 10% discount code
+    const newCode = `${shortPrefix}${randomSuffix}5` // 5% discount code
 
     const { data: newReferralCode, error: insertError } = await service
       .from('referral_codes')
       .insert({
         user_id: user.id,
         code: newCode,
-        discount_percent: 10, // Default discount they give to friends
+        discount_percent: 5, // Default discount they give to friends
         max_uses: 5, // Limited sharing to create scarcity
         current_uses: 0
       })

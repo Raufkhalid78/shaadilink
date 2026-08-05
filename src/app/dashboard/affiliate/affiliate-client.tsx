@@ -47,6 +47,7 @@ export function AffiliateDashboardClient({
 }: AffiliateDashboardClientProps) {
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [customCodeInput, setCustomCodeInput] = useState('');
 
   const handleUpdatePayout = async (formData: FormData) => {
     setLoading(true);
@@ -60,9 +61,9 @@ export function AffiliateDashboardClient({
     }
   };
 
-  const handleGenerateCode = async () => {
+  const handleGenerateCode = async (customCode: string) => {
     setGenerating(true);
-    const res = await generateReferralCode();
+    const res = await generateReferralCode(customCode);
     setGenerating(false);
 
     if (res.error) {
@@ -167,7 +168,7 @@ export function AffiliateDashboardClient({
                 </p>
               </div>
 
-              {referralCode ? (
+              {referralCode && referralCode.max_uses === null ? (
                 <div className="w-full max-w-md space-y-4 pt-4">
                   <div className="relative group/input">
                     <div className="absolute -inset-1 bg-gradient-to-r from-gold to-emerald rounded-xl blur opacity-20 group-hover/input:opacity-40 transition duration-500" />
@@ -194,7 +195,7 @@ export function AffiliateDashboardClient({
                   </div>
                   <div className="text-xs text-muted-foreground pt-2 flex items-center justify-center gap-1.5">
                     <Info className="w-3.5 h-3.5" />
-                    Code usage: {referralCode.current_uses} / {referralCode.max_uses || 'Unlimited'}
+                    Code usage: {referralCode.current_uses} / Unlimited
                   </div>
                 </div>
               ) : (
@@ -203,16 +204,25 @@ export function AffiliateDashboardClient({
                     <TicketIcon className="w-8 h-8 text-emerald" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-foreground">Ready to start earning?</h3>
-                    <p className="text-sm text-muted-foreground mt-1">Generate your unique referral code instantly.</p>
+                    <h3 className="font-bold text-foreground">Create Your Custom Partner Code</h3>
+                    <p className="text-sm text-muted-foreground mt-1">Choose a unique code (e.g. ALIKHAN or WEDS2024). You can only create this once!</p>
                   </div>
-                  <Button 
-                    onClick={handleGenerateCode} 
-                    disabled={generating}
-                    className="w-full bg-gold hover:bg-gold-light text-emerald-dark font-bold py-6 text-lg"
-                  >
-                    {generating ? 'Generating...' : 'Generate My Code Now'}
-                  </Button>
+                  <div className="space-y-3">
+                    <Input 
+                      placeholder="Enter custom code..." 
+                      className="text-center font-mono font-bold text-lg h-12 uppercase" 
+                      value={customCodeInput}
+                      onChange={(e) => setCustomCodeInput(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
+                      maxLength={15}
+                    />
+                    <Button 
+                      onClick={() => handleGenerateCode(customCodeInput)} 
+                      disabled={generating || customCodeInput.length < 3}
+                      className="w-full bg-gold hover:bg-gold-light text-emerald-dark font-bold py-6 text-lg"
+                    >
+                      {generating ? 'Saving...' : 'Lock In My Code'}
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>

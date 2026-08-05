@@ -50,14 +50,26 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
   const discountAmount = appliedPromo && discountPercent > 0 ? Math.floor(rawTotal * (discountPercent / 100)) : 0;
   const finalTotal = Math.max(0, rawTotal - discountAmount);
 
-  const handleApplyPromo = () => {
+  const handleApplyPromo = async () => {
     const code = promoCodeInput.trim().toUpperCase();
     if (!code) return;
 
     if (code.length >= 3) {
-      setAppliedPromo(code);
-      setDiscountPercent(10);
-      toast.success(`Promo code '${code}' applied! 10% discount added.`);
+      const loadingToast = toast.loading("Verifying promo code...");
+      try {
+        const res = await fetch(`/api/payment/promo?code=${encodeURIComponent(code)}`);
+        const data = await res.json();
+        
+        if (res.ok && data.valid) {
+          setAppliedPromo(code);
+          setDiscountPercent(data.discountPercent);
+          toast.success(`Promo code '${code}' applied! ${data.discountPercent}% discount added.`, { id: loadingToast });
+        } else {
+          toast.error(data.error || "Invalid promo code.", { id: loadingToast });
+        }
+      } catch (err) {
+        toast.error("Failed to verify promo code.", { id: loadingToast });
+      }
     } else {
       toast.error("Invalid promo code. Please enter a valid code.");
     }
@@ -245,7 +257,7 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                     </div>
                     {appliedPromo && (
                       <p className="text-xs text-emerald font-semibold flex items-center gap-1">
-                        <CheckCircle2 className="w-3.5 h-3.5" /> Promo code '{appliedPromo}' applied! 10% discount active.
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Promo code '{appliedPromo}' applied! {discountPercent}% discount active.
                       </p>
                     )}
                   </div>
