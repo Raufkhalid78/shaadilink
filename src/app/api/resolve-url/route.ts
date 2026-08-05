@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { RateLimiter } from '@/lib/rate-limit';
-
-const rateLimiter = new RateLimiter(5, 60000); // 5 requests per minute
+import { resolveLimiter } from '@/lib/rate-limit';
 
 export async function GET(request: NextRequest) {
   const ip = request.headers.get('x-forwarded-for') ?? 'unknown';
-  if (!rateLimiter.check(ip)) {
+  const { success } = await resolveLimiter.limit(ip);
+  if (!success) {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
   }
   const url = request.nextUrl.searchParams.get('url');

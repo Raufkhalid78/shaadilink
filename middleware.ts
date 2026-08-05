@@ -15,7 +15,8 @@ export async function middleware(request: NextRequest) {
     form-action 'self';
     frame-src 'self' https://www.youtube.com https://*.getsafepay.com https://getsafepay.com https://*.getsafepay.pk https://getsafepay.pk https://maps.google.com https://www.google.com;
     frame-ancestors 'none';
-    connect-src 'self' https://nldoyrprekstnifrlblo.supabase.co https://*.getsafepay.com https://getsafepay.com https://*.getsafepay.pk https://getsafepay.pk https://unpkg.com;
+    connect-src 'self' https://nldoyrprekstnifrlblo.supabase.co https://*.getsafepay.com https://getsafepay.com https://*.getsafepay.pk https://getsafepay.pk https://unpkg.com https://*.sentry.io https://*.ingest.sentry.io;
+    worker-src 'self' blob:;
     upgrade-insecure-requests;
   `.replace(/\s{2,}/g, ' ').trim()
 

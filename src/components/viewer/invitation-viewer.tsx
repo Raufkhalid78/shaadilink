@@ -2,21 +2,6 @@
 
 import dynamic from 'next/dynamic'
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
-import { Cinzel_Decorative, Great_Vibes } from "next/font/google"
-
-const cinzelDec = Cinzel_Decorative({
-  variable: "--font-cinzel-dec",
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  display: "swap",
-})
-
-const greatVibes = Great_Vibes({
-  variable: "--font-great-vibes",
-  subsets: ["latin"],
-  weight: ["400"],
-  display: "swap",
-})
 import { createPortal } from 'react-dom'
 import { m, AnimatePresence, useInView } from 'framer-motion'
 import { Button } from '@/components/ui/button'
@@ -806,7 +791,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
   }, [language, translations, getEventDescription])
 
   return (
-    <div className={`relative min-h-screen overflow-x-hidden ${cinzelDec.variable} ${greatVibes.variable}`} dir={language === 'ur' ? 'rtl' : 'ltr'} style={{ backgroundColor: theme.bgPrimary, color: theme.textPrimary }}>
+    <div className={`relative min-h-screen overflow-x-hidden`} dir={language === 'ur' ? 'rtl' : 'ltr'} style={{ backgroundColor: theme.bgPrimary, color: theme.textPrimary }}>
       <BackgroundParticles accentColor={theme.accent} />
 
       {/* ═══ Door Opening Overlay ═══ */}
@@ -861,8 +846,8 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
       {/* ─── Bismillah Banner (shown only if enabled) ─── */}
       {flowData?.showBismillah !== false && (
         <m.div
-          initial={{ borderColor: 'transparent' }}
-          animate={doorsOpened ? { borderColor: getOpacityStyle('border', 0.15) } : { borderColor: 'transparent' }}
+          initial={{ borderColor: 'rgba(0,0,0,0)' }}
+          animate={doorsOpened ? { borderColor: getOpacityStyle('border', 0.15) } : { borderColor: 'rgba(0,0,0,0)' }}
           transition={{ delay: 2.2, duration: 1.0 }}
           className="relative flex flex-col items-center justify-center py-10 px-6 overflow-hidden border-b"
         >
@@ -1001,12 +986,18 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
               </p>
             )}
 
-            <h1
+            <h1 className="sr-only">
+              {translatedPartner1} and {translatedPartner2} Wedding Invitation
+            </h1>
+
+            <div
+              role="heading"
+              aria-level={2}
               className={`ss-animate-in ${theme.fontDisplay} text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-[0.08em] mb-2`}
               style={{ color: theme.textPrimary, animationDelay: '0.5s' }}
             >
               {translatedPartner1}
-            </h1>
+            </div>
 
             <div
               className="ss-scale-in-x flex items-center justify-center gap-6 my-5"
@@ -1017,12 +1008,14 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
               <div className="w-20 h-px" style={{ background: `linear-gradient(270deg, transparent, ${theme.accentDark})` }} />
             </div>
 
-            <h1
+            <div
+              role="heading"
+              aria-level={2}
               className={`ss-animate-in ${theme.fontDisplay} text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-[0.08em] mb-8`}
               style={{ color: theme.textPrimary, animationDelay: '0.9s' }}
             >
               {translatedPartner2}
-            </h1>
+            </div>
 
             <div
               className="ss-animate-in flex items-center justify-center gap-3 mb-6"

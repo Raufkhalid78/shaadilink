@@ -843,3 +843,58 @@
 .ss-card-enter { animation: cardEnter 1.2s cubic-bezier(0.25, 0.4, 0.25, 1) both; }
 @keyframes cardFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 .ss-card-float { animation: cardFloat 5s ease-in-out infinite; }
+
+/* ─────────────────────────────────────────────────────
+   📱 MOBILE PERFORMANCE OPTIMIZATIONS
+   Stop heavy animations/effects that destroy perf on
+   low-end Android devices. This targets screens <= 768px.
+   ───────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Kill box-shadow pulse loops — these trigger repaints every frame */
+  .animate-button-glow,
+  .gold-border-pulse,
+  .countdown-pulse,
+  .green-glow,
+  .pulse-glow {
+    animation: none !important;
+  }
+
+  /* Stop infinite idle template animations */
+  .door-breathe-idle,
+  .curtain-drape-idle,
+  .petal-sway-idle,
+  .split-shimmer-idle,
+  .scroll-shimmer-idle,
+  .dome-float-idle,
+  .lantern-glow-idle,
+  .animate-rotate-ring,
+  .bg-particle,
+  .animate-float {
+    animation: none !important;
+  }
+
+  /* Replace 3D perspective with simple fade — 3D transforms are GPU-intensive */
+  .perspective-1000 {
+    perspective: none !important;
+  }
+  [style*="rotateY"] {
+    transform: none !important;
+  }
+  .transform-style-preserve-3d {
+    transform-style: flat !important;
+  }
+
+  /* Reduce backdrop-blur: blur(20-30px) causes compositor lag during scroll */
+  .glass-card,
+  .glass-card-strong,
+  [class*="backdrop-blur"] {
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+  }
+
+  /* Float card animation: keep it but reduce duration/distance for less jank */
+  .ss-card-float {
+    animation-duration: 8s !important;
+  }
+}
+

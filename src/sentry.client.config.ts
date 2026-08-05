@@ -1,26 +1,27 @@
 // This file configures the initialization of Sentry on the client.
-// The config you add here will be used whenever a users loads a page in their browser.
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
 import * as Sentry from "@sentry/nextjs";
 
+const isProd = process.env.NODE_ENV === "production";
+
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN || "https://4a3e5d1ca7315c1e4df9a6812f1a1f4f@o4511825738792960.ingest.de.sentry.io/4511825763172432",
 
-  // Add optional integrations for additional features
-  integrations: typeof window !== "undefined" && typeof Sentry.replayIntegration === "function" ? [Sentry.replayIntegration()] : [],
+  // Replay: only load in production and at a low rate to avoid mobile CPU drain.
+  integrations: isProd && typeof window !== "undefined" && typeof Sentry.replayIntegration === "function"
+    ? [Sentry.replayIntegration()]
+    : [],
 
-  // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
-  tracesSampleRate: 1,
+  // Reduced from 1.0 → 0.05 in production. Tracing 100% of sessions tanks mobile performance.
+  tracesSampleRate: isProd ? 0.05 : 1.0,
 
-  // Define how likely Replay events are sampled.
-  // This sets the sample rate to be 10%. You may want this to be 100% while
-  // in development and sample at a lower rate in production
-  replaysSessionSampleRate: 0.1,
+  // Reduced from 10% → 2% to minimize Replay worker CPU usage on mobile.
+  replaysSessionSampleRate: isProd ? 0.02 : 0,
 
-  // Define how likely Replay events are sampled when an error occurs.
-  replaysOnErrorSampleRate: 1.0,
+  // Keep 100% on error for debugging issues in production.
+  replaysOnErrorSampleRate: isProd ? 1.0 : 0,
 
-  // Setting this option to true will print useful information to the console while you're setting up Sentry.
-  debug: true,
+  // NEVER enable debug in production — causes heavy console logging.
+  debug: false,
 });

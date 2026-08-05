@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { m } from "framer-motion";
 import { ChevronDown, Sparkles, Shield, Star, Heart, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -316,9 +316,16 @@ export function Hero({ onViewTemplates, onGetStarted, onViewDemo }: HeroProps) {
       .catch(err => console.error('Error fetching stats:', err));
   }, []);
 
+  const isMobile = useRef(false);
+  useEffect(() => {
+    isMobile.current = window.matchMedia('(max-width: 768px)').matches;
+  }, []);
+
   const particles = useMemo<ParticleData[]>(
-    () =>
-      Array.from({ length: 6 }, (_, i) => ({
+    () => {
+      // No infinite GPU animations on mobile — kills battery and causes jank
+      if (typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches) return [];
+      return Array.from({ length: 6 }, (_, i) => ({
         id: i,
         size: 2 + ((i * 7 + 3) % 5) * 0.8,
         left: 5 + ((i * 13 + 7) % 90),
@@ -326,7 +333,8 @@ export function Hero({ onViewTemplates, onGetStarted, onViewDemo }: HeroProps) {
         duration: 8 + ((i * 11 + 2) % 12),
         opacity: 0.15 + ((i * 3 + 1) % 4) * 0.1,
         driftX: 10 + ((i * 9 + 5) % 30),
-      })),
+      }));
+    },
     []
   );
 

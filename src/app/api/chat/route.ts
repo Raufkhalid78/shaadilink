@@ -1,6 +1,6 @@
 import { createOpenAI } from '@ai-sdk/openai';
 import { streamText } from 'ai';
-import { RateLimiter } from '@/lib/rate-limit';
+import { chatLimiter } from '@/lib/rate-limit';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -11,12 +11,12 @@ const openrouter = createOpenAI({
   apiKey: process.env.OPENROUTER_API_KEY,
 });
 
-const rateLimiter = new RateLimiter(10, 60000); // 10 messages per minute per IP
-
 export async function POST(req: Request) {
   try {
     const ip = req.headers.get('x-forwarded-for') ?? 'unknown';
-    if (!rateLimiter.check(ip)) {
+    const { success } = await chatLimiter.limit(ip);
+    
+    if (!success) {
       return new Response('Too many requests. Please wait a moment.', { status: 429 });
     }
 

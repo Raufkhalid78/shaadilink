@@ -23,6 +23,11 @@ export function BackgroundParticles({ accentColor }: { accentColor?: string }) {
   const [particles, setParticles] = useState<Particle[]>([])
 
   useEffect(() => {
+    // Disable particles on mobile to improve performance
+    if (typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches) {
+      return;
+    }
+
     const generated = Array.from({ length: 25 }).map(() => ({
       left: Math.random() * 100,
       size: 2 + Math.random() * 3,

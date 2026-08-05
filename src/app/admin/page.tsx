@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, ShoppingBag, MessageSquare, CreditCard } from 'lucide-react';
+import { RevenueChart } from '@/components/admin/revenue-chart-wrapper';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,6 +27,33 @@ export default async function AdminOverview() {
     { title: "Pending Reviews", value: pendingReviewsCount || 0, icon: MessageSquare, color: "text-amber-500" },
     { title: "Total Orders", value: ordersCount || 0, icon: ShoppingBag, color: "text-purple-500" },
   ];
+
+  const { data: recentOrders } = await supabase
+    .from('orders')
+    .select('created_at, amount')
+    .order('created_at', { ascending: false })
+    .limit(100);
+
+  // Group by day for the last 7 days
+  const revenueData = [];
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const today = new Date();
+  
+  for (let i = 6; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+    const dayName = days[date.getDay()];
+    
+    // Sum orders for this day
+    const dayTotal = (recentOrders || [])
+      .filter(o => {
+        const d = new Date(o.created_at);
+        return d.getDate() === date.getDate() && d.getMonth() === date.getMonth() && d.getFullYear() === date.getFullYear();
+      })
+      .reduce((sum, order) => sum + (Number(order.amount) || 0), 0);
+
+    revenueData.push({ name: dayName, total: dayTotal });
+  }
 
   return (
     <div className="space-y-6">
@@ -56,6 +84,17 @@ export default async function AdminOverview() {
           <span>You have <strong>{pendingReviewsCount}</strong> pending review(s) waiting for approval.</span>
         </div>
       ) : null}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="border-border/50 bg-card/30">
+          <CardHeader>
+            <CardTitle>Recent Revenue</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <RevenueChart data={revenueData} />
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

@@ -755,6 +755,15 @@ export function DashboardPage({
                   <span className="text-xs text-muted-foreground font-medium px-2.5 py-1.5 bg-muted/60 rounded-xl border border-border/40">
                     {myReferralCode.current_uses} / 5 Uses
                   </span>
+                  
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="border-gold text-gold hover:bg-gold/10 ml-2"
+                    onClick={() => window.location.href = '/dashboard/affiliate'}
+                  >
+                    View Earnings & Portal
+                  </Button>
                 </div>
               </div>
             </m.div>

@@ -4,10 +4,12 @@ import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
-export default async function AdminInvitationsPage() {
+export default async function AdminInvitationsPage(props: { searchParams: Promise<{ q?: string }> }) {
   const supabase = await createClient();
+  const searchParams = await props.searchParams;
+  const q = searchParams.q || '';
 
-  const { data: invitations, error } = await supabase
+  let query = supabase
     .from('invitations')
     .select(`
       id,
@@ -21,6 +23,12 @@ export default async function AdminInvitationsPage() {
     `)
     .order('created_at', { ascending: false });
 
+  if (q) {
+    query = query.or(`partner1_name.ilike.%${q}%,partner2_name.ilike.%${q}%,slug.ilike.%${q}%`);
+  }
+
+  const { data: invitations, error } = await query;
+
   if (error) {
     console.error(error);
     return <div>Error loading invitations.</div>;
@@ -28,9 +36,23 @@ export default async function AdminInvitationsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold font-display tracking-tight">Invitations</h1>
-        <p className="text-muted-foreground text-sm">View all invitations created on the platform.</p>
+      <div className="flex flex-col sm:flex-row gap-4 justify-between sm:items-center">
+        <div>
+          <h1 className="text-2xl font-bold font-display tracking-tight">Invitations</h1>
+          <p className="text-muted-foreground text-sm">View all invitations created on the platform.</p>
+        </div>
+        <form method="GET" action="/admin/invitations" className="flex items-center gap-2">
+          <input
+            type="search"
+            name="q"
+            defaultValue={q}
+            placeholder="Search by name or slug..."
+            className="px-3 py-2 text-sm rounded-md border border-border/50 bg-background"
+          />
+          <button type="submit" className="px-4 py-2 text-sm bg-gold text-emerald-dark rounded-md font-semibold">
+            Search
+          </button>
+        </form>
       </div>
 
       <div className="grid gap-4">

@@ -98,17 +98,22 @@ export async function sendRecoveryEmail(toEmail: string, orderId: string, plan: 
     return await resend.emails.send({
       from: 'ShaadiLink <hello@shaadilink.com.pk>',
       to: [toEmail],
-      subject: 'Your invitation is almost ready!',
+      subject: 'Complete Your Dream Invitation & Get 10% Off! 💍',
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
           <h2>Don't lose your progress!</h2>
           <p>Hi there,</p>
           <p>We noticed you started setting up your <strong>${plan}</strong> plan invitation but didn't complete the payment.</p>
-          <p>Your personalized design and guest details are saved. You can complete your checkout and publish your invitation instantly.</p>
+          <p>We know planning a wedding can be overwhelming, so we'd love to help you cross one thing off your list! For a limited time, you can complete your order and get <strong>10% OFF</strong> your digital invitation.</p>
+          <p>Use code <strong>EARLYBIRD10</strong> at checkout.</p>
+          <p><em>(Hurry! This code is only valid for the first 10 people who use it.)</em></p>
           <br/>
-          <a href="https://shaadilink.com.pk/dashboard" style="background-color: #d4af37; color: #111827; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Complete Checkout</a>
+          <a href="https://shaadilink.com.pk/dashboard" style="background-color: #d4af37; color: #111827; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Complete My Invitation</a>
           <br/><br/>
-          <p>If you have any questions, just reply to this email!</p>
+          <p>Need help choosing a template or have questions? Just reply to this email, and our team will be happy to assist you.</p>
+          <br/>
+          <p>Best wishes,</p>
+          <p><strong>The ShaadiLink Team</strong></p>
         </div>
       `,
     });

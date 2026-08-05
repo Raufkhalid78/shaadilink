@@ -118,12 +118,31 @@ export async function POST(request: NextRequest) {
       .update({ plan: order.plan })
       .eq('id', order.user_id)
       
-    // 4. Increment promo code usage if applied
+    // 4. Increment promo code usage and calculate affiliate commission if applied
     if (order.promo_code) {
-      // Fetch the promo code to get current uses (since we can't do atomic update directly without RPC, we'll do read-modify-write for simplicity)
-      const { data: promo } = await service.from('referral_codes').select('id, current_uses').eq('code', order.promo_code).single()
-      if (promo) {
-        await service.from('referral_codes').update({ current_uses: (promo.current_uses || 0) + 1 }).eq('id', promo.id)
+      const { error: promoErr } = await service.rpc('increment_promo_usage', { code_val: order.promo_code });
+      if (promoErr) {
+        console.error('Failed to increment promo usage:', promoErr);
+      }
+
+      // Fetch referral code details to see if it belongs to an affiliate
+      const { data: refCode } = await service
+        .from('referral_codes')
+        .select('user_id')
+        .eq('code', order.promo_code)
+        .single();
+
+      if (refCode?.user_id) {
+        // Calculate 10% commission of the final order amount
+        const commissionAmount = order.amount * 0.10;
+        const { error: commErr } = await service.from('affiliate_commissions').insert({
+          affiliate_id: refCode.user_id,
+          order_id: order.id,
+          referral_code: order.promo_code,
+          commission_amount: commissionAmount,
+          status: 'pending'
+        });
+        if (commErr) console.error('Failed to save affiliate commission:', commErr);
       }
     }
 

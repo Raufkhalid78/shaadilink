@@ -223,29 +223,31 @@ export function ContactPage({ onBack }: ContactPageProps) {
                           </Button>
                         </div>
                       ) : (
-                        <div className="space-y-5">
-                          <div className="space-y-1.5">
-                            <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                        <div className="space-y-4">
+                            <div className="space-y-1.5">
+                            <label htmlFor="contact-name" className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                               Name <span className="text-red-400">*</span>
                             </label>
                             <Input
+                              id="contact-name"
                               value={formData.name}
                               onChange={(e) =>
                                 setFormData({ ...formData, name: e.target.value })
                               }
-                              placeholder="Your full name"
-                              className={`h-11 ${errors.name ? "border-red-400" : ""}`}
+                              placeholder="Your name"
+                              className="bg-background/50 border-gold/20 focus-visible:ring-gold/30 h-12"
                             />
                             {errors.name && (
-                              <p className="text-xs text-red-500">{errors.name}</p>
+                              <p className="text-xs text-red-400 mt-1" aria-live="polite">{errors.name}</p>
                             )}
-                          </div>
+                            </div>
 
-                          <div className="space-y-1.5">
-                            <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                            <div className="space-y-1.5">
+                            <label htmlFor="contact-email" className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                               Email <span className="text-red-400">*</span>
                             </label>
                             <Input
+                              id="contact-email"
                               type="email"
                               value={formData.email}
                               onChange={(e) =>
@@ -255,15 +257,16 @@ export function ContactPage({ onBack }: ContactPageProps) {
                               className={`h-11 ${errors.email ? "border-red-400" : ""}`}
                             />
                             {errors.email && (
-                              <p className="text-xs text-red-500">{errors.email}</p>
+                              <p className="text-xs text-red-500 mt-1" aria-live="polite">{errors.email}</p>
                             )}
                           </div>
 
                           <div className="space-y-1.5">
-                            <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                            <label htmlFor="contact-message" className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                               Message <span className="text-red-400">*</span>
                             </label>
                             <Textarea
+                              id="contact-message"
                               value={formData.message}
                               onChange={(e) =>
                                 setFormData({ ...formData, message: e.target.value })
@@ -274,7 +277,7 @@ export function ContactPage({ onBack }: ContactPageProps) {
                               }`}
                             />
                             {errors.message && (
-                              <p className="text-xs text-red-500">{errors.message}</p>
+                              <p className="text-xs text-red-500 mt-1" aria-live="polite">{errors.message}</p>
                             )}
                           </div>
 

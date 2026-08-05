@@ -20,10 +20,11 @@ interface DetailsPageProps {
   onUpdateData: (updates: Partial<FlowData>) => void;
   onBack: () => void;
   onContinue: () => void;
+  onRequireLogin?: () => void;
   crumbs: { label: string; onClick?: () => void }[];
 }
 
-export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs }: DetailsPageProps) {
+export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequireLogin, crumbs }: DetailsPageProps) {
   const isEdit = !!flowData.invitationId;
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isUploading, setIsUploading] = useState(false);
@@ -222,7 +223,13 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
         const data = await res.json();
         // If user is not authenticated (e.g. demo mode), continue anyway
         if (res.status === 401) {
-          onContinue();
+          sessionStorage.setItem('shaadilink_draft', JSON.stringify(flowData))
+          toast.error("Please sign in. Your progress has been saved.")
+          if (onRequireLogin) {
+            onRequireLogin();
+          } else {
+            onContinue();
+          }
           return;
         }
         toast.error(data.error || "Failed to save invitation details.");
@@ -376,13 +383,13 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
             </Button>
 
             <div className="flex items-center gap-1.5">
-              <StepDot done label="Template" />
+              <StepDot done label="Template" stepNumber={1} />
               <StepLine active />
-              <StepDot done label="Account" />
+              <StepDot done label="Account" stepNumber={2} />
               <StepLine active />
-              <StepDot current label="Details" />
+              <StepDot current label="Details" stepNumber={3} />
               <StepLine />
-              <StepDot label="Payment" />
+              <StepDot label="Payment" stepNumber={4} />
             </div>
 
             <div className="w-16" />
@@ -580,7 +587,11 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
 
                   {/* Cultural & Religious Features Toggles */}
                   <section className="p-6 rounded-3xl bg-card/70 border border-border/60 shadow-xl backdrop-blur-xl space-y-4">
-                    <div className="flex items-center justify-between rounded-2xl border border-border/60 p-4 cursor-pointer hover:bg-muted/30 transition-colors"
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={flowData.showBismillah}
+                      className="w-full flex items-center justify-between rounded-2xl border border-border/60 p-4 cursor-pointer hover:bg-muted/30 transition-colors text-left"
                       onClick={() => onUpdateData({ showBismillah: !flowData.showBismillah })}
                     >
                       <div className="flex-1 pr-4">
@@ -590,9 +601,13 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                       <div className={`relative w-12 h-6 rounded-full transition-colors ${flowData.showBismillah ? "bg-gold" : "bg-muted"}`}>
                         <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${flowData.showBismillah ? "translate-x-7" : "translate-x-1"}`} />
                       </div>
-                    </div>
+                    </button>
 
-                    <div className="flex items-center justify-between rounded-2xl border border-border/60 p-4 cursor-pointer hover:bg-muted/30 transition-colors"
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={flowData.showQuranVerse}
+                      className="w-full flex items-center justify-between rounded-2xl border border-border/60 p-4 cursor-pointer hover:bg-muted/30 transition-colors text-left"
                       onClick={() => onUpdateData({ showQuranVerse: !flowData.showQuranVerse })}
                     >
                       <div className="flex-1 pr-4">
@@ -602,9 +617,13 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                       <div className={`relative w-12 h-6 rounded-full transition-colors ${flowData.showQuranVerse ? "bg-gold" : "bg-muted"}`}>
                         <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${flowData.showQuranVerse ? "translate-x-7" : "translate-x-1"}`} />
                       </div>
-                    </div>
+                    </button>
 
-                    <div className="flex items-center justify-between rounded-2xl border border-border/60 p-4 cursor-pointer hover:bg-muted/30 transition-colors"
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={flowData.showNikahRegistration}
+                      className="w-full flex items-center justify-between rounded-2xl border border-border/60 p-4 cursor-pointer hover:bg-muted/30 transition-colors text-left"
                       onClick={() => onUpdateData({ showNikahRegistration: !flowData.showNikahRegistration })}
                     >
                       <div className="flex-1 pr-4">
@@ -614,10 +633,14 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                       <div className={`relative w-12 h-6 rounded-full transition-colors ${flowData.showNikahRegistration ? "bg-gold" : "bg-muted"}`}>
                         <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${flowData.showNikahRegistration ? "translate-x-7" : "translate-x-1"}`} />
                       </div>
-                    </div>
+                    </button>
 
                     <div className="rounded-2xl border border-border/60 overflow-hidden transition-colors">
-                      <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/30"
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={flowData.isSegregated}
+                        className="w-full flex items-center justify-between p-4 cursor-pointer hover:bg-muted/30 text-left"
                         onClick={() => onUpdateData({ isSegregated: !flowData.isSegregated })}
                       >
                         <div className="flex-1 pr-4">
@@ -627,7 +650,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                         <div className={`relative w-12 h-6 rounded-full transition-colors ${flowData.isSegregated ? "bg-gold" : "bg-muted"}`}>
                           <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${flowData.isSegregated ? "translate-x-7" : "translate-x-1"}`} />
                         </div>
-                      </div>
+                      </button>
                       
                       <AnimatePresence>
                         {flowData.isSegregated && (
@@ -1336,7 +1359,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, crumbs
 }
 
 /* ---------- Helper Components ---------- */
-function StepDot({ done, current, label }: { done?: boolean; current?: boolean; label: string }) {
+function StepDot({ done, current, label, stepNumber }: { done?: boolean; current?: boolean; label: string; stepNumber: number }) {
   return (
     <div className="flex items-center gap-1">
       <div
@@ -1344,7 +1367,7 @@ function StepDot({ done, current, label }: { done?: boolean; current?: boolean; 
           done ? "bg-gold text-emerald-dark" : current ? "bg-emerald text-primary-foreground" : "bg-muted text-muted-foreground"
         }`}
       >
-        {done ? <Check className="w-3 h-3" /> : current ? "3" : ""}
+        {done ? <Check className="w-3 h-3" /> : current ? String(stepNumber) : ""}
       </div>
       <span className={`text-xs hidden sm:inline ${current ? "text-foreground font-semibold" : "text-muted-foreground"}`}>
         {label}

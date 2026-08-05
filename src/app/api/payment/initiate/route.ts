@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { paymentLimiter } from '@/lib/rate-limit'
 
 const PLAN_AMOUNTS: Record<string, number> = {
   classic: 3499,
@@ -8,6 +9,12 @@ const PLAN_AMOUNTS: Record<string, number> = {
 
 export async function POST(request: NextRequest) {
   try {
+    const ip = request.headers.get('x-forwarded-for') ?? '127.0.0.1'
+    const { success } = await paymentLimiter.limit(`payment_${ip}`)
+    if (!success) {
+      return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 })
+    }
+
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 

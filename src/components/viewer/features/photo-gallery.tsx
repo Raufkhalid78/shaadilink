@@ -55,19 +55,21 @@ export function PhotoGallery({ theme, images: propImages }: { theme: TemplateThe
           onClick={() => setLightboxOpen(true)}
           style={{ border: `1px solid ${theme.getOpacityStyle('border', 0.2)}`, boxShadow: `0 10px 15px -3px ${theme.getOpacityStyle('border', 0.05)}` }}
         >
-          {images.map((img, idx) => (
+          <AnimatePresence>
             <MotionImage
-              key={idx}
-              src={img.src}
-              alt={img.alt}
+              key={activeIndex}
+              src={images[activeIndex].src}
+              alt={images[activeIndex].alt}
               fill
               sizes="(max-width: 768px) 100vw, 800px"
-              initial={false}
-              animate={{ opacity: idx === activeIndex ? 1 : 0, scale: idx === activeIndex ? 1.05 : 1 }}
+              initial={{ opacity: 0, scale: 1.05 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
               transition={{ duration: 1.2, ease: 'easeInOut' }}
               className="object-cover"
+              priority={activeIndex === 0}
             />
-          ))}
+          </AnimatePresence>
           <div className="absolute inset-x-0 bottom-0 h-1/4" style={{ background: `linear-gradient(to top, ${theme.bgPrimary}cc, transparent)` }} />
           <div className="absolute inset-0 rounded-xl transition-all duration-500 group-hover:bg-black/20" style={{ boxShadow: `inset 0 0 0 1px ${theme.getOpacityStyle('border', 0.1)}` }} />
           

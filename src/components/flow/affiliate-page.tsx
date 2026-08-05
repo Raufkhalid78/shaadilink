@@ -126,13 +126,12 @@ export function AffiliatePage({ onBack }: AffiliatePageProps) {
               </div>
 
               <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-foreground leading-tight">
-                Earn up to{" "}
-                <span className="gold-shimmer">25%</span>{" "}
-                from the sales you bring in
+                Earn a{" "}
+                <span className="gold-shimmer">10%</span>{" "}
+                commission on every sale
               </h1>
               <p className="mt-4 text-muted-foreground text-lg max-w-xl mx-auto">
-                Share ShaadiLink with your audience and earn commissions on every
-                successful referral. It&apos;s free to join!
+                Share ShaadiLink with your audience using your unique coupon code. They get 10% off their invitation, and you earn 10% commission on the sale!
               </p>
             </m.div>
           </div>
@@ -145,8 +144,8 @@ export function AffiliatePage({ onBack }: AffiliatePageProps) {
               {[
                 {
                   icon: TrendingUp,
-                  title: "25% Commission",
-                  description: "Earn a generous commission on every sale you generate.",
+                  title: "10% Commission",
+                  description: "Earn a generous 10% commission on every sale you generate.",
                 },
                 {
                   icon: Users,
@@ -215,73 +214,75 @@ export function AffiliatePage({ onBack }: AffiliatePageProps) {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                      <div className="space-y-1.5">
+                      <label htmlFor="aff-name" className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                         Name <span className="text-red-400">*</span>
                       </label>
                       <Input
+                        id="aff-name"
                         value={formData.name}
                         onChange={(e) =>
                           setFormData({ ...formData, name: e.target.value })
                         }
-                        placeholder="Your full name"
-                        className={`h-11 ${errors.name ? "border-red-400" : ""}`}
+                        placeholder="Your name"
+                        className="bg-background/50 border-gold/20 focus-visible:ring-gold/30 h-12"
                       />
                       {errors.name && (
-                        <p className="text-xs text-red-500">{errors.name}</p>
+                        <p className="text-xs text-red-400 mt-1" aria-live="polite">{errors.name}</p>
                       )}
-                    </div>
+                      </div>
 
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                      <div className="space-y-1.5">
+                      <label htmlFor="aff-email" className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                         Email <span className="text-red-400">*</span>
                       </label>
                       <Input
+                        id="aff-email"
                         type="email"
                         value={formData.email}
                         onChange={(e) =>
                           setFormData({ ...formData, email: e.target.value })
                         }
-                        placeholder="you@example.com"
-                        className={`h-11 ${errors.email ? "border-red-400" : ""}`}
+                        placeholder="your@email.com"
+                        className="bg-background/50 border-gold/20 focus-visible:ring-gold/30 h-12"
                       />
                       {errors.email && (
-                        <p className="text-xs text-red-500">{errors.email}</p>
+                        <p className="text-xs text-red-400 mt-1" aria-live="polite">{errors.email}</p>
                       )}
-                    </div>
+                      </div>
 
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                      <div className="space-y-1.5">
+                      <label htmlFor="aff-social" className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                         Social ID / Profile Link
                       </label>
                       <Input
+                        id="aff-social"
                         value={formData.socialId}
                         onChange={(e) =>
                           setFormData({ ...formData, socialId: e.target.value })
                         }
-                        placeholder="Instagram, YouTube, blog URL, etc."
-                        className="h-11"
+                        placeholder="Instagram handle or link"
+                        className="bg-background/50 border-gold/20 focus-visible:ring-gold/30 h-12"
                       />
-                    </div>
+                      </div>
 
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                      <div className="space-y-1.5">
+                      <label htmlFor="aff-promo" className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                         How will you promote ShaadiLink? <span className="text-red-400">*</span>
                       </label>
                       <Textarea
+                        id="aff-promo"
                         value={formData.promotion}
                         onChange={(e) =>
                           setFormData({ ...formData, promotion: e.target.value })
                         }
-                        placeholder="Describe your audience and how you plan to promote..."
-                        className={`min-h-[100px] resize-none ${
-                          errors.promotion ? "border-red-400" : ""
-                        }`}
+                        placeholder="Briefly describe your audience or promotion method..."
+                        className="bg-background/50 border-gold/20 focus-visible:ring-gold/30 min-h-[120px] resize-none"
                       />
                       {errors.promotion && (
-                        <p className="text-xs text-red-500">{errors.promotion}</p>
+                        <p className="text-xs text-red-400 mt-1" aria-live="polite">{errors.promotion}</p>
                       )}
-                    </div>
+                      </div>
 
                     <Button
                       onClick={handleSubmit}

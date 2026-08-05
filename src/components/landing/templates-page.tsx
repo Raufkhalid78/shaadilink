@@ -381,7 +381,7 @@ export function TemplatesPage({
           <div className="mb-8">
             <div className="relative max-w-md mx-auto">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search templates..." className="pl-10 bg-muted/50 border-border/50 focus:border-gold/40" />
+              <Input aria-label="Search templates" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search templates..." className="pl-10 bg-muted/50 border-border/50 focus:border-gold/40" />
               {search && (
                 <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2">
                   <X className="w-4 h-4 text-muted-foreground hover:text-foreground" />

@@ -3,16 +3,71 @@ import Link from "next/link";
 import { ArrowLeft, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export const metadata = {
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
   title: "Blog | ShaadiLink",
   description: "Read the latest tips, trends, and news about Pakistani wedding invitations on the ShaadiLink blog.",
+  openGraph: {
+    title: "Blog | ShaadiLink",
+    description: "Read the latest tips, trends, and news about Pakistani wedding invitations on the ShaadiLink blog.",
+    type: "website",
+    locale: "en_PK",
+    siteName: "ShaadiLink",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "ShaadiLink - Premium Digital Wedding Invitations",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Blog | ShaadiLink",
+    description: "Read the latest tips, trends, and news about Pakistani wedding invitations on the ShaadiLink blog.",
+    images: ["/og-image.png"],
+  }
 };
 
 export default function BlogListingPage() {
   const posts = getAllPosts();
 
+  const schemaJson = {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    "@id": "https://shaadilink.com.pk/blog",
+    "name": "ShaadiLink Blog",
+    "description": "Tips, trends, and inspiration for your perfect digital wedding invitation.",
+    "url": "https://shaadilink.com.pk/blog",
+    "publisher": {
+      "@type": "Organization",
+      "name": "ShaadiLink",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://shaadilink.com.pk/logo.svg"
+      }
+    },
+    "blogPost": posts.map(post => ({
+      "@type": "BlogPosting",
+      "headline": post.title,
+      "description": post.description,
+      "datePublished": new Date(post.date).toISOString(),
+      "url": `https://shaadilink.com.pk/blog/${post.slug}`,
+      "author": {
+        "@type": "Organization",
+        "name": "ShaadiLink"
+      }
+    }))
+  };
+
   return (
     <div className="min-h-screen bg-background pt-24 pb-12 px-6">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaJson) }}
+      />
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="space-y-4">
           <Link href="/">

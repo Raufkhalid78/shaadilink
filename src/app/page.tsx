@@ -8,16 +8,18 @@ import { Navbar } from "@/components/landing/navbar";
 import { Hero } from "@/components/landing/hero";
 import { StatsBar } from "@/components/landing/stats-bar";
 import { Features } from "@/components/landing/features";
-import { HowItWorks } from "@/components/landing/how-it-works";
-import { Comparison } from "@/components/landing/comparison";
-import { TemplateShowcase } from "@/components/landing/template-showcase";
-import { Testimonials } from "@/components/landing/testimonials";
-import { Pricing } from "@/components/landing/pricing";
-import { FAQ } from "@/components/landing/faq";
-import { CTASection } from "@/components/landing/cta-section";
-import { Footer } from "@/components/landing/footer";
 import { useLanguage } from "@/components/language-provider";
 import dynamic from "next/dynamic";
+
+// Below-the-fold sections: lazy load to avoid blocking initial paint on mobile
+const HowItWorks = dynamic(() => import("@/components/landing/how-it-works").then(m => m.HowItWorks), { ssr: false });
+const Comparison = dynamic(() => import("@/components/landing/comparison").then(m => m.Comparison), { ssr: false });
+const TemplateShowcase = dynamic(() => import("@/components/landing/template-showcase").then(m => m.TemplateShowcase), { ssr: false });
+const Testimonials = dynamic(() => import("@/components/landing/testimonials").then(m => m.Testimonials), { ssr: false });
+const Pricing = dynamic(() => import("@/components/landing/pricing").then(m => m.Pricing), { ssr: false });
+const FAQ = dynamic(() => import("@/components/landing/faq").then(m => m.FAQ), { ssr: false });
+const CTASection = dynamic(() => import("@/components/landing/cta-section").then(m => m.CTASection), { ssr: false });
+const Footer = dynamic(() => import("@/components/landing/footer").then(m => m.Footer), { ssr: false });
 
 const TemplatesPage = dynamic(() => import("@/components/landing/templates-page").then(m => m.TemplatesPage), {
   ssr: false,
@@ -624,6 +626,18 @@ const setCurrentStep = useCallback((step: FlowStep) => {
   };
 
   const handleSignupComplete = () => {
+    const draft = sessionStorage.getItem('shaadilink_draft');
+    if (draft) {
+      try {
+        const parsedDraft = JSON.parse(draft);
+        updateFlowData(parsedDraft);
+        sessionStorage.removeItem('shaadilink_draft');
+        toast.success("Your progress has been restored!");
+      } catch (e) {
+        console.error("Failed to parse draft", e);
+      }
+    }
+
     // Guard: ensure plan is selected before going to details
     if (!flowData.selectedPlan) {
       setCurrentStep("templates");
@@ -634,7 +648,19 @@ const setCurrentStep = useCallback((step: FlowStep) => {
   };
 
   const handleLoginComplete = (userId: string, email: string) => {
-    updateFlowData({ userId, email });
+    let updates: Partial<FlowData> = { userId, email };
+    const draft = sessionStorage.getItem('shaadilink_draft');
+    if (draft) {
+      try {
+        const parsedDraft = JSON.parse(draft);
+        updates = { ...parsedDraft, ...updates };
+        sessionStorage.removeItem('shaadilink_draft');
+        toast.success("Your progress has been restored!");
+      } catch (e) {
+        console.error("Failed to parse draft", e);
+      }
+    }
+    updateFlowData(updates);
     // If a template was already selected, go to details; otherwise redirect to /dashboard
     if (flowData.selectedTemplateId) {
       setStepBeforeDetails("login");
@@ -1061,6 +1087,7 @@ const setCurrentStep = useCallback((step: FlowStep) => {
               onUpdateData={updateFlowData}
               onBack={() => setCurrentStep(stepBeforeDetails)}
               onContinue={handleDetailsComplete}
+              onRequireLogin={() => setCurrentStep("login")}
               crumbs={
                 stepBeforeDetails === "dashboard"
                   ? [

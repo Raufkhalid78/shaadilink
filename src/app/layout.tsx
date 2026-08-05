@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Amiri, Inter, Cinzel_Decorative, Great_Vibes } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
-import { AIChatFAB } from "@/components/ai-chat-fab";
+import { AIChatFABWrapper } from "@/components/ai-chat-fab-wrapper";
 import { LanguageProvider } from "@/components/language-provider";
 import { FramerMotionProvider } from "@/components/framer-provider";
 import { SentryInit } from "@/components/sentry-init";
@@ -161,6 +161,26 @@ export default function RootLayout({
             }
           }
         ]
+      },
+      {
+        "@type": "Organization",
+        "@id": "https://shaadilink.com.pk/#organization",
+        "name": "ShaadiLink",
+        "url": "https://shaadilink.com.pk",
+        "logo": "https://shaadilink.com.pk/logo.svg",
+        "sameAs": [
+          "https://www.instagram.com/shaadilink.pk",
+          "https://www.facebook.com/shaadilink"
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://shaadilink.com.pk/#website",
+        "url": "https://shaadilink.com.pk",
+        "name": "ShaadiLink",
+        "publisher": {
+          "@id": "https://shaadilink.com.pk/#organization"
+        }
       }
     ]
   };
@@ -183,10 +203,8 @@ export default function RootLayout({
         <LanguageProvider>
           <SentryInit />
           <FramerMotionProvider>
-            <AIChatFAB />
-            <div id="main-content">
-              {children}
-            </div>
+            <AIChatFABWrapper />
+            {children}
           </FramerMotionProvider>
           <Toaster 
             position="bottom-center"

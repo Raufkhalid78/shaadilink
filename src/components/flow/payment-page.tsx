@@ -111,13 +111,13 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
             </Button>
 
             <div className="flex items-center gap-1.5">
-              <StepDot done label="Template" />
+              <StepDot done label="Template" stepNumber={1} />
               <StepLine active />
-              <StepDot done label="Account" />
+              <StepDot done label="Account" stepNumber={2} />
               <StepLine active />
-              <StepDot done label="Details" />
+              <StepDot done label="Details" stepNumber={3} />
               <StepLine active />
-              <StepDot current label="Payment" />
+              <StepDot current label="Payment" stepNumber={4} />
             </div>
 
             <div className="w-16" />
@@ -436,7 +436,7 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
 }
 
 /* ---------- Helper Components ---------- */
-function StepDot({ done, current, label }: { done?: boolean; current?: boolean; label: string }) {
+function StepDot({ done, current, label, stepNumber }: { done?: boolean; current?: boolean; label: string; stepNumber: number }) {
   return (
     <div className="flex items-center gap-1">
       <div
@@ -444,7 +444,7 @@ function StepDot({ done, current, label }: { done?: boolean; current?: boolean; 
           done ? "bg-gold text-emerald-dark" : current ? "bg-emerald text-primary-foreground" : "bg-muted text-muted-foreground"
         }`}
       >
-        {done ? <Check className="w-3 h-3" /> : current ? "4" : ""}
+        {done ? <Check className="w-3 h-3" /> : current ? String(stepNumber) : ""}
       </div>
       <span className={`text-xs hidden sm:inline ${current ? "text-foreground font-semibold" : "text-muted-foreground"}`}>
         {label}

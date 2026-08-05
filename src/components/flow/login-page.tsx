@@ -203,7 +203,7 @@ export function LoginPage({ onBack, onLogin, onSignup, crumbs }: LoginPageProps)
                     }`}
                   />
                 </div>
-                {errors.email && <p className="text-xs text-red-400 mt-1">{errors.email}</p>}
+                {errors.email && <p className="text-xs text-red-400 mt-1" aria-live="polite">{errors.email}</p>}
               </div>
 
               {/* Password */}
@@ -233,7 +233,7 @@ export function LoginPage({ onBack, onLogin, onSignup, crumbs }: LoginPageProps)
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
-                {errors.password && <p className="text-xs text-red-400 mt-1">{errors.password}</p>}
+                {errors.password && <p className="text-xs text-red-400 mt-1" aria-live="polite">{errors.password}</p>}
               </div>
 
               {/* Forgot Password */}

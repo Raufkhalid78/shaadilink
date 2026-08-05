@@ -238,7 +238,7 @@ export function SignupPage({
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
-                {errors.password && <p className="text-xs text-red-400 mt-1">{errors.password}</p>}
+                {errors.password && <p className="text-xs text-red-400 mt-1" aria-live="polite">{errors.password}</p>}
               </div>
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
@@ -258,7 +258,7 @@ export function SignupPage({
                     }`}
                   />
                 </div>
-                {errors.confirmPassword && <p className="text-xs text-red-400 mt-1">{errors.confirmPassword}</p>}
+                {errors.confirmPassword && <p className="text-xs text-red-400 mt-1" aria-live="polite">{errors.confirmPassword}</p>}
               </div>
 
               <Button
@@ -392,7 +392,7 @@ function FormField({
           className={`pl-10 h-11 bg-background/50 border-emerald/20 focus-visible:ring-emerald ${error ? "border-red-500/50 focus-visible:ring-red-500" : ""}`}
         />
       </div>
-      {error && <p className="text-xs text-red-400 mt-1">{error}</p>}
+      {error && <p className="text-xs text-red-400 mt-1" aria-live="polite">{error}</p>}
     </div>
   );
 }
