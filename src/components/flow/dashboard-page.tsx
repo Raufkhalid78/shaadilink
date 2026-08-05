@@ -83,7 +83,7 @@ export function DashboardPage({
   const [qrInvUrl, setQrInvUrl] = useState<string | null>(null);
 
   // Referral Code State
-  const [myReferralCode, setMyReferralCode] = useState<{code: string; discount_percent: number; current_uses: number} | null>(null);
+  const [myReferralCode, setMyReferralCode] = useState<{code: string; discount_percent: number; current_uses: number; max_uses: number | null} | null>(null);
 
   // Search & Filter State
   const [searchQuery, setSearchQuery] = useState("");
@@ -723,10 +723,10 @@ export function DashboardPage({
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="font-display font-bold text-base text-foreground">Affiliate &amp; Discount Code</span>
-                      <Badge className="bg-gold/20 text-gold border-gold/40 text-[10px]">10% OFF</Badge>
+                      <Badge className="bg-gold/20 text-gold border-gold/40 text-[10px]">{myReferralCode.discount_percent}% OFF</Badge>
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Share your referral code with friends. They receive <strong className="text-gold">10% OFF</strong> any package and you help them create an exquisite invitation!
+                      Share your referral code with friends. They receive <strong className="text-gold">{myReferralCode.discount_percent}% OFF</strong> any package and you help them create an exquisite invitation!
                     </p>
                   </div>
                 </div>
@@ -741,7 +741,7 @@ export function DashboardPage({
                     <Button
                       size="sm"
                       onClick={() => {
-                        const copyText = `Use coupon code "${myReferralCode.code}" on ShaadiLink for 10% off! It can only be used for 5 persons.`;
+                        const copyText = `Use coupon code "${myReferralCode.code}" on ShaadiLink for ${myReferralCode.discount_percent}% off! It can only be used for ${myReferralCode.max_uses ? myReferralCode.max_uses : 'unlimited'} persons.`;
                         navigator.clipboard.writeText(copyText);
                         toast.success("Discount code message copied to clipboard!");
                       }}
@@ -753,7 +753,7 @@ export function DashboardPage({
                   </div>
 
                   <span className="text-xs text-muted-foreground font-medium px-2.5 py-1.5 bg-muted/60 rounded-xl border border-border/40">
-                    {myReferralCode.current_uses} / 5 Uses
+                    {myReferralCode.current_uses} / {myReferralCode.max_uses ? myReferralCode.max_uses : '∞'} Uses
                   </span>
                   
                   <Button 
