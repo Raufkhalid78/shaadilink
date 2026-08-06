@@ -6,11 +6,11 @@
     },
     {
       "path": "/api/cron/abandoned-checkout",
-      "schedule": "0 * * * *"
+      "schedule": "0 12 * * *"
     },
     {
       "path": "/api/cron/shaadilink_secure_cron_auto_delete",
-      "schedule": "0 * * * *"
+      "schedule": "0 12 * * *"
     }
   ]
 }
