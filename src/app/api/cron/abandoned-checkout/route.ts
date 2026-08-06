@@ -13,15 +13,15 @@ export async function GET(request: Request) {
   try {
     const supabase = createServiceClient();
 
-    // 2. Fetch pending orders older than 6 hours where no reminder has been sent yet
-    const sixHoursAgo = new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString();
+    // 2. Fetch pending orders older than 4 hours where no reminder has been sent yet
+    const fourHoursAgo = new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString();
 
     const { data: abandonedOrders, error } = await supabase
       .from('orders')
       .select('id, amount, status, created_at, reminder_sent_at, user_id, plan')
       .eq('status', 'pending')
       .is('reminder_sent_at', null)
-      .lt('created_at', sixHoursAgo);
+      .lt('created_at', fourHoursAgo);
 
     if (error) {
       throw error;

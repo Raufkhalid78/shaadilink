@@ -7,6 +7,10 @@
     {
       "path": "/api/cron/abandoned-checkout",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/shaadilink_secure_cron_auto_delete",
+      "schedule": "0 * * * *"
     }
   ]
 }
