@@ -20,7 +20,7 @@ export async function POST(
       return NextResponse.json({ error: 'Message is required' }, { status: 400 })
     }
 
-    const supabase = await createClient()
+    const supabase = createServiceClient()
 
     // Fetch invitation to get user_id for notification
     const { data: inv } = await supabase.from('invitations').select('user_id').eq('id', id).single()

@@ -20,7 +20,7 @@ export async function POST(
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
     }
 
-    const supabase = await createClient()
+    const supabase = createServiceClient()
 
     const { data: inv } = await supabase.from('invitations').select('is_active, user_id').eq('id', id).single()
     if (!inv?.is_active) return NextResponse.json({ error: 'This invitation is not yet published' }, { status: 403 })
