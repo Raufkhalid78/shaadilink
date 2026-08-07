@@ -12,15 +12,15 @@ export async function GET(request: Request) {
   try {
     const supabase = createServiceClient();
 
-    // 2. Calculate the threshold (72 hours / 3 days ago)
-    const seventyTwoHoursAgo = new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString();
+    // 2. Calculate the threshold (48 hours / 2 days ago)
+    const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
 
-    // 3. Delete pending orders older than 72 hours
+    // 3. Delete pending orders older than 48 hours
     const { data, error } = await supabase
       .from('orders')
       .delete()
       .eq('status', 'pending')
-      .lt('created_at', seventyTwoHoursAgo)
+      .lt('created_at', fortyEightHoursAgo)
       .select('id');
 
     if (error) {
