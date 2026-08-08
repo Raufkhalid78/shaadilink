@@ -24,4 +24,9 @@ Sentry.init({
 
   // NEVER enable debug in production — causes heavy console logging.
   debug: false,
+
+  // Ignore noisy third-party errors that aren't our fault
+  ignoreErrors: [
+    "Error invoking postMessage: Java object is gone",
+  ],
 });
