@@ -195,7 +195,7 @@ export function SignupPage({
             </div>
 
             {/* Form */}
-            <div className="space-y-4">
+            <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-4">
               <FormField
                 label="Full Name"
                 icon={<User className="w-4 h-4 text-emerald" />}
@@ -253,7 +253,7 @@ export function SignupPage({
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Confirm your password"
-                    className={`pl-10 h-11 bg-background/50 border-emerald/20 focus-visible:ring-emerald ${
+                    className={`pl-10 pr-10 h-11 bg-background/50 border-emerald/20 focus-visible:ring-emerald ${
                       errors.confirmPassword ? "border-red-500/50 focus-visible:ring-red-500" : ""
                     }`}
                   />
@@ -262,7 +262,7 @@ export function SignupPage({
               </div>
 
               <Button
-                onClick={handleSubmit}
+                type="submit"
                 disabled={isLoading}
                 className="w-full h-12 bg-emerald hover:bg-emerald-dark text-primary-foreground border border-gold/30 font-semibold text-base mt-2 shadow-lg shadow-emerald/20 transition-all hover:scale-[1.01]"
               >
@@ -317,7 +317,7 @@ export function SignupPage({
                 )}
                 Continue with Google
               </Button>
-            </div>
+            </form>
 
             <p className="text-center mt-6 text-sm text-muted-foreground">
               Already have an account?{" "}
@@ -364,6 +364,7 @@ function FormField({
   type = "text",
   value,
   onChange,
+  onKeyDown,
   placeholder,
   error,
 }: {
@@ -372,6 +373,7 @@ function FormField({
   type?: string;
   value: string;
   onChange: (v: string) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   placeholder: string;
   error?: string;
 }) {
@@ -388,6 +390,7 @@ function FormField({
           type={type}
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          onKeyDown={onKeyDown}
           placeholder={placeholder}
           className={`pl-10 h-11 bg-background/50 border-emerald/20 focus-visible:ring-emerald ${error ? "border-red-500/50 focus-visible:ring-red-500" : ""}`}
         />

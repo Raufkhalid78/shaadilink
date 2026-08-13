@@ -43,14 +43,16 @@ export async function GET(request: NextRequest) {
         const state = trackerResponse?.data?.tracker?.state
 
         if (state === 'TRACKER_ENDED') {
-          await service.from('orders').update({ status: 'paid' }).eq('id', order.id)
-
           const invUpdate: Record<string, unknown> = { is_active: true, plan: order.plan }
           if (order.target_guest_links_quota > 0) {
             invUpdate.guest_links_quota = order.target_guest_links_quota
           }
-          await service.from('invitations').update(invUpdate).eq('id', order.invitation_id)
-          await service.from('profiles').update({ plan: order.plan }).eq('id', order.user_id)
+
+          await Promise.all([
+            service.from('orders').update({ status: 'paid' }).eq('id', order.id),
+            service.from('invitations').update(invUpdate).eq('id', order.invitation_id),
+            service.from('profiles').update({ plan: order.plan }).eq('id', order.user_id)
+          ]);
 
           order.status = 'paid'
         }

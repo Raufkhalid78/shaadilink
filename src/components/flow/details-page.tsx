@@ -43,9 +43,11 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
       const p1 = flowData.partner1Name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
       const p2 = flowData.partner2Name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
       const autoSlug = [p1, p2].filter(Boolean).join('-');
-      onUpdateData({ slug: autoSlug });
+      if (autoSlug !== flowData.slug) {
+        onUpdateData({ slug: autoSlug });
+      }
     }
-  }, [flowData.partner1Name, flowData.partner2Name, isEdit, slugManuallyEdited, onUpdateData]);
+  }, [flowData.partner1Name, flowData.partner2Name, flowData.slug, isEdit, slugManuallyEdited, onUpdateData]);
 
   // Debounced check for slug availability
   useEffect(() => {
@@ -298,7 +300,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
   };
 
   const addEvent = () => {
-    onUpdateData({ events: [...flowData.events, { name: "", date: "", time: "" }] });
+    onUpdateData({ events: [...flowData.events, { id: crypto.randomUUID(), name: "", date: "", time: "" }] });
   };
 
   const removeEvent = (index: number) => {
@@ -830,7 +832,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
 
                     <div className="space-y-3">
                       {flowData.events.map((event, index) => (
-                        <div key={index} className="p-4 rounded-2xl border border-border/50 bg-muted/20 space-y-3">
+                        <div key={event.id || index} className="p-4 rounded-2xl border border-border/50 bg-muted/20 space-y-3">
                           <div className="flex items-center justify-between">
                             <span className="text-xs font-bold text-gold uppercase tracking-wider">Event {index + 1}</span>
                             {!isEdit && flowData.events.length > 1 && (

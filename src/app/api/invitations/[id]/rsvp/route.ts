@@ -22,8 +22,19 @@ export async function POST(
 
     const supabase = createServiceClient()
 
-    const { data: inv } = await supabase.from('invitations').select('is_active, user_id').eq('id', id).single()
-    if (!inv?.is_active) return NextResponse.json({ error: 'This invitation is not yet published' }, { status: 403 })
+    // Fetch invitation to get user_id for sending notifications, including profile email
+    const { data: inv } = await supabase
+      .from('invitations')
+      .select('is_active, user_id, profiles(email)')
+      .eq('id', id)
+      .single()
+
+    if (!inv) {
+      return NextResponse.json({ error: 'Invitation not found' }, { status: 404 })
+    }
+    if (!inv.is_active) {
+      return NextResponse.json({ error: 'Invitation is not active' }, { status: 403 })
+    }
 
     // Check for existing RSVP
     let rsvpQuery = supabase.from('rsvps').select('id').eq('invitation_id', id)
@@ -52,19 +63,14 @@ export async function POST(
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    // Fire and forget email notification
-    if (inv?.user_id) {
-      (async () => {
-        try {
-          const adminSupabase = createServiceClient()
-          const { data: profile } = await adminSupabase.from('profiles').select('email').eq('id', inv.user_id).single()
-          if (profile?.email) {
-            await sendRsvpNotification(profile.email, guestName.trim(), status)
-          }
-        } catch (emailErr) {
-          console.error('Failed to send RSVP notification email:', emailErr)
-        }
-      })()
+    // Send Notification Email if email exists
+    try {
+      const hostEmail = (inv.profiles as any)?.email;
+      if (hostEmail) {
+        await sendRsvpNotification(hostEmail, guestName.trim(), status)
+      }
+    } catch (e) {
+      console.error('Failed to send RSVP notification:', e)
     }
 
     return NextResponse.json({ rsvp: data }, { status: 201 })

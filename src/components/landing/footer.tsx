@@ -2,7 +2,7 @@
 
 import { m } from "framer-motion";
 import { CONTACT_CONFIG } from "@/lib/config";
-import { Heart, Instagram, Facebook, Twitter, Mail, Globe, Sparkles } from "lucide-react";
+import { Heart, Instagram, Facebook, Linkedin, Mail, Globe, Sparkles } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 import { NewsletterForm } from "./newsletter-form";
 
@@ -43,7 +43,7 @@ export function Footer({
   const socialLinks = [
     { icon: Instagram, href: CONTACT_CONFIG.socials.instagram, label: "Instagram", color: "hover:bg-gradient-to-br hover:from-pink-500 hover:to-purple-600" },
     { icon: Facebook, href: CONTACT_CONFIG.socials.facebook, label: "Facebook", color: "hover:bg-blue-600" },
-    { icon: Twitter, href: CONTACT_CONFIG.socials.twitter, label: "Twitter/X", color: "hover:bg-sky-500" },
+    { icon: Linkedin, href: CONTACT_CONFIG.socials.linkedin, label: "LinkedIn", color: "hover:bg-sky-700" },
   ];
 
   const handleQuickLink = (link: (typeof quickLinks)[0]) => {

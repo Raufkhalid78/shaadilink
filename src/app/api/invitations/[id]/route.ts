@@ -140,14 +140,20 @@ for (const [jsKey, dbKey] of Object.entries(fieldMap)) {
       await supabase.from('events').delete().eq('invitation_id', id)
       const eventRows = body.events
         .filter((e: { name: string }) => e.name)
-        .map((e: { name: string; date: string; time: string; venue?: string }, idx: number) => ({
-          invitation_id: id,
-          name: e.name,
-          date: e.date || '',
-          time: e.time || '',
-          venue: e.venue || '',
-          order_index: idx,
-        }))
+        .map((e: { id?: string; name: string; date: string; time: string; venue?: string }, idx: number) => {
+          const row: any = {
+            invitation_id: id,
+            name: e.name,
+            date: e.date || '',
+            time: e.time || '',
+            venue: e.venue || '',
+            order_index: idx,
+          };
+          if (e.id && e.id.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+             row.id = e.id;
+          }
+          return row;
+        })
       if (eventRows.length > 0) {
         await supabase.from('events').insert(eventRows)
       }

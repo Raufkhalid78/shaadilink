@@ -8,10 +8,11 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import type { FlowData } from "@/lib/flow-types";
 import { initialFlowData } from "@/lib/flow-types";
+import { useFlowStore } from "@/lib/store";
 
 export default function DashboardRoutePage() {
   const router = useRouter();
-  const [flowData, setFlowData] = useState<FlowData>(initialFlowData);
+  const { flowData, setFlowData, resetFlowData } = useFlowStore();
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -61,12 +62,12 @@ export default function DashboardRoutePage() {
   return (
     <DashboardPage
       flowData={flowData}
-      onCreateNew={() => router.push("/?start=create")}
+      onCreateNew={() => router.push("/create")}
       onViewInvitation={(id) => router.push(`/inv/${id}`)}
-      onEditInvitation={(id) => router.push(`/?edit=${id}`)}
+      onEditInvitation={(id) => router.push(`/create?edit=${id}`)}
       onSignOut={() => router.replace("/")}
-      onUpgradeInvitation={(id) => router.push(`/?upgrade=${id}`)}
-      onBuyMoreLinks={(id) => router.push(`/?buyMoreLinks=${id}`)}
+      onUpgradeInvitation={(id) => router.push(`/payment?upgrade=${id}`)}
+      onBuyMoreLinks={(id) => router.push(`/payment?buyMoreLinks=${id}`)}
       onGoHome={() => router.push("/")}
     />
   );

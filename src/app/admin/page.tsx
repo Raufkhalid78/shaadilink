@@ -8,18 +8,29 @@ export const dynamic = 'force-dynamic';
 export default async function AdminOverview() {
   const supabase = await createClient();
 
-  // Fetch basic stats
+  // Fetch all dashboard data in parallel
   const [
-    { count: invCount },
-    { count: reviewsCount },
-    { count: pendingReviewsCount },
-    { count: ordersCount }
+    { count: invCount, error: invError },
+    { count: reviewsCount, error: revError },
+    { count: pendingReviewsCount, error: pRevError },
+    { count: ordersCount, error: ordersError },
+    { data: recentOrders }
   ] = await Promise.all([
     supabase.from('invitations').select('*', { count: 'exact', head: true }),
     supabase.from('reviews').select('*', { count: 'exact', head: true }),
     supabase.from('reviews').select('*', { count: 'exact', head: true }).eq('is_approved', false),
-    supabase.from('orders').select('*', { count: 'exact', head: true })
+    supabase.from('orders').select('*', { count: 'exact', head: true }),
+    supabase
+      .from('orders')
+      .select('created_at, amount, status')
+      .order('created_at', { ascending: false })
+      .limit(100)
   ]);
+
+  if (invError) console.error("Failed to load invitation count:", invError);
+  if (revError) console.error("Failed to load review count:", revError);
+  if (pRevError) console.error("Failed to load pending reviews count:", pRevError);
+  if (ordersError) console.error("Failed to load orders count:", ordersError);
 
   const stats = [
     { title: "Total Invitations", value: invCount || 0, icon: Users, color: "text-blue-500" },
@@ -27,12 +38,6 @@ export default async function AdminOverview() {
     { title: "Pending Reviews", value: pendingReviewsCount || 0, icon: MessageSquare, color: "text-amber-500" },
     { title: "Total Orders", value: ordersCount || 0, icon: ShoppingBag, color: "text-purple-500" },
   ];
-
-  const { data: recentOrders } = await supabase
-    .from('orders')
-    .select('created_at, amount, status')
-    .order('created_at', { ascending: false })
-    .limit(100);
 
   // Group by day for the last 7 days
   const revenueData: { name: string; total: number }[] = [];

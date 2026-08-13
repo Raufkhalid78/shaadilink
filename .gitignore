@@ -60,4 +60,5 @@ server.log
 /test-gemini2.js
 /test-resend.js
 /test-resend3.js
-/test-zai.js
+/test-zai.jstest-safepay.js
+test-gemini2.js

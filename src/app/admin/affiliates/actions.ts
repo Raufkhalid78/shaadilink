@@ -2,10 +2,8 @@
 
 import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
-
-import { Resend } from 'resend';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+import { resend } from '@/lib/resend';
+import { getEmailWrapper } from '@/lib/email-templates';
 
 export async function updateAffiliateStatus(id: string, status: 'approved' | 'rejected') {
   const authSupabase = await createClient();
@@ -32,49 +30,56 @@ export async function updateAffiliateStatus(id: string, status: 'approved' | 're
   }
 
   // Send email if approved
-  if (status === 'approved' && application?.email && process.env.RESEND_API_KEY) {
+  if (status === 'approved' && application?.email && resend) {
     try {
       await resend.emails.send({
         from: 'ShaadiLink Partners <hello@shaadilink.com.pk>',
-        to: application.email,
-        subject: 'Welcome to the ShaadiLink Affiliate Program!',
-        html: `
-          <div style="font-family: sans-serif; max-w: 600px; margin: 0 auto; color: #333;">
-            <h2 style="color: #047857;">Congratulations, ${application.name}!</h2>
-            <p>Your application to join the ShaadiLink Affiliate Program has been <strong>approved</strong>.</p>
-            <p>You can now access your affiliate dashboard, generate your unique 10% discount code, and start earning a 10% commission on every successful referral.</p>
-            <p style="margin-top: 30px;">
-              <a href="https://shaadilink.com.pk/dashboard/affiliate" style="background-color: #f59e0b; color: #064e3b; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
-                Go to Affiliate Dashboard
-              </a>
-            </p>
-            <p style="margin-top: 30px; font-size: 14px; color: #666;">
-              Welcome aboard,<br/>
-              The ShaadiLink Team
-            </p>
-          </div>
-        `
+        to: [application.email],
+        subject: 'Welcome to the ShaadiLink Partner Program! 🎉',
+        html: getEmailWrapper(
+          'Application Approved!',
+          'Great news! Your affiliate application has been approved.',
+          `
+            <h2 style="color: #022c22; margin-top: 0;">Welcome to the Team!</h2>
+            <p>Hi ${application.name},</p>
+            <p>Great news! Your application to the <strong>ShaadiLink Partner Program</strong> has been approved.</p>
+            <p>You can now log in to your dashboard to get your unique referral links, track your earnings, and view resources to help you promote ShaadiLink.</p>
+            
+            <br/>
+            <center>
+              <a href="https://shaadilink.com.pk/affiliate/dashboard" style="background-color: #d4af37; color: #111827; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Go to Dashboard</a>
+            </center>
+            
+            <br/>
+            <p>We're thrilled to have you partner with us. If you have any questions, don't hesitate to reach out.</p>
+            <p>Best regards,</p>
+            <p><strong>The ShaadiLink Team</strong></p>
+          `
+        )
       });
     } catch (err) {
       console.error('Failed to send affiliate approval email:', err);
     }
-  } else if (status === 'rejected' && application?.email && process.env.RESEND_API_KEY) {
+  } else if (status === 'rejected' && application?.email && resend) {
     try {
       await resend.emails.send({
         from: 'ShaadiLink Partners <hello@shaadilink.com.pk>',
-        to: application.email,
-        subject: 'Update on your ShaadiLink Affiliate Application',
-        html: `
-          <div style="font-family: sans-serif; max-w: 600px; margin: 0 auto; color: #333;">
+        to: [application.email],
+        subject: 'Update on your ShaadiLink Partner Application',
+        html: getEmailWrapper(
+          'Application Update',
+          'An update regarding your application to the ShaadiLink Partner Program.',
+          `
+            <h2 style="color: #022c22; margin-top: 0;">Application Update</h2>
             <p>Hi ${application.name},</p>
-            <p>Thank you for your interest in joining the ShaadiLink Affiliate Program.</p>
-            <p>After careful review, we regret to inform you that we are unable to approve your application at this time.</p>
-            <p style="margin-top: 30px; font-size: 14px; color: #666;">
-              Best regards,<br/>
-              The ShaadiLink Team
-            </p>
-          </div>
-        `
+            <p>Thank you for applying to the ShaadiLink Partner Program. We appreciate your interest in partnering with us.</p>
+            <p>After careful consideration, we are unable to approve your application at this time. We receive many applications and unfortunately cannot accept everyone into the program.</p>
+            <p>We wish you the best of luck in your future endeavors!</p>
+            <br/>
+            <p>Best regards,</p>
+            <p><strong>The ShaadiLink Team</strong></p>
+          `
+        )
       });
     } catch (err) {
       console.error('Failed to send affiliate rejection email:', err);

@@ -12,7 +12,7 @@ import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
 
 interface LoginPageProps {
   onBack: () => void;
-  onLogin: (userId: string, email: string) => void;
+  onLogin: (userId: string, email: string, fullName?: string) => void;
   onSignup: () => void;
   crumbs: { label: string; onClick?: () => void }[];
 }
@@ -84,7 +84,8 @@ export function LoginPage({ onBack, onLogin, onSignup, crumbs }: LoginPageProps)
 
       if (data.user) {
         toast.success(`Welcome back! 👋`);
-        onLogin(data.user.id, data.user.email ?? email);
+        const fullName = data.user.user_metadata?.full_name || "";
+        onLogin(data.user.id, data.user.email ?? email, fullName);
       }
     } catch (err) {
       console.error("Login error:", err);
@@ -182,7 +183,7 @@ export function LoginPage({ onBack, onLogin, onSignup, crumbs }: LoginPageProps)
             </div>
 
             {/* Form */}
-            <div className="space-y-4">
+            <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-4">
               {/* Email */}
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
@@ -196,7 +197,6 @@ export function LoginPage({ onBack, onLogin, onSignup, crumbs }: LoginPageProps)
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
                     placeholder="you@example.com"
                     className={`pl-10 h-11 bg-background/50 border-emerald/20 focus-visible:ring-emerald ${
                       errors.email ? "border-red-500/50 focus-visible:ring-red-500" : ""
@@ -219,7 +219,6 @@ export function LoginPage({ onBack, onLogin, onSignup, crumbs }: LoginPageProps)
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
                     placeholder="Enter your password"
                     className={`pl-10 pr-10 h-11 bg-background/50 border-emerald/20 focus-visible:ring-emerald ${
                       errors.password ? "border-red-500/50 focus-visible:ring-red-500" : ""
@@ -239,6 +238,7 @@ export function LoginPage({ onBack, onLogin, onSignup, crumbs }: LoginPageProps)
               {/* Forgot Password */}
               <div className="flex justify-end">
                 <button
+                  type="button"
                   onClick={handleForgotPassword}
                   disabled={isForgotLoading}
                   className="text-xs text-gold hover:text-gold-light font-medium flex items-center gap-1 transition-colors"
@@ -249,7 +249,7 @@ export function LoginPage({ onBack, onLogin, onSignup, crumbs }: LoginPageProps)
               </div>
 
               <Button
-                onClick={handleSubmit}
+                type="submit"
                 disabled={isLoading}
                 className="w-full h-12 bg-emerald hover:bg-emerald-dark text-primary-foreground border border-gold/30 font-semibold text-base mt-2 shadow-lg shadow-emerald/20 transition-all hover:scale-[1.01]"
               >
@@ -298,20 +298,24 @@ export function LoginPage({ onBack, onLogin, onSignup, crumbs }: LoginPageProps)
                     />
                     <path
                       fill="#34A853"
-                      d="M12 23c3.24 0 5.97-1.07 7.96-2.91l-3.73-2.89c-1.1.74-2.5 1.18-4.23 1.18-3.35 0-5.88-2.19-6.78-4.9l-3.84 2.99C3.37 20.33 7.35 23 12 23z"
+                      d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.73-2.89c-1.08.72-2.45 1.15-4.2 1.15-3.23 0-5.97-2.18-6.95-5.11l-3.85 2.99C3.17 21.05 7.15 24 12 24z"
                     />
+                    <path fill="none" d="M0 0h24v24H0z" />
                   </svg>
                 )}
                 Continue with Google
               </Button>
-            </div>
 
-            <p className="text-center mt-6 text-sm text-muted-foreground">
-              Don&apos;t have an account?{" "}
-              <button onClick={onSignup} className="text-gold hover:text-gold-light font-semibold underline transition-colors">
-                Sign up
-              </button>
-            </p>
+              <div className="text-center pt-2">
+                <button
+                  type="button"
+                  onClick={onSignup}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Don&apos;t have an account? <span className="text-gold hover:text-gold-light font-semibold">Sign up</span>
+                </button>
+              </div>
+            </form>
           </div>
         </m.div>
       </main>

@@ -34,19 +34,14 @@ export async function getAffiliateData() {
     return { error: 'Not an approved affiliate', application: app };
   }
 
-  // Get their referral code
-  const { data: refCode } = await supabase
-    .from('referral_codes')
-    .select('*')
-    .eq('user_id', session.user.id)
-    .single();
-
-  // Get their commissions
-  const { data: commissions } = await supabase
-    .from('affiliate_commissions')
-    .select('*')
-    .eq('affiliate_id', session.user.id)
-    .order('created_at', { ascending: false });
+  // Fetch referral code and commissions concurrently
+  const [
+    { data: refCode },
+    { data: commissions }
+  ] = await Promise.all([
+    supabase.from('referral_codes').select('*').eq('user_id', session.user.id).single(),
+    supabase.from('affiliate_commissions').select('*').eq('affiliate_id', session.user.id).order('created_at', { ascending: false })
+  ]);
 
   // Calculate stats
   let totalEarnings = 0;
@@ -134,20 +129,7 @@ export async function generateReferralCode(customCode: string) {
     .maybeSingle();
 
   if (userCode) {
-    if (userCode.max_uses === null) {
-      return { error: 'You have already created your custom affiliate code.' };
-    }
-    // Update existing code to the custom code, 10% discount, and unlimited uses
-    const { error: updateError } = await service
-      .from('referral_codes')
-      .update({
-        code,
-        discount_percent: 10,
-        max_uses: null
-      })
-      .eq('id', userCode.id);
-
-    if (updateError) return { error: 'Failed to update your code.' };
+    return { error: 'You already have an active affiliate code.' };
   } else {
     // Insert new code
     const { error: insertError } = await service

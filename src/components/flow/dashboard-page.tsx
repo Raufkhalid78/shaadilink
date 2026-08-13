@@ -325,11 +325,6 @@ export function DashboardPage({
           return;
         }
 
-        if (generatedLinks.length + rows.length > quota) {
-          toast.error(`Importing ${rows.length} rows exceeds your quota. You can only create ${Math.max(0, quota - generatedLinks.length)} more links.`);
-          return;
-        }
-
         const guestsPayload = rows
           .map((row) => {
             const guestName = (row.GuestName || row.Name || row.guest_name || "").trim();
@@ -361,6 +356,11 @@ export function DashboardPage({
 
         if (guestsPayload.length === 0) {
           toast.error("No valid guests found in CSV");
+          return;
+        }
+
+        if (generatedLinks.length + guestsPayload.length > quota) {
+          toast.error(`Importing ${guestsPayload.length} valid rows exceeds your quota. You can only create ${Math.max(0, quota - generatedLinks.length)} more links.`);
           return;
         }
 

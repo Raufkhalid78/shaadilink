@@ -187,6 +187,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
     let evs;
     if (flowData?.events && flowData.events.some(e => e.date || e.time)) {
       evs = flowData.events.filter(e => e.name).map(e => ({
+        id: e.id || e.name,
         name: e.name,
         time: e.time || 'TBD',
         date: e.date || 'TBD',
@@ -1233,7 +1234,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
                   {events.map((event, idx) => {
                     const te = getTranslatedEvent(event, idx)
                     return (
-                    <RevealSection key={event.name} delay={idx * 0.12}>
+                    <RevealSection key={event.id || event.name} delay={idx * 0.12}>
                       <div className="flex gap-5 items-start">
                         <div className="relative z-10 flex-shrink-0">
                           <div className="w-[10px] h-[10px] rounded-full mt-1.5" style={{ backgroundColor: theme.accent, boxShadow: `0 0 8px ${getOpacityStyle('border', 0.5)}` }} />

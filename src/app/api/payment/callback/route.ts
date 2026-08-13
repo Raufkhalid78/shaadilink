@@ -110,20 +110,6 @@ async function handleCallback(request: NextRequest) {
 
     // Order fetch already happened above. Now we just process the paid logic if signature is valid.
 
-    // Update order status to paid
-    const { error: updateOrderErr } = await service
-      .from('orders')
-      .update({ status: 'paid' })
-      .eq('id', orderId)
-
-    if (updateOrderErr) {
-      console.error('Failed to update order status:', updateOrderErr)
-      return NextResponse.redirect(
-        `${siteUrl}/?step=payment&paymentError=${encodeURIComponent('Failed to update order record status')}`,
-        { status: 303 }
-      )
-    }
-
     // Activate the invitation and update the selected plan
     const updatePayload: any = { is_active: true, plan: order.plan }
     // Prefer the quota from the callback URL param; fall back to what was stored in the order
@@ -134,23 +120,25 @@ async function handleCallback(request: NextRequest) {
       updatePayload.guest_links_quota = resolvedQuota
     }
 
-    const { error: updateInvErr } = await service
-      .from('invitations')
-      .update(updatePayload)
-      .eq('id', order.invitation_id)
+    // Run updates concurrently
+    const [orderUpdate, invUpdateRes, profileUpdate] = await Promise.all([
+      service.from('orders').update({ status: 'paid' }).eq('id', orderId),
+      service.from('invitations').update(updatePayload).eq('id', order.invitation_id),
+      service.from('profiles').update({ plan: order.plan }).eq('id', order.user_id)
+    ]);
 
-    if (updateInvErr) {
-      console.error('Failed to update invitation status:', updateInvErr)
+    if (orderUpdate.error) {
+      console.error('Failed to update order status:', orderUpdate.error)
+      return NextResponse.redirect(
+        `${siteUrl}/?step=payment&paymentError=${encodeURIComponent('Failed to update order record status')}`,
+        { status: 303 }
+      )
     }
-
-    // Update the profile plan for the user
-    const { error: updateProfileErr } = await service
-      .from('profiles')
-      .update({ plan: order.plan })
-      .eq('id', order.user_id)
-
-    if (updateProfileErr) {
-      console.error('Failed to update profile plan:', updateProfileErr)
+    if (invUpdateRes.error) {
+      console.error('Failed to update invitation status:', invUpdateRes.error)
+    }
+    if (profileUpdate.error) {
+      console.error('Failed to update profile plan:', profileUpdate.error)
     }
 
     // Successful checkout: redirect browser to Success step

@@ -9,8 +9,13 @@ export const dynamic = 'force-dynamic';
 
 export default async function AdminAffiliates() {
   const supabase = await createClient();
-  const { data: affiliates } = await supabase.from('affiliate_applications').select('*').order('created_at', { ascending: false });
-  const { data: commissions } = await supabase.from('affiliate_commissions').select('*').order('created_at', { ascending: false });
+  const [
+    { data: affiliates },
+    { data: commissions }
+  ] = await Promise.all([
+    supabase.from('affiliate_applications').select('*').order('created_at', { ascending: false }),
+    supabase.from('affiliate_commissions').select('*').order('created_at', { ascending: false })
+  ]);
 
   return (
     <div className="space-y-6">

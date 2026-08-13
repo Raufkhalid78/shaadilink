@@ -14,7 +14,7 @@ export interface FlowData {
   venue: string;
   venueAddress: string;
   welcomeMessage: string;
-  events: { name: string; date: string; time: string; venue?: string }[];
+  events: { id?: string; name: string; date: string; time: string; venue?: string }[];
   backgroundMusic: string;
   // Dress code
   dressCodeWomen: string;
@@ -31,6 +31,8 @@ export interface FlowData {
   youtubeVideoId: string;
   // Step 5: Payment (simulated)
   paymentDone: boolean;
+  // Plan upgrades
+  originalPlan?: string;
   // Add-ons
   guestLinksQuota: number;
   // Baseline quota for tracking new additions during upgrades

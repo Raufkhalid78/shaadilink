@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     // Verify invitation ownership
     const { data: inv, error: invError } = await service
       .from('invitations')
-      .select('user_id, is_active, guest_links_quota')
+      .select('user_id, is_active, guest_links_quota, plan')
       .eq('id', invitationId)
       .single()
 
@@ -46,7 +46,17 @@ export async function POST(request: NextRequest) {
     // The target quota is instead passed to the callback URL.
 
     // Calculate total price
-    const basePrice = inv.is_active ? 0 : (PLAN_AMOUNTS[plan] ?? PLAN_AMOUNTS.classic)
+    let basePrice = 0;
+    if (inv.is_active) {
+      if (inv.plan !== plan) {
+        const currentPrice = PLAN_AMOUNTS[inv.plan as keyof typeof PLAN_AMOUNTS] ?? 0;
+        const newPrice = PLAN_AMOUNTS[plan as keyof typeof PLAN_AMOUNTS] ?? 0;
+        basePrice = Math.max(0, newPrice - currentPrice);
+      }
+    } else {
+      basePrice = PLAN_AMOUNTS[plan as keyof typeof PLAN_AMOUNTS] ?? PLAN_AMOUNTS.classic;
+    }
+    
     const addedQuota = Math.max(0, (guestLinksQuota || 0) - (inv.guest_links_quota || 0))
     const addOnPrice = (addedQuota / 50) * 1000
     let totalAmount = basePrice + addOnPrice

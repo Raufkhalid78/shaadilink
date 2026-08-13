@@ -41,7 +41,11 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
       .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
       .join(" ") || "Template";
 
-  const basePrice = flowData.paymentDone ? 0 : parseInt(plan.price.replace(/,/g, ""));
+  let basePrice = flowData.paymentDone ? 0 : parseInt(plan.price.replace(/,/g, ""));
+  if (!flowData.paymentDone && flowData.originalPlan && flowData.originalPlan !== flowData.selectedPlan) {
+    const originalPlanPrice = parseInt(planDetails[flowData.originalPlan as keyof typeof planDetails]?.price.replace(/,/g, "") || "0");
+    basePrice = Math.max(0, parseInt(plan.price.replace(/,/g, "")) - originalPlanPrice);
+  }
   const addedQuota = Math.max(0, (flowData.guestLinksQuota || 0) - (flowData.originalGuestLinksQuota || 0));
   const addOnPrice = (addedQuota / 50) * 1000;
   const rawTotal = basePrice + addOnPrice;

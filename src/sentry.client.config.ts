@@ -28,5 +28,6 @@ Sentry.init({
   // Ignore noisy third-party errors that aren't our fault
   ignoreErrors: [
     "Error invoking postMessage: Java object is gone",
+    "Invalid call to runtime.sendMessage(). Tab not found.",
   ],
 });

@@ -83,14 +83,20 @@ export async function POST(request: NextRequest) {
     if (events && events.length > 0) {
       const eventRows = events
         .filter((e: { name: string }) => e.name)
-        .map((e: { name: string; date: string; time: string; venue?: string }, idx: number) => ({
-          invitation_id: invitation.id,
-          name: e.name,
-          date: e.date || '',
-          time: e.time || '',
-          venue: e.venue || '',
-          order_index: idx,
-        }))
+        .map((e: { id?: string; name: string; date: string; time: string; venue?: string }, idx: number) => {
+          const row: any = {
+            invitation_id: invitation.id,
+            name: e.name,
+            date: e.date || '',
+            time: e.time || '',
+            venue: e.venue || '',
+            order_index: idx,
+          };
+          if (e.id && e.id.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+             row.id = e.id;
+          }
+          return row;
+        })
 
       if (eventRows.length > 0) {
         const { error: evErr } = await supabase.from('events').insert(eventRows)

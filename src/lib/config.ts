@@ -24,9 +24,9 @@ export const CONTACT_CONFIG = {
 
   // Social media handle links
   socials: {
-    facebook: "#",
-    instagram: "#",
-    twitter: "#",
+    facebook: "https://www.facebook.com/shaadilink1",
+    instagram: "https://www.instagram.com/shaadilink",
+    linkedin: "#",
     youtube: "#",
   }
 };

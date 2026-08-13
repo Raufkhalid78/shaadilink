@@ -22,36 +22,41 @@ export async function POST(
 
     const supabase = createServiceClient()
 
-    // Fetch invitation to get user_id for notification
-    const { data: inv } = await supabase.from('invitations').select('user_id').eq('id', id).single()
+    // 2. Fetch invitation to check if it exists and to get user_id for sending notifications
+    const { data: inv } = await supabase
+      .from('invitations')
+      .select('user_id, profiles(email)')
+      .eq('id', id)
+      .single()
 
+    if (!inv) {
+      return NextResponse.json({ error: 'Invitation not found' }, { status: 404 })
+    }
+
+    // 3. Insert Wish
     const { data, error } = await supabase
       .from('wishes')
       .insert({
         invitation_id: id,
         sender_name: senderName.trim(),
-        message: message.trim(),
+        message: message.trim()
       })
       .select()
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('Wish Insert Error:', error)
+      return NextResponse.json({ error: 'Failed to save wish' }, { status: 500 })
     }
 
-    // Fire and forget email notification
-    if (inv?.user_id) {
-      (async () => {
-        try {
-          const adminSupabase = createServiceClient()
-          const { data: profile } = await adminSupabase.from('profiles').select('email').eq('id', inv.user_id).single()
-          if (profile?.email) {
-            await sendWishNotification(profile.email, senderName.trim(), message.trim())
-          }
-        } catch (emailErr) {
-          console.error('Failed to send Wish notification email:', emailErr)
-        }
-      })()
+    // 4. Send Notification Email if email exists
+    try {
+      const hostEmail = (inv.profiles as any)?.email;
+      if (hostEmail) {
+        await sendWishNotification(hostEmail, senderName.trim(), message.trim())
+      }
+    } catch (e) {
+      console.error('Failed to send wish notification:', e)
     }
 
     return NextResponse.json({ wish: data }, { status: 201 })
@@ -69,7 +74,7 @@ export async function GET(
   try {
     const { id: rawId } = await params
     const id = rawId.replace(/%20| /g, "-")
-    const supabase = await createClient()
+    const supabase = createServiceClient()
     const { data: wishes, error } = await supabase
       .from('wishes')
       .select('*')

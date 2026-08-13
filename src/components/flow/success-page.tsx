@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { m } from "framer-motion";
 import {
   Check, Copy, ExternalLink, Share2, Sparkles, PartyPopper, LayoutDashboard, QrCode
@@ -21,8 +21,13 @@ interface SuccessPageProps {
 export function SuccessPage({ flowData, onViewInvitation, onGoToDashboard, crumbs }: SuccessPageProps) {
   const [copied, setCopied] = useState(false);
 
+  const [baseUrl, setBaseUrl] = useState("");
+
+  useEffect(() => {
+    setBaseUrl(window.location.origin);
+  }, []);
+
   // Use real invitationId for unique link; fall back to template for demo mode
-  const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
   const invitationLink = flowData.invitationId
     ? `${baseUrl}/inv/${flowData.slug || flowData.invitationId}`
     : `${baseUrl}/demo/${flowData.selectedTemplateId || "emerald-noir"}`;
