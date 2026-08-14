@@ -167,7 +167,7 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
 
   useEffect(() => {
     if (typeof window === 'undefined') return
-    const musicTrack = flowData?.backgroundMusic
+    const musicTrack = flowData?.backgroundMusic || (isDemo ? 'shehnai' : null)
     if (!musicTrack || musicTrack === 'no-music') { if (audioRef.current) { audioRef.current.pause(); audioRef.current = null }; return }
     const trackSrc = `/music/${musicTrack}.mp3`
     const absoluteSrc = window.location.origin + trackSrc
@@ -176,7 +176,7 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
       const audio = new Audio(trackSrc); audio.loop = true; audio.preload = 'auto'; audioRef.current = audio
     }
     return () => { if (audioRef.current) { audioRef.current.pause(); audioRef.current = null } }
-  }, [flowData?.backgroundMusic])
+  }, [flowData?.backgroundMusic, isDemo])
 
   useEffect(() => {
     if (!audioRef.current) return
@@ -284,10 +284,11 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
       setShowGoldDust(true)
       setTimeout(() => setShowGoldDust(false), 4500)
     }
-    if (flowData?.backgroundMusic && flowData.backgroundMusic !== 'no-music') setMusicPlaying(true)
+    const musicTrack = flowData?.backgroundMusic || (isDemo ? 'shehnai' : null)
+    if (musicTrack && musicTrack !== 'no-music') setMusicPlaying(true)
     setTimeout(() => setDoorOverlayVisible(false), 2800)
     setTimeout(() => setHeroVisible(true), 2400)
-  }, [doorsOpened, theme.id, flowData?.backgroundMusic])
+  }, [doorsOpened, theme.id, flowData?.backgroundMusic, isDemo])
 
   const handleRSVP = useCallback(async (status: 'accept' | 'decline') => {
     if (!rsvpName.trim()) { toast.error('Please enter your name'); return }

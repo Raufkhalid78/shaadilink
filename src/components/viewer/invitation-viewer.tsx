@@ -267,7 +267,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
   useEffect(() => {
     if (typeof window === 'undefined') return
 
-    const musicTrack = flowData?.backgroundMusic
+    const musicTrack = flowData?.backgroundMusic || (isDemo ? 'tabla-beats' : null)
     if (!musicTrack || musicTrack === 'no-music') {
       if (audioRef.current) {
         audioRef.current.pause()
@@ -294,7 +294,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
         audioRef.current = null
       }
     }
-  }, [flowData?.backgroundMusic])
+  }, [flowData?.backgroundMusic, isDemo])
 
   // Play/pause control
   useEffect(() => {
@@ -354,12 +354,13 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
       setShowGoldDust(true)
       setTimeout(() => setShowGoldDust(false), 4500)
     }
-    if (flowData?.backgroundMusic && flowData.backgroundMusic !== 'no-music') {
+    const musicTrack = flowData?.backgroundMusic || (isDemo ? 'tabla-beats' : null)
+    if (musicTrack && musicTrack !== 'no-music') {
       setMusicPlaying(true)
     }
     setTimeout(() => setDoorOverlayVisible(false), 2800)
     setTimeout(() => setHeroVisible(true), 2400)
-  }, [doorsOpened, theme.id, flowData?.backgroundMusic])
+  }, [doorsOpened, theme.id, flowData?.backgroundMusic, isDemo])
 
   const handleRSVP = useCallback(async (status: 'accept' | 'decline') => {
     if (!rsvpName.trim()) { toast.error('Please enter your name'); return }

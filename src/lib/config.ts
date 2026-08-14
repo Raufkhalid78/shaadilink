@@ -26,7 +26,7 @@ export const CONTACT_CONFIG = {
   socials: {
     facebook: "https://www.facebook.com/shaadilink1",
     instagram: "https://www.instagram.com/shaadilink",
-    linkedin: "#",
+    linkedin: "http://linkedin.com/showcase/shaadilink",
     youtube: "#",
   }
 };

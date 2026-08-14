@@ -85,7 +85,7 @@ function AppPurposeSection() {
 export default function Home() {
   const router = useRouter();
   const { language } = useLanguage();
-  const { flowData, resetFlowData } = useFlowStore();
+  const { flowData, resetFlowData, setFlowData } = useFlowStore();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -143,7 +143,12 @@ export default function Home() {
         <HowItWorks />
         <Comparison />
         <Testimonials />
-        <Pricing onSelectPlan={() => router.push("/create")} />
+        <Pricing onSelectPlan={(plan) => {
+          localStorage.removeItem("shaadilink_pending_flow_data");
+          localStorage.removeItem("shaadilink_oauth_in_progress");
+          setFlowData({ selectedPlan: plan });
+          router.push("/templates");
+        }} />
         <FAQ onContactClick={() => router.push("/contact")} />
         <CTASection onGetStarted={scrollToPricing} />
 
