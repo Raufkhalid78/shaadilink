@@ -54,9 +54,6 @@ function AppPurposeSection() {
           <p className="mt-4 text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
             <strong className="text-foreground">ShaadiLink</strong> {t('purpose.desc').replace('ShaadiLink', '')}
           </p>
-          <p className="mt-3 text-muted-foreground/80 text-xs sm:text-sm max-w-2xl mx-auto leading-relaxed border-t border-gold/20 pt-3 italic">
-            🔐 <strong>{t('purpose.auth.badge')}:</strong> {t('purpose.auth.text')}
-          </p>
         </m.div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">

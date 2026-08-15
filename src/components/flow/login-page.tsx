@@ -34,7 +34,7 @@ export function LoginPage({ onBack, onLogin, onSignup, crumbs }: LoginPageProps)
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/api/auth/callback`,
+          redirectTo: `${window.location.origin}/api/auth/callback?next=/dashboard`,
         },
       });
       if (error) {
@@ -104,7 +104,7 @@ export function LoginPage({ onBack, onLogin, onSignup, crumbs }: LoginPageProps)
     try {
       const supabase = createClient();
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: `${window.location.origin}/api/auth/callback`,
+        redirectTo: `${window.location.origin}/api/auth/callback?next=/dashboard`,
       });
       if (error) {
         toast.error(error.message);
@@ -322,3 +322,4 @@ export function LoginPage({ onBack, onLogin, onSignup, crumbs }: LoginPageProps)
     </div>
   );
 }
+

@@ -450,16 +450,6 @@ export function Hero({ onViewTemplates, onGetStarted, onViewDemo }: HeroProps) {
               </span>
             </h1>
 
-            {/* Subtitle — explicitly describes ShaadiLink's purpose for OAuth reviewers */}
-            <div className="mt-6 sm:mt-8 max-w-2xl mx-auto lg:mx-0 text-left ss-animate-in" style={{ animationDelay: '1000ms' }}>
-              <p className="inline-block px-3 py-1 rounded bg-gold/20 text-gold text-[10px] font-bold tracking-widest uppercase mb-3 border border-gold/30">
-                {t('hero.purpose.badge')}
-              </p>
-              <p className="text-base sm:text-lg md:text-xl text-white/80 leading-relaxed text-left">
-                <strong className="text-white font-semibold">ShaadiLink</strong> {t('hero.purpose.text').replace('ShaadiLink', '')}
-              </p>
-            </div>
-
             {/* CTA Buttons */}
             <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 ss-animate-in" style={{ animationDelay: '1200ms' }}>
               <Button
@@ -495,9 +485,9 @@ export function Hero({ onViewTemplates, onGetStarted, onViewDemo }: HeroProps) {
 
             {/* Live Stats Bar */}
             <div
-              className="mt-12 lg:mt-16 ss-animate-in border-t border-white/10 pt-6 flex flex-wrap items-center justify-center lg:justify-start gap-x-8 gap-y-4" style={{ animationDelay: '1500ms' }}
+              className="mt-12 lg:mt-16 ss-animate-in border-t border-white/10 pt-6 flex flex-wrap items-center justify-between sm:justify-center w-full gap-x-2 sm:gap-x-12 gap-y-4" style={{ animationDelay: '1500ms' }}
             >
-              <div className="text-left">
+              <div className="text-center flex-1 sm:flex-none">
                 <span className="block text-2xl font-bold font-display text-gold">
                   {stats.invitations > 0 ? stats.invitations : "847"}
                 </span>
@@ -506,7 +496,7 @@ export function Hero({ onViewTemplates, onGetStarted, onViewDemo }: HeroProps) {
                 </span>
               </div>
               <div className="w-px h-8 bg-white/10 hidden sm:block" />
-              <div className="text-left">
+              <div className="text-center flex-1 sm:flex-none">
                 <span className="block text-2xl font-bold font-display text-gold">
                   {stats.rsvps > 0 ? stats.rsvps : "12,400+"}
                 </span>
@@ -515,7 +505,7 @@ export function Hero({ onViewTemplates, onGetStarted, onViewDemo }: HeroProps) {
                 </span>
               </div>
               <div className="w-px h-8 bg-white/10 hidden sm:block" />
-              <div className="text-left">
+              <div className="text-center flex-1 sm:flex-none">
                 <span className="block text-2xl font-bold font-display text-gold">
                   4.9★
                 </span>
@@ -527,9 +517,9 @@ export function Hero({ onViewTemplates, onGetStarted, onViewDemo }: HeroProps) {
 
             {/* Trust indicators */}
             <div
-              className="mt-6 flex flex-col items-center lg:items-start gap-3 ss-animate-in" style={{ animationDelay: '1600ms' }}
+              className="mt-6 flex items-center justify-center ss-animate-in w-full" style={{ animationDelay: '1600ms' }}
             >
-              <div className="flex items-center gap-4">
+              <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
                 <div className="flex items-center gap-1.5">
                   <span className="text-xs text-white/60">🎉 {language === 'en' ? 'New & Growing' : 'نیا اور ابھرتا ہوا'}</span>
                 </div>
@@ -567,3 +557,6 @@ export function Hero({ onViewTemplates, onGetStarted, onViewDemo }: HeroProps) {
     </section>
   );
 }
+
+
+

@@ -1941,6 +1941,14 @@ import { RevealSection, getMapEmbedQuery } from './ui/reveal-section';
 
 export default function InvitationViewer(props: InvitationViewerProps) {
   const isDemo = !props.flowData?.invitationId && !props.flowData?.partner1Name
+  const [showDemoBanner, setShowDemoBanner] = useState(isDemo)
+
+  useEffect(() => {
+    if (isDemo) {
+      const timer = setTimeout(() => setShowDemoBanner(false), 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [isDemo])
   
   const renderViewer = () => {
     const RoyalViewer = props.templateId ? ROYAL_TEMPLATE_MAP[props.templateId] : null
@@ -1952,11 +1960,19 @@ export default function InvitationViewer(props: InvitationViewerProps) {
 
   return (
     <>
-      {isDemo && (
-        <div className="fixed top-0 left-0 right-0 bg-red-600/90 text-white text-xs text-center py-1.5 z-[99999] font-medium tracking-wide pointer-events-none shadow-sm backdrop-blur-sm uppercase">
-          Fictional Demo Content - Not a Real Invitation
-        </div>
-      )}
+      <AnimatePresence>
+        {showDemoBanner && (
+          <m.div 
+            initial={{ y: -50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -50, opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className="fixed top-0 left-0 right-0 bg-red-600/90 text-white text-xs text-center py-1.5 z-[99999] font-medium tracking-wide pointer-events-none shadow-sm backdrop-blur-sm uppercase"
+          >
+            Fictional Demo Content - Not a Real Invitation
+          </m.div>
+        )}
+      </AnimatePresence>
       {renderViewer()}
     </>
   )

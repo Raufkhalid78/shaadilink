@@ -44,7 +44,7 @@ export function SignupPage({
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/api/auth/callback`,
+          redirectTo: `${window.location.origin}/api/auth/callback?next=/dashboard`,
         },
       });
       if (error) {
@@ -101,7 +101,7 @@ export function SignupPage({
         password,
         options: {
           data: { full_name: flowData.fullName.trim() },
-          emailRedirectTo: `${window.location.origin}/api/auth/callback`,
+          emailredirectTo: `${window.location.origin}/api/auth/callback?next=/dashboard`,
         },
       });
 
@@ -399,3 +399,4 @@ function FormField({
     </div>
   );
 }
+

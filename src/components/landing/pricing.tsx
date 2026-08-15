@@ -318,9 +318,16 @@ export function Pricing({ onSelectPlan }: PricingProps) {
             </p>
             <ArrowRight className="w-4 h-4 text-gold shrink-0 group-hover:translate-x-1 transition-transform" />
           </div>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground justify-end">
-            <Lock className="w-3.5 h-3.5 text-emerald shrink-0" />
-            {language === 'en' ? 'Secure payments · SSL encrypted' : 'محفوظ ادائیگی · SSL انکرپٹڈ'}
+          <div className="flex flex-col items-end gap-1">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground justify-end">
+              <Lock className="w-3.5 h-3.5 text-emerald shrink-0" />
+              {language === 'en' ? 'Secure payments • SSL encrypted' : 'محفوظ ادائیگی • SSL سے محفوظ'}
+            </div>
+            <p className="text-[10px] text-muted-foreground/60 text-right max-w-[200px] mt-1">
+              {language === 'en' 
+                ? 'Note: All purchases are final. No refunds on digital goods.' 
+                : 'نوٹ: ڈیجیٹل سروس ہونے کے ناطے کوئی ریفنڈ نہیں دیا جاتا۔'}
+            </p>
           </div>
         </m.div>
       </div>

@@ -178,6 +178,9 @@ export const translations = {
     'faq.a5': 'Digital Shagun is a features on our Royal Plan that allows guests to send you wedding gifts (salami) directly via EasyPaisa, JazzCash, or bank transfer by displaying your account details neatly inside the invitation page.',
     'faq.q6': 'Can I import my guest list in bulk?',
     'faq.a6': 'Yes! You can upload a CSV file from your dashboard to instantly generate personalized guest links for your entire guest list. The CSV should have a "Name" column, and optionally "Seats" and "Events" columns.',
+    'faq.q7': 'Do you offer refunds?',
+    'faq.a7': 'Due to the digital nature of our invitations, all purchases are final and we do not offer refunds once an invitation is purchased or published. We only process refunds for duplicate charges caused by technical errors (minus a 5% processing fee).',
+
 
     // CTA Section
     'cta.title': 'Ready to Create Your Invitation?',
@@ -377,6 +380,8 @@ export const translations = {
     'faq.a5': 'اس کے ذریعے آپ کے مہمان کارڈ پر موجود آپ کے بینک یا ایزی پیسہ/جاز کیش اکاؤنٹ کی تفصیلات دیکھ کر آپ کو شگن (سلامی) براہ راست بھیج سکتے ہیں۔',
     'faq.q6': 'کیا میں مہمانوں کی فہرست ایک ساتھ اپ لوڈ کر سکتا ہوں؟',
     'faq.a6': 'جی ہاں! آپ ڈیش بورڈ سے CSV فائل اپ لوڈ کر کے اپنے تمام مہمانوں کے لیے ایک ساتھ ذاتی نوعیت کے لنکس بنا سکتے ہیں۔ CSV فائل میں "Name" (نام) کا کالم ہونا ضروری ہے، اور آپ چاہیں تو "Seats" اور "Events" کے کالم بھی شامل کر سکتے ہیں۔',
+    'faq.q7': '??? ?? ??? ???? (Refund) ???? ????',
+    'faq.a7': '????? ?????? ???? ?? ????? ?? ??? ??? ???? ????????? ???? ??? ??? ?? ????? ?? ????? ???? ???? ???? ?? ??? ?????? ??????? ?? ??? ?? ???? ???? ????? ????????? ?? ????? ???? ??? (5% ???????? ??? ?? ????? ?? ???)?',
 
     // CTA Section
     'cta.title': 'کیا آپ اپنا کارڈ بنانے کے لیے تیار ہیں؟',
@@ -401,3 +406,5 @@ export const translations = {
 
 export type Language = 'en' | 'ur'
 export type TranslationKey = keyof typeof translations['en']
+
+
