@@ -101,7 +101,7 @@ export function SignupPage({
         password,
         options: {
           data: { full_name: flowData.fullName.trim() },
-          emailredirectTo: `${window.location.origin}/api/auth/callback?next=/dashboard`,
+          emailRedirectTo: `${window.location.origin}/api/auth/callback?next=/dashboard`,
         },
       });
 
@@ -399,4 +399,5 @@ function FormField({
     </div>
   );
 }
+
 
