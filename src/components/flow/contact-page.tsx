@@ -210,7 +210,7 @@ export function ContactPage({ onBack }: ContactPageProps) {
                             Message Sent!
                           </h3>
                           <p className="text-muted-foreground">
-                            Thank you for reaching out. We&apos;ll get back to you within 24–48 hours.
+                            Thank you for reaching out. Our 24/7 support team will get back to you shortly.
                           </p>
                           <Button
                             onClick={() => {

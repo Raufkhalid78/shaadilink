@@ -339,27 +339,29 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
   const wishesRef = useRef(wishes)
   wishesRef.current = wishes
 
-  const handleDoorOpen = useCallback(() => {
+  const handleDoorOpen = useCallback((instant?: boolean) => {
     if (doorsOpened) return
     setDoorsOpened(true)
+    
+    const delayFactor = instant ? 0 : 1;
     
     // Delay fireworks until the doors are almost open (1.5s delay)
     // This frees up main thread/GPU cycles for the door swing animation.
     setTimeout(() => {
       setShowFireworks(true)
-    }, 1500)
-    setTimeout(() => setShowFireworks(false), 6500)
+    }, 1500 * delayFactor)
+    setTimeout(() => setShowFireworks(false), 6500 * delayFactor)
 
     if (theme.id.includes('royal')) {
       setShowGoldDust(true)
-      setTimeout(() => setShowGoldDust(false), 4500)
+      setTimeout(() => setShowGoldDust(false), 4500 * delayFactor)
     }
     const musicTrack = flowData?.backgroundMusic || (isDemo ? 'tabla-beats' : null)
     if (musicTrack && musicTrack !== 'no-music') {
       setMusicPlaying(true)
     }
-    setTimeout(() => setDoorOverlayVisible(false), 2800)
-    setTimeout(() => setHeroVisible(true), 2400)
+    setTimeout(() => setDoorOverlayVisible(false), 2800 * delayFactor)
+    setTimeout(() => setHeroVisible(true), 2400 * delayFactor)
   }, [doorsOpened, theme.id, flowData?.backgroundMusic, isDemo])
 
   const handleRSVP = useCallback(async (status: 'accept' | 'decline') => {
@@ -1452,7 +1454,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
         </RevealSection>
 
         {/* ─── Gift Registry & Shagun Section ─── */}
-        {gifts && (flowData?.selectedPlan === 'royal' || theme.isRoyal) && (
+        {gifts && !flowData?.hideDigitalShagun && (flowData?.selectedPlan === 'royal' || theme.isRoyal) && (
           <RevealSection>
             <section className="py-16 md:py-20 px-6">
               <div className="flex flex-col items-center gap-8 max-w-md mx-auto">
@@ -1798,6 +1800,9 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
                           {t('respectfullyDecline', 'Respectfully Decline')}
                         </Button>
                       </div>
+                      <p className="text-[10px] text-center mt-3" style={{ color: getOpacityStyle('text', 0.4) }}>
+                        Your response is shared only with the host. See our <a href="/privacy" className="underline" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
+                      </p>
                     </CardContent>
                   </Card>
                 ) : (
@@ -1948,9 +1953,24 @@ import { drawHeartPath, getHeartSvgPath } from './ui/shapes';
 import { RevealSection, getMapEmbedQuery } from './ui/reveal-section';
 
 export default function InvitationViewer(props: InvitationViewerProps) {
-  const RoyalViewer = props.templateId ? ROYAL_TEMPLATE_MAP[props.templateId] : null
-  if (RoyalViewer) {
-    return <RoyalViewer {...props} />
+  const isDemo = !props.flowData?.invitationId && !props.flowData?.partner1Name
+  
+  const renderViewer = () => {
+    const RoyalViewer = props.templateId ? ROYAL_TEMPLATE_MAP[props.templateId] : null
+    if (RoyalViewer) {
+      return <RoyalViewer {...props} />
+    }
+    return <ClassicViewer {...props} />
   }
-  return <ClassicViewer {...props} />
+
+  return (
+    <>
+      {isDemo && (
+        <div className="fixed top-0 left-0 right-0 bg-red-600/90 text-white text-xs text-center py-1.5 z-[99999] font-medium tracking-wide pointer-events-none shadow-sm backdrop-blur-sm uppercase">
+          Fictional Demo Content - Not a Real Invitation
+        </div>
+      )}
+      {renderViewer()}
+    </>
+  )
 }

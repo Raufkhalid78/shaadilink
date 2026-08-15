@@ -192,7 +192,7 @@ function TransformVisual() {
           animate={{ rotate: 360 }}
           transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
         >
-          <Sparkles className="absolute -bottom-1 left-1/4 w-2.5 h-2.5 text-gold/50" />
+          <Sparkles className="absolute -bottom-1 left-1/4 w-2.5 h-2.5 text-gold/70" />
         </m.div>
 
         {/* Glow pulse ring */}
@@ -247,7 +247,7 @@ function InvitationPreview() {
           animate={{ opacity: [0.3, 0.7, 0.3], scale: [1, 1.3, 1] }}
           transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
         >
-          <Sparkles className="w-3 h-3 text-gold/40" />
+          <Sparkles className="w-3 h-3 text-gold/70" />
         </m.div>
         <m.div
           className="absolute bottom-8 left-6"

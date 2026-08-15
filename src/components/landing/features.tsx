@@ -197,7 +197,7 @@ export function Features() {
                   return (
                     <div key={label} className="flex flex-col items-center w-14 h-14 rounded-xl border border-gold/15 bg-black/40 justify-center">
                       <span className="font-display text-sm font-bold text-gold leading-none">{val}</span>
-                      <span className="text-[8px] text-white/40 uppercase mt-1 tracking-wider">{label}</span>
+                      <span className="text-[8px] text-white/60 uppercase mt-1 tracking-wider">{label}</span>
                     </div>
                   );
                 })}
@@ -220,12 +220,12 @@ export function Features() {
 
               {/* Simulated Wedding envelope scratch card */}
               <div className="flex flex-col justify-between h-40 border border-gold/10 bg-black/30 rounded-2xl p-4 relative overflow-hidden group/scratch">
-                <div className="text-center font-display text-[9px] uppercase tracking-widest text-white/30">Interactive Reveal</div>
+                <div className="text-center font-display text-[9px] uppercase tracking-widest text-white/60">Interactive Reveal</div>
                 <div className="flex items-center justify-center flex-grow">
                   <div className="relative w-32 h-16 bg-gradient-to-br from-emerald-dark/60 to-emerald-dark/20 rounded-xl border border-gold/20 flex items-center justify-center overflow-hidden">
                     {/* revealed info */}
                     <div className="flex flex-col items-center">
-                      <span className="text-[8px] text-white/40 uppercase tracking-widest">Wedding Date</span>
+                      <span className="text-[8px] text-white/60 uppercase tracking-widest">Wedding Date</span>
                       <span className="font-display text-[10px] font-bold text-gold uppercase tracking-wider mt-1">
                         15 · MAR · 2027
                       </span>
@@ -333,9 +333,9 @@ export function Features() {
               {/* Rotating Translation elements */}
               <div className="flex items-center justify-center gap-2.5 w-full border border-gold/5 bg-black/40 rounded-xl p-2 mt-4">
                 <span className="text-[9px] text-white/50">English</span>
-                <span className="text-gold/40 text-[8px]">✦</span>
+                <span className="text-gold/70 text-[8px]">✦</span>
                 <span className="text-[10px] font-amiri text-gold">اردو</span>
-                <span className="text-gold/40 text-[8px]">✦</span>
+                <span className="text-gold/70 text-[8px]">✦</span>
                 <span className="text-[9px] text-white/50">العربية</span>
               </div>
             </div>

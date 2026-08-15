@@ -1151,7 +1151,25 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                         </div>
                         <h2 className="font-display text-lg font-bold text-foreground">Digital Shagun Registry</h2>
                       </div>
-                      <p className="text-xs text-muted-foreground">Add your bank and mobile wallet details so guests can send shagun digitally.</p>
+                      <p className="text-xs text-muted-foreground mb-4">Add your bank and mobile wallet details so guests can send shagun digitally.</p>
+
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={!flowData.hideDigitalShagun}
+                        className="w-full flex items-center justify-between rounded-2xl border border-border/60 p-4 cursor-pointer hover:bg-muted/30 transition-colors text-left mb-4"
+                        onClick={() => onUpdateData({ hideDigitalShagun: !flowData.hideDigitalShagun })}
+                      >
+                        <div>
+                          <p className="font-bold text-sm text-foreground flex items-center gap-2">
+                            Show on Invitation
+                          </p>
+                          <p className="text-[10px] text-muted-foreground mt-0.5">Toggle visibility of these details for guests</p>
+                        </div>
+                        <div className={`w-10 h-6 rounded-full transition-colors relative flex items-center ${!flowData.hideDigitalShagun ? 'bg-gold' : 'bg-muted-foreground/30'}`}>
+                          <div className={`w-4 h-4 rounded-full bg-white absolute transition-all duration-300 shadow-sm ${!flowData.hideDigitalShagun ? 'right-1' : 'left-1'}`} />
+                        </div>
+                      </button>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <Input

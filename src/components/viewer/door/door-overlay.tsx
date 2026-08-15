@@ -21,7 +21,7 @@ import { InvitationViewerProps, hexToRgb, getTheme, extractColors, parseGiftDeta
 
 
 /* ─── Door Overlay Component ─── */
-export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doorsOpened: boolean; onOpen: () => void }) {
+export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doorsOpened: boolean; onOpen: (instant?: boolean) => void }) {
   const ds = theme.doorStyle
   const a = theme.accentRgb
 
@@ -725,6 +725,19 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
             className="w-28 h-28 md:w-36 md:h-36 cursor-pointer rounded-full focus:outline-none select-none pointer-events-auto bg-transparent border-none"
             aria-label="Open invitation"
           />
+        </div>
+      )}
+
+      {/* Accessibility / Direct Details Bypass */}
+      {!doorsOpened && (
+        <div className="absolute bottom-10 left-0 right-0 flex justify-center z-[100]">
+          <button
+            onClick={() => onOpen(true)}
+            className="px-4 py-2 rounded-full border bg-black/40 backdrop-blur-sm text-white/80 hover:text-white hover:bg-black/60 transition-all text-xs tracking-wider flex items-center gap-2"
+            style={{ borderColor: theme.getOpacityStyle('border', 0.2) }}
+          >
+            Skip Animation
+          </button>
         </div>
       )}
 

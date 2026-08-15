@@ -17,7 +17,7 @@ export const CONTACT_CONFIG = {
   address: "Jhelum, Pakistan",
 
   // Help desk/contact form response notice
-  responseTime: "We typically respond within 24–48 hours",
+  responseTime: "Our 24/7 support team will respond shortly",
 
   // Official domain name of the platform
   domain: "shaadilink.com.pk",

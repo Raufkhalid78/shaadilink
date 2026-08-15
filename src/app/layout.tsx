@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { AIChatFABWrapper } from "@/components/ai-chat-fab-wrapper";
 import { LanguageProvider } from "@/components/language-provider";
+import { CookieBanner } from "@/components/cookie-banner";
 import { FramerMotionProvider } from "@/components/framer-provider";
 import { SentryInit } from "@/components/sentry-init";
 
@@ -206,6 +207,7 @@ export default function RootLayout({
             <AIChatFABWrapper />
             {children}
           </FramerMotionProvider>
+          <CookieBanner />
           <Toaster 
             position="bottom-center"
             toastOptions={{

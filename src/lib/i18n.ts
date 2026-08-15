@@ -139,7 +139,7 @@ export const translations = {
     'pricing.badge': 'Choose Your Experience',
     'pricing.title': 'Choose Your Invitation Plan',
     'pricing.subtitle': 'Elegant classic invitations or immersive cinematic luxury — both crafted for Pakistani weddings.',
-    'pricing.guarantee': '✓ 24-Hour Money-Back Guarantee',
+    'pricing.guarantee': '✓ Secure Payments Assured',
     'pricing.classic.name': 'Classic Plan',
     'pricing.classic.desc': 'Beautiful, clean, and elegant digital cards with all core features.',
     'pricing.classic.price': 'Rs. 3,499',

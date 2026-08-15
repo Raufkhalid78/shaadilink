@@ -326,7 +326,7 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                 <div className="p-4 rounded-2xl bg-card/50 border border-border/50 text-center space-y-1">
                   <Shield className="w-5 h-5 text-gold mx-auto" />
                   <p className="text-xs font-bold text-foreground">100% Guarantee</p>
-                  <p className="text-[10px] text-muted-foreground">Satisfied or refunded</p>
+                  <p className="text-[10px] text-muted-foreground">Secure encrypted transaction</p>
                 </div>
               </div>
 

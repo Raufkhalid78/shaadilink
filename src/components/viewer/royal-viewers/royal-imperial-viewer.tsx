@@ -548,7 +548,7 @@ export default function RoyalImperialViewer({ templateId, flowData, guestName, g
         </RevealSection>
 
         {/* ─── GIFTS ─── */}
-        {s.gifts && (
+        {s.gifts && !s.flowData?.hideDigitalShagun && (
           <RevealSection>
             <section className="py-16 md:py-20 px-6">
               <div className="flex flex-col items-center gap-8 max-w-md mx-auto">
@@ -627,6 +627,7 @@ export default function RoyalImperialViewer({ templateId, flowData, guestName, g
                         <Button onClick={() => s.handleRSVP('accept')} className="flex-1 h-11 font-[var(--font-cinzel-dec)] text-xs tracking-wider" style={{ backgroundColor: theme.accent, borderColor: theme.accent, color: theme.bgPrimary }}><Check className="w-4 h-4 mr-1.5" />Accept with Honour</Button>
                         <Button onClick={() => s.handleRSVP('decline')} className="flex-1 border h-11 font-[var(--font-cinzel-dec)] text-xs tracking-wider" style={{ backgroundColor: 'transparent', borderColor: theme.borderSubtle, color: getOpacityStyle('text', 0.7) }} variant="outline"><X className="w-4 h-4 mr-1.5" />Send Regrets</Button>
                       </div>
+                      <p className="text-[10px] text-center mt-3" style={{ color: getOpacityStyle('text', 0.4) }}>Your response is shared only with the host. See our <a href="/privacy" className="underline" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.</p>
                     </div>
                   </ParchmentRSVP>
                 ) : (

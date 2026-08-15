@@ -218,7 +218,7 @@ export function Footer({
               <p className="font-display font-semibold text-xs uppercase tracking-[0.15em] text-gold mb-5">
                 {language === 'en' ? "Stay Updated" : "باخبر رہیں"}
               </p>
-              <p className="text-white/40 text-xs mb-3 leading-relaxed text-left">
+              <p className="text-white/60 text-xs mb-3 leading-relaxed text-left">
                 {language === 'en'
                   ? "Get notified about new templates and exclusive offers."
                   : "نئے ڈیزائنز اور خصوصی پیشکشوں کے بارے میں باخبر رہیں۔"}
@@ -240,7 +240,7 @@ export function Footer({
                   <Mail className="w-3.5 h-3.5 shrink-0" />
                   {CONTACT_CONFIG.email}
                 </a>
-                <span className="text-sm text-white/40 flex items-center gap-2">
+                <span className="text-sm text-white/60 flex items-center gap-2">
                   <Globe className="w-3.5 h-3.5 shrink-0" />
                   {CONTACT_CONFIG.address}
                 </span>
@@ -250,10 +250,10 @@ export function Footer({
 
           {/* Bottom bar */}
           <div className="border-t border-white/8 py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <p className="text-xs text-white/30">
+            <p className="text-xs text-white/60">
               &copy; {new Date().getFullYear()} {language === 'en' ? "ShaadiLink. All rights reserved." : "شادی لنک۔ جملہ حقوق محفوظ ہیں۔"}
             </p>
-            <p className="text-xs text-white/30 flex items-center gap-1.5">
+            <p className="text-xs text-white/60 flex items-center gap-1.5">
               {language === 'en' ? "Made with" : "پاکستانی شادیوں کے لیے"}{" "}
               <Heart className="h-3 w-3 text-rose-400 fill-rose-400 animate-pulse" />
               {" "}{language === 'en' ? "for Pakistani Weddings" : "محبت سے تیار کردہ"}

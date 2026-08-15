@@ -253,20 +253,20 @@ function TemplateCard({
       <div className={`relative ${template.bgClass} h-56 sm:h-64 p-5 flex flex-col items-center justify-center`}>
         <TemplatePattern colorClass={template.patternColor} id={template.id} />
         <div className={`relative z-10 w-full h-full border-2 ${template.borderClass} rounded-lg flex flex-col items-center justify-center p-4`}>
-          <span className={`font-calligraphy ${template.isLight ? 'text-slate-400' : 'text-white/30'} text-xl sm:text-2xl mb-2`}>دعوة زفاف</span>
+          <span className={`font-calligraphy ${template.isLight ? 'text-slate-400' : 'text-white/60'} text-xl sm:text-2xl mb-2`}>دعوة زفاف</span>
           <div className="text-center">
             <p className={`font-display ${template.isLight ? 'text-slate-800' : 'text-white/80'} text-lg sm:text-xl font-semibold`}>Ahmed & Fatima</p>
             <div className={`w-12 h-px ${template.isLight ? 'bg-amber-400/60' : 'bg-gold/40'} mx-auto my-2`} />
             <p className={`font-calligraphy ${template.isLight ? 'text-amber-500' : 'text-gold/60'} text-sm tracking-wider`}>{template.theme}</p>
           </div>
           <div className="mt-2 flex items-center gap-1.5">
-            <Star className={`w-3 h-3 ${template.isLight ? 'text-amber-400/60' : 'text-white/30'}`} />
-            <p className={`text-[10px] ${template.isLight ? 'text-slate-500' : 'text-white/40'} tracking-wider uppercase`}>{template.doorType}</p>
+            <Star className={`w-3 h-3 ${template.isLight ? 'text-amber-400/60' : 'text-white/60'}`} />
+            <p className={`text-[10px] ${template.isLight ? 'text-slate-500' : 'text-white/60'} tracking-wider uppercase`}>{template.doorType}</p>
           </div>
           <div className="mt-2 flex items-center gap-2">
-            <Sparkles className={`h-3 w-3 ${template.isLight ? 'text-amber-400/80' : 'text-gold/40'}`} />
+            <Sparkles className={`h-3 w-3 ${template.isLight ? 'text-amber-400/80' : 'text-gold/70'}`} />
             <div className={`w-8 h-px ${template.isLight ? 'bg-amber-400/40' : 'bg-gold/30'}`} />
-            <Sparkles className={`h-3 w-3 ${template.isLight ? 'text-amber-400/80' : 'text-gold/40'}`} />
+            <Sparkles className={`h-3 w-3 ${template.isLight ? 'text-amber-400/80' : 'text-gold/70'}`} />
           </div>
         </div>
 

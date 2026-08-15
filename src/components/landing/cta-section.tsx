@@ -100,7 +100,7 @@ export function CTASection({ onGetStarted }: CTASectionProps) {
             <span className="text-sm text-gold font-semibold">
               {language === 'en' ? 'Premium Quality' : 'اعلی معیار'}
             </span>
-            <span className="text-xs text-white/40">
+            <span className="text-xs text-white/60">
               {language === 'en' ? 'Handcrafted digital designs' : 'نفاست سے تیار کردہ ڈیزائنز'}
             </span>
           </m.div>
@@ -160,7 +160,7 @@ export function CTASection({ onGetStarted }: CTASectionProps) {
             </m.div>
           </m.div>
 
-          <p className="mt-6 text-sm text-white/30">
+          <p className="mt-6 text-sm text-white/60">
             {language === 'en' ? 'Starting from Rs. 3,499 • One-time payment' : 'صرف 3,499 روپے سے شروع • یک وقتی ادائیگی'}
           </p>
         </m.div>

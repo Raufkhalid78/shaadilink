@@ -275,19 +275,20 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
   }, [language, translations])
 
   // ─── Action Handlers ───
-  const handleDoorOpen = useCallback(() => {
+  const handleDoorOpen = useCallback((instant?: boolean) => {
     if (doorsOpened) return
     setDoorsOpened(true)
-    setTimeout(() => setShowFireworks(true), 1500)
-    setTimeout(() => setShowFireworks(false), 6500)
+    const delayFactor = instant ? 0 : 1;
+    setTimeout(() => setShowFireworks(true), 1500 * delayFactor)
+    setTimeout(() => setShowFireworks(false), 6500 * delayFactor)
     if (theme.id.includes('royal') || theme.id === 'geometric-gold' || theme.id === 'dark-velvet') {
       setShowGoldDust(true)
-      setTimeout(() => setShowGoldDust(false), 4500)
+      setTimeout(() => setShowGoldDust(false), 4500 * delayFactor)
     }
     const musicTrack = flowData?.backgroundMusic || (isDemo ? 'shehnai' : null)
     if (musicTrack && musicTrack !== 'no-music') setMusicPlaying(true)
-    setTimeout(() => setDoorOverlayVisible(false), 2800)
-    setTimeout(() => setHeroVisible(true), 2400)
+    setTimeout(() => setDoorOverlayVisible(false), 2800 * delayFactor)
+    setTimeout(() => setHeroVisible(true), 2400 * delayFactor)
   }, [doorsOpened, theme.id, flowData?.backgroundMusic, isDemo])
 
   const handleRSVP = useCallback(async (status: 'accept' | 'decline') => {

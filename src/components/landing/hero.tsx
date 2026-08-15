@@ -202,7 +202,7 @@ function InvitationCardMockup() {
           <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center z-10">
             {/* Bismillah */}
             <p
-              className="ss-animate-in font-calligraphy text-gold/40 text-sm mb-4 opacity-0"
+              className="ss-animate-in font-calligraphy text-gold/70 text-sm mb-4 opacity-0"
               style={{ animationDelay: '1.5s', animationFillMode: 'forwards' }}
             >
               بِسْمِ اللَّهِ
@@ -226,7 +226,7 @@ function InvitationCardMockup() {
             </p>
             <div className="flex items-center gap-3 my-2">
               <div className="w-10 h-px bg-gradient-to-r from-transparent to-gold/40" />
-              <Heart className="w-3.5 h-3.5 text-gold/50 fill-gold/30" />
+              <Heart className="w-3.5 h-3.5 text-gold/70 fill-gold/30" />
               <div className="w-10 h-px bg-gradient-to-l from-transparent to-gold/40" />
             </div>
             <p className="font-calligraphy text-[#e0ccaa] text-3xl font-bold">
@@ -268,7 +268,7 @@ function InvitationCardMockup() {
             animate={{ opacity: [0.3, 0.7, 0.3], scale: [1, 1.2, 1] }}
             transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
           >
-            <Sparkles className="w-3 h-3 text-gold/40" />
+            <Sparkles className="w-3 h-3 text-gold/70" />
           </m.div>
           <m.div
             className="absolute bottom-12 left-8 z-20"
@@ -399,7 +399,7 @@ export function Hero({ onViewTemplates, onGetStarted, onViewDemo }: HeroProps) {
           <div className="flex-1 text-center lg:text-left">
             {/* Bismillah */}
             <div className="mb-4 ss-animate-in">
-              <span className="font-calligraphy text-gold/50 text-2xl sm:text-3xl tracking-wider">
+              <span className="font-calligraphy text-gold/70 text-2xl sm:text-3xl tracking-wider">
                 بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
               </span>
             </div>
@@ -412,7 +412,7 @@ export function Hero({ onViewTemplates, onGetStarted, onViewDemo }: HeroProps) {
               >
                 <Sparkles className="w-3 h-3" />
                 <span>ShaadiLink</span>
-                <span className="text-white/30">·</span>
+                <span className="text-white/60">·</span>
                 <span>{appTagline}</span>
               </span>
             </div>
@@ -489,7 +489,7 @@ export function Hero({ onViewTemplates, onGetStarted, onViewDemo }: HeroProps) {
             </div>
 
             {/* No credit card required micro-copy */}
-            <p className="text-xs text-white/40 mt-3 text-center lg:text-left font-medium ss-animate-in" style={{ animationDelay: '1350ms' }}>
+            <p className="text-xs text-white/60 mt-3 text-center lg:text-left font-medium ss-animate-in" style={{ animationDelay: '1350ms' }}>
               ✓ {t('hero.cta.free')}
             </p>
 
@@ -531,13 +531,13 @@ export function Hero({ onViewTemplates, onGetStarted, onViewDemo }: HeroProps) {
             >
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xs text-white/30">🎉 {language === 'en' ? 'New & Growing' : 'نیا اور ابھرتا ہوا'}</span>
+                  <span className="text-xs text-white/60">🎉 {language === 'en' ? 'New & Growing' : 'نیا اور ابھرتا ہوا'}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xs text-white/30">❤️ {language === 'en' ? 'Crafted with Love' : 'محبت سے تیار کردہ'}</span>
+                  <span className="text-xs text-white/60">❤️ {language === 'en' ? 'Crafted with Love' : 'محبت سے تیار کردہ'}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xs text-white/30">🇵🇰 {language === 'en' ? 'Made in Pakistan' : 'پاکستان میں تیار کردہ'}</span>
+                  <span className="text-xs text-white/60">🇵🇰 {language === 'en' ? 'Made in Pakistan' : 'پاکستان میں تیار کردہ'}</span>
                 </div>
               </div>
             </div>
@@ -557,7 +557,7 @@ export function Hero({ onViewTemplates, onGetStarted, onViewDemo }: HeroProps) {
       >
         <a
           href="#features"
-          className="flex flex-col items-center gap-2 text-white/40 hover:text-white/60 transition-colors"
+          className="flex flex-col items-center gap-2 text-white/60 hover:text-white/60 transition-colors"
           aria-label="Scroll down"
         >
           <span className="text-[10px] tracking-[0.2em] uppercase">Scroll</span>

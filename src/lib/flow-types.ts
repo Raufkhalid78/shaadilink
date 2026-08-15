@@ -25,6 +25,7 @@ export interface FlowData {
   accommodation: string;
   // Gifts/Registry
   gifts: string;
+  hideDigitalShagun?: boolean;
   // Photos (real Supabase Storage URLs after upload)
   heroImage: string;
   slideshowImages: string[];

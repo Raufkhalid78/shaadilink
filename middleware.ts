@@ -4,9 +4,10 @@ import { updateSession } from '@/lib/supabase/middleware'
 export async function middleware(request: NextRequest) {
   const response = await updateSession(request)
   
+  const isDev = process.env.NODE_ENV === 'development';
   const cspHeader = `
     default-src 'self';
-    script-src 'self' 'unsafe-eval' 'unsafe-inline' https://unpkg.com https://www.youtube.com blob:;
+    script-src 'self' ${isDev ? "'unsafe-eval'" : ""} 'unsafe-inline' https://unpkg.com https://www.youtube.com blob:;
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
     img-src 'self' blob: data: https://*.supabase.co https://images.unsplash.com https://lh3.googleusercontent.com;
     font-src 'self' data: https://fonts.gstatic.com;

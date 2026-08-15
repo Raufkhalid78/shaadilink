@@ -271,7 +271,7 @@ export function AboutPage({ onBack }: AboutPageProps) {
           <div className="mx-auto max-w-4xl">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
               {[
-                { value: "5,000+", label: "Happy Families" },
+                { value: "Unlimited", label: "Guest Capacity" },
                 { value: "10+", label: "Premium Templates" },
                 { value: "99%", label: "Satisfaction Rate" },
                 { value: "24/7", label: "Support Available" },

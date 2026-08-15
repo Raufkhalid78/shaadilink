@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import RefundClientPage from "./refund-client";
 
 export const metadata: Metadata = {
-  title: "Refund Policy | ShaadiLink — 24-Hour Guarantee",
-  description: "Read our refund policy. ShaadiLink offers a hassle-free 24-hour money-back guarantee for all digital wedding invitation purchases.",
-  keywords: ["refund policy", "money back guarantee", "ShaadiLink refund"],
+  title: "Refund Policy | ShaadiLink",
+  description: "Read our refund policy. ShaadiLink's guidelines on digital purchases, duplicate payments, and technical support.",
+  keywords: ["refund policy", "ShaadiLink refund", "payment policy"],
   openGraph: {
-    title: "Refund Policy | ShaadiLink — 24-Hour Guarantee",
-    description: "Read our refund policy. ShaadiLink offers a hassle-free 24-hour money-back guarantee for all digital wedding invitation purchases.",
+    title: "Refund Policy | ShaadiLink",
+    description: "Read our refund policy. ShaadiLink's guidelines on digital purchases, duplicate payments, and technical support.",
     type: "website",
     locale: "en_PK",
     siteName: "ShaadiLink",
