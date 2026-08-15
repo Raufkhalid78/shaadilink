@@ -1,7 +1,21 @@
-import { type NextRequest } from 'next/server'
+import { NextResponse, type NextRequest } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
 
 export async function middleware(request: NextRequest) {
+  // If Supabase auth drops the user at the root URL (e.g. because of unconfigured Redirect URIs),
+  // we catch the 'code' parameter and redirect them properly to the callback route.
+  if (request.nextUrl.searchParams.has('code') && !request.nextUrl.pathname.startsWith('/api/auth/callback')) {
+    const code = request.nextUrl.searchParams.get('code')!
+    const nextUrl = new URL('/api/auth/callback', request.url)
+    nextUrl.searchParams.set('code', code)
+    if (request.nextUrl.searchParams.has('next')) {
+      nextUrl.searchParams.set('next', request.nextUrl.searchParams.get('next')!)
+    } else {
+      nextUrl.searchParams.set('next', '/dashboard') // Default landing page after login
+    }
+    return NextResponse.redirect(nextUrl)
+  }
+
   const response = await updateSession(request)
   
   const isDev = process.env.NODE_ENV === 'development';
@@ -44,3 +58,5 @@ export const config = {
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
+
+
