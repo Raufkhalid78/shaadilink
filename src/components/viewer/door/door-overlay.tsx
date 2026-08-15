@@ -709,7 +709,7 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
       {!doorsOpened && (
         <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none">
           <button
-            onClick={onOpen}
+            onClick={() => onOpen()}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => {
               setIsHovered(false)
