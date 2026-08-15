@@ -1768,19 +1768,6 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
                           style={{ backgroundColor: theme.bgSecondary, borderColor: theme.borderSubtle, color: theme.textPrimary }}
                         />
                       </div>
-                      <div className="space-y-2">
-                        <label className={`text-sm ${theme.fontDisplay}`} style={{ color: getOpacityStyle('text', 0.7) }}>{t('willYouBeAttending', 'Will you be attending?')}</label>
-                        <select
-                          value={rsvpStatus || ''}
-                          onChange={(e) => setRsvpStatus(e.target.value as 'accept' | 'decline' | null || null)}
-                          className="w-full h-11 rounded-lg border text-sm px-3 focus:outline-none transition-all duration-300 appearance-none cursor-pointer"
-                          style={{ backgroundColor: theme.bgSecondary, borderColor: theme.borderSubtle, color: theme.textPrimary, backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='${encodeURIComponent(theme.accentDark)}' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em' }}
-                        >
-                          <option value="" style={{ backgroundColor: theme.bgSecondary }}>{t('selectOption', 'Select...')}</option>
-                          <option value="accept" style={{ backgroundColor: theme.bgSecondary, color: theme.textPrimary }}>{t('acceptYes', "Yes, I'll be there! 🎉")}</option>
-                          <option value="decline" style={{ backgroundColor: theme.bgSecondary, color: theme.textPrimary }}>{t('declineSorry', "Sorry, I can't make it 💌")}</option>
-                        </select>
-                      </div>
                       <div className="flex gap-3 pt-2">
                         <Button 
                           onClick={() => handleRSVP('accept')} 
@@ -1974,3 +1961,4 @@ export default function InvitationViewer(props: InvitationViewerProps) {
     </>
   )
 }
+
