@@ -443,34 +443,51 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
   // Render splitting wax seal half
   const renderWaxSealHalf = (side: 'left' | 'right') => {
     const sealColor = theme.id === 'emerald-noir' || theme.id === 'mughal-emerald'
-      ? '#09251c'
+      ? '#062017'
       : theme.id === 'crimson-royale' || theme.id === 'royal-elegance'
-      ? '#420d14'
+      ? '#380a10'
       : theme.id === 'rose-gold-blush' || theme.id === 'rose-gold-blush-royal'
-      ? '#5c222e'
+      ? '#4a1924'
       : theme.id === 'majestic-love'
-      ? '#3b250d'
-      : '#1e1a14'
+      ? '#301d08'
+      : theme.id === 'garden-romance' || theme.id === 'pastel-floral'
+      ? '#44142a'
+      : theme.id === 'modern-minimal'
+      ? '#0f172a'
+      : theme.id === 'ivory-dream'
+      ? '#2e2014'
+      : theme.id === 'watercolor-peach'
+      ? '#3d1d12'
+      : '#1a1815'
 
     const sealHighlight = theme.id === 'emerald-noir' || theme.id === 'mughal-emerald'
-      ? '#184b3b'
+      ? '#124838'
       : theme.id === 'crimson-royale' || theme.id === 'royal-elegance'
-      ? '#7c1c27'
+      ? '#6e1723'
       : theme.id === 'rose-gold-blush' || theme.id === 'rose-gold-blush-royal'
-      ? '#993f51'
+      ? '#823143'
       : theme.id === 'majestic-love'
-      ? '#6b4822'
-      : '#483f36'
+      ? '#5c3a19'
+      : theme.id === 'garden-romance' || theme.id === 'pastel-floral'
+      ? '#7a2850'
+      : theme.id === 'modern-minimal'
+      ? '#1e293b'
+      : theme.id === 'ivory-dream'
+      ? '#543b25'
+      : theme.id === 'watercolor-peach'
+      ? '#663220'
+      : '#3d3830'
 
     const accent = theme.accent
 
     return (
       <div 
-        className={`absolute top-1/2 -translate-y-1/2 w-14 h-28 md:w-18 md:h-36 overflow-hidden pointer-events-none z-30 transition-transform duration-300 ${
+        className={`absolute top-1/2 -translate-y-1/2 w-14 h-28 md:w-18 md:h-36 overflow-hidden pointer-events-none z-30 transition-all duration-300 ${
           side === 'left' ? 'right-0 origin-right' : 'left-0 origin-left'
         }`}
         style={{
-          transform: isPressed ? 'translateY(-50%) scale(0.95)' : isHovered ? 'translateY(-50%) scale(1.08)' : 'translateY(-50%) scale(1)',
+          transform: isPressed ? 'translateY(-50%) scale(0.94)' : isHovered ? 'translateY(-50%) scale(1.08)' : 'translateY(-50%) scale(1)',
+          filter: isHovered ? `drop-shadow(0 0 14px ${theme.accent}99)` : 'none'
         }}
       >
         {/* Full wax seal container shifted so only one half is visible */}
@@ -485,8 +502,10 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
             style={{
               borderRadius: '48% 52% 51% 49% / 51% 48% 52% 49%',
               background: `radial-gradient(circle at 35% 35%, ${sealHighlight}, ${sealColor})`,
-              boxShadow: '0 10px 30px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.18), inset 0 -3px 8px rgba(0,0,0,0.45)',
-              border: `1px solid ${theme.getOpacityStyle('border', 0.12)}`
+              boxShadow: isHovered
+                ? `0 12px 35px rgba(0,0,0,0.8), 0 0 20px rgba(${theme.accentRgb}, 0.35), inset 0 2px 4px rgba(255,255,255,0.25), inset 0 -3px 8px rgba(0,0,0,0.55)`
+                : `0 10px 30px rgba(0,0,0,0.65), inset 0 2px 4px rgba(255,255,255,0.18), inset 0 -3px 8px rgba(0,0,0,0.45)`,
+              border: `1.5px solid ${theme.getOpacityStyle('border', 0.25)}`
             }}
           />
           {/* Inner wax stamp stamp-recess */}
@@ -495,13 +514,13 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
             style={{
               borderRadius: '50% 50% 48% 52% / 48% 52% 50% 50%',
               background: `radial-gradient(circle at 40% 30%, ${sealHighlight}, ${sealColor})`,
-              boxShadow: 'inset 2px 3px 6px rgba(0,0,0,0.45), inset -2px -2px 4px rgba(255,255,255,0.08), 0 1px 2px rgba(0,0,0,0.2)',
-              border: `0.5px solid ${theme.getOpacityStyle('border', 0.08)}`
+              boxShadow: 'inset 2px 3px 8px rgba(0,0,0,0.55), inset -2px -2px 5px rgba(255,255,255,0.1), 0 1px 2px rgba(0,0,0,0.3)',
+              border: `0.5px solid ${theme.getOpacityStyle('border', 0.15)}`
             }}
           />
           {/* Gold monogram circle border inside seal */}
           <div 
-            className="absolute inset-5 opacity-30 border border-dashed"
+            className="absolute inset-5 opacity-40 border border-dashed"
             style={{ 
               borderColor: accent,
               borderRadius: '50% 48% 51% 49% / 51% 49% 50% 50%',
@@ -510,27 +529,29 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
           {/* Embossed symbol / letter in the center */}
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span 
-              className={`text-3xl md:text-4xl font-semibold select-none filter drop-shadow-[0_2px_2px_rgba(0,0,0,0.55)] ${theme.fontDisplay}`} 
+              className={`text-3xl md:text-4xl font-semibold select-none filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)] ${theme.fontDisplay}`} 
               style={{ 
                 color: accent,
+                textShadow: `0 0 10px rgba(${theme.accentRgb}, 0.5)`
               }}
             >
-              {ds.centerIcon || '❦'}
+              {ds.centerIcon || '✦'}
             </span>
             <span 
-              className={`text-[7px] md:text-[9px] tracking-[0.25em] uppercase mt-0.5 select-none opacity-70 ${theme.fontDisplay}`} 
+              className={`text-[7px] md:text-[9px] tracking-[0.28em] font-bold uppercase mt-0.5 select-none ${theme.fontDisplay}`} 
               style={{ 
                 color: accent,
-                textShadow: '0 1px 2px rgba(0,0,0,0.4)'
+                opacity: 0.85,
+                textShadow: '0 1px 3px rgba(0,0,0,0.6)'
               }}
             >
-              open
+              OPEN
             </span>
           </div>
           {/* Melty wax outer ripple shadow ring - only render on the left side to prevent double animation */}
           {side === 'left' && (
             <div 
-              className="absolute inset-[-6px] border animate-ping opacity-15" 
+              className="absolute inset-[-6px] border animate-ping opacity-20" 
               style={{ 
                 borderColor: theme.accent, 
                 borderRadius: '50%' 
@@ -561,6 +582,7 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
           className="w-full h-full object-cover" 
           playsInline 
           muted 
+          preload="metadata"
           onEnded={() => onOpen(true)}
         />
         <AnimatePresence>
@@ -607,11 +629,6 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
             }}
           />
         ))}
-        {/* Crescent moon & star motif in top-right */}
-        <svg className="absolute top-6 right-8 opacity-20" width="48" height="48" viewBox="0 0 48 48" fill="none">
-          <path d="M32 8 Q22 14 22 24 Q22 34 32 40 Q18 40 12 30 Q6 20 12 12 Q18 4 32 8Z" stroke={theme.accent} strokeWidth="1" fill="none" />
-          <polygon points="38,8 40,14 46,14 41,18 43,24 38,20 33,24 35,18 30,14 36,14" stroke={theme.accent} strokeWidth="0.5" fill="none" opacity="0.8" />
-        </svg>
 
         {/* Door glow animation background */}
         {!doorsOpened && (
@@ -662,7 +679,7 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
           {renderDoorTypeOverlays('left')}
           <div className="absolute inset-0 door-shimmer" />
           <div className="absolute inset-0" style={{ background: `linear-gradient(to right, transparent, ${theme.getOpacityStyle('text', 0.05)})` }} />
-          {/* Vignette shadow overlay - now sits under panel content */}
+          {/* Vignette shadow overlay - sits under panel content */}
           <div 
             className="absolute inset-0 transition-opacity duration-[3200ms] pointer-events-none z-[1]"
             style={{
@@ -675,8 +692,9 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
           <DoorPanelContent theme={theme} text={ds.leftText} textLang={ds.leftTextLang} />
           {shouldRenderHingesAndHandle && <DoorHandle theme={theme} side="left" />}
           {/* Center seam vertical golden divider */}
-          <div className="absolute right-0 top-0 bottom-0 w-[3px] z-20" style={{
-            background: `linear-gradient(to bottom, transparent, ${theme.accent}, transparent)`
+          <div className="absolute right-0 top-0 bottom-0 w-[3px] z-20 transition-all duration-300" style={{
+            background: `linear-gradient(to bottom, transparent, ${theme.accent}, transparent)`,
+            boxShadow: isHovered ? `0 0 12px ${theme.accent}` : 'none'
           }} />
           {/* Hinges on hinge side (left) */}
           {shouldRenderHingesAndHandle && <DoorHinges side="left" accent={theme.accent} accentRgb={theme.accentRgb} />}
@@ -717,7 +735,7 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
           {renderDoorTypeOverlays('right')}
           <div className="absolute inset-0 door-shimmer" />
           <div className="absolute inset-0" style={{ background: `linear-gradient(to left, transparent, ${theme.getOpacityStyle('text', 0.05)})` }} />
-          {/* Vignette shadow overlay - now sits under panel content */}
+          {/* Vignette shadow overlay - sits under panel content */}
           <div 
             className="absolute inset-0 transition-opacity duration-[3200ms] pointer-events-none z-[1]"
             style={{
@@ -730,8 +748,9 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
           <DoorPanelContent theme={theme} text={ds.rightText} textLang={ds.rightTextLang} />
           {shouldRenderHingesAndHandle && <DoorHandle theme={theme} side="right" />}
           {/* Center seam vertical golden divider */}
-          <div className="absolute left-0 top-0 bottom-0 w-[3px] z-20" style={{
-            background: `linear-gradient(to bottom, transparent, ${theme.accent}, transparent)`
+          <div className="absolute left-0 top-0 bottom-0 w-[3px] z-20 transition-all duration-300" style={{
+            background: `linear-gradient(to bottom, transparent, ${theme.accent}, transparent)`,
+            boxShadow: isHovered ? `0 0 12px ${theme.accent}` : 'none'
           }} />
           {/* Hinges on hinge side (right) */}
           {shouldRenderHingesAndHandle && <DoorHinges side="right" accent={theme.accent} accentRgb={theme.accentRgb} />}
@@ -783,4 +802,3 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
     </>
   )
 }
-

@@ -109,34 +109,50 @@ export function DoorPanelLayout({ theme, side }: { theme: TemplateTheme; side: '
 /* ─── 3D Door Panel Inset (Raised Panel) - Multi-Layout ─── */
 export function DoorPanelInset({ x, y, w, h, accent, accentRgb, arched }: { x: string; y: string; w: string; h: string; accent: string; accentRgb: string; arched?: boolean }) {
   return (
-    <div className="absolute" style={{
+    <div className="absolute overflow-hidden" style={{
       left: x, top: y, width: w, height: h,
-      background: `linear-gradient(145deg, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.4) 100%)`,
+      background: `linear-gradient(145deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.45) 100%)`,
       border: `1.5px solid rgba(${accentRgb},0.35)`,
-      borderTopColor: `rgba(${accentRgb},0.55)`,
-      borderLeftColor: `rgba(${accentRgb},0.45)`,
-      borderBottomColor: `rgba(${accentRgb},0.15)`,
-      borderRightColor: `rgba(${accentRgb},0.15)`,
-      borderRadius: arched ? '8px 8px 3px 3px' : '3px',
-      boxShadow: `inset 3px 3px 8px rgba(0,0,0,0.65), inset -3px -3px 8px rgba(255,255,255,0.06), 0 2px 4px rgba(0,0,0,0.35)`,
+      borderTopColor: `rgba(${accentRgb},0.6)`,
+      borderLeftColor: `rgba(${accentRgb},0.5)`,
+      borderBottomColor: `rgba(${accentRgb},0.18)`,
+      borderRightColor: `rgba(${accentRgb},0.18)`,
+      borderRadius: arched ? '10px 10px 4px 4px' : '4px',
+      boxShadow: `inset 3px 3px 10px rgba(0,0,0,0.7), inset -3px -3px 8px rgba(255,255,255,0.06), 0 2px 6px rgba(0,0,0,0.4)`,
     }}>
+      {/* Top architectural light highlight */}
+      <div 
+        className="absolute inset-0 pointer-events-none" 
+        style={{
+          background: `radial-gradient(ellipse at 50% 0%, rgba(${accentRgb},0.2) 0%, transparent 65%)`
+        }} 
+      />
+
       {/* Inner recess border - gives raised panel effect */}
       <div className="absolute" style={{
         left: '5px', top: '5px', right: '5px', bottom: '5px',
-        border: `1px solid rgba(${accentRgb},0.12)`,
-        borderRadius: arched ? '6px 6px 2px 2px' : '2px',
-        boxShadow: `inset 0 1px 2px rgba(0,0,0,0.12), 0 0.5px 1px rgba(${accentRgb},0.08)`,
+        border: `1px solid rgba(${accentRgb},0.14)`,
+        borderRadius: arched ? '7px 7px 2px 2px' : '2px',
+        boxShadow: `inset 0 1px 3px rgba(0,0,0,0.2), 0 0.5px 1px rgba(${accentRgb},0.1)`,
       }} />
+
+      {/* Ornate corner filigree brackets */}
+      <div className="absolute top-1.5 left-1.5 w-3.5 h-3.5 border-t border-l opacity-50" style={{ borderColor: accent }} />
+      <div className="absolute top-1.5 right-1.5 w-3.5 h-3.5 border-t border-r opacity-50" style={{ borderColor: accent }} />
+      <div className="absolute bottom-1.5 left-1.5 w-3.5 h-3.5 border-b border-l opacity-50" style={{ borderColor: accent }} />
+      <div className="absolute bottom-1.5 right-1.5 w-3.5 h-3.5 border-b border-r opacity-50" style={{ borderColor: accent }} />
+
       {/* Subtle inner highlight - simulates light catching the panel edge */}
       <div className="absolute" style={{
         left: '1px', top: '1px', right: '60%', bottom: '85%',
-        background: `linear-gradient(135deg, rgba(${accentRgb},0.2), transparent)`,
-        borderRadius: arched ? '6px 0 0 0' : '2px 0 0 0',
+        background: `linear-gradient(135deg, rgba(${accentRgb},0.25), transparent)`,
+        borderRadius: arched ? '7px 0 0 0' : '3px 0 0 0',
       }} />
+
       {/* Arched top detail */}
       {arched && (
-        <svg className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-[30%] opacity-30" viewBox="0 0 100 30" fill="none">
-          <path d="M5 30 Q5 5 50 2 Q95 5 95 30" stroke={`rgba(${accentRgb},0.5)`} strokeWidth="0.8" fill="none" />
+        <svg className="absolute top-0 left-1/2 -translate-x-1/2 w-[85%] h-[32%] opacity-40" viewBox="0 0 100 30" fill="none">
+          <path d="M5 30 Q5 5 50 2 Q95 5 95 30" stroke={`rgba(${accentRgb},0.65)`} strokeWidth="0.8" fill="none" />
         </svg>
       )}
     </div>
@@ -225,14 +241,26 @@ export function DoorPanelContent({ theme, text, textLang }: { theme: TemplateThe
             </>
           )}
         </svg>
+        <div className="flex items-center justify-center gap-2 opacity-80 mb-1">
+          <div className="w-6 h-px" style={{ background: `linear-gradient(90deg, transparent, ${theme.accent})` }} />
+          <span className="text-[10px]" style={{ color: theme.accent }}>✦</span>
+          <div className="w-6 h-px" style={{ background: `linear-gradient(270deg, transparent, ${theme.accent})` }} />
+        </div>
         <span
-          className={`${theme.fontCalligraphy} text-3xl sm:text-4xl leading-relaxed`}
+          className={`${theme.fontCalligraphy} text-3xl sm:text-4xl leading-relaxed tracking-wide`}
           dir={isRtl ? 'rtl' : 'ltr'}
-          style={{ color: theme.getOpacityStyle('text', 0.95), textShadow: theme.isLight ? 'none' : '0 2px 8px rgba(0,0,0,0.5)' }}
+          style={{ 
+            color: theme.getOpacityStyle('text', 0.95), 
+            textShadow: theme.isLight ? 'none' : `0 2px 10px rgba(0,0,0,0.7), 0 0 15px rgba(${theme.accentRgb},0.3)` 
+          }}
         >
           {text}
         </span>
-        <div className="w-16 h-[2px]" style={{ backgroundColor: theme.getOpacityStyle('text', 0.6) }} />
+        <div className="flex items-center justify-center gap-2 opacity-75 mt-1">
+          <div className="w-8 h-[1.5px]" style={{ background: `linear-gradient(90deg, transparent, ${theme.accent})` }} />
+          <div className="w-1.5 h-1.5 rotate-45" style={{ backgroundColor: theme.accent }} />
+          <div className="w-8 h-[1.5px]" style={{ background: `linear-gradient(270deg, transparent, ${theme.accent})` }} />
+        </div>
       </div>
     </div>
   )

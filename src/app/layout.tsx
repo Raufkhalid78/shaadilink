@@ -44,6 +44,9 @@ const greatVibes = Great_Vibes({
 export const viewport: Viewport = {
   themeColor: "#0f1a16",
   colorScheme: "dark",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 export const metadata: Metadata = {

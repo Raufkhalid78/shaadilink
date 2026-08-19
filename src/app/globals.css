@@ -126,9 +126,13 @@
   }
   html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
+    max-width: 100vw;
   }
   body {
     @apply bg-background text-foreground;
+    overflow-x: hidden;
+    max-width: 100vw;
   }
   section[id] {
     scroll-margin-top: 80px;
@@ -873,16 +877,7 @@
     animation: none !important;
   }
 
-  /* Replace 3D perspective with simple fade — 3D transforms are GPU-intensive */
-  .perspective-1000 {
-    perspective: none !important;
-  }
-  [style*="rotateY"] {
-    transform: none !important;
-  }
-  .transform-style-preserve-3d {
-    transform-style: flat !important;
-  }
+  /* Optimize backdrop-blur for mobile GPU efficiency */
 
   /* Reduce backdrop-blur: blur(20-30px) causes compositor lag during scroll */
   .glass-card,
