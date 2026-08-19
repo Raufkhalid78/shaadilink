@@ -10,6 +10,7 @@ interface Template {
   pattern: string;
   accentColor: string;
   accentGlow: string;
+  image?: string;
 }
 
 const templates: Template[] = [
@@ -48,6 +49,7 @@ const templates: Template[] = [
   {
     name: "Royal Imperial",
     badge: "Royal",
+    image: "/templates/royal-imperial.jpg",
     gradient: "from-[#1a100a] via-[#2a1a10] to-[#120c08]",
     pattern: "radial-gradient(circle at 60% 40%, rgba(245,158,11,0.2) 0%, transparent 50%)",
     accentColor: "#f59e0b",
@@ -56,6 +58,7 @@ const templates: Template[] = [
   {
     name: "Royal Elegance",
     badge: "Royal",
+    image: "/templates/royal-elegance.jpg",
     gradient: "from-[#1a080e] via-[#2a1018] to-[#12060a]",
     pattern: "radial-gradient(circle at 50% 50%, rgba(244,63,94,0.25) 0%, transparent 50%)",
     accentColor: "#f43f5e",
@@ -72,6 +75,7 @@ const templates: Template[] = [
   {
     name: "Geometric Gold",
     badge: "Royal",
+    image: "/templates/geometric-gold.jpg",
     gradient: "from-[#111827] via-[#1e293b] to-[#0f172a]",
     pattern: "radial-gradient(circle at 50% 50%, rgba(245,158,11,0.2) 0%, transparent 50%)",
     accentColor: "#f59e0b",
@@ -80,6 +84,7 @@ const templates: Template[] = [
   {
     name: "Dark Velvet",
     badge: "Royal",
+    image: "/templates/dark-velvet.jpg",
     gradient: "from-[#020617] via-[#1e293b] to-[#0f172a]",
     pattern: "radial-gradient(circle at 40% 60%, rgba(139,92,246,0.2) 0%, transparent 50%)",
     accentColor: "#8b5cf6",
@@ -281,78 +286,128 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
                 <m.div
                   whileHover={{ scale: 1.03, y: -4 }}
                   transition={{ duration: 0.3 }}
-                  className="relative w-[280px] sm:w-[300px] aspect-[3/4] rounded-2xl overflow-hidden border border-gold/20 hover:border-gold/50 hover:shadow-2xl hover:shadow-gold/10 transition-all duration-300 cursor-pointer group"
+                  className="relative w-[280px] sm:w-[300px] aspect-[3/4] rounded-2xl overflow-hidden border border-gold/20 hover:border-gold/50 hover:shadow-2xl hover:shadow-gold/10 transition-all duration-300 cursor-pointer group bg-black"
                 >
-                  {/* Template Background - base gradient */}
-                  <div
-                    className={`absolute inset-0 bg-gradient-to-br ${template.gradient}`}
-                  />
-                  {/* Template Background - pattern overlay */}
-                  <div
-                    className="absolute inset-0"
-                    style={{ backgroundImage: template.pattern }}
-                  />
+                  {template.image ? (
+                    <>
+                      {/* Real Template Picture */}
+                      <img
+                        src={template.image}
+                        alt={template.name}
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/20" />
 
-                  {/* Subtle accent glow behind content */}
-                  <div
-                    className="absolute inset-0"
-                    style={{
-                      background: `radial-gradient(ellipse at 50% 45%, ${template.accentGlow} 0%, transparent 70%)`,
-                    }}
-                  />
+                      {/* Glass overlay with couple names */}
+                      <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
+                        <div className="bg-black/55 backdrop-blur-md rounded-xl p-4 border border-gold/30 shadow-2xl max-w-[220px] w-full">
+                          <p className="font-calligraphy text-[#f0e6d3] text-2xl font-bold mb-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+                            Aisha
+                          </p>
+                          <div className="flex items-center justify-center gap-2 my-1.5">
+                            <div className="w-6 h-px bg-gradient-to-r from-transparent to-gold/60" />
+                            <div className="w-1.5 h-1.5 rotate-45 border border-gold/70" />
+                            <div className="w-6 h-px bg-gradient-to-l from-transparent to-gold/60" />
+                          </div>
+                          <p className="font-calligraphy text-[#f0e6d3] text-2xl font-bold mt-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+                            Ahmad
+                          </p>
+                          <p className="font-display text-gold/80 text-[10px] tracking-[0.25em] uppercase mt-2">
+                            Cinematic Royal
+                          </p>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {/* Template Background - base gradient */}
+                      <div
+                        className={`absolute inset-0 bg-gradient-to-br ${template.gradient}`}
+                      />
+                      {/* Template Background - pattern overlay */}
+                      <div
+                        className="absolute inset-0"
+                        style={{ backgroundImage: template.pattern }}
+                      />
 
-                  {/* Decorative border pattern */}
-                  <div className="absolute inset-3 rounded-xl border border-white/[0.08] pointer-events-none" />
+                      {/* Subtle accent glow behind content */}
+                      <div
+                        className="absolute inset-0"
+                        style={{
+                          background: `radial-gradient(ellipse at 50% 45%, ${template.accentGlow} 0%, transparent 70%)`,
+                        }}
+                      />
 
-                  {/* Gold corner accents */}
-                  <div className="absolute top-4 left-4 w-5 h-5">
-                    <div className="absolute top-0 left-0 w-full h-px bg-gold/50" />
-                    <div className="absolute top-0 left-0 h-full w-px bg-gold/50" />
-                  </div>
-                  <div className="absolute top-4 right-4 w-5 h-5">
-                    <div className="absolute top-0 right-0 w-full h-px bg-gold/50" />
-                    <div className="absolute top-0 right-0 h-full w-px bg-gold/50" />
-                  </div>
-                  <div className="absolute bottom-4 left-4 w-5 h-5">
-                    <div className="absolute bottom-0 left-0 w-full h-px bg-gold/50" />
-                    <div className="absolute bottom-0 left-0 h-full w-px bg-gold/50" />
-                  </div>
-                  <div className="absolute bottom-4 right-4 w-5 h-5">
-                    <div className="absolute bottom-0 right-0 w-full h-px bg-gold/50" />
-                    <div className="absolute bottom-0 right-0 h-full w-px bg-gold/50" />
-                  </div>
+                      {/* 2-Panel Door Inset Framing */}
+                      <div className="absolute inset-2.5 rounded-xl border border-white/10 pointer-events-none flex overflow-hidden shadow-inner">
+                        <div className="flex-1 border-r border-white/10 h-full bg-gradient-to-r from-black/40 to-transparent" />
+                        <div className="flex-1 border-l border-black/30 h-full bg-gradient-to-l from-black/40 to-transparent" />
+                      </div>
 
-                  {/* Template content simulation */}
-                  <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
-                    {/* Decorative top line */}
-                    <div className="w-10 h-px mb-5" style={{ backgroundColor: template.accentColor, opacity: 0.6 }} />
+                      {/* Gold corner accents */}
+                      <div className="absolute top-4 left-4 w-4 h-4 pointer-events-none">
+                        <div className="absolute top-0 left-0 w-full h-px bg-gold/60" />
+                        <div className="absolute top-0 left-0 h-full w-px bg-gold/60" />
+                      </div>
+                      <div className="absolute top-4 right-4 w-4 h-4 pointer-events-none">
+                        <div className="absolute top-0 right-0 w-full h-px bg-gold/60" />
+                        <div className="absolute top-0 right-0 h-full w-px bg-gold/60" />
+                      </div>
+                      <div className="absolute bottom-4 left-4 w-4 h-4 pointer-events-none">
+                        <div className="absolute bottom-0 left-0 w-full h-px bg-gold/60" />
+                        <div className="absolute bottom-0 left-0 h-full w-px bg-gold/60" />
+                      </div>
+                      <div className="absolute bottom-4 right-4 w-4 h-4 pointer-events-none">
+                        <div className="absolute bottom-0 right-0 w-full h-px bg-gold/60" />
+                        <div className="absolute bottom-0 right-0 h-full w-px bg-gold/60" />
+                      </div>
 
-                    {/* Simulated names - high contrast */}
-                    <p className="font-calligraphy text-[#f0e6d3] text-2xl font-bold mb-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
-                      Aisha
-                    </p>
-                    <div className="flex items-center gap-2 my-2">
-                      <div className="w-8 h-px bg-gradient-to-r from-transparent to-gold/50" />
-                      <div className="w-2 h-2 rotate-45 border border-gold/60" />
-                      <div className="w-8 h-px bg-gradient-to-l from-transparent to-gold/50" />
-                    </div>
-                    <p className="font-calligraphy text-[#f0e6d3] text-2xl font-bold mt-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
-                      Ahmad
-                    </p>
+                      {/* Template content simulation */}
+                      <div className="absolute inset-0 flex flex-col items-center justify-between p-6 text-center select-none">
+                        {/* Top Calligraphy */}
+                        <div className="pt-2">
+                          <span className="font-calligraphy text-gold/90 text-lg block drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]">
+                            دعوة زفاف
+                          </span>
+                        </div>
 
-                    {/* Simulated date - improved contrast */}
-                    <p className="font-display text-white/60 text-[10px] tracking-[0.25em] uppercase mt-5">
-                      14 · March · 2027
-                    </p>
+                        {/* Center Monogram & Wax Seal */}
+                        <div className="flex flex-col items-center justify-center my-auto">
+                          <p className="font-display text-white text-base sm:text-lg font-bold tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                            Ahmed &amp; Fatima
+                          </p>
 
-                    {/* Simulated venue - improved contrast */}
-                    <p className="font-display text-[#d4a853]/70 text-[9px] tracking-[0.2em] uppercase mt-2">
-                      The Grand Palace · Lahore
-                    </p>
+                          {/* 3D Wax Seal */}
+                          <div className="relative my-2">
+                            <div 
+                              className="w-11 h-11 rounded-full flex flex-col items-center justify-center shadow-2xl border"
+                              style={{
+                                background: `radial-gradient(circle at 35% 30%, ${template.accentColor}55 0%, #000000 90%)`,
+                                borderColor: `${template.accentColor}99`,
+                                boxShadow: `0 4px 12px rgba(0,0,0,0.7), inset 0 1px 2px rgba(255,255,255,0.3)`
+                              }}
+                            >
+                              <span className="text-base font-bold leading-none select-none" style={{ color: template.accentColor }}>
+                                ✦
+                              </span>
+                              <span className="text-[7px] uppercase tracking-[0.2em] font-semibold mt-0.5" style={{ color: `${template.accentColor}ee` }}>
+                                OPEN
+                              </span>
+                            </div>
+                            <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 w-0.5 h-2.5" style={{ background: `linear-gradient(to top, ${template.accentColor}, transparent)` }} />
+                            <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-0.5 h-2.5" style={{ background: `linear-gradient(to bottom, ${template.accentColor}, transparent)` }} />
+                          </div>
+                        </div>
 
-                    {/* Decorative bottom line */}
-                    <div className="w-10 h-px mt-5" style={{ backgroundColor: template.accentColor, opacity: 0.6 }} />
-                  </div>
+                        {/* Bottom Subtext */}
+                        <div className="pb-1">
+                          <p className="font-display text-white/70 text-[10px] tracking-[0.2em] uppercase">
+                            14 · March · 2027
+                          </p>
+                        </div>
+                      </div>
+                    </>
+                  )}
 
                   {/* Template name overlay at bottom */}
                   <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent pt-14 pb-5 px-5">

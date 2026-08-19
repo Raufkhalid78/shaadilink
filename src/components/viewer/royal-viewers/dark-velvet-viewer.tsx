@@ -157,20 +157,91 @@ function CrystalCard({ children, accent, bg }: { children: React.ReactNode; acce
 export default function DarkVelvetViewer({ templateId, flowData, guestName, guestSlug }: RoyalViewerProps) {
   const s = useInvitationState(templateId || 'dark-velvet', flowData, guestName, guestSlug)
   const { theme, getOpacityStyle } = s
+
+  // ─── Video Envelope State ───
+  const [envelopeStarted, setEnvelopeStarted] = React.useState(false)
+  const [videoTime, setVideoTime] = React.useState(0)
+  const [doorVideoEnding, setDoorVideoEnding] = React.useState(false)
+  const isVideoEnvelope = !!theme.openingVideoUrl
+
+  const handleScreenTap = () => {
+    if (isVideoEnvelope && !envelopeStarted) {
+      setEnvelopeStarted(true)
+      const v = document.getElementById('hero-door-video') as HTMLVideoElement
+      if (v) {
+        v.play()
+        const tick = () => { setVideoTime(v.currentTime); if (!v.paused && !v.ended) requestAnimationFrame(tick) }
+        requestAnimationFrame(tick)
+      }
+    }
+  }
+
+  const handleDoorVideoEnd = () => {
+    // Crossfade: door video at z-20 dissolves directly into hero media at z-0
+    setDoorVideoEnding(true)
+    setTimeout(() => s.handleDoorOpen(true), 1200)
+  }
+
+  // Timing: Bismillah at 2s for 3s (ends at 5s), names appear at 5.5s and stay continuously
+  const showBismillahOverlay = isVideoEnvelope && envelopeStarted && !s.doorsOpened && videoTime >= 2.0 && videoTime < 5.0
+  const showNamesOverlay = isVideoEnvelope && envelopeStarted && videoTime >= 5.5
   const parsedGifts = useMemo(() => s.gifts ? s.parseGiftDetails(s.gifts) : null, [s.gifts])
+
+  const groomParents = flowData?.hostGroomFamily?.trim() || (s.isDemo ? 'Mr. & Mrs. Tariq Mahmood' : '')
+  const brideParents = flowData?.hostBrideFamily?.trim() || (s.isDemo ? 'Mr. & Mrs. Aslam Khan' : '')
+  const groomCity = flowData?.hostGroomCity?.trim() || (s.isDemo ? 'Lahore' : '')
+  const brideCity = flowData?.hostBrideCity?.trim() || (s.isDemo ? 'Islamabad' : '')
 
   return (
     <div
       className={`relative min-h-screen overflow-x-hidden ${cinzelDec.variable} ${greatVibes.variable}`}
       dir={s.language === 'ur' ? 'rtl' : 'ltr'}
-      style={{ backgroundColor: theme.bgPrimary, color: theme.textPrimary }}
+      style={{ backgroundColor: (isVideoEnvelope && !s.doorsOpened) ? 'transparent' : theme.bgPrimary, color: theme.textPrimary }}
+      onClick={handleScreenTap}
     >
-      <StarField />
-      <BackgroundParticles accentColor={theme.accent} />
+      {/* ─── VIDEO DOOR (only before doors open) ─── */}
+      {isVideoEnvelope && !s.doorsOpened && (
+        <div className="fixed inset-0 z-20 pointer-events-auto">
+          {/* Door video fades out when ending — revealing the hero section directly */}
+          <m.div
+            className="absolute inset-0 bg-black"
+            animate={{ opacity: doorVideoEnding ? 0 : 1 }}
+            transition={{ duration: 1.2, ease: 'easeInOut' }}
+          >
+            <video
+              id="hero-door-video"
+              src={theme.openingVideoUrl}
+              className="w-full h-full object-cover"
+              muted
+              playsInline
+              onEnded={handleDoorVideoEnd}
+            />
+          </m.div>
+          {/* Tap hint */}
+          <AnimatePresence>
+            {!envelopeStarted && (
+              <m.div
+                key="tap-hint"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ delay: 0.5, duration: 0.8 }}
+                className="absolute inset-0 flex items-end justify-center pb-16 pointer-events-none"
+              >
+                <div className="px-8 py-3 rounded-full bg-black/50 backdrop-blur-md border border-white/20 text-white/90 text-sm uppercase tracking-widest animate-pulse">
+                  Tap anywhere to open
+                </div>
+              </m.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
 
-      {/* Door Overlay — no Framer opacity on this wrapper (would flatten 3D transform context) */}
-      {/* Door Overlay */}
-      {s.doorOverlayVisible && (
+      {(!isVideoEnvelope || s.doorsOpened) && <StarField />}
+      {(!isVideoEnvelope || s.doorsOpened) && <BackgroundParticles accentColor={theme.accent} />}
+
+      {/* Door Overlay — only for non-video templates */}
+      {s.doorOverlayVisible && !isVideoEnvelope && (
         <div
           className="fixed inset-0 z-50"
           style={{ perspective: ['classic-doors', 'archway', 'lantern'].includes(theme.doorStyle.type) ? '1200px' : undefined }}
@@ -194,9 +265,44 @@ export default function DarkVelvetViewer({ templateId, flowData, guestName, gues
         <MusicToggle isPlaying={s.musicPlaying} onToggle={() => s.setMusicPlaying(!s.musicPlaying)} theme={theme} />
       </div>
 
-      {/* ─── BISMILLAH ─── */}
-      {flowData?.showBismillah !== false && (
-        <m.div initial={{ opacity: 0 }} animate={s.doorsOpened ? { opacity: 1 } : { opacity: 0 }} transition={{ delay: 2.2, duration: 1.0 }}
+      {/* ─── BISMILLAH OVERLAY (centered, white, 2s→5s during door video) ─── */}
+      <AnimatePresence>
+        {showBismillahOverlay && (
+          <m.div
+            key="bismillah-overlay"
+            initial={{ opacity: 0, scale: 0.92 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.92 }}
+            transition={{ duration: 0.9 }}
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center pointer-events-none px-8"
+          >
+            <div className="flex items-center gap-4 w-full max-w-xs mb-4">
+              <div className="flex-1 h-px bg-white/40" />
+              <span className="text-white/60">✦</span>
+              <div className="flex-1 h-px bg-white/40" />
+            </div>
+            <p
+              className="font-arabic text-4xl sm:text-5xl md:text-6xl text-center leading-loose"
+              dir="rtl"
+              style={{ color: 'white', textShadow: '0 0 60px rgba(255,255,255,0.6), 0 0 120px rgba(255,255,255,0.3)' }}
+            >
+              بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
+            </p>
+            <p className="mt-3 text-xs tracking-[0.25em] uppercase text-center text-white/55">
+              In the name of Allah, the Most Gracious, the Most Merciful
+            </p>
+            <div className="flex items-center gap-4 w-full max-w-xs mt-4">
+              <div className="flex-1 h-px bg-white/40" />
+              <div className="w-2 h-2 rotate-45 border border-white/50" />
+              <div className="flex-1 h-px bg-white/40" />
+            </div>
+          </m.div>
+        )}
+      </AnimatePresence>
+
+      {/* ─── BISMILLAH on invitation page (non-video templates only) ─── */}
+      {!isVideoEnvelope && flowData?.showBismillah !== false && (
+        <m.div initial={{ opacity: 0 }} animate={s.doorsOpened ? { opacity: 1 } : { opacity: 0 }} transition={{ delay: 0.5, duration: 1.0 }}
           className="relative flex flex-col items-center justify-center py-12 px-6 border-b overflow-hidden" style={{ borderColor: getOpacityStyle('border', 0.15) }}>
           <AuroraBg accent={theme.accent} />
           <div className="flex items-center gap-4 w-full max-w-sm mb-4">
@@ -204,9 +310,9 @@ export default function DarkVelvetViewer({ templateId, flowData, guestName, gues
             <span style={{ color: theme.accent }}>✦</span>
             <div className="flex-1 h-px" style={{ background: `linear-gradient(to left, transparent, ${theme.accent}80)` }} />
           </div>
-          <m.p initial={{ opacity: 0, y: '30vh', scale: 1.15 }}
-            animate={s.doorsOpened ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: '30vh', scale: 1.15 }}
-            transition={{ opacity: { duration: 1.0, delay: 0.2 }, y: { duration: 1.5, delay: 1.2, ease: [0.25, 1, 0.5, 1] }, scale: { duration: 1.5, delay: 1.2 } }}
+          <m.p initial={{ opacity: 0, y: 20 }}
+            animate={s.doorsOpened ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+            transition={{ delay: 1.0, duration: 1.0 }}
             className="font-arabic text-3xl sm:text-4xl md:text-5xl text-center leading-loose bismillah-glow" dir="rtl"
             style={{ color: theme.accent, textShadow: `0 0 30px ${theme.accent}66, 0 0 60px ${theme.accent}33` }}>
             بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
@@ -220,53 +326,141 @@ export default function DarkVelvetViewer({ templateId, flowData, guestName, gues
         </m.div>
       )}
 
-      {/* ─── MAIN CONTENT ─── */}
-      <m.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: s.heroVisible ? 1 : 0 }}
-        transition={{ duration: 2.0, ease: 'easeOut' }}
-      >
-
-        {/* ─── HERO — Galaxy glow with constellation connector ─── */}
-        <section className="relative min-h-screen flex flex-col items-center justify-center px-6 py-20 overflow-hidden">
-          <div className="absolute inset-0" style={{ backgroundColor: theme.bgPrimary }}>
+      {/* ─── HERO (seamless transition directly into hero video) ─── */}
+      <section className="relative min-h-screen flex flex-col items-center justify-center px-6 py-20 overflow-hidden">
+        {/* Hero media background — always active in hero section behind the video door */}
+        {theme.heroMediaUrl ? (
+          <div className="absolute inset-0 pointer-events-none z-0">
+            {/\.(mp4|webm|mov)$/i.test(theme.heroMediaUrl) ? (
+              <video src={theme.heroMediaUrl} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+            ) : (
+              <img src={theme.heroMediaUrl} alt="Hero background" className="w-full h-full object-cover" />
+            )}
+            <div className="absolute inset-0 bg-black/40" />
+            <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, transparent 55%, ${theme.bgPrimary} 100%)` }} />
+          </div>
+        ) : (
+          <div className="absolute inset-0 z-0" style={{ backgroundColor: theme.bgPrimary }}>
             <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse at 50% 50%, ${theme.accent}10 0%, transparent 60%)` }} />
           </div>
+        )}
 
-          <div className="relative z-10 max-w-lg text-center">
-            <m.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="text-xs tracking-[0.5em] uppercase mb-8 font-[var(--font-great-vibes)] text-lg" style={{ color: theme.textSecondary }}>
+        {/* Constellation Glow — fades in smoothly during crossfade */}
+        <m.div
+          className="absolute inset-0 pointer-events-none z-[25]"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: (!isVideoEnvelope || doorVideoEnding || s.doorsOpened) ? 1 : 0 }}
+          transition={{ duration: 1.2, ease: 'easeOut' }}
+        >
+          <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse at 50% 50%, ${theme.accent}15 0%, transparent 70%)` }} />
+        </m.div>
+
+        {/* ── NAMES & DETAILS ──
+            At z-30 (above door video z-20).
+            Names fade in at 5.5s during door video.
+            When door video fades out, names NEVER move or disappear.
+            "Request honour" and scroll indicator fade in as door video finishes. */}
+        <div className="relative z-30 max-w-lg text-center px-6">
+          <m.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: (!isVideoEnvelope || showNamesOverlay || doorVideoEnding || s.doorsOpened) ? 1 : 0 }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+          >
+            <p
+              className="text-xs tracking-[0.5em] uppercase mb-8 font-[var(--font-great-vibes)] text-lg"
+              style={{ color: theme.textSecondary }}
+            >
               {s.t('gettingMarried', "We're getting married")}
-            </m.p>
+            </p>
 
-            <m.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 1.0 }}
-              className="text-5xl sm:text-6xl md:text-7xl font-bold tracking-[0.06em] mb-4 font-[var(--font-great-vibes)]"
-              style={{ color: theme.textPrimary, textShadow: `0 0 40px ${theme.accent}66, 0 0 80px ${theme.accent}33` }}>
+            <h1
+              className="text-5xl sm:text-6xl md:text-7xl font-bold tracking-[0.06em] mb-1 font-[var(--font-great-vibes)]"
+              style={{ color: theme.textPrimary, textShadow: `0 0 40px ${theme.accent}66, 0 0 80px ${theme.accent}33` }}
+            >
               {s.translatedPartner1}
-            </m.h1>
+            </h1>
+
+            {groomParents && (
+              <div className="flex flex-col items-center mb-3">
+                <span className="text-[10px] uppercase tracking-[0.3em] font-sans font-medium" style={{ color: `${theme.accentLight}dd` }}>
+                  {s.language === 'ur' ? 'فرزند' : 'Son of'}
+                </span>
+                <span className="text-base sm:text-lg font-semibold tracking-wide mt-0.5 font-[var(--font-great-vibes)]" style={{ color: '#ffffff', textShadow: '0 2px 12px rgba(0,0,0,0.9), 0 0 20px rgba(155,95,224,0.6)' }}>
+                  {groomParents}
+                </span>
+                {groomCity && (
+                  <span className="text-[10px] tracking-widest uppercase opacity-80 mt-0.5" style={{ color: theme.accentLight }}>
+                    ({groomCity})
+                  </span>
+                )}
+              </div>
+            )}
 
             {/* Constellation connector dots */}
-            <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9 }} className="flex items-center justify-center gap-1 my-4">
+            <div className="flex items-center justify-center gap-1 my-4">
               {[...Array(9)].map((_, i) => (
-                <div key={i} className="rounded-full" style={{ width: i === 4 ? 6 : 3, height: i === 4 ? 6 : 3, backgroundColor: i === 4 ? theme.accent : theme.accent + '60', boxShadow: i === 4 ? `0 0 6px ${theme.accent}` : 'none' }} />
+                <div
+                  key={i}
+                  className="rounded-full"
+                  style={{
+                    width: i === 4 ? 6 : 3,
+                    height: i === 4 ? 6 : 3,
+                    backgroundColor: i === 4 ? theme.accent : theme.accent + '60',
+                    boxShadow: i === 4 ? `0 0 6px ${theme.accent}` : 'none',
+                  }}
+                />
               ))}
-            </m.div>
+            </div>
 
-            <m.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7, duration: 1.0 }}
-              className="text-5xl sm:text-6xl md:text-7xl font-bold tracking-[0.06em] mb-8 font-[var(--font-great-vibes)]"
-              style={{ color: theme.textPrimary, textShadow: `0 0 40px ${theme.accent}66, 0 0 80px ${theme.accent}33` }}>
+            <h1
+              className="text-5xl sm:text-6xl md:text-7xl font-bold tracking-[0.06em] mb-1 font-[var(--font-great-vibes)]"
+              style={{ color: theme.textPrimary, textShadow: `0 0 40px ${theme.accent}66, 0 0 80px ${theme.accent}33` }}
+            >
               {s.translatedPartner2}
-            </m.h1>
+            </h1>
 
-            <m.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4 }} className="text-base sm:text-lg tracking-[0.15em] font-[var(--font-great-vibes)]" style={{ color: theme.textSecondary }}>
-              {s.t('requestHonour', 'Request the honour of your presence')}
-            </m.p>
-          </div>
+            {brideParents && (
+              <div className="flex flex-col items-center mb-6">
+                <span className="text-[10px] uppercase tracking-[0.3em] font-sans font-medium" style={{ color: `${theme.accentLight}dd` }}>
+                  {s.language === 'ur' ? 'دختر' : 'Daughter of'}
+                </span>
+                <span className="text-base sm:text-lg font-semibold tracking-wide mt-0.5 font-[var(--font-great-vibes)]" style={{ color: '#ffffff', textShadow: '0 2px 12px rgba(0,0,0,0.9), 0 0 20px rgba(155,95,224,0.6)' }}>
+                  {brideParents}
+                </span>
+                {brideCity && (
+                  <span className="text-[10px] tracking-widest uppercase opacity-80 mt-0.5" style={{ color: theme.accentLight }}>
+                    ({brideCity})
+                  </span>
+                )}
+              </div>
+            )}
+          </m.div>
 
-          <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.5 }} className="absolute bottom-8 flex flex-col items-center gap-2">
+          <m.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: (!isVideoEnvelope || doorVideoEnding || s.doorsOpened) ? 1 : 0 }}
+            transition={{ delay: 0.3, duration: 1.0 }}
+            className="text-base sm:text-lg tracking-[0.15em] font-[var(--font-great-vibes)]"
+            style={{ color: theme.textSecondary }}
+          >
+            {s.t('requestHonour', 'Request the honour of your presence')}
+          </m.p>
+        </div>
+
+        {(!isVideoEnvelope || s.doorsOpened) && (
+          <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.0 }} className="absolute bottom-8 z-30 flex flex-col items-center gap-2">
             <span className="text-[10px] uppercase tracking-[0.2em]" style={{ color: theme.textMuted }}>{s.t('scroll', 'Scroll')}</span>
             <div className="animate-bounce"><ChevronDown className="w-4 h-4" style={{ color: theme.textMuted }} /></div>
           </m.div>
-        </section>
+        )}
+      </section>
+
+      {/* ─── MAIN CONTENT (all sections BELOW hero — fades in after door opens) ─── */}
+      <m.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: s.doorsOpened ? 1 : 0 }}
+        transition={{ duration: 1.5, ease: 'easeOut' }}
+      >
 
         {/* ─── WELCOME ─── */}
         <RevealSection>

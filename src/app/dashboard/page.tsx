@@ -23,14 +23,27 @@ export default function DashboardRoutePage() {
         
         if (error) {
           console.error("Supabase session fetch error:", error);
-          toast.error("Authentication error. Redirecting to home...");
-          router.replace("/");
+          toast.error("Authentication error. Redirecting to login...");
+          router.replace("/login?next=/dashboard");
           return;
         }
 
         if (!session?.user) {
-          // Not logged in — redirect to home
-          router.replace("/");
+          // Fallback to getUser() in case session cookies are refreshed
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) {
+            toast.info("Please sign in to access your dashboard.");
+            router.replace("/login?next=/dashboard");
+            return;
+          }
+
+          setFlowData({
+            ...initialFlowData,
+            userId: user.id,
+            email: user.email ?? "",
+            fullName: user.user_metadata?.full_name ?? "",
+          });
+          setReady(true);
           return;
         }
         
@@ -43,13 +56,13 @@ export default function DashboardRoutePage() {
         setReady(true);
       } catch (err) {
         console.error("Dashboard checkAuth error:", err);
-        toast.error("An unexpected error occurred. Redirecting...");
-        router.replace("/");
+        toast.error("An unexpected error occurred. Redirecting to login...");
+        router.replace("/login?next=/dashboard");
       }
     };
     
     checkAuth();
-  }, [router]);
+  }, [router, setFlowData]);
 
   if (!ready) {
     return (

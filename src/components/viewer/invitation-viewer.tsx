@@ -800,7 +800,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
 
       {/* ═══ Door Opening Overlay ═══ */}
       {/* Note: no Framer opacity animation on this wrapper — it would create a new stacking context and flatten 3D transforms */}
-      {doorOverlayVisible && (
+      {doorOverlayVisible && !theme.openingVideoUrl && (
         <div
           className="fixed inset-0 z-50"
           style={{ perspective: ['classic-doors', 'archway', 'lantern'].includes(theme.doorStyle.type) ? '1200px' : undefined }}
@@ -1181,7 +1181,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
         </RevealSection>
 
           {/* 🎥 Video Section (Royal Plan / Video Feature) 🎥 */}
-          {youtubeVideoId && (flowData?.selectedPlan === 'royal' || theme.isRoyal) && (
+          {youtubeVideoId && (flowData?.selectedPlan === 'royal' || theme.id.includes('royal') || theme.id === 'geometric-gold' || theme.id === 'dark-velvet') && (
             <RevealSection>
               <section className="py-16 md:py-20 px-6">
                 <div className="flex flex-col items-center gap-6">
@@ -1977,4 +1977,5 @@ export default function InvitationViewer(props: InvitationViewerProps) {
     </>
   )
 }
+
 

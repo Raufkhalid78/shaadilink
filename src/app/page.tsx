@@ -87,7 +87,23 @@ export default function Home() {
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    const syncUser = async () => {
+      try {
+        const supabase = createClient();
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          setFlowData({
+            userId: session.user.id,
+            email: session.user.email ?? "",
+            fullName: session.user.user_metadata?.full_name ?? "",
+          });
+        }
+      } catch (err) {
+        console.error("Home auth sync error:", err);
+      }
+    };
+    syncUser();
+  }, [setFlowData]);
 
   useScrollReveal("landing");
 

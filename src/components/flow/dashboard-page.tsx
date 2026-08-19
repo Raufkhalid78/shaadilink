@@ -66,6 +66,234 @@ interface Wish {
   created_at: string;
 }
 
+/* ─── Royal & Classic Thumbnail Metadata Maps ─── */
+const royalImageMap: Record<string, string> = {
+  'royal-imperial': '/templates/royal-imperial.jpg',
+  'royal-elegance': '/templates/royal-elegance.jpg',
+  'geometric-gold': '/templates/geometric-gold.jpg',
+  'dark-velvet': '/templates/dark-velvet.jpg',
+};
+
+const classicMeta: Record<string, { icon: string; accent: string; subtext: string; leftText?: string; rightText?: string }> = {
+  'emerald-noir': { icon: '✦', accent: '#d4a853', subtext: 'Mehndi', leftText: 'بِسْمِ اللَّهِ', rightText: 'الرَّحْمَنِ الرَّحِيمِ' },
+  'crimson-royale': { icon: '👑', accent: '#f87171', subtext: 'Baraat', leftText: 'نّ', rightText: 'و' },
+  'majestic-love': { icon: '💫', accent: '#f59e0b', subtext: 'Baraat', leftText: 'ع', rightText: 'ش' },
+  'garden-romance': { icon: '🌸', accent: '#ec4899', subtext: 'Walima' },
+  'modern-minimal': { icon: '▷', accent: '#60a5fa', subtext: 'Reception' },
+  'mughal-emerald': { icon: '✦', accent: '#2dd4bf', subtext: 'Nikkah', leftText: 'مغل', rightText: 'شاہی' },
+  'rose-gold-blush': { icon: '🌹', accent: '#fb7185', subtext: 'Walima' },
+  'ivory-dream': { icon: '◈', accent: '#d97706', subtext: 'Mayun' },
+  'watercolor-peach': { icon: '🍑', accent: '#f97316', subtext: 'Mehndi' },
+  'pastel-floral': { icon: '🌸', accent: '#f472b6', subtext: 'Walima' },
+  'minimal-white': { icon: '💍', accent: '#64748b', subtext: 'Reception' },
+};
+
+function DashboardCardThumbnail({ inv }: { inv: Invitation }) {
+  const theme = TEMPLATE_THEMES[inv.template_id] || TEMPLATE_THEMES['emerald-noir'];
+  const royalImg = royalImageMap[inv.template_id];
+  const meta = classicMeta[inv.template_id] || { icon: '✦', accent: theme.accent || '#d4a853', subtext: 'Classic' };
+  const isLight = theme.isLight;
+
+  // Case 1: Custom Hero Image provided by user
+  if (inv.hero_image_url) {
+    return (
+      <div className="relative w-full h-full">
+        <Image
+          src={inv.hero_image_url}
+          alt="Invitation hero"
+          fill
+          className="object-cover transition-transform duration-700 group-hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/20" />
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center z-10">
+          <div className="bg-black/55 backdrop-blur-md rounded-xl p-3 border border-gold/30 shadow-xl max-w-[200px] w-full">
+            <span className="font-calligraphy text-amber-300 text-sm block">دعوة زفاف</span>
+            <p className="font-display text-white text-sm font-semibold tracking-wide mt-0.5 truncate">
+              {inv.partner1_name && inv.partner2_name ? `${inv.partner1_name} & ${inv.partner2_name}` : "Wedding Invitation"}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Case 2: Royal Template Picture
+  if (royalImg || inv.plan === 'royal') {
+    return (
+      <div className="relative w-full h-full bg-black">
+        {royalImg && (
+          <img
+            src={royalImg}
+            alt={inv.template_id}
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/25" />
+        
+        {/* Glass overlay card */}
+        <div className="relative z-10 w-full h-full p-4 flex flex-col items-center justify-center text-center">
+          <div className="bg-black/60 backdrop-blur-md rounded-xl p-3 border border-gold/35 shadow-2xl max-w-[200px] w-full">
+            <span className="font-calligraphy text-amber-300 text-sm block">دعوة زفاف</span>
+            <p className="font-display text-white text-sm font-semibold tracking-wide mt-0.5 truncate">
+              {inv.partner1_name && inv.partner2_name ? `${inv.partner1_name} & ${inv.partner2_name}` : "Wedding Invitation"}
+            </p>
+            <div className="w-8 h-px bg-gold/50 mx-auto my-1.5" />
+            <div className="flex items-center justify-center gap-1">
+              <Crown className="w-3 h-3 text-gold" />
+              <span className="text-[9px] uppercase tracking-widest text-gold font-bold">Royal Edition</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Case 3: Classic Miniature 3D Door Invitation Thumbnail
+  return (
+    <div 
+      className="relative w-full h-full p-3 flex flex-col justify-between overflow-hidden select-none"
+      style={{
+        background: `linear-gradient(135deg, ${theme.bgPrimary}, ${theme.bgSecondary})`
+      }}
+    >
+      {/* Top Spotlight */}
+      <div 
+        className="absolute inset-0 pointer-events-none" 
+        style={{
+          background: isLight 
+            ? `radial-gradient(ellipse at 50% 10%, rgba(255,255,255,0.95) 0%, rgba(240,240,245,0.4) 60%, rgba(0,0,0,0.06) 100%)`
+            : `radial-gradient(ellipse at 50% 15%, rgba(255,255,255,0.18) 0%, transparent 60%), radial-gradient(circle at 50% 50%, ${meta.accent}20 0%, transparent 70%)`
+        }} 
+      />
+
+      {/* 2-Panel Door Inset Framing */}
+      <div className="absolute inset-2 rounded-xl border border-white/10 pointer-events-none flex overflow-hidden shadow-inner">
+        {/* Left Panel */}
+        <div 
+          className="flex-1 border-r border-white/15 h-full relative"
+          style={{
+            background: isLight ? 'rgba(255,255,255,0.35)' : 'linear-gradient(90deg, rgba(0,0,0,0.45) 0%, rgba(255,255,255,0.04) 100%)'
+          }}
+        >
+          {meta.leftText && (
+            <span className="absolute left-1 top-1/2 -translate-y-1/2 font-arabic text-[11px] text-white/35 rotate-[-90deg] origin-center block whitespace-nowrap">
+              {meta.leftText}
+            </span>
+          )}
+        </div>
+        {/* Right Panel */}
+        <div 
+          className="flex-1 border-l border-black/30 h-full relative"
+          style={{
+            background: isLight ? 'rgba(255,255,255,0.2)' : 'linear-gradient(270deg, rgba(0,0,0,0.45) 0%, rgba(255,255,255,0.04) 100%)'
+          }}
+        >
+          {meta.rightText && (
+            <span className="absolute right-1 top-1/2 -translate-y-1/2 font-arabic text-[11px] text-white/35 rotate-[90deg] origin-center block whitespace-nowrap">
+              {meta.rightText}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Top Header: Calligraphy Arch */}
+      <div className="relative z-10 text-center pt-0.5">
+        <div className="flex items-center justify-center gap-1.5 mb-0.5 opacity-80">
+          <div className="w-6 h-px" style={{ background: `linear-gradient(90deg, transparent, ${meta.accent})` }} />
+          <svg width="8" height="8" viewBox="0 0 20 20" fill="none">
+            <polygon points="10,1 12.5,7.5 19,7.5 14,11.5 16,18 10,14 4,18 6,11.5 1,7.5 7.5,7.5" stroke={meta.accent} strokeWidth="1.5" fill="none" />
+          </svg>
+          <div className="w-6 h-px" style={{ background: `linear-gradient(270deg, transparent, ${meta.accent})` }} />
+        </div>
+        <span 
+          className="font-calligraphy text-sm sm:text-base block tracking-wide"
+          style={{ 
+            color: isLight ? '#475569' : '#ffffff',
+            textShadow: isLight ? 'none' : `0 0 12px ${meta.accent}66`
+          }}
+        >
+          دعوة زفاف
+        </span>
+      </div>
+
+      {/* Center 3D Wax Seal / Door Knocker & Real Couple Names */}
+      <div className="relative z-20 flex flex-col items-center justify-center my-auto">
+        <div className="text-center mb-0.5 max-w-[180px]">
+          <p 
+            className="font-display text-xs sm:text-sm font-bold tracking-wider truncate"
+            style={{ 
+              color: isLight ? '#0f172a' : '#ffffff',
+              textShadow: isLight ? 'none' : '0 2px 6px rgba(0,0,0,0.8)'
+            }}
+          >
+            {inv.partner1_name && inv.partner2_name ? `${inv.partner1_name} & ${inv.partner2_name}` : "Wedding Invitation"}
+          </p>
+        </div>
+
+        {/* Central 3D Embossed Emblem / Seal */}
+        <div className="relative my-0.5">
+          <div 
+            className="w-10 h-10 rounded-full flex flex-col items-center justify-center shadow-2xl border"
+            style={{
+              background: isLight 
+                ? `radial-gradient(circle at 35% 30%, #ffffff 0%, #e2e8f0 100%)`
+                : `radial-gradient(circle at 35% 30%, ${meta.accent}55 0%, #000000 90%)`,
+              borderColor: `${meta.accent}99`,
+              boxShadow: `0 4px 12px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.3)`
+            }}
+          >
+            <span 
+              className="text-sm font-bold leading-none select-none"
+              style={{ color: meta.accent }}
+            >
+              {meta.icon}
+            </span>
+            <span 
+              className="text-[6px] uppercase tracking-[0.2em] font-semibold mt-0.5"
+              style={{ color: isLight ? '#64748b' : `${meta.accent}ee` }}
+            >
+              OPEN
+            </span>
+          </div>
+
+          {/* Golden Seam lines */}
+          <div 
+            className="absolute -top-2 left-1/2 -translate-x-1/2 w-0.5 h-2"
+            style={{ background: `linear-gradient(to top, ${meta.accent}, transparent)` }}
+          />
+          <div 
+            className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0.5 h-2"
+            style={{ background: `linear-gradient(to bottom, ${meta.accent}, transparent)` }}
+          />
+        </div>
+      </div>
+
+      {/* Bottom Door Details */}
+      <div className="relative z-10 flex items-center justify-between px-1.5">
+        <span 
+          className="text-[9px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full border backdrop-blur-sm"
+          style={{
+            color: isLight ? '#334155' : meta.accent,
+            borderColor: `${meta.accent}44`,
+            backgroundColor: isLight ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.5)'
+          }}
+        >
+          {theme.name || inv.template_id}
+        </span>
+        <div className="flex items-center gap-1">
+          <Star className="w-2.5 h-2.5" style={{ color: meta.accent }} />
+          <span 
+            className="text-[8px] uppercase tracking-wider font-medium opacity-80"
+            style={{ color: isLight ? '#64748b' : '#ffffff' }}
+          >
+            {theme.doorStyle?.type || "Classic Door"}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function DashboardPage({
   flowData,
   onCreateNew,
@@ -979,33 +1207,9 @@ export function DashboardPage({
                     >
                       <Card className="border-border/60 hover:border-gold/50 transition-all duration-300 group overflow-hidden rounded-3xl bg-card/70 backdrop-blur-md shadow-lg hover:shadow-2xl hover:-translate-y-1">
                         
-                        {/* Cover Image / Gradient Header */}
-                        <div 
-                          className="relative aspect-[16/9] overflow-hidden group/thumb"
-                          style={{
-                            background: inv.hero_image_url ? undefined : `linear-gradient(135deg, ${theme.bgPrimary}, ${theme.bgSecondary})`
-                          }}
-                        >
-                          {inv.hero_image_url ? (
-                            <Image
-                              src={inv.hero_image_url}
-                              alt="Invitation hero"
-                              fill
-                              className="object-cover transition-transform duration-500 group-hover:scale-105"
-                            />
-                          ) : (
-                            <div className="absolute inset-0 flex items-center justify-center transition-transform duration-500 group-hover:scale-105">
-                              <div 
-                                className="w-16 h-16 rounded-2xl flex flex-col items-center justify-center shadow-xl backdrop-blur-sm relative"
-                                style={{ 
-                                  backgroundColor: theme.bgDoor,
-                                  border: `2px solid ${theme.accent}` 
-                                }}
-                              >
-                                <Heart style={{ color: theme.accent, fill: theme.accent }} className="w-6 h-6 z-10 opacity-85" />
-                              </div>
-                            </div>
-                          )}
+                        {/* Cover Thumbnail / Door Preview */}
+                        <div className="relative aspect-[16/9] overflow-hidden group/thumb">
+                          <DashboardCardThumbnail inv={inv} />
 
                           {/* Status Badge */}
                           <div className="absolute top-3 left-3 z-10">

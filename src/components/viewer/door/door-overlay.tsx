@@ -544,6 +544,43 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
 
   const shouldRenderHingesAndHandle = ['classic-doors', 'archway', 'dome'].includes(ds.type);
 
+  if (theme.openingVideoUrl) {
+    return (
+      <div 
+        className="fixed inset-0 z-[100] bg-black cursor-pointer flex items-center justify-center overflow-hidden transition-opacity duration-1000 "
+        onClick={() => {
+          if (doorsOpened) return;
+          setIsPressed(true);
+          const video = document.getElementById('opening-video') as HTMLVideoElement;
+          if (video) video.play();
+        }}
+      >
+        <video 
+          id="opening-video"
+          src={theme.openingVideoUrl} 
+          className="w-full h-full object-cover" 
+          playsInline 
+          muted 
+          onEnded={() => onOpen(true)}
+        />
+        <AnimatePresence>
+          {!isPressed && !doorsOpened && (
+            <m.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0, transition: { duration: 0.5 } }}
+              className="absolute inset-0 flex items-center justify-center pointer-events-none"
+            >
+              <div className="px-6 py-3 rounded-full bg-black/40 backdrop-blur-md border border-white/20 text-white/90 text-sm uppercase tracking-widest animate-pulse">
+                Tap anywhere to open
+              </div>
+            </m.div>
+          )}
+        </AnimatePresence>
+      </div>
+    )
+  }
+
   return (
     <>
       {/* ─── ENHANCED CINEMATIC BACKGROUND ─── */}
@@ -746,3 +783,4 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
     </>
   )
 }
+

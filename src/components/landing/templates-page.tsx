@@ -162,6 +162,7 @@ const royalTemplates = [
     id: "royal-imperial",
     name: "Royal Imperial",
     theme: "Baraat",
+    image: "/templates/royal-imperial.jpg",
     description: "Cinematic rose-gold opening with luxurious motifs and grand door animation",
     bgClass: "bg-gradient-to-br from-rose-950 via-amber-900 to-rose-950",
     borderClass: "border-amber-300/30",
@@ -175,6 +176,7 @@ const royalTemplates = [
     id: "royal-elegance",
     name: "Royal Elegance",
     theme: "Walima",
+    image: "/templates/royal-elegance.jpg",
     description: "Velvet cream and crimson cinematic experience with luxurious curtain animation",
     bgClass: "bg-gradient-to-br from-red-950 via-rose-900 to-red-950",
     borderClass: "border-rose-300/30",
@@ -188,6 +190,7 @@ const royalTemplates = [
     id: "geometric-gold",
     name: "Geometric Gold",
     theme: "Reception",
+    image: "/templates/geometric-gold.jpg",
     description: "Luxurious deep navy and gold geometric doors with sleek glass-grid panel reveal",
     bgClass: "bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950",
     borderClass: "border-amber-400/30",
@@ -201,6 +204,7 @@ const royalTemplates = [
     id: "dark-velvet",
     name: "Dark Velvet",
     theme: "Baraat",
+    image: "/templates/dark-velvet.jpg",
     description: "Deep violet and velvet black with classic door opening and premium gold accents",
     bgClass: "bg-gradient-to-br from-violet-950 via-purple-900 to-violet-950",
     borderClass: "border-purple-300/30",
@@ -227,6 +231,169 @@ function TemplatePattern({ colorClass, id }: { colorClass: string; id: string })
   );
 }
 
+/* ---------- Classic Miniature 3D Door Thumbnail ---------- */
+function ClassicDoorThumbnail({ template }: { template: any }) {
+  const isLight = template.isLight;
+
+  const meta: Record<string, { icon: string; accent: string; subtext: string; leftText?: string; rightText?: string }> = {
+    'emerald-noir': { icon: '✦', accent: '#d4a853', subtext: 'Mehndi', leftText: 'بِسْمِ اللَّهِ', rightText: 'الرَّحْمَنِ الرَّحِيمِ' },
+    'crimson-royale': { icon: '👑', accent: '#f87171', subtext: 'Baraat', leftText: 'نّ', rightText: 'و' },
+    'majestic-love': { icon: '💫', accent: '#f59e0b', subtext: 'Baraat', leftText: 'ع', rightText: 'ش' },
+    'garden-romance': { icon: '🌸', accent: '#ec4899', subtext: 'Walima' },
+    'modern-minimal': { icon: '▷', accent: '#60a5fa', subtext: 'Reception' },
+    'mughal-emerald': { icon: '✦', accent: '#2dd4bf', subtext: 'Nikkah', leftText: 'مغل', rightText: 'شاہی' },
+    'rose-gold-blush': { icon: '🌹', accent: '#fb7185', subtext: 'Walima' },
+    'ivory-dream': { icon: '◈', accent: '#d97706', subtext: 'Mayun' },
+    'watercolor-peach': { icon: '🍑', accent: '#f97316', subtext: 'Mehndi' },
+    'pastel-floral': { icon: '🌸', accent: '#f472b6', subtext: 'Walima' },
+    'minimal-white': { icon: '💍', accent: '#64748b', subtext: 'Reception' },
+  };
+
+  const m = meta[template.id] || { icon: '✦', accent: '#d4a853', subtext: template.theme };
+
+  return (
+    <div className="relative w-full h-full p-3.5 flex flex-col justify-between overflow-hidden select-none">
+      {/* Radial lighting spotlight */}
+      <div 
+        className="absolute inset-0 pointer-events-none" 
+        style={{
+          background: isLight 
+            ? `radial-gradient(ellipse at 50% 10%, rgba(255,255,255,0.95) 0%, rgba(240,240,245,0.4) 60%, rgba(0,0,0,0.06) 100%)`
+            : `radial-gradient(ellipse at 50% 15%, rgba(255,255,255,0.18) 0%, transparent 60%), radial-gradient(circle at 50% 50%, ${m.accent}20 0%, transparent 70%)`
+        }} 
+      />
+
+      {/* Decorative SVG Pattern Background */}
+      <TemplatePattern colorClass={template.patternColor} id={template.id} />
+
+      {/* 2-Panel Door Inset Framing */}
+      <div className="absolute inset-2.5 rounded-xl border border-white/10 pointer-events-none flex overflow-hidden shadow-inner">
+        {/* Left Panel */}
+        <div 
+          className="flex-1 border-r border-white/15 h-full relative"
+          style={{
+            background: isLight ? 'rgba(255,255,255,0.35)' : 'linear-gradient(90deg, rgba(0,0,0,0.45) 0%, rgba(255,255,255,0.04) 100%)'
+          }}
+        >
+          {m.leftText && (
+            <span className="absolute left-1 top-1/2 -translate-y-1/2 font-arabic text-xs text-white/35 rotate-[-90deg] origin-center block whitespace-nowrap">
+              {m.leftText}
+            </span>
+          )}
+        </div>
+        {/* Right Panel */}
+        <div 
+          className="flex-1 border-l border-black/30 h-full relative"
+          style={{
+            background: isLight ? 'rgba(255,255,255,0.2)' : 'linear-gradient(270deg, rgba(0,0,0,0.45) 0%, rgba(255,255,255,0.04) 100%)'
+          }}
+        >
+          {m.rightText && (
+            <span className="absolute right-1 top-1/2 -translate-y-1/2 font-arabic text-xs text-white/35 rotate-[90deg] origin-center block whitespace-nowrap">
+              {m.rightText}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Top Header: Bismillah / Calligraphy Arch */}
+      <div className="relative z-10 text-center pt-1">
+        <div className="flex items-center justify-center gap-2 mb-1 opacity-80">
+          <div className="w-7 h-px" style={{ background: `linear-gradient(90deg, transparent, ${m.accent})` }} />
+          <svg width="10" height="10" viewBox="0 0 20 20" fill="none">
+            <polygon points="10,1 12.5,7.5 19,7.5 14,11.5 16,18 10,14 4,18 6,11.5 1,7.5 7.5,7.5" stroke={m.accent} strokeWidth="1.5" fill="none" />
+          </svg>
+          <div className="w-7 h-px" style={{ background: `linear-gradient(270deg, transparent, ${m.accent})` }} />
+        </div>
+        <span 
+          className="font-calligraphy text-base sm:text-lg block tracking-wide"
+          style={{ 
+            color: isLight ? '#475569' : '#ffffff',
+            textShadow: isLight ? 'none' : `0 0 15px ${m.accent}66`
+          }}
+        >
+          دعوة زفاف
+        </span>
+      </div>
+
+      {/* Center 3D Wax Seal / Door Knocker */}
+      <div className="relative z-20 flex flex-col items-center justify-center my-auto">
+        <div className="text-center mb-1">
+          <p 
+            className="font-display text-sm sm:text-base font-bold tracking-wider"
+            style={{ 
+              color: isLight ? '#0f172a' : '#ffffff',
+              textShadow: isLight ? 'none' : '0 2px 8px rgba(0,0,0,0.8)'
+            }}
+          >
+            Ahmed &amp; Fatima
+          </p>
+        </div>
+
+        {/* Central 3D Embossed Emblem / Seal */}
+        <div className="relative my-1">
+          <div 
+            className="w-11 h-11 rounded-full flex flex-col items-center justify-center shadow-2xl border"
+            style={{
+              background: isLight 
+                ? `radial-gradient(circle at 35% 30%, #ffffff 0%, #e2e8f0 100%)`
+                : `radial-gradient(circle at 35% 30%, ${m.accent}55 0%, #000000 90%)`,
+              borderColor: `${m.accent}99`,
+              boxShadow: `0 4px 15px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.3)`
+            }}
+          >
+            <span 
+              className="text-base font-bold leading-none select-none"
+              style={{ color: m.accent }}
+            >
+              {m.icon}
+            </span>
+            <span 
+              className="text-[7px] uppercase tracking-[0.2em] font-semibold mt-0.5"
+              style={{ color: isLight ? '#64748b' : `${m.accent}ee` }}
+            >
+              OPEN
+            </span>
+          </div>
+
+          {/* Golden Seam line passing through */}
+          <div 
+            className="absolute -top-3 left-1/2 -translate-x-1/2 w-0.5 h-3"
+            style={{ background: `linear-gradient(to top, ${m.accent}, transparent)` }}
+          />
+          <div 
+            className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-0.5 h-3"
+            style={{ background: `linear-gradient(to bottom, ${m.accent}, transparent)` }}
+          />
+        </div>
+      </div>
+
+      {/* Bottom Door Details & Badge */}
+      <div className="relative z-10 flex items-center justify-between px-2 pb-0.5">
+        <span 
+          className="text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full border backdrop-blur-sm"
+          style={{
+            color: isLight ? '#334155' : m.accent,
+            borderColor: `${m.accent}44`,
+            backgroundColor: isLight ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.5)'
+          }}
+        >
+          {m.subtext}
+        </span>
+        <div className="flex items-center gap-1">
+          <Star className="w-2.5 h-2.5" style={{ color: m.accent }} />
+          <span 
+            className="text-[9px] uppercase tracking-wider font-medium opacity-80"
+            style={{ color: isLight ? '#64748b' : '#ffffff' }}
+          >
+            {template.doorType}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ---------- Template Card ---------- */
 function TemplateCard({
   template,
@@ -250,25 +417,32 @@ function TemplateCard({
       transition={{ duration: 0.4 }}
       className="group relative rounded-2xl overflow-hidden border border-border/50 hover:border-gold/40 transition-all duration-500 hover:shadow-xl hover:shadow-gold/10 hover:-translate-y-1 bg-card"
     >
-      <div className={`relative ${template.bgClass} h-56 sm:h-64 p-5 flex flex-col items-center justify-center`}>
-        <TemplatePattern colorClass={template.patternColor} id={template.id} />
-        <div className={`relative z-10 w-full h-full border-2 ${template.borderClass} rounded-lg flex flex-col items-center justify-center p-4`}>
-          <span className={`font-calligraphy ${template.isLight ? 'text-slate-400' : 'text-white/60'} text-xl sm:text-2xl mb-2`}>دعوة زفاف</span>
-          <div className="text-center">
-            <p className={`font-display ${template.isLight ? 'text-slate-800' : 'text-white/80'} text-lg sm:text-xl font-semibold`}>Ahmed & Fatima</p>
-            <div className={`w-12 h-px ${template.isLight ? 'bg-amber-400/60' : 'bg-gold/40'} mx-auto my-2`} />
-            <p className={`font-calligraphy ${template.isLight ? 'text-amber-500' : 'text-gold/60'} text-sm tracking-wider`}>{template.theme}</p>
-          </div>
-          <div className="mt-2 flex items-center gap-1.5">
-            <Star className={`w-3 h-3 ${template.isLight ? 'text-amber-400/60' : 'text-white/60'}`} />
-            <p className={`text-[10px] ${template.isLight ? 'text-slate-500' : 'text-white/60'} tracking-wider uppercase`}>{template.doorType}</p>
-          </div>
-          <div className="mt-2 flex items-center gap-2">
-            <Sparkles className={`h-3 w-3 ${template.isLight ? 'text-amber-400/80' : 'text-gold/70'}`} />
-            <div className={`w-8 h-px ${template.isLight ? 'bg-amber-400/40' : 'bg-gold/30'}`} />
-            <Sparkles className={`h-3 w-3 ${template.isLight ? 'text-amber-400/80' : 'text-gold/70'}`} />
-          </div>
-        </div>
+      <div className={`relative ${template.bgClass} h-56 sm:h-64 overflow-hidden flex flex-col items-center justify-center`}>
+        {template.image ? (
+          <>
+            <img
+              src={template.image}
+              alt={template.name}
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/25" />
+            
+            {/* Elegant glass overlay card over the picture */}
+            <div className="relative z-10 w-full px-5 flex flex-col items-center justify-center text-center">
+              <div className="bg-black/55 backdrop-blur-md rounded-xl p-3.5 border border-gold/30 shadow-xl max-w-[210px] w-full">
+                <span className="font-calligraphy text-amber-300 text-base sm:text-lg block">دعوة زفاف</span>
+                <p className="font-display text-white text-sm sm:text-base font-semibold tracking-wide mt-0.5">Ahmed & Fatima</p>
+                <div className="w-10 h-px bg-gold/50 mx-auto my-1.5" />
+                <div className="flex items-center justify-center gap-1.5">
+                  <Star className="w-3 h-3 text-amber-300" />
+                  <span className="text-[10px] uppercase tracking-wider text-white/90 font-medium">{template.doorType}</span>
+                </div>
+              </div>
+            </div>
+          </>
+        ) : (
+          <ClassicDoorThumbnail template={template} />
+        )}
 
         {/* Hover overlay */}
         <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-2.5 p-4 z-20">

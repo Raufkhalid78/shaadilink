@@ -88,20 +88,91 @@ function ArtDecoEventCard({ children, accent, bg, border }: { children: React.Re
 export default function GeometricGoldViewer({ templateId, flowData, guestName, guestSlug }: RoyalViewerProps) {
   const s = useInvitationState(templateId || 'geometric-gold', flowData, guestName, guestSlug)
   const { theme, getOpacityStyle } = s
+
+  // ─── Video Envelope State ───
+  const [envelopeStarted, setEnvelopeStarted] = React.useState(false)
+  const [videoTime, setVideoTime] = React.useState(0)
+  const [doorVideoEnding, setDoorVideoEnding] = React.useState(false)
+  const isVideoEnvelope = !!theme.openingVideoUrl
+
+  const handleScreenTap = () => {
+    if (isVideoEnvelope && !envelopeStarted) {
+      setEnvelopeStarted(true)
+      const v = document.getElementById('hero-door-video') as HTMLVideoElement
+      if (v) {
+        v.play()
+        const tick = () => { setVideoTime(v.currentTime); if (!v.paused && !v.ended) requestAnimationFrame(tick) }
+        requestAnimationFrame(tick)
+      }
+    }
+  }
+
+  const handleDoorVideoEnd = () => {
+    // Crossfade: door video at z-20 dissolves directly into hero media at z-0
+    setDoorVideoEnding(true)
+    setTimeout(() => s.handleDoorOpen(true), 1200)
+  }
+
+  // Timing: Bismillah at 2s for 3s (ends at 5s), names appear at 5.5s and stay continuously
+  const showBismillahOverlay = isVideoEnvelope && envelopeStarted && !s.doorsOpened && videoTime >= 2.0 && videoTime < 5.0
+  const showNamesOverlay = isVideoEnvelope && envelopeStarted && videoTime >= 5.5
   const parsedGifts = useMemo(() => s.gifts ? s.parseGiftDetails(s.gifts) : null, [s.gifts])
+
+  const groomParents = flowData?.hostGroomFamily?.trim() || (s.isDemo ? 'Mr. & Mrs. Tariq Mahmood' : '')
+  const brideParents = flowData?.hostBrideFamily?.trim() || (s.isDemo ? 'Mr. & Mrs. Aslam Khan' : '')
+  const groomCity = flowData?.hostGroomCity?.trim() || (s.isDemo ? 'Lahore' : '')
+  const brideCity = flowData?.hostBrideCity?.trim() || (s.isDemo ? 'Islamabad' : '')
 
   return (
     <div
       className={`relative min-h-screen overflow-x-hidden ${cinzelDec.variable} ${greatVibes.variable}`}
       dir={s.language === 'ur' ? 'rtl' : 'ltr'}
-      style={{ backgroundColor: theme.bgPrimary, color: theme.textPrimary }}
+      style={{ backgroundColor: (isVideoEnvelope && !s.doorsOpened) ? 'transparent' : theme.bgPrimary, color: theme.textPrimary }}
+      onClick={handleScreenTap}
     >
-      <HexGridBg accent={theme.accent} />
-      <BackgroundParticles accentColor={theme.accent} />
+      {/* ─── VIDEO DOOR (only before doors open) ─── */}
+      {isVideoEnvelope && !s.doorsOpened && (
+        <div className="fixed inset-0 z-20 pointer-events-auto">
+          {/* Door video fades out when ending — revealing the hero section directly */}
+          <m.div
+            className="absolute inset-0 bg-black"
+            animate={{ opacity: doorVideoEnding ? 0 : 1 }}
+            transition={{ duration: 1.2, ease: 'easeInOut' }}
+          >
+            <video
+              id="hero-door-video"
+              src={theme.openingVideoUrl}
+              className="w-full h-full object-cover"
+              muted
+              playsInline
+              onEnded={handleDoorVideoEnd}
+            />
+          </m.div>
+          {/* Tap hint */}
+          <AnimatePresence>
+            {!envelopeStarted && (
+              <m.div
+                key="tap-hint"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ delay: 0.5, duration: 0.8 }}
+                className="absolute inset-0 flex items-end justify-center pb-16 pointer-events-none"
+              >
+                <div className="px-8 py-3 rounded-full bg-black/50 backdrop-blur-md border border-white/20 text-white/90 text-sm uppercase tracking-widest animate-pulse">
+                  Tap anywhere to open
+                </div>
+              </m.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
 
-      {/* Door Overlay — no Framer opacity on this wrapper (would flatten 3D transform context) */}
-      {/* Door Overlay */}
-      {s.doorOverlayVisible && (
+      <HexGridBg accent={theme.accent} />
+      {(!isVideoEnvelope || s.doorsOpened) && <BackgroundParticles accentColor={theme.accent} />}
+
+      {/* Door Overlay — only for non-video templates */}
+      {s.doorOverlayVisible && !isVideoEnvelope && (
         <div
           className="fixed inset-0 z-50"
           style={{ perspective: ['classic-doors', 'archway', 'lantern'].includes(theme.doorStyle.type) ? '1200px' : undefined }}
@@ -125,9 +196,44 @@ export default function GeometricGoldViewer({ templateId, flowData, guestName, g
         <MusicToggle isPlaying={s.musicPlaying} onToggle={() => s.setMusicPlaying(!s.musicPlaying)} theme={theme} />
       </div>
 
-      {/* ─── BISMILLAH ─── */}
-      {flowData?.showBismillah !== false && (
-        <m.div initial={{ opacity: 0 }} animate={s.doorsOpened ? { opacity: 1 } : { opacity: 0 }} transition={{ delay: 2.2, duration: 1.0 }}
+      {/* ─── BISMILLAH OVERLAY (centered, white, 2s→5s during door video) ─── */}
+      <AnimatePresence>
+        {showBismillahOverlay && (
+          <m.div
+            key="bismillah-overlay"
+            initial={{ opacity: 0, scale: 0.92 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.92 }}
+            transition={{ duration: 0.9 }}
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center pointer-events-none px-8"
+          >
+            <div className="flex items-center gap-4 w-full max-w-xs mb-4">
+              <div className="flex-1 h-px bg-white/40" />
+              <span className="text-white/60">◆</span>
+              <div className="flex-1 h-px bg-white/40" />
+            </div>
+            <p
+              className="font-arabic text-4xl sm:text-5xl md:text-6xl text-center leading-loose"
+              dir="rtl"
+              style={{ color: 'white', textShadow: '0 0 60px rgba(255,255,255,0.6), 0 0 120px rgba(255,255,255,0.3)' }}
+            >
+              بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
+            </p>
+            <p className="mt-3 text-xs tracking-[0.25em] uppercase text-center font-mono text-white/55">
+              In the name of Allah, the Most Gracious, the Most Merciful
+            </p>
+            <div className="flex items-center gap-4 w-full max-w-xs mt-4">
+              <div className="flex-1 h-px bg-white/40" />
+              <div className="w-2 h-2 rotate-45 border border-white/50" />
+              <div className="flex-1 h-px bg-white/40" />
+            </div>
+          </m.div>
+        )}
+      </AnimatePresence>
+
+      {/* ─── BISMILLAH on invitation page (non-video templates only) ─── */}
+      {!isVideoEnvelope && flowData?.showBismillah !== false && (
+        <m.div initial={{ opacity: 0 }} animate={s.doorsOpened ? { opacity: 1 } : { opacity: 0 }} transition={{ delay: 0.5, duration: 1.0 }}
           className="relative flex flex-col items-center justify-center py-12 px-6 border-b overflow-hidden" style={{ borderColor: getOpacityStyle('border', 0.15) }}>
           <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse at 50% 50%, ${getOpacityStyle('bg', 0.07)} 0%, transparent 70%)` }} />
           <div className="flex items-center gap-4 w-full max-w-sm mb-4">
@@ -135,7 +241,7 @@ export default function GeometricGoldViewer({ templateId, flowData, guestName, g
             <span className="text-sm font-mono" style={{ color: theme.accent }}>◆</span>
             <m.div initial={{ scaleX: 0 }} animate={s.doorsOpened ? { scaleX: 1 } : { scaleX: 0 }} transition={{ delay: 2.5, duration: 0.6 }} style={{ transformOrigin: 'left', flex: 1, height: 1, backgroundColor: theme.accent + '60' }} />
           </div>
-          <m.p initial={{ opacity: 0, y: '30vh' }} animate={s.doorsOpened ? { opacity: 1, y: 0 } : { opacity: 0, y: '30vh' }} transition={{ duration: 1.5, delay: 1.2, ease: [0.25, 1, 0.5, 1] }}
+          <m.p initial={{ opacity: 0, y: 20 }} animate={s.doorsOpened ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }} transition={{ delay: 1.0, duration: 1.0 }}
             className="font-arabic text-3xl sm:text-4xl md:text-5xl text-center leading-loose bismillah-glow" dir="rtl" style={{ color: theme.accent }}>
             بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
           </m.p>
@@ -148,61 +254,138 @@ export default function GeometricGoldViewer({ templateId, flowData, guestName, g
         </m.div>
       )}
 
-      {/* ─── MAIN CONTENT ─── */}
-      <m.div
-        initial={{ opacity: 0, scale: 0.96 }}
-        animate={{ opacity: s.heroVisible ? 1 : 0, scale: s.heroVisible ? 1 : 0.96 }}
-        transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1] }}
-      >
+      {/* ─── HERO (seamless transition directly into hero video) ─── */}
+      <section className="relative min-h-screen flex flex-col items-center justify-center px-6 py-20 overflow-hidden">
+        {/* Hero media background — always active in hero section behind the video door */}
+        {theme.heroMediaUrl ? (
+          <div className="absolute inset-0 pointer-events-none z-0">
+            {/\.(mp4|webm|mov)$/i.test(theme.heroMediaUrl) ? (
+              <video src={theme.heroMediaUrl} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+            ) : (
+              <img src={theme.heroMediaUrl} alt="Hero background" className="w-full h-full object-cover" />
+            )}
+            <div className="absolute inset-0 bg-black/40" />
+            <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, transparent 55%, ${theme.bgPrimary} 100%)` }} />
+          </div>
+        ) : (
+          <div className="absolute inset-0 z-0" style={{ backgroundColor: theme.bgPrimary, background: `radial-gradient(at 50% 40%, rgba(245,200,66,0.05) 0%, transparent 60%)` }} />
+        )}
 
-        {/* ─── HERO — Minimal, self-drawing underline ─── */}
-        <section className="relative min-h-screen flex flex-col items-center justify-center px-6 py-20 overflow-hidden">
-          <div className="absolute inset-0" style={{ backgroundColor: theme.bgPrimary, background: `radial-gradient(at 50% 40%, rgba(245,200,66,0.05) 0%, transparent 60%)` }} />
-          <div className="relative z-10 w-full max-w-2xl text-center">
-            <m.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="text-xs tracking-[0.5em] uppercase mb-10 font-mono" style={{ color: theme.textSecondary }}>
+        {/* ── NAMES & DETAILS ──
+            At z-30 (above door video z-20).
+            Names fade in at 5.5s during door video.
+            When door video fades out, names NEVER move or disappear.
+            "Request honour" and scroll indicator fade in as door video finishes. */}
+        <div className="relative z-30 w-full max-w-2xl text-center px-6">
+          <m.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: (!isVideoEnvelope || showNamesOverlay || doorVideoEnding || s.doorsOpened) ? 1 : 0 }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+          >
+            <p
+              className="text-xs tracking-[0.5em] uppercase mb-10 font-mono"
+              style={{ color: theme.textSecondary }}
+            >
               {s.t('gettingMarried', "We're getting married")}
-            </m.p>
+            </p>
 
-            {/* Partner 1 */}
-            <div className="mb-4">
-              <m.h1 initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.8 }}
+            {/* Partner 1 (Groom) */}
+            <div className="mb-2">
+              <h1
                 className="text-5xl sm:text-7xl md:text-8xl font-bold tracking-[0.12em] uppercase font-[var(--font-cinzel-dec)]"
-                style={{ color: theme.textPrimary }}>
+                style={{ color: theme.textPrimary }}
+              >
                 {s.translatedPartner1}
-              </m.h1>
-              <m.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ delay: 0.9, duration: 0.9 }}
-                style={{ transformOrigin: 'left', height: 2, backgroundColor: theme.accent, marginTop: 4, boxShadow: `0 0 8px ${theme.accent}88` }} />
+              </h1>
+              <m.div
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: (!isVideoEnvelope || doorVideoEnding || s.doorsOpened) ? 1 : 0 }}
+                transition={{ delay: 0.3, duration: 0.9 }}
+                style={{ transformOrigin: 'left', height: 2, backgroundColor: theme.accent, marginTop: 4, boxShadow: `0 0 8px ${theme.accent}88` }}
+              />
             </div>
 
+            {groomParents && (
+              <div className="flex flex-col items-center mb-3">
+                <span className="text-[10px] uppercase tracking-[0.3em] font-mono" style={{ color: theme.accent }}>
+                  {s.language === 'ur' ? 'فرزند' : 'Son of'}
+                </span>
+                <span className="text-sm sm:text-base font-semibold tracking-wide mt-0.5 font-[var(--font-cinzel-dec)]" style={{ color: '#ffffff', textShadow: '0 2px 10px rgba(0,0,0,0.9), 0 0 15px rgba(245,200,66,0.5)' }}>
+                  {groomParents}
+                </span>
+                {groomCity && (
+                  <span className="text-[10px] tracking-widest uppercase font-mono opacity-80 mt-0.5" style={{ color: theme.accentLight }}>
+                    ({groomCity})
+                  </span>
+                )}
+              </div>
+            )}
+
             {/* Separator */}
-            <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.0 }} className="flex items-center justify-center gap-4 my-5">
+            <div className="flex items-center justify-center gap-4 my-4">
               <div className="w-12 h-px" style={{ backgroundColor: theme.accent + '60' }} />
               <div className="w-3 h-3 rotate-45" style={{ backgroundColor: theme.accent, boxShadow: `0 0 8px ${theme.accent}` }} />
               <div className="w-12 h-px" style={{ backgroundColor: theme.accent + '60' }} />
-            </m.div>
-
-            {/* Partner 2 */}
-            <div className="mb-10">
-              <m.h1 initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7, duration: 0.8 }}
-                className="text-5xl sm:text-7xl md:text-8xl font-bold tracking-[0.12em] uppercase font-[var(--font-cinzel-dec)]"
-                style={{ color: theme.textPrimary }}>
-                {s.translatedPartner2}
-              </m.h1>
-              <m.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ delay: 1.1, duration: 0.9 }}
-                style={{ transformOrigin: 'right', height: 2, backgroundColor: theme.accent, marginTop: 4, boxShadow: `0 0 8px ${theme.accent}88` }} />
             </div>
 
-            <m.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4 }} className="text-base sm:text-lg tracking-[0.2em] uppercase font-mono" style={{ color: theme.textSecondary }}>
-              {s.t('requestHonour', 'Request the honour of your presence')}
-            </m.p>
-          </div>
+            {/* Partner 2 (Bride) */}
+            <div className="mb-2">
+              <h1
+                className="text-5xl sm:text-7xl md:text-8xl font-bold tracking-[0.12em] uppercase font-[var(--font-cinzel-dec)]"
+                style={{ color: theme.textPrimary }}
+              >
+                {s.translatedPartner2}
+              </h1>
+              <m.div
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: (!isVideoEnvelope || doorVideoEnding || s.doorsOpened) ? 1 : 0 }}
+                transition={{ delay: 0.5, duration: 0.9 }}
+                style={{ transformOrigin: 'right', height: 2, backgroundColor: theme.accent, marginTop: 4, boxShadow: `0 0 8px ${theme.accent}88` }}
+              />
+            </div>
 
-          <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.5 }} className="absolute bottom-8 flex flex-col items-center gap-2">
+            {brideParents && (
+              <div className="flex flex-col items-center mb-6">
+                <span className="text-[10px] uppercase tracking-[0.3em] font-mono" style={{ color: theme.accent }}>
+                  {s.language === 'ur' ? 'دختر' : 'Daughter of'}
+                </span>
+                <span className="text-sm sm:text-base font-semibold tracking-wide mt-0.5 font-[var(--font-cinzel-dec)]" style={{ color: '#ffffff', textShadow: '0 2px 10px rgba(0,0,0,0.9), 0 0 15px rgba(245,200,66,0.5)' }}>
+                  {brideParents}
+                </span>
+                {brideCity && (
+                  <span className="text-[10px] tracking-widest uppercase font-mono opacity-80 mt-0.5" style={{ color: theme.accentLight }}>
+                    ({brideCity})
+                  </span>
+                )}
+              </div>
+            )}
+          </m.div>
+
+          <m.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: (!isVideoEnvelope || doorVideoEnding || s.doorsOpened) ? 1 : 0 }}
+            transition={{ delay: 0.3, duration: 1.0 }}
+            className="text-base sm:text-lg tracking-[0.2em] uppercase font-mono"
+            style={{ color: theme.textSecondary }}
+          >
+            {s.t('requestHonour', 'Request the honour of your presence')}
+          </m.p>
+        </div>
+
+        {(!isVideoEnvelope || s.doorsOpened) && (
+          <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.0 }} className="absolute bottom-8 z-30 flex flex-col items-center gap-2">
             <span className="text-[10px] uppercase tracking-[0.2em] font-mono" style={{ color: theme.textMuted }}>{s.t('scroll', 'Scroll')}</span>
             <div className="animate-bounce"><ChevronDown className="w-4 h-4" style={{ color: theme.textMuted }} /></div>
           </m.div>
-        </section>
+        )}
+      </section>
 
+      {/* ─── MAIN CONTENT (all sections BELOW hero — fades in after door opens) ─── */}
+      <m.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: s.doorsOpened ? 1 : 0 }}
+        transition={{ duration: 1.5, ease: 'easeOut' }}
+      >
         {/* ─── WELCOME ─── */}
         <RevealSection>
           <section className="py-16 md:py-20 px-6">

@@ -1,4 +1,4 @@
-/* ─── Template Theme Configuration ─── */
+/* --- Template Theme Configuration --- */
 export interface TemplateTheme {
   id: string
   name: string
@@ -26,6 +26,9 @@ export interface TemplateTheme {
   fireworkColors: string[]
   // Confetti colors
   confettiColors: string[]
+    // Video and Hero Media (For specific templates)
+    openingVideoUrl?: string
+    heroMediaUrl?: string
   // Door style configuration
   doorStyle: {
     type: 'classic-doors' | 'curtains' | 'petals' | 'split-screen' | 'archway' | 'scroll' | 'geometric' | 'lotus' | 'lantern' | 'dome'
@@ -257,11 +260,11 @@ export const TEMPLATE_THEMES: Record<string, Omit<TemplateTheme, 'getOpacityStyl
       handleType: 'iron-ring',
       frameStyle: 'arched-stone',
       leftText: 'مغل',
-      rightText: 'شاهی',
+      rightText: 'شاہی',
       leftTextLang: 'ur',
       rightTextLang: 'ur',
       svgPattern: 'mandala',
-      centerIcon: '🕌',
+      centerIcon: '✦',
       animationClass: 'door-open',
       buttonStyle: 'circle',
     },
@@ -346,6 +349,8 @@ export const TEMPLATE_THEMES: Record<string, Omit<TemplateTheme, 'getOpacityStyl
     id: 'royal-imperial',
 
     name: 'Royal Imperial',
+    openingVideoUrl: '/videos/royal-door-open.mp4',
+    heroMediaUrl: '/videos/royal-hero-loop.webm',
     bgPrimary: '#160B08',
     bgSecondary: '#1E0F0A',
     bgDoor: '#2a1a10',
@@ -374,7 +379,7 @@ export const TEMPLATE_THEMES: Record<string, Omit<TemplateTheme, 'getOpacityStyl
       leftTextLang: 'ur',
       rightTextLang: 'ur',
       svgPattern: 'dome',
-      centerIcon: '🏰',
+      centerIcon: '👑',
       animationClass: 'door-open',
       buttonStyle: 'shield',
     },
@@ -382,6 +387,8 @@ export const TEMPLATE_THEMES: Record<string, Omit<TemplateTheme, 'getOpacityStyl
   'royal-elegance': {
     id: 'royal-elegance',
     name: 'Royal Elegance',
+    openingVideoUrl: '/videos/royal-elegance-door-open.mp4',
+    heroMediaUrl: '/videos/royal-elegance-hero-loop.mp4',
     bgPrimary: '#0D0008',
     bgSecondary: '#1A0010',
     bgDoor: '#2E0015',
@@ -457,6 +464,8 @@ export const TEMPLATE_THEMES: Record<string, Omit<TemplateTheme, 'getOpacityStyl
   'geometric-gold': {
     id: 'geometric-gold',
     name: 'Geometric Gold',
+    openingVideoUrl: '/videos/geometric-gold-door-open.mp4',
+    heroMediaUrl: '/videos/geometric-gold-hero-loop.mp4',
     bgPrimary: '#080C18',
     bgSecondary: '#0E1525',
     bgDoor: '#1A2540',
@@ -493,6 +502,8 @@ export const TEMPLATE_THEMES: Record<string, Omit<TemplateTheme, 'getOpacityStyl
   'dark-velvet': {
     id: 'dark-velvet',
     name: 'Dark Velvet',
+    openingVideoUrl: '/videos/dark-velvet-door-open.mp4',
+    heroMediaUrl: '/videos/dark-velvet-hero-loop.mp4',
     bgPrimary: '#04010F',
     bgSecondary: '#0A0520',
     bgDoor: '#120A30',
@@ -597,7 +608,7 @@ export const TEMPLATE_THEMES: Record<string, Omit<TemplateTheme, 'getOpacityStyl
       leftTextLang: 'en',
       rightTextLang: 'en',
       svgPattern: 'minimal',
-      centerIcon: '🤍',
+      centerIcon: '💍',
       animationClass: 'door-open',
       buttonStyle: 'circle',
     },
@@ -607,3 +618,6 @@ export const TEMPLATE_THEMES: Record<string, Omit<TemplateTheme, 'getOpacityStyl
 }
 
 export const DEFAULT_THEME = TEMPLATE_THEMES['emerald-noir']
+
+
+

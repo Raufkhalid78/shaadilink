@@ -21,13 +21,20 @@ export async function POST(
     }
 
     const supabase = createServiceClient()
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
 
     // Fetch invitation to get user_id for sending notifications, including profile email
-    const { data: inv } = await supabase
+    let invQuery = supabase
       .from('invitations')
-      .select('is_active, user_id, profiles(email)')
-      .eq('id', id)
-      .single()
+      .select('id, is_active, user_id, profiles(email)')
+
+    if (isUUID) {
+      invQuery = invQuery.eq('id', id)
+    } else {
+      invQuery = invQuery.eq('slug', id)
+    }
+
+    const { data: inv } = await invQuery.maybeSingle()
 
     if (!inv) {
       return NextResponse.json({ error: 'Invitation not found' }, { status: 404 })
@@ -36,8 +43,10 @@ export async function POST(
       return NextResponse.json({ error: 'Invitation is not active' }, { status: 403 })
     }
 
+    const invitationId = inv.id
+
     // Check for existing RSVP
-    let rsvpQuery = supabase.from('rsvps').select('id').eq('invitation_id', id)
+    let rsvpQuery = supabase.from('rsvps').select('id').eq('invitation_id', invitationId)
     if (guestEmail?.trim()) {
       rsvpQuery = rsvpQuery.eq('guest_email', guestEmail.trim())
     } else {
@@ -51,7 +60,7 @@ export async function POST(
     const { data, error } = await supabase
       .from('rsvps')
       .insert({
-        invitation_id: id,
+        invitation_id: invitationId,
         guest_name: guestName.trim(),
         guest_email: guestEmail?.trim() || null,
         status,
@@ -95,12 +104,20 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+
     // Verify ownership
-    const { data: inv } = await supabase
+    let invQuery = supabase
       .from('invitations')
-      .select('user_id')
-      .eq('id', id)
-      .single()
+      .select('id, user_id')
+
+    if (isUUID) {
+      invQuery = invQuery.eq('id', id)
+    } else {
+      invQuery = invQuery.eq('slug', id)
+    }
+
+    const { data: inv } = await invQuery.maybeSingle()
 
     if (!inv || inv.user_id !== user.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
@@ -109,7 +126,7 @@ export async function GET(
     const { data: rsvps, error } = await supabase
       .from('rsvps')
       .select('*')
-      .eq('invitation_id', id)
+      .eq('invitation_id', inv.id)
       .order('created_at', { ascending: false })
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })

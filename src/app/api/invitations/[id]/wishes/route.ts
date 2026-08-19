@@ -21,23 +21,32 @@ export async function POST(
     }
 
     const supabase = createServiceClient()
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
 
     // 2. Fetch invitation to check if it exists and to get user_id for sending notifications
-    const { data: inv } = await supabase
+    let invQuery = supabase
       .from('invitations')
-      .select('user_id, profiles(email)')
-      .eq('id', id)
-      .single()
+      .select('id, user_id, profiles(email)')
+
+    if (isUUID) {
+      invQuery = invQuery.eq('id', id)
+    } else {
+      invQuery = invQuery.eq('slug', id)
+    }
+
+    const { data: inv } = await invQuery.maybeSingle()
 
     if (!inv) {
       return NextResponse.json({ error: 'Invitation not found' }, { status: 404 })
     }
 
+    const invitationId = inv.id
+
     // 3. Insert Wish
     const { data, error } = await supabase
       .from('wishes')
       .insert({
-        invitation_id: id,
+        invitation_id: invitationId,
         sender_name: senderName.trim(),
         message: message.trim()
       })
@@ -75,15 +84,30 @@ export async function GET(
     const { id: rawId } = await params
     const id = rawId.replace(/%20| /g, "-")
     const supabase = createServiceClient()
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+
+    let targetId = id
+    if (!isUUID) {
+      const { data: inv } = await supabase
+        .from('invitations')
+        .select('id')
+        .eq('slug', id)
+        .maybeSingle()
+      if (!inv) {
+        return NextResponse.json({ wishes: [] })
+      }
+      targetId = inv.id
+    }
+
     const { data: wishes, error } = await supabase
       .from('wishes')
       .select('*')
-      .eq('invitation_id', id)
+      .eq('invitation_id', targetId)
       .order('created_at', { ascending: false })
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-    return NextResponse.json({ wishes })
+    return NextResponse.json({ wishes: wishes || [] })
   } catch (error) {
     console.error('GET /wishes error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
