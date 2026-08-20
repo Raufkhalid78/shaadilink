@@ -100,7 +100,10 @@ export default function GeometricGoldViewer({ templateId, flowData, guestName, g
       setEnvelopeStarted(true)
       const v = document.getElementById('hero-door-video') as HTMLVideoElement
       if (v) {
-        v.play()
+        const p = v.play()
+        if (p !== undefined) {
+          p.catch(() => {})
+        }
         const tick = () => { setVideoTime(v.currentTime); if (!v.paused && !v.ended) requestAnimationFrame(tick) }
         requestAnimationFrame(tick)
       }

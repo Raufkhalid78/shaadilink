@@ -29,5 +29,9 @@ Sentry.init({
   ignoreErrors: [
     "Error invoking postMessage: Java object is gone",
     "Invalid call to runtime.sendMessage(). Tab not found.",
+    "AbortError: The play() request was interrupted by a call to pause().",
+    "The play() request was interrupted by a call to pause()",
+    /The play\(\) request was interrupted/,
+    /AbortError: The operation was aborted/,
   ],
 });

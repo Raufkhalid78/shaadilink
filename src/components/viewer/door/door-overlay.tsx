@@ -573,7 +573,12 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
           if (doorsOpened) return;
           setIsPressed(true);
           const video = document.getElementById('opening-video') as HTMLVideoElement;
-          if (video) video.play();
+          if (video) {
+            const p = video.play();
+            if (p !== undefined) {
+              p.catch(() => {});
+            }
+          }
         }}
       >
         <video 

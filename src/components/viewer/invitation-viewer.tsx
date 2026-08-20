@@ -297,16 +297,34 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
   }, [flowData?.backgroundMusic, isDemo])
 
   // Play/pause control
+  const playPromiseRef = useRef<Promise<void> | null>(null)
+
   useEffect(() => {
     if (!audioRef.current) return
 
     if (doorsOpened && musicPlaying) {
-      audioRef.current.play().catch(err => {
-        console.warn('Audio play failed (waiting for user interaction):', err)
-        setMusicPlaying(false)
-      })
+      const p = audioRef.current.play()
+      playPromiseRef.current = p
+      if (p !== undefined) {
+        p.catch(err => {
+          if (err?.name !== 'AbortError') {
+            console.warn('Audio play failed (waiting for user interaction):', err)
+            setMusicPlaying(false)
+          }
+        })
+      }
     } else {
-      audioRef.current.pause()
+      if (playPromiseRef.current) {
+        playPromiseRef.current
+          .then(() => {
+            if (!musicPlaying && audioRef.current) {
+              audioRef.current.pause()
+            }
+          })
+          .catch(() => {})
+      } else {
+        audioRef.current.pause()
+      }
     }
   }, [doorsOpened, musicPlaying])
 

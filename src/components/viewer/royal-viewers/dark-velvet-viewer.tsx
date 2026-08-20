@@ -169,7 +169,10 @@ export default function DarkVelvetViewer({ templateId, flowData, guestName, gues
       setEnvelopeStarted(true)
       const v = document.getElementById('hero-door-video') as HTMLVideoElement
       if (v) {
-        v.play()
+        const p = v.play()
+        if (p !== undefined) {
+          p.catch(() => {})
+        }
         const tick = () => { setVideoTime(v.currentTime); if (!v.paused && !v.ended) requestAnimationFrame(tick) }
         requestAnimationFrame(tick)
       }

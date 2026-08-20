@@ -178,10 +178,35 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
     return () => { if (audioRef.current) { audioRef.current.pause(); audioRef.current = null } }
   }, [flowData?.backgroundMusic, isDemo])
 
+  const playPromiseRef = useRef<Promise<void> | null>(null)
+
   useEffect(() => {
     if (!audioRef.current) return
-    if (doorsOpened && musicPlaying) { audioRef.current.play().catch(() => setMusicPlaying(false)) }
-    else { audioRef.current.pause() }
+
+    if (doorsOpened && musicPlaying) {
+      const p = audioRef.current.play()
+      playPromiseRef.current = p
+      if (p !== undefined) {
+        p.catch((err) => {
+          if (err?.name !== 'AbortError') {
+            console.warn('Audio play prevented:', err)
+            setMusicPlaying(false)
+          }
+        })
+      }
+    } else {
+      if (playPromiseRef.current) {
+        playPromiseRef.current
+          .then(() => {
+            if (!musicPlaying && audioRef.current) {
+              audioRef.current.pause()
+            }
+          })
+          .catch(() => {})
+      } else {
+        audioRef.current.pause()
+      }
+    }
   }, [doorsOpened, musicPlaying])
 
   useEffect(() => {
