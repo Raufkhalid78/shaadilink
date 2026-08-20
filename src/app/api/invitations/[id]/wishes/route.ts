@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { sendWishNotification } from '@/lib/resend'
+import { wishesLimiter } from '@/lib/rate-limit'
 
 /* POST /api/invitations/[id]/wishes — submit wish (public) */
 export async function POST(
@@ -10,6 +11,13 @@ export async function POST(
   try {
     const { id: rawId } = await params
     const id = rawId.replace(/%20| /g, "-")
+
+    const ip = request.headers.get('x-forwarded-for') ?? '127.0.0.1'
+    const { success } = await wishesLimiter.limit(`wishes_${ip}_${id}`)
+    if (!success) {
+      return NextResponse.json({ error: 'Too many wish submissions. Please try again shortly.' }, { status: 429 })
+    }
+
     const body = await request.json()
     const { senderName, message } = body
 

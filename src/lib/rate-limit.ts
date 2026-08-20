@@ -55,3 +55,13 @@ export const resolveLimiter = createLimiter({
   redis,
   limiter: Ratelimit.slidingWindow(5, '1 m'),
 });
+
+export const rsvpLimiter = createLimiter({
+  redis,
+  limiter: Ratelimit.slidingWindow(3, '10 m'),
+});
+
+export const wishesLimiter = createLimiter({
+  redis,
+  limiter: Ratelimit.slidingWindow(5, '10 m'),
+});

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { sendRsvpNotification } from '@/lib/resend'
+import { rsvpLimiter } from '@/lib/rate-limit'
 
 /* POST /api/invitations/[id]/rsvp — submit RSVP (public) */
 export async function POST(
@@ -10,6 +11,13 @@ export async function POST(
   try {
     const { id: rawId } = await params
     const id = rawId.replace(/%20| /g, "-")
+
+    const ip = request.headers.get('x-forwarded-for') ?? '127.0.0.1'
+    const { success } = await rsvpLimiter.limit(`rsvp_${ip}_${id}`)
+    if (!success) {
+      return NextResponse.json({ error: 'Too many RSVP submissions. Please try again shortly.' }, { status: 429 })
+    }
+
     const body = await request.json()
     const { guestName, guestEmail, status } = body
 

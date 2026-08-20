@@ -19,6 +19,9 @@ export async function middleware(request: NextRequest) {
   const response = await updateSession(request)
   
   const isDev = process.env.NODE_ENV === 'development';
+  const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
+
+  // Enforcing CSP policy
   const cspHeader = `
     default-src 'self';
     script-src 'self' ${isDev ? "'unsafe-eval'" : ""} 'unsafe-inline' https://unpkg.com https://www.youtube.com blob:;
@@ -36,7 +39,24 @@ export async function middleware(request: NextRequest) {
     upgrade-insecure-requests;
   `.replace(/\s{2,}/g, ' ').trim()
 
+  // Strict Report-Only CSP policy with nonce to observe any inline execution without blocking production
+  const reportOnlyCsp = `
+    default-src 'self';
+    script-src 'self' 'nonce-${nonce}' ${isDev ? "'unsafe-eval'" : ""} https://unpkg.com https://www.youtube.com blob:;
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+    img-src 'self' blob: data: https://*.supabase.co https://images.unsplash.com https://lh3.googleusercontent.com;
+    font-src 'self' data: https://fonts.gstatic.com;
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self';
+    frame-src 'self' https://www.youtube.com https://*.getsafepay.com https://getsafepay.com https://*.getsafepay.pk https://getsafepay.pk https://maps.google.com https://www.google.com;
+    frame-ancestors 'none';
+    connect-src 'self' https://*.supabase.co https://*.getsafepay.com https://getsafepay.com https://*.getsafepay.pk https://getsafepay.pk https://api.getsafepay.com https://sandbox.api.getsafepay.com https://unpkg.com *.sentry.io https://*.sentry.io https://*.ingest.sentry.io;
+  `.replace(/\s{2,}/g, ' ').trim()
+
   response.headers.set('Content-Security-Policy', cspHeader)
+  response.headers.set('Content-Security-Policy-Report-Only', reportOnlyCsp)
+  response.headers.set('x-nonce', nonce)
   response.headers.set('X-Frame-Options', 'DENY')
   response.headers.set('X-Content-Type-Options', 'nosniff')
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
@@ -58,5 +78,3 @@ export const config = {
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
-
-
