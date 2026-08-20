@@ -369,7 +369,13 @@ export function HowItWorks() {
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
-        <div className="text-center mb-14 sm:mb-20 reveal-on-scroll">
+        <m.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-14 sm:mb-20"
+        >
           <span className="inline-block font-calligraphy text-gold text-lg mb-3">
             {t('hiw.badge')}
           </span>
@@ -385,7 +391,7 @@ export function HowItWorks() {
           <p className="mt-4 text-muted-foreground max-w-xl mx-auto text-base sm:text-lg text-center">
             {t('hiw.subtitle')}
           </p>
-        </div>
+        </m.div>
 
         {/* 3-Step Layout */}
         <m.div

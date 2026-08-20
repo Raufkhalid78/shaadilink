@@ -216,7 +216,13 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
-        <div className="text-center mb-10 sm:mb-14 reveal-on-scroll">
+        <m.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-10 sm:mb-14"
+        >
           <span className="inline-block font-calligraphy text-gold text-lg mb-3">
             {t('showcase.badge')}
           </span>
@@ -232,7 +238,7 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
             <div className="w-2 h-2 rounded-full bg-gold/70" />
             <div className="h-px w-16 bg-gradient-to-l from-transparent to-gold/60" />
           </div>
-        </div>
+        </m.div>
 
         {/* Gallery Container */}
         <div className="relative">

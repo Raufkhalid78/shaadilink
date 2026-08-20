@@ -62,7 +62,13 @@ export function FAQ({ onContactClick }: { onContactClick?: () => void }) {
       <div className="absolute inset-0 bg-gradient-to-b from-background via-emerald-dark/10 to-background" />
       <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
-        <div className="text-center mb-14 sm:mb-20 reveal-on-scroll">
+        <m.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-14 sm:mb-20"
+        >
           <span className="inline-block font-calligraphy text-gold text-lg mb-3">
             ✦ FAQ ✦
           </span>
@@ -77,7 +83,7 @@ export function FAQ({ onContactClick }: { onContactClick?: () => void }) {
           <p className="mt-5 text-muted-foreground max-w-xl mx-auto text-base sm:text-lg text-center">
             {t("faq.subtitle")}
           </p>
-        </div>
+        </m.div>
 
         {/* FAQ Accordion */}
         <m.div

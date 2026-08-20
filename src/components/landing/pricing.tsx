@@ -86,7 +86,13 @@ export function Pricing({ onSelectPlan }: PricingProps) {
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
-        <div className="text-center mb-16 reveal-on-scroll">
+        <m.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
           <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-gold/20 bg-gold/10 text-gold text-sm font-medium mb-4">
             <Sparkles className="w-3.5 h-3.5" />
             {t("pricing.badge")}
@@ -102,7 +108,7 @@ export function Pricing({ onSelectPlan }: PricingProps) {
           <p className="mt-5 text-muted-foreground max-w-xl mx-auto text-base sm:text-lg text-center">
             {t("pricing.subtitle")}
           </p>
-        </div>
+        </m.div>
 
         {/* Pricing Cards */}
         <m.div
