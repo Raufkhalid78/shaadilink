@@ -28,6 +28,7 @@ export interface TemplateTheme {
   confettiColors: string[]
     // Video and Hero Media (For specific templates)
     openingVideoUrl?: string
+    openingVideoPosterUrl?: string
     heroMediaUrl?: string
   // Door style configuration
   doorStyle: {
@@ -350,6 +351,7 @@ export const TEMPLATE_THEMES: Record<string, Omit<TemplateTheme, 'getOpacityStyl
 
     name: 'Royal Imperial',
     openingVideoUrl: '/videos/royal-door-open.mp4',
+    openingVideoPosterUrl: '/videos/royal-door-poster.webp',
     heroMediaUrl: '/videos/royal-hero-loop.webm',
     bgPrimary: '#160B08',
     bgSecondary: '#1E0F0A',
@@ -388,6 +390,7 @@ export const TEMPLATE_THEMES: Record<string, Omit<TemplateTheme, 'getOpacityStyl
     id: 'royal-elegance',
     name: 'Royal Elegance',
     openingVideoUrl: '/videos/royal-elegance-door-open.mp4',
+    openingVideoPosterUrl: '/videos/royal-elegance-door-poster.webp',
     heroMediaUrl: '/videos/royal-elegance-hero-loop.mp4',
     bgPrimary: '#0D0008',
     bgSecondary: '#1A0010',
@@ -465,6 +468,7 @@ export const TEMPLATE_THEMES: Record<string, Omit<TemplateTheme, 'getOpacityStyl
     id: 'geometric-gold',
     name: 'Geometric Gold',
     openingVideoUrl: '/videos/geometric-gold-door-open.mp4',
+    openingVideoPosterUrl: '/videos/geometric-gold-door-poster.webp',
     heroMediaUrl: '/videos/geometric-gold-hero-loop.mp4',
     bgPrimary: '#080C18',
     bgSecondary: '#0E1525',
@@ -503,6 +507,7 @@ export const TEMPLATE_THEMES: Record<string, Omit<TemplateTheme, 'getOpacityStyl
     id: 'dark-velvet',
     name: 'Dark Velvet',
     openingVideoUrl: '/videos/dark-velvet-door-open.mp4',
+    openingVideoPosterUrl: '/videos/dark-velvet-door-poster.webp',
     heroMediaUrl: '/videos/dark-velvet-hero-loop.mp4',
     bgPrimary: '#04010F',
     bgSecondary: '#0A0520',

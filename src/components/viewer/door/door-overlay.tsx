@@ -583,11 +583,12 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
       >
         <video 
           id="opening-video"
-          src={theme.openingVideoUrl} 
+          src={`${theme.openingVideoUrl}#t=0.001`}
+          poster={theme.openingVideoPosterUrl}
           className="w-full h-full object-cover" 
           playsInline 
           muted 
-          preload="metadata"
+          preload="auto"
           onEnded={() => onOpen(true)}
         />
         <AnimatePresence>

@@ -212,10 +212,12 @@ export default function RoyalImperialViewer({ templateId, flowData, guestName, g
           >
             <video
               id="hero-door-video"
-              src={theme.openingVideoUrl}
+              src={`${theme.openingVideoUrl}#t=0.001`}
+              poster={theme.openingVideoPosterUrl}
               className="w-full h-full object-cover"
               muted
               playsInline
+              preload="auto"
               onEnded={handleDoorVideoEnd}
             />
           </m.div>
