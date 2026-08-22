@@ -32,7 +32,7 @@ export function getEmailWrapper(title: string, preheader: string, content: strin
           <tr>
             <td align="center" style="background-color: #f8fafc; padding: 30px; border-top: 1px solid #f1f5f9;">
               <p style="margin: 0; color: #64748b; font-size: 13px;">&copy; ${new Date().getFullYear()} ShaadiLink. All rights reserved.</p>
-              <p style="margin: 10px 0 0 0; color: #94a3b8; font-size: 12px;">Need help? Reply to this email or contact <br/><a href="mailto:support@shaadilink.com.pk" style="color: #059669; text-decoration: none; font-weight: 600;">support@shaadilink.com.pk</a></p>
+              <p style="margin: 10px 0 0 0; color: #94a3b8; font-size: 12px;">Need help? Reply directly to this email or contact <br/><a href="mailto:hello@shaadilink.com.pk" style="color: #059669; text-decoration: none; font-weight: 600;">hello@shaadilink.com.pk</a></p>
             </td>
           </tr>
         </table>

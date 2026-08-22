@@ -35,7 +35,9 @@ export async function updateAffiliateStatus(id: string, status: 'approved' | 're
       await resend.emails.send({
         from: 'ShaadiLink Partners <hello@shaadilink.com.pk>',
         to: [application.email],
+        replyTo: 'hello@shaadilink.com.pk',
         subject: 'Welcome to the ShaadiLink Partner Program! 🎉',
+        text: `Welcome to the ShaadiLink Partner Program!\n\nHi ${application.name},\n\nGreat news! Your application to the ShaadiLink Partner Program has been approved.\n\nYou can now log in to your dashboard to get your unique referral links and track earnings: https://www.shaadilink.com.pk/affiliate/dashboard\n\nBest regards,\nThe ShaadiLink Team`,
         html: getEmailWrapper(
           'Application Approved!',
           'Great news! Your affiliate application has been approved.',

@@ -44,7 +44,9 @@ export async function POST(request: NextRequest) {
         const { data, error } = await resend.emails.send({
           from: 'ShaadiLink Contact <hello@shaadilink.com.pk>',
           to: ['hello@shaadilink.com.pk'],
+          replyTo: email.trim().toLowerCase(),
           subject: `New Contact Request from ${name}`,
+          text: `New Contact Message\n\nName: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
           html: getEmailWrapper(
             'New Contact Message',
             `You have a new message from ${name}`,

@@ -20,7 +20,9 @@ export async function sendWelcomeEmail(toEmail: string) {
     const data = await resend.emails.send({
       from: 'ShaadiLink <hello@shaadilink.com.pk>',
       to: [toEmail],
+      replyTo: 'hello@shaadilink.com.pk',
       subject: 'Welcome to ShaadiLink! 🎉',
+      text: `Welcome to ShaadiLink!\n\nHi there,\n\nThank you for subscribing to our newsletter! We're thrilled to have you join our community.\n\nYou'll be the first to know about our newest wedding templates, exclusive offers, and platform updates.\n\nBest regards,\nThe ShaadiLink Team\nhttps://www.shaadilink.com.pk`,
       html: getEmailWrapper(
         'Welcome to ShaadiLink!',
         'Thank you for subscribing to our newsletter!',
@@ -52,7 +54,9 @@ export async function sendRsvpNotification(toEmail: string, guestName: string, s
     return await resend.emails.send({
       from: 'ShaadiLink <hello@shaadilink.com.pk>',
       to: [toEmail],
+      replyTo: 'hello@shaadilink.com.pk',
       subject: `New RSVP: ${guestName} has ${statusText.toLowerCase()}`,
+      text: `New RSVP Received\n\nHi there,\n\n${guestName} has just submitted an RSVP for your invitation.\nStatus: ${statusText}\n\nView All RSVPs: https://www.shaadilink.com.pk/dashboard`,
       html: getEmailWrapper(
         'New RSVP Received',
         `${guestName} has ${statusText.toLowerCase()} your invitation.`,
@@ -86,7 +90,9 @@ export async function sendWishNotification(toEmail: string, guestName: string, m
     return await resend.emails.send({
       from: 'ShaadiLink <hello@shaadilink.com.pk>',
       to: [toEmail],
+      replyTo: 'hello@shaadilink.com.pk',
       subject: `New Wish from ${guestName}`,
+      text: `New Wish Received\n\nHi there,\n\n${guestName} left a new wish on your invitation:\n\n"${message}"\n\nView All Wishes: https://www.shaadilink.com.pk/dashboard`,
       html: getEmailWrapper(
         'New Wish Received',
         `${guestName} left a new wish on your invitation.`,
@@ -119,7 +125,9 @@ export async function sendRecoveryEmail(toEmail: string, orderId: string, plan: 
     return await resend.emails.send({
       from: 'ShaadiLink <hello@shaadilink.com.pk>',
       to: [toEmail],
+      replyTo: 'hello@shaadilink.com.pk',
       subject: 'Complete Your Dream Invitation & Get 10% Off! 💍',
+      text: `Don't lose your progress!\n\nHi there,\n\nWe noticed you started setting up your ${plan} plan invitation but didn't complete the payment.\n\nUse Promo Code: EARLYBIRD10 for 10% OFF.\n\nComplete My Invitation: https://www.shaadilink.com.pk/dashboard\n\nNeed help? Just reply to this email!`,
       html: getEmailWrapper(
         "Don't lose your progress!",
         "Complete your order today and get 10% off your digital invitation.",
