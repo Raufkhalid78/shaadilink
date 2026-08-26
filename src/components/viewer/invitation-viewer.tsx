@@ -1206,7 +1206,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
             <RevealSection>
               <section className="py-16 md:py-20 px-6">
                 <div className="flex flex-col items-center gap-6">
-                  <h2 className={`${theme.fontCalligraphy} text-3xl sm:text-4xl text-center`} style={{ color: theme.accent }}>{s.t('Our Story')}</h2>
+                  <h2 className={`${theme.fontCalligraphy} text-3xl sm:text-4xl text-center`} style={{ color: theme.accent }}>{t('Our Story', 'Our Story')}</h2>
                   <HeartDivider themeId={theme.id} accentColor={theme.accent} />
                   <div className="w-full max-w-3xl mx-auto">
                     <div 
