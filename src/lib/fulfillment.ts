@@ -33,7 +33,8 @@ export async function fulfillOrderIfPending(orderId: string): Promise<boolean> {
   ]);
 
   if (order.promo_code) {
-      await service.rpc('increment_promo_usage', { code_val: order.promo_code }).catch(console.error);
+      const { error: rpcErr } = await service.rpc('increment_promo_usage', { code_val: order.promo_code });
+      if (rpcErr) console.error(rpcErr);
       
       const { data: refCode } = await service
         .from('referral_codes')
@@ -42,13 +43,14 @@ export async function fulfillOrderIfPending(orderId: string): Promise<boolean> {
         .single();
         
       if (refCode?.user_id) {
-        await service.from('affiliate_commissions').insert({
+        const { error: commErr } = await service.from('affiliate_commissions').insert({
           affiliate_id: refCode.user_id,
           order_id: order.id,
           referral_code: order.promo_code,
           commission_amount: order.amount * 0.10,
           status: 'pending'
-        }).catch(console.error);
+        });
+        if (commErr) console.error(commErr);
       }
   }
   return true;
