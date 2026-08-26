@@ -474,7 +474,7 @@ export default function RoyalImperialViewer({ templateId, flowData, guestName, g
               {s.guestNameFromUrl && (
                 <m.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="flex flex-col items-center gap-4 mb-8">
                   <h3 className="text-3xl md:text-4xl capitalize font-[var(--font-cinzel-dec)]" style={{ color: theme.accent }}>
-                    {s.language === 'ur' ? 'محترم' : 'Dear'} {s.guestNameFromUrl},
+                    {s.language === 'ur' ? 'محترم' : 'Dear'} {s.translatedGuestName},
                   </h3>
                   {s.flowData?.guestSeats != null && (
                     <m.div initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: 0.15 }}
@@ -567,10 +567,10 @@ export default function RoyalImperialViewer({ templateId, flowData, guestName, g
           <RevealSection>
             <section className="py-16 md:py-20 px-6">
               <div className="flex flex-col items-center gap-6">
-                <h2 className="text-3xl sm:text-4xl text-center font-[var(--font-great-vibes)]" style={{ color: theme.accent }}>Our Story</h2>
+                <h2 className="text-3xl sm:text-4xl text-center font-[var(--font-great-vibes)]" style={{ color: theme.accent }}>{s.t('Our Story')}</h2>
                 <ImperialDivider accent={theme.accent} />
                 <div className="w-full max-w-3xl mx-auto rounded-xl overflow-hidden border" style={{ borderColor: getOpacityStyle('border', 0.2) }}>
-                  <div className="aspect-video"><iframe className="w-full h-full" src={`https://www.youtube.com/embed/${s.youtubeVideoId}?rel=0&modestbranding=1`} title="Our Story" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen /></div>
+                  <div className="aspect-video"><iframe className="w-full h-full" src={`https://www.youtube.com/embed/${s.youtubeVideoId}?rel=0&modestbranding=1`} title={s.t('Our Story')} frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen /></div>
                 </div>
               </div>
             </section>

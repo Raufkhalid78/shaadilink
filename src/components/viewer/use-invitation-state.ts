@@ -244,6 +244,7 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
     nikkahDesc: 'مقدس اسلامی شادی کی تقریب — نکاح نامہ کی دستخط',
     walimaDesc: 'دولہا کی طرف سے ولیمہ — ضیافت، دعائیں اور خوشیاں',
     at: 'پر', joinUs: 'میں شامل ہوں', celebration: 'تقریب',
+    'Our Story': 'ہماری کہانی',
   }
 
   const translateToUrdu = useCallback(async () => {
@@ -262,6 +263,7 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
       if (transportation) dynamicTexts.transportation = transportation
       if (accommodation) dynamicTexts.accommodation = accommodation
       if (gifts) dynamicTexts.gifts = gifts
+      if (guestNameFromUrl) dynamicTexts.guestName = guestNameFromUrl
       dynamicEvents.forEach((event, idx) => {
         dynamicTexts[`event${idx}_name`] = event.name
         dynamicTexts[`event${idx}_date`] = event.date
@@ -385,6 +387,7 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
   const translatedAccommodation = language === 'ur' && translations.accommodation ? translations.accommodation : accommodation
   const translatedTransportation = language === 'ur' && translations.transportation ? translations.transportation : transportation
   const translatedGifts = language === 'ur' && translations.gifts ? translations.gifts : gifts
+  const translatedGuestName = language === 'ur' && translations.guestName ? translations.guestName : guestNameFromUrl
 
   return {
     theme, getOpacityStyle,
@@ -407,7 +410,7 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
     // Translated content
     translatedPartner1, translatedPartner2, translatedVenueName, translatedVenueAddress,
     translatedWelcomeMsg, translatedDressCodeWomen, translatedDressCodeMen,
-    translatedAccommodation, translatedTransportation, translatedGifts,
+    translatedAccommodation, translatedTransportation, translatedGifts, translatedGuestName,
     // Helpers
     extractColors, parseGiftDetails, getGoogleCalendarLink, generateICSContent, getOutlookWebLink,
     // flowData pass-through

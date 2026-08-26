@@ -13,8 +13,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 });
     }
 
-    const payload = JSON.parse(rawBody)
-
     // Verify Webhook Signature using crypto (HMAC SHA-512)
     const sigHeader = request.headers.get('x-sfpy-signature') || ''
     const expectedSig = crypto.createHmac('sha512', secret).update(rawBody).digest('hex')
@@ -30,13 +28,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
     }
 
+    const payload = JSON.parse(rawBody)
+
     const service = createServiceClient()
     const eventData = payload.data || payload
     
     // Safely extract the event name/type
     const eventName = (payload.name || payload.type || payload.event || '').toLowerCase()
 
-    const successEvents = ['payment.succeeded', 'payment:created']
+    const successEvents = ['payment.succeeded']
     const failedEvents = ['payment.failed', 'payment:failed']
 
     if (!successEvents.includes(eventName) && !failedEvents.includes(eventName)) {
@@ -91,13 +91,20 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 1. Update order status
-    const { error: updateOrderErr } = await service
+    // 1. Update order status securely, preventing race conditions
+    const { data: updatedOrder, error: updateOrderErr } = await service
       .from('orders')
       .update({ status: 'paid' })
       .eq('id', order.id)
+      .eq('status', 'pending')
+      .select()
+      .single()
 
-    if (updateOrderErr) {
+    if (updateOrderErr || !updatedOrder) {
+      if (!updateOrderErr) {
+        // No rows updated, meaning it was already processed (status != 'pending')
+        return NextResponse.json({ received: true, status: 'already_paid' })
+      }
       console.error("Failed to update order in webhook:", updateOrderErr)
       return NextResponse.json({ error: "Failed to update order" }, { status: 500 })
     }

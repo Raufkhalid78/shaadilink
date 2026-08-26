@@ -68,15 +68,19 @@ async function handleCallback(request: NextRequest) {
 
     const service = createServiceClient()
 
-    // Fetch the order
-    const { data: order, error: orderErr } = await service
-      .from('orders')
-      .select('*')
-      .eq('id', orderId)
-      .single()
+    // Fetch the order securely. If the signature is valid, fetch via the verified tracker.
+    // If not, fetch via orderId just to check if it's already paid by a webhook.
+    let orderQuery = service.from('orders').select('*');
+    if (isSignatureValid && tracker) {
+      orderQuery = orderQuery.eq('tracker', tracker);
+    } else {
+      orderQuery = orderQuery.eq('id', orderId);
+    }
+
+    const { data: order, error: orderErr } = await orderQuery.single()
 
     if (orderErr || !order) {
-      console.error('Order not found in database:', orderId, orderErr)
+      console.error('Order not found in database:', isSignatureValid ? tracker : orderId, orderErr)
       return NextResponse.redirect(
         `${siteUrl}/?step=payment&paymentError=${encodeURIComponent('Associated order record not found')}`,
         { status: 303 }
@@ -112,17 +116,16 @@ async function handleCallback(request: NextRequest) {
 
     // Activate the invitation and update the selected plan
     const updatePayload: any = { is_active: true, plan: order.plan }
-    // Prefer the quota from the callback URL param; fall back to what was stored in the order
-    const resolvedQuota = (searchParams.has('guest_links_quota') && targetGuestLinksQuota > 0)
-      ? targetGuestLinksQuota
-      : (order.target_guest_links_quota > 0 ? order.target_guest_links_quota : null)
+    
+    // STRICT QUOTA ENFORCEMENT: ONLY USE DB QUOTA (Fix C-02)
+    const resolvedQuota = order.target_guest_links_quota > 0 ? order.target_guest_links_quota : null;
     if (resolvedQuota !== null) {
       updatePayload.guest_links_quota = resolvedQuota
     }
 
-    // Run updates concurrently
+    // Run updates concurrently securely using the verified order.id
     const [orderUpdate, invUpdateRes, profileUpdate] = await Promise.all([
-      service.from('orders').update({ status: 'paid' }).eq('id', orderId),
+      service.from('orders').update({ status: 'paid' }).eq('id', order.id).eq('status', 'pending'),
       service.from('invitations').update(updatePayload).eq('id', order.invitation_id),
       service.from('profiles').update({ plan: order.plan }).eq('id', order.user_id)
     ]);

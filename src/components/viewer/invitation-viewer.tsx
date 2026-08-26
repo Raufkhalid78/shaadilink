@@ -494,6 +494,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
     requestHonour: 'آپ کی موجودگی کی عزت کی درخواست ہے',
     scratchReveal: 'دعوت نامہ دیکھنے کے لیے',
     ourMoments: 'ہماری یادگاریں',
+    'Our Story': '????? ?????',
     countingDown: 'ہمیشہ کی طرف گنتی',
     days: 'دن',
     hours: 'گھنٹے',
@@ -576,6 +577,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
       if (transportation) dynamicTexts.transportation = transportation
       if (accommodation) dynamicTexts.accommodation = accommodation
       if (gifts) dynamicTexts.gifts = gifts
+      if (guestNameFromUrl) dynamicTexts.guestName = guestNameFromUrl
 
       dynamicTexts.scratchHere = '✦  Scratch Here  ✦'
       dynamicTexts.toReveal = 'to reveal your invitation'
@@ -794,6 +796,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
   const translatedAccommodation = language === 'ur' && translations.accommodation ? translations.accommodation : accommodation
   const translatedTransportation = language === 'ur' && translations.transportation ? translations.transportation : transportation
   const translatedGifts = language === 'ur' && translations.gifts ? translations.gifts : gifts
+  const translatedGuestName = language === 'ur' && translations.guestName ? translations.guestName : guestNameFromUrl
 
   // Translated dynamic content
   const translatedPartner1 = language === 'ur' && translations.partner1 ? translations.partner1 : partner1
@@ -1077,7 +1080,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
               {guestNameFromUrl && (
                 <m.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="flex flex-col items-center gap-4 mb-8">
                   <h3 className={`${theme.fontDisplay} text-3xl md:text-4xl capitalize`} style={{ color: theme.accent }}>
-                    {language === 'ur' ? 'محترم' : 'Dear'} {guestNameFromUrl},
+                    {language === 'ur' ? 'محترم' : 'Dear'} {translatedGuestName},
                   </h3>
                   {flowData?.guestSeats != null && (
                     <m.div
@@ -1203,7 +1206,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
             <RevealSection>
               <section className="py-16 md:py-20 px-6">
                 <div className="flex flex-col items-center gap-6">
-                  <h2 className={`${theme.fontCalligraphy} text-3xl sm:text-4xl text-center`} style={{ color: theme.accent }}>Our Story</h2>
+                  <h2 className={`${theme.fontCalligraphy} text-3xl sm:text-4xl text-center`} style={{ color: theme.accent }}>{s.t('Our Story')}</h2>
                   <HeartDivider themeId={theme.id} accentColor={theme.accent} />
                   <div className="w-full max-w-3xl mx-auto">
                     <div 
@@ -1740,10 +1743,10 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
                   <User className="w-4 h-4" style={{ color: theme.accent }} />
                   <span className={`${theme.fontDisplay} text-sm font-medium`} style={{ color: theme.accentLight }}>
                     {flowData.guestSeats === 0
-                      ? (language === 'ur' ? `${guestNameFromUrl} — پوری فیملی مدعو` : `${guestNameFromUrl} — Whole Family Invited`)
+                      ? (language === 'ur' ? `${translatedGuestName} — پوری فیملی مدعو` : `${translatedGuestName} — Whole Family Invited`)
                       : flowData.guestSeats === 1
-                      ? `${guestNameFromUrl} — 1 Person Invited`
-                      : `${guestNameFromUrl} — ${flowData.guestSeats} ${flowData.guestSeats === 1 ? 'Person' : 'Persons'} Invited`}
+                      ? `${translatedGuestName} — 1 Person Invited`
+                      : `${translatedGuestName} — ${flowData.guestSeats} ${flowData.guestSeats === 1 ? 'Person' : 'Persons'} Invited`}
                   </span>
                 </m.div>
               )}

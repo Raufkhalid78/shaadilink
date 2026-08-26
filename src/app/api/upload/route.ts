@@ -22,16 +22,19 @@ export async function POST(request: NextRequest) {
     const uploadedUrls: string[] = []
 
     for (const file of files) {
-      if (!file.type.startsWith('image/')) {
-        continue
+      const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+      const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif']
+      
+      const ext = file.name.split('.').pop()?.toLowerCase() ?? ''
+
+      if (!allowedMimeTypes.includes(file.type) || !allowedExtensions.includes(ext)) {
+        return NextResponse.json({ error: `Invalid file type or extension: ${file.name}` }, { status: 400 })
       }
 
       // Max 10MB per file
       if (file.size > 10 * 1024 * 1024) {
         return NextResponse.json({ error: `File ${file.name} exceeds 10MB limit` }, { status: 400 })
       }
-
-      const ext = file.name.split('.').pop() ?? 'jpg'
       const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
       const buffer = await file.arrayBuffer()
 

@@ -84,12 +84,29 @@ export default async function InvitationPage({ params, searchParams }: { params:
     notFound();
   }
 
-  const rawGuestName = guest ? guest.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : null;
-  const guestName = (invitation as any).personalized_guest_links ? rawGuestName : rawGuestName;
-  // Parse allowed events and seat count from URL
-  const guestAllowedEvents = events ? events.split(',').filter(Boolean) : null;
-  // seats=0 means "Whole Family" (no specific count limit), seats=N means N seats, missing means no badge
-  const guestSeats = seats !== undefined && seats !== null ? (parseInt(seats) >= 0 ? parseInt(seats) : null) : null;
+  let rawGuestName = null;
+  let guestAllowedEvents = null;
+  let guestSeats = null;
+
+  if (guest) {
+    const { data: guestLink } = await supabase
+      .from("guest_links")
+      .select("guest_name, allowed_events, seats")
+      .eq("invitation_id", invitation.id)
+      .eq("guest_slug", guest)
+      .single();
+
+    if (guestLink) {
+      rawGuestName = guestLink.guest_name;
+      guestAllowedEvents = guestLink.allowed_events;
+      guestSeats = guestLink.seats !== null ? guestLink.seats : null;
+    } else {
+      // Fallback if not found in db, just use the name from slug but no restrictions
+      rawGuestName = guest.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    }
+  }
+
+  const guestName = rawGuestName;
 
   // Build flowData from DB record
   const flowData = {

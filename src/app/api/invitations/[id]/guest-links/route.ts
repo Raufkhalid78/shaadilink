@@ -49,10 +49,13 @@ export async function POST(
     const service = createServiceClient()
     const { data: inv } = await service
       .from('invitations')
-      .select('id, user_id, guest_links_quota')
+      .select('id, user_id, guest_links_quota, is_active')
       .eq('id', id)
       .single()
     if (!inv || inv.user_id !== user.id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    if (!inv.is_active) {
+      return NextResponse.json({ error: 'Premium plan required or payment pending' }, { status: 403 })
+    }
     const quota = inv.guest_links_quota ?? 0
     const { count } = await service
       .from('guest_links')

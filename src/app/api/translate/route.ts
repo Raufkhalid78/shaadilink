@@ -34,7 +34,11 @@ export async function POST(request: NextRequest) {
         apiKey: process.env.OPENROUTER_API_KEY,
       });
 
-      const prompt = `You are a professional Urdu translator specializing in Pakistani wedding invitations. Translate all text values of the input JSON object to elegant, formal Urdu suitable for wedding invitations. Keep the JSON keys exactly identical. Do not translate names if they are already Urdu names (like Ahmed, Fatima, Ayesha) but write them in beautiful Urdu script. Translate addresses, timeline descriptions, welcome messages, dress codes, and blessings into high-quality, culturally appropriate Urdu.
+      const prompt = `You are a professional Urdu translator specializing in Pakistani wedding invitations. Translate all text values of the input JSON object to elegant, formal Urdu suitable for wedding invitations. Keep the JSON keys exactly identical. 
+
+CRITICAL INSTRUCTION FOR NAMES: When converting English names to Urdu script, DO NOT replace them with similar-sounding names (e.g., do NOT change "Alisha" to "Aliya" (عالیہ)). You must transliterate them phonetically exactly as they are spelled. For example, "Alisha" must be transliterated as "علیشا" and "Ansar" as "انصر".
+
+Translate addresses, timeline descriptions, welcome messages, dress codes, and blessings into high-quality, culturally appropriate Urdu.
 
 Return ONLY a valid JSON object. Do not include markdown (do not wrap in backticks), do not include any explanatory text, just the raw JSON.
 
