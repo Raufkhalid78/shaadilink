@@ -17,10 +17,16 @@ const redis = hasRedisConfig
     } as unknown as Redis);
 
 // Helper function to return a dummy limiter if Redis is not configured
-const createLimiter = (options: { redis: Redis; limiter: any }) => {
+const createLimiter = (options: { redis: Redis; limiter: any; failClosed?: boolean }) => {
   if (!hasRedisConfig) {
     return {
-      limit: () => Promise.resolve({ success: true, pending: Promise.resolve(), limit: 10, remaining: 9, reset: 0 }),
+      limit: () => Promise.resolve({ 
+        success: !options.failClosed, 
+        pending: Promise.resolve(), 
+        limit: 10, 
+        remaining: 9, 
+        reset: 0 
+      }),
     };
   }
   return new Ratelimit(options);
@@ -39,21 +45,25 @@ export const newsletterLimiter = createLimiter({
 export const paymentLimiter = createLimiter({
   redis,
   limiter: Ratelimit.slidingWindow(10, '1 h'),
+  failClosed: true
 });
 
 export const translateLimiter = createLimiter({
   redis,
   limiter: Ratelimit.slidingWindow(30, '1 m'),
+  failClosed: true
 });
 
 export const chatLimiter = createLimiter({
   redis,
   limiter: Ratelimit.slidingWindow(10, '1 m'),
+  failClosed: true
 });
 
 export const resolveLimiter = createLimiter({
   redis,
   limiter: Ratelimit.slidingWindow(5, '1 m'),
+  failClosed: true
 });
 
 export const rsvpLimiter = createLimiter({
@@ -64,4 +74,9 @@ export const rsvpLimiter = createLimiter({
 export const wishesLimiter = createLimiter({
   redis,
   limiter: Ratelimit.slidingWindow(5, '10 m'),
+});
+
+export const affiliateLimiter = createLimiter({
+  redis,
+  limiter: Ratelimit.slidingWindow(3, '1 d'),
 });

@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ShoppingBag } from 'lucide-react';
 import { CouponManager } from '@/components/admin/coupon-manager';
@@ -6,7 +6,7 @@ import { CouponManager } from '@/components/admin/coupon-manager';
 export const dynamic = 'force-dynamic';
 
 export default async function AdminCoupons() {
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const { data: coupons } = await supabase.from('referral_codes').select('*').order('created_at', { ascending: false });
 
   return (

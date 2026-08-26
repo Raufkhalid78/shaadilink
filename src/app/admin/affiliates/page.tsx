@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, DollarSign } from 'lucide-react';
 import { AffiliateManager } from '@/components/admin/affiliate-manager';
@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 export const dynamic = 'force-dynamic';
 
 export default async function AdminAffiliates() {
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const [
     { data: affiliates },
     { data: commissions }

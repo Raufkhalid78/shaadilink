@@ -26,12 +26,16 @@ export async function POST(
     // Validate invitation ownership and quota
     const { data: inv } = await service
       .from('invitations')
-      .select('id, user_id, guest_links_quota')
+      .select('id, user_id, guest_links_quota, is_active')
       .eq('id', id)
       .single()
       
     if (!inv || inv.user_id !== user.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    if (!inv.is_active) {
+      return NextResponse.json({ error: 'Invitation is not active yet.' }, { status: 403 })
     }
 
     const quota = inv.guest_links_quota ?? 0

@@ -101,8 +101,8 @@ export default async function InvitationPage({ params, searchParams }: { params:
       guestAllowedEvents = guestLink.allowed_events;
       guestSeats = guestLink.seats !== null ? guestLink.seats : null;
     } else {
-      // Fallback if not found in db, just use the name from slug but no restrictions
-      rawGuestName = guest.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      // Fallback if not found in db: ignore to prevent fake guest spoofing
+      rawGuestName = null;
     }
   }
 

@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Mailbox } from 'lucide-react';
 import { SubscriberManager } from '@/components/admin/subscriber-manager';
@@ -6,7 +6,7 @@ import { SubscriberManager } from '@/components/admin/subscriber-manager';
 export const dynamic = 'force-dynamic';
 
 export default async function AdminSubscribers() {
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const { data: subscribers } = await supabase.from('newsletter_subscribers').select('*').order('created_at', { ascending: false });
 
   return (

@@ -1,10 +1,10 @@
-import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 import ReviewsClient from './reviews-client';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminReviewsPage() {
-  const supabase = await createClient();
+  const supabase = createServiceClient();
 
   const { data: reviews, error } = await supabase
     .from('reviews')

@@ -4,9 +4,16 @@ import {
   sendAffiliateApplicationAdminAlert,
   sendAffiliateApplicationConfirmation,
 } from '@/lib/resend'
+import { affiliateLimiter } from '@/lib/rate-limit'
 
 export async function POST(request: NextRequest) {
   try {
+    const ip = request.headers.get('x-forwarded-for') ?? '127.0.0.1'
+    const { success } = await affiliateLimiter.limit(ip)
+    if (!success) {
+      return NextResponse.json({ error: 'Too many requests. Please try again tomorrow.' }, { status: 429 })
+    }
+
     const body = await request.json()
     const { name, email, socialId, promotionPlan } = body
 
@@ -19,6 +26,10 @@ export async function POST(request: NextRequest) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email)) {
       return NextResponse.json({ error: 'Invalid email address' }, { status: 400 })
+    }
+
+    if (name.length > 100 || email.length > 255 || (socialId && socialId.length > 255) || promotionPlan.length > 1000) {
+      return NextResponse.json({ error: 'Payload size exceeded limits' }, { status: 400 })
     }
 
     const cleanEmail = email.trim().toLowerCase()

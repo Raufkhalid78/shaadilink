@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import crypto from 'crypto'
+import { fulfillOrderIfPending } from '@/lib/fulfillment'
 
 function secureCompare(a: string, b: string) {
   if (typeof a !== 'string' || typeof b !== 'string') return false
@@ -114,35 +115,7 @@ async function handleCallback(request: NextRequest) {
 
     // Order fetch already happened above. Now we just process the paid logic if signature is valid.
 
-    // Activate the invitation and update the selected plan
-    const updatePayload: any = { is_active: true, plan: order.plan }
-    
-    // STRICT QUOTA ENFORCEMENT: ONLY USE DB QUOTA (Fix C-02)
-    const resolvedQuota = order.target_guest_links_quota > 0 ? order.target_guest_links_quota : null;
-    if (resolvedQuota !== null) {
-      updatePayload.guest_links_quota = resolvedQuota
-    }
-
-    // Run updates concurrently securely using the verified order.id
-    const [orderUpdate, invUpdateRes, profileUpdate] = await Promise.all([
-      service.from('orders').update({ status: 'paid' }).eq('id', order.id).eq('status', 'pending'),
-      service.from('invitations').update(updatePayload).eq('id', order.invitation_id),
-      service.from('profiles').update({ plan: order.plan }).eq('id', order.user_id)
-    ]);
-
-    if (orderUpdate.error) {
-      console.error('Failed to update order status:', orderUpdate.error)
-      return NextResponse.redirect(
-        `${siteUrl}/?step=payment&paymentError=${encodeURIComponent('Failed to update order record status')}`,
-        { status: 303 }
-      )
-    }
-    if (invUpdateRes.error) {
-      console.error('Failed to update invitation status:', invUpdateRes.error)
-    }
-    if (profileUpdate.error) {
-      console.error('Failed to update profile plan:', profileUpdate.error)
-    }
+    await fulfillOrderIfPending(order.id);
 
     // Successful checkout: redirect browser to Success step
     return NextResponse.redirect(`${siteUrl}/?step=success&invitationId=${order.invitation_id}`, { status: 303 })

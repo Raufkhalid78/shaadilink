@@ -18,6 +18,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No files provided' }, { status: 400 })
     }
 
+    if (files.length > 5) {
+      return NextResponse.json({ error: 'Maximum 5 files allowed per request' }, { status: 400 })
+    }
+
+    const totalSize = files.reduce((acc, file) => acc + file.size, 0)
+    if (totalSize > 20 * 1024 * 1024) {
+      return NextResponse.json({ error: 'Total upload size exceeds 20MB limit' }, { status: 400 })
+    }
+
     const service = createServiceClient()
     const uploadedUrls: string[] = []
 

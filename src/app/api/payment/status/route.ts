@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { fulfillOrderIfPending } from '@/lib/fulfillment'
 
 export async function GET(request: NextRequest) {
   try {
@@ -43,16 +44,7 @@ export async function GET(request: NextRequest) {
         const state = trackerResponse?.data?.tracker?.state
 
         if (state === 'TRACKER_ENDED') {
-          const invUpdate: Record<string, unknown> = { is_active: true, plan: order.plan }
-          if (order.target_guest_links_quota > 0) {
-            invUpdate.guest_links_quota = order.target_guest_links_quota
-          }
-
-          await Promise.all([
-            service.from('orders').update({ status: 'paid' }).eq('id', order.id),
-            service.from('invitations').update(invUpdate).eq('id', order.invitation_id),
-            service.from('profiles').update({ plan: order.plan }).eq('id', order.user_id)
-          ]);
+          await fulfillOrderIfPending(order.id);
 
           order.status = 'paid'
         }

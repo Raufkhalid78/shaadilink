@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import crypto from 'crypto'
+import { fulfillOrderIfPending } from '@/lib/fulfillment'
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,8 +19,13 @@ export async function POST(request: NextRequest) {
     const expectedSig = crypto.createHmac('sha512', secret).update(rawBody).digest('hex')
     const expectedSig256 = crypto.createHmac('sha256', secret).update(rawBody).digest('hex') // Legacy fallback
 
+    const secureCompare = (a: string, b: string) => {
+      if (typeof a !== 'string' || typeof b !== 'string' || a.length !== b.length) return false;
+      return crypto.timingSafeEqual(Buffer.from(a, 'utf8'), Buffer.from(b, 'utf8'));
+    }
+
     let isValid = false
-    if (sigHeader === expectedSig || sigHeader === expectedSig256) {
+    if (secureCompare(sigHeader, expectedSig) || secureCompare(sigHeader, expectedSig256)) {
       isValid = true
     }
 
@@ -91,68 +97,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 1. Update order status securely, preventing race conditions
-    const { data: updatedOrder, error: updateOrderErr } = await service
-      .from('orders')
-      .update({ status: 'paid' })
-      .eq('id', order.id)
-      .eq('status', 'pending')
-      .select()
-      .single()
-
-    if (updateOrderErr || !updatedOrder) {
-      if (!updateOrderErr) {
-        // No rows updated, meaning it was already processed (status != 'pending')
-        return NextResponse.json({ received: true, status: 'already_paid' })
-      }
-      console.error("Failed to update order in webhook:", updateOrderErr)
-      return NextResponse.json({ error: "Failed to update order" }, { status: 500 })
-    }
-
-    // 2. Update invitation status and quota (if a quota top-up was ordered)
-    const invUpdate: Record<string, unknown> = { is_active: true, plan: order.plan }
-    if (order.target_guest_links_quota > 0) {
-      invUpdate.guest_links_quota = order.target_guest_links_quota
-    }
-    await service
-      .from('invitations')
-      .update(invUpdate)
-      .eq('id', order.invitation_id)
-
-    // 3. Update profile plan
-    await service
-      .from('profiles')
-      .update({ plan: order.plan })
-      .eq('id', order.user_id)
-      
-    // 4. Increment promo code usage and calculate affiliate commission if applied
-    if (order.promo_code) {
-      const { error: promoErr } = await service.rpc('increment_promo_usage', { code_val: order.promo_code });
-      if (promoErr) {
-        console.error('Failed to increment promo usage:', promoErr);
-      }
-
-      // Fetch referral code details to see if it belongs to an affiliate
-      const { data: refCode } = await service
-        .from('referral_codes')
-        .select('user_id')
-        .eq('code', order.promo_code)
-        .single();
-
-      if (refCode?.user_id) {
-        // Calculate 10% commission of the final order amount
-        const commissionAmount = order.amount * 0.10;
-        const { error: commErr } = await service.from('affiliate_commissions').insert({
-          affiliate_id: refCode.user_id,
-          order_id: order.id,
-          referral_code: order.promo_code,
-          commission_amount: commissionAmount,
-          status: 'pending'
-        });
-        if (commErr) console.error('Failed to save affiliate commission:', commErr);
-      }
-    }
-
+    await fulfillOrderIfPending(order.id);
     console.log("Safepay webhook successfully processed payment for order:", order.id)
 
     return NextResponse.json({ received: true, success: true })

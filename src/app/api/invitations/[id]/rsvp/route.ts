@@ -74,9 +74,12 @@ export async function POST(
         status,
       })
       .select()
-      .single()
+      .maybeSingle()
 
     if (error) {
+      if (error.code === '23505') { // Unique violation
+        return NextResponse.json({ error: 'You have already submitted an RSVP for this invitation.' }, { status: 409 })
+      }
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 

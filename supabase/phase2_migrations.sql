@@ -48,10 +48,10 @@ CREATE TABLE IF NOT EXISTS public.guest_links (
 CREATE TABLE IF NOT EXISTS public.referral_codes (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   code TEXT UNIQUE NOT NULL,
-  owner_user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
   discount_percent INTEGER NOT NULL CHECK (discount_percent > 0 AND discount_percent <= 100),
   max_uses INTEGER DEFAULT 0, -- 0 means unlimited
-  uses_count INTEGER DEFAULT 0,
+  current_uses INTEGER DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -84,4 +84,15 @@ CREATE POLICY "guest_links_select_public_token" ON public.guest_links FOR SELECT
 
 -- Referral codes policies
 CREATE POLICY "referral_codes_select_public" ON public.referral_codes FOR SELECT USING (TRUE);
-CREATE POLICY "referral_codes_select_owner" ON public.referral_codes FOR ALL USING (auth.uid() = owner_user_id);
+CREATE POLICY "referral_codes_select_owner" ON public.referral_codes FOR ALL USING (auth.uid() = user_id);
+
+CREATE OR REPLACE FUNCTION public.increment_promo_usage(code_val TEXT)
+RETURNS void AS $$
+BEGIN
+  UPDATE public.referral_codes
+  SET current_uses = current_uses + 1
+  WHERE code = code_val;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+-- Add uniqueness constraint for RSVPs to prevent duplicates
+CREATE UNIQUE INDEX IF NOT EXISTS rsvps_invitation_identity_idx ON public.rsvps (invitation_id, COALESCE(guest_email, guest_name));

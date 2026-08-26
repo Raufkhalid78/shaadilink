@@ -1,11 +1,11 @@
-import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 import { ExternalLink, CheckCircle2, XCircle } from 'lucide-react';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminInvitationsPage(props: { searchParams: Promise<{ q?: string }> }) {
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const searchParams = await props.searchParams;
   const q = searchParams.q || '';
 
