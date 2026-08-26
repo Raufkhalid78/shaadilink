@@ -40,14 +40,16 @@ export function GoldDustSplash({ show, colors: propColors }: { show: boolean; co
     resize()
     window.addEventListener('resize', resize)
 
+    const isMobile = window.innerWidth < 768
     // Spawn initial burst of particles along the center seam
-    const count = 60
+    const count = isMobile ? 20 : 60
+    const maxParticles = isMobile ? 25 : 80
     const w = window.innerWidth
     const h = window.innerHeight
     const particles: GDParticle[] = []
     for (let i = 0; i < count; i++) {
       const isLeft = Math.random() < 0.5
-      const vx = (isLeft ? -1 : 1) * (2 + Math.random() * 10)
+      const vx = (isLeft ? -1 : 1) * (2 + Math.random() * (isMobile ? 6 : 10))
       const vy = (Math.random() - 0.5) * 3
       particles.push({
         x: w / 2,
@@ -56,9 +58,9 @@ export function GoldDustSplash({ show, colors: propColors }: { show: boolean; co
         vy,
         swaySpeed: 0.02 + Math.random() * 0.05,
         swayOffset: Math.random() * Math.PI * 2,
-        life: 60 + Math.random() * 90,
-        maxLife: 150,
-        size: 1.5 + Math.random() * 3,
+        life: 50 + Math.random() * (isMobile ? 50 : 90),
+        maxLife: isMobile ? 100 : 150,
+        size: 1.5 + Math.random() * (isMobile ? 2 : 3),
         color: colors[Math.floor(Math.random() * colors.length)],
         rotation: Math.random() * Math.PI * 2,
         rotSpeed: (Math.random() - 0.5) * 0.08,
@@ -72,12 +74,12 @@ export function GoldDustSplash({ show, colors: propColors }: { show: boolean; co
       const current = particlesRef.current
 
       // Spawn a few more tailing particles for a continuous flow
-      if (current.length < 80 && Math.random() < 0.6) {
+      if (current.length < maxParticles && Math.random() < (isMobile ? 0.3 : 0.6)) {
         const isLeft = Math.random() < 0.5
         current.push({
           x: window.innerWidth / 2,
           y: Math.random() * window.innerHeight,
-          vx: (isLeft ? -1 : 1) * (1 + Math.random() * 6),
+          vx: (isLeft ? -1 : 1) * (1 + Math.random() * (isMobile ? 4 : 6)),
           vy: (Math.random() - 0.5) * 2,
           swaySpeed: 0.02 + Math.random() * 0.05,
           swayOffset: Math.random() * Math.PI * 2,

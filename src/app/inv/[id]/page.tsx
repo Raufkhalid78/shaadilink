@@ -5,10 +5,12 @@ import InvitationViewerWrapper from "./invitation-viewer-wrapper";
 
 interface Props {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ guest?: string; events?: string; seats?: string }>;
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { id } = await params;
+  const { guest } = (await searchParams) || {};
   const cleanId = id.replace(/%20| /g, "-");
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanId);
   const supabase = await createClient();
@@ -22,23 +24,37 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: "Wedding Invitation | ShaadiLink" };
   }
 
-  const names = `${data.partner1_name} & ${data.partner2_name}`;
+  const names = `${data.partner1_name || 'Wedding'} & ${data.partner2_name || 'Invitation'}`;
+  const guestQuery = guest ? `&guest=${encodeURIComponent(guest)}` : '';
+  const ogImageUrl = `/api/og/invitation?id=${encodeURIComponent(cleanId)}${guestQuery}`;
+
   return {
     title: `${names} — Wedding Invitation | ShaadiLink`,
-    description: `You are invited to the wedding of ${names} at ${data.venue}. View the beautiful digital invitation on ShaadiLink.`,
+    description: `You are invited to the wedding celebration of ${names}${data.venue ? ` at ${data.venue}` : ''}. View the digital invitation on ShaadiLink.`,
     robots: {
       index: false,
       follow: false,
     },
     openGraph: {
       title: `${names} — Wedding Invitation`,
-      description: `You are invited to the wedding celebration of ${names}.`,
-      images: data.hero_image_url ? [{ url: data.hero_image_url }] : [],
+      description: `You are invited to the wedding celebration of ${names}. Touch & open the digital invitation.`,
+      url: `https://www.shaadilink.com.pk/inv/${cleanId}`,
+      siteName: 'ShaadiLink',
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${names} Wedding Invitation`,
+        },
+      ],
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
       title: `${names} — Wedding Invitation`,
+      description: `You are invited to the wedding celebration of ${names}. Touch & open the digital invitation.`,
+      images: [ogImageUrl],
     },
   };
 }

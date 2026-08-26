@@ -34,40 +34,43 @@ export function FireworksDisplay({ show, colors: propColors }: { show: boolean; 
     const particles: FParticle[] = []
     const colors = propColors || ['#b4914d', '#d4a853', '#e8c66a', '#8b6d2f', '#fff4d0', '#f0d78c', '#ffd700', '#ffe4b5', '#f5deb3']
 
+    const isMobile = window.innerWidth < 768
+    const maxBursts = isMobile ? 5 : 9
+
     function createBurst(x: number, y: number) {
-      const count = 60 + Math.floor(Math.random() * 30)
+      const count = isMobile ? (22 + Math.floor(Math.random() * 12)) : (60 + Math.floor(Math.random() * 30))
       for (let i = 0; i < count; i++) {
         const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.4
         particles.push({
           x, y,
           color: colors[Math.floor(Math.random() * colors.length)],
-          size: 1.5 + Math.random() * 3,
+          size: 1.5 + Math.random() * (isMobile ? 2 : 3),
           angle,
-          speed: 2 + Math.random() * 6,
-          decay: 0.007 + Math.random() * 0.012,
+          speed: 2 + Math.random() * (isMobile ? 4 : 6),
+          decay: 0.009 + Math.random() * 0.015,
           trail: [],
         })
       }
     }
 
-    // Initial big burst
+    // Initial bursts
     createBurst(canvas.width * 0.5, canvas.height * 0.25)
     const t1 = setTimeout(() => createBurst(canvas.width * 0.25, canvas.height * 0.35), 300)
     const t2 = setTimeout(() => createBurst(canvas.width * 0.75, canvas.height * 0.3), 500)
     const t3 = setTimeout(() => createBurst(canvas.width * 0.35, canvas.height * 0.2), 800)
-    const t4 = setTimeout(() => createBurst(canvas.width * 0.65, canvas.height * 0.45), 1000)
-    const t5 = setTimeout(() => createBurst(canvas.width * 0.15, canvas.height * 0.4), 1300)
-    const t6 = setTimeout(() => createBurst(canvas.width * 0.85, canvas.height * 0.25), 1500)
-    const t7 = setTimeout(() => createBurst(canvas.width * 0.5, canvas.height * 0.5), 1800)
-    const t8 = setTimeout(() => createBurst(canvas.width * 0.4, canvas.height * 0.15), 2100)
+    const t4 = !isMobile ? setTimeout(() => createBurst(canvas.width * 0.65, canvas.height * 0.45), 1000) : null
+    const t5 = !isMobile ? setTimeout(() => createBurst(canvas.width * 0.15, canvas.height * 0.4), 1300) : null
+    const t6 = !isMobile ? setTimeout(() => createBurst(canvas.width * 0.85, canvas.height * 0.25), 1500) : null
+    const t7 = !isMobile ? setTimeout(() => createBurst(canvas.width * 0.5, canvas.height * 0.5), 1800) : null
+    const t8 = !isMobile ? setTimeout(() => createBurst(canvas.width * 0.4, canvas.height * 0.15), 2100) : null
 
     function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
       for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i]
-        // Store trail positions
+        // Store trail positions (max 2 on mobile, 4 on desktop)
         p.trail.push({ x: p.x, y: p.y })
-        if (p.trail.length > 5) p.trail.shift()
+        if (p.trail.length > (isMobile ? 2 : 4)) p.trail.shift()
 
         p.x += Math.cos(p.angle) * p.speed
         p.y += Math.sin(p.angle) * p.speed + 0.3
@@ -95,12 +98,14 @@ export function FireworksDisplay({ show, colors: propColors }: { show: boolean; 
         ctx.globalAlpha = alpha
         ctx.fill()
 
-        // Glow
-        ctx.beginPath()
-        ctx.arc(p.x, p.y, p.size * 2.5, 0, Math.PI * 2)
-        ctx.fillStyle = p.color
-        ctx.globalAlpha = alpha * 0.1
-        ctx.fill()
+        // Glow (desktop only for 60fps mobile smoothness)
+        if (!isMobile) {
+          ctx.beginPath()
+          ctx.arc(p.x, p.y, p.size * 2, 0, Math.PI * 2)
+          ctx.fillStyle = p.color
+          ctx.globalAlpha = alpha * 0.08
+          ctx.fill()
+        }
       }
       ctx.globalAlpha = 1
       if (particles.length > 0) animRef.current = requestAnimationFrame(animate)
@@ -117,7 +122,9 @@ export function FireworksDisplay({ show, colors: propColors }: { show: boolean; 
     return () => {
       cancelAnimationFrame(animRef.current)
       window.removeEventListener('resize', handleResize)
-      ;[t1,t2,t3,t4,t5,t6,t7,t8].forEach(clearTimeout)
+      ;[t1, t2, t3, t4, t5, t6, t7, t8].forEach((t) => {
+        if (t) clearTimeout(t)
+      })
     }
   }, [show])
 

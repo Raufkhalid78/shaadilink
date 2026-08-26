@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
+import {
+  sendAffiliateApplicationAdminAlert,
+  sendAffiliateApplicationConfirmation,
+} from '@/lib/resend'
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,22 +21,42 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid email address' }, { status: 400 })
     }
 
+    const cleanEmail = email.trim().toLowerCase()
+    const cleanName = name.trim()
+    const cleanSocialId = socialId?.trim() || null
+    const cleanPlan = promotionPlan.trim()
+
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     const service = createServiceClient()
     const { error } = await service.from('affiliate_applications').insert({
       user_id: user?.id || null,
-      name: name.trim(),
-      email: email.trim().toLowerCase(),
-      social_id: socialId?.trim() || null,
-      promotion_plan: promotionPlan.trim(),
+      name: cleanName,
+      email: cleanEmail,
+      social_id: cleanSocialId,
+      promotion_plan: cleanPlan,
       status: 'pending',
     })
 
     if (error) {
       console.error('Affiliate insert error:', error)
       return NextResponse.json({ error: 'Failed to save application' }, { status: 500 })
+    }
+
+    // Send Admin Alert & Applicant Confirmation in background without blocking response
+    try {
+      await Promise.allSettled([
+        sendAffiliateApplicationAdminAlert({
+          name: cleanName,
+          email: cleanEmail,
+          socialId: cleanSocialId,
+          promotionPlan: cleanPlan,
+        }),
+        sendAffiliateApplicationConfirmation(cleanEmail, cleanName),
+      ])
+    } catch (mailErr) {
+      console.error('Affiliate email dispatch warning:', mailErr)
     }
 
     return NextResponse.json({ success: true }, { status: 201 })

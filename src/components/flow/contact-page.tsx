@@ -15,6 +15,7 @@ import {
   Phone,
   Loader2,
 } from "lucide-react";
+import { WhatsAppIcon } from "@/components/icons/whatsapp-icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -160,6 +161,23 @@ export function ContactPage({ onBack }: ContactPageProps) {
                       <div>
                         <p className="font-medium text-foreground text-sm">Phone</p>
                         <p className="text-muted-foreground text-sm">{CONTACT_CONFIG.phone}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#25D366]/10 text-[#25D366]">
+                        <WhatsAppIcon className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-foreground text-sm">WhatsApp</p>
+                        <a
+                          href={CONTACT_CONFIG.whatsappUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[#25D366] hover:underline text-sm font-semibold transition-colors inline-flex items-center gap-1"
+                        >
+                          Chat on WhatsApp
+                        </a>
                       </div>
                     </div>
 

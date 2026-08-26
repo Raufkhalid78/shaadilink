@@ -160,3 +160,87 @@ export async function sendRecoveryEmail(toEmail: string, orderId: string, plan: 
     return null;
   }
 }
+
+export async function sendAffiliateApplicationAdminAlert(data: {
+  name: string;
+  email: string;
+  socialId?: string | null;
+  promotionPlan: string;
+}) {
+  if (!resend) return null;
+
+  try {
+    const adminEmail = process.env.ADMIN_EMAIL || 'hello@shaadilink.com.pk';
+    return await resend.emails.send({
+      from: 'ShaadiLink System <hello@shaadilink.com.pk>',
+      to: [adminEmail],
+      replyTo: data.email,
+      subject: `New Partner Application: ${data.name} 💼`,
+      text: `New Partner Application Received!\n\nName: ${data.name}\nEmail: ${data.email}\nSocial Link/Channel: ${data.socialId || 'None provided'}\nPromotion Strategy: ${data.promotionPlan}\n\nReview & Approve in Admin Portal: https://www.shaadilink.com.pk/admin/affiliates`,
+      html: getEmailWrapper(
+        'New Partner Application',
+        `${data.name} has applied to join the ShaadiLink Partner Program.`,
+        `
+          <h2 style="color: #022c22; margin-top: 0;">New Partner Application</h2>
+          <p>Hi Admin,</p>
+          <p>A new applicant has submitted their registration for the <strong>ShaadiLink Partner / Affiliate Program</strong>.</p>
+          
+          <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 20px 0;">
+            <p style="margin: 0 0 10px 0; color: #334155;"><strong>Applicant Name:</strong> ${data.name}</p>
+            <p style="margin: 0 0 10px 0; color: #334155;"><strong>Email:</strong> <a href="mailto:${data.email}" style="color: #059669; text-decoration: none;">${data.email}</a></p>
+            <p style="margin: 0 0 10px 0; color: #334155;"><strong>Social Link / Handle:</strong> ${data.socialId ? `<a href="${data.socialId}" target="_blank" style="color: #059669;">${data.socialId}</a>` : 'Not provided'}</p>
+            <p style="margin: 0 0 5px 0; color: #334155;"><strong>Promotion Strategy:</strong></p>
+            <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px; color: #1e293b; font-size: 15px; line-height: 1.6;">
+              ${data.promotionPlan.replace(/\n/g, '<br/>')}
+            </div>
+          </div>
+          
+          <br/>
+          <center>
+            <a href="https://www.shaadilink.com.pk/admin/affiliates" style="background-color: #d4af37; color: #111827; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Review &amp; Approve Application</a>
+          </center>
+        `
+      ),
+    });
+  } catch (error) {
+    console.error('Error sending affiliate admin alert via Resend:', error);
+    return null;
+  }
+}
+
+export async function sendAffiliateApplicationConfirmation(toEmail: string, name: string) {
+  if (!resend) return null;
+
+  try {
+    return await resend.emails.send({
+      from: 'ShaadiLink Partners <hello@shaadilink.com.pk>',
+      to: [toEmail],
+      replyTo: 'hello@shaadilink.com.pk',
+      subject: "We've Received Your ShaadiLink Partner Application! 🤝",
+      text: `Application Received\n\nHi ${name},\n\nThank you for applying to the ShaadiLink Partner Program!\n\nWe have received your application and our team is currently reviewing your details. You will receive an email update within 24 to 48 hours once your application has been processed.\n\nBest regards,\nThe ShaadiLink Team\nhttps://www.shaadilink.com.pk`,
+      html: getEmailWrapper(
+        'Application Received!',
+        'Thank you for applying to the ShaadiLink Partner Program.',
+        `
+          <h2 style="color: #022c22; margin-top: 0;">Application Received!</h2>
+          <p>Hi ${name},</p>
+          <p>Thank you for applying to the <strong>ShaadiLink Partner Program</strong>! We're excited about the opportunity to collaborate with you.</p>
+          <p>Our team is currently reviewing your application. You will receive an email update with your unique referral link and dashboard access once approved (typically within <strong>24 to 48 hours</strong>).</p>
+          
+          <div style="background-color: #f1f5f9; border-radius: 8px; padding: 20px; margin: 25px 0; border-left: 4px solid #d4af37;">
+            <p style="margin: 0; font-size: 14px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Status</p>
+            <p style="margin: 5px 0 0 0; font-size: 18px; font-weight: bold; color: #022c22;">Under Review ⏳</p>
+          </div>
+          
+          <p>If you have any questions in the meantime, simply reply to this email.</p>
+          <br/>
+          <p>Best regards,</p>
+          <p><strong>The ShaadiLink Team</strong></p>
+        `
+      ),
+    });
+  } catch (error) {
+    console.error('Error sending affiliate applicant confirmation via Resend:', error);
+    return null;
+  }
+}

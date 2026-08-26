@@ -29,13 +29,101 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isAutoSaving, setIsAutoSaving] = useState(false);
   const heroInputRef = useRef<HTMLInputElement>(null);
   const slideshowInputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(!!flowData.slug);
-  const [currentStep, setCurrentStep] = useState<number>(1);
+  const [currentStep, setCurrentStep] = useState<number>(() => {
+    if (flowData.lastSavedStep && flowData.lastSavedStep >= 1 && flowData.lastSavedStep <= 4) {
+      return flowData.lastSavedStep;
+    }
+    if (flowData.currentStep && flowData.currentStep >= 1 && flowData.currentStep <= 4) {
+      return flowData.currentStep;
+    }
+    if (flowData.partner1Name && flowData.partner2Name) {
+      if (flowData.venue) {
+        if (flowData.heroImage || flowData.slideshowImages?.length || (flowData.backgroundMusic && flowData.backgroundMusic !== 'soft-sitar')) {
+          return 4;
+        }
+        return 3;
+      }
+      return 2;
+    }
+    return 1;
+  });
   const [isCheckingSlug, setIsCheckingSlug] = useState(false);
   const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null);
+
+  // Auto-save draft function to sync with Supabase and local store
+  const autoSaveDraft = async (stepToSave?: number, showToast = true) => {
+    const nextStep = stepToSave || currentStep;
+    onUpdateData({ currentStep: nextStep, lastSavedStep: Math.max(flowData.lastSavedStep || 1, nextStep) });
+
+    try {
+      setIsAutoSaving(true);
+      const url = isEdit ? `/api/invitations/${flowData.invitationId}` : "/api/invitations";
+      const method = isEdit ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          templateId: flowData.selectedTemplateId || "emerald-noir",
+          plan: flowData.selectedPlan || "classic",
+          partner1Name: flowData.partner1Name,
+          partner2Name: flowData.partner2Name,
+          venue: flowData.venue,
+          venueAddress: flowData.venueAddress,
+          welcomeMessage: flowData.welcomeMessage,
+          backgroundMusic: flowData.backgroundMusic,
+          dressCodeWomen: flowData.dressCodeWomen,
+          dressCodeMen: flowData.dressCodeMen,
+          transportation: flowData.transportation,
+          accommodation: flowData.accommodation,
+          gifts: flowData.gifts,
+          heroImageUrl: flowData.heroImage,
+          slideshowImageUrls: flowData.slideshowImages,
+          events: flowData.events,
+          isActive: flowData.paymentDone ?? false,
+          showBismillah: flowData.showBismillah,
+          showQuranVerse: flowData.showQuranVerse,
+          youtubeVideoId: flowData.youtubeVideoId,
+          slug: flowData.slug || undefined,
+          hostBrideFamily: flowData.hostBrideFamily,
+          hostGroomFamily: flowData.hostGroomFamily,
+          hostBrideCity: flowData.hostBrideCity,
+          hostGroomCity: flowData.hostGroomCity,
+          contactPhone: flowData.contactPhone,
+          isSegregated: flowData.isSegregated,
+          venueDetailsSegregated: flowData.venueDetailsSegregated,
+          showNikahRegistration: flowData.showNikahRegistration,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (!isEdit && data.invitation?.id) {
+          onUpdateData({ invitationId: data.invitation.id });
+        }
+        if (showToast) {
+          toast.success("Progress saved as draft", { duration: 1500 });
+        }
+      }
+    } catch {
+      // Local state is already stored via zustand localStorage
+    } finally {
+      setIsAutoSaving(false);
+    }
+  };
+
+  const goToStep = async (step: number) => {
+    if (step > currentStep && !validateStep(currentStep)) return;
+    setCurrentStep(step);
+    onUpdateData({ currentStep: step, lastSavedStep: Math.max(flowData.lastSavedStep || 1, step) });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    await autoSaveDraft(step, false);
+  };
 
   // Auto-generate slug from partner names if it's not manually edited
   useEffect(() => {
@@ -436,7 +524,22 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
               <StepDot label="Payment" stepNumber={4} />
             </div>
 
-            <div className="w-16" />
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => autoSaveDraft(currentStep, true)}
+                disabled={isSaving || isAutoSaving}
+                className="h-8 px-3 text-xs border-gold/40 text-gold hover:bg-gold/10 font-semibold gap-1.5 shadow-sm"
+              >
+                {isAutoSaving ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Check className="w-3.5 h-3.5 text-emerald" />
+                )}
+                <span className="hidden sm:inline">Save Draft</span>
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -457,7 +560,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
               Fill Your Details
             </h1>
             <p className="text-muted-foreground text-xs sm:text-sm">
-              Enter your wedding details — we&apos;ll transform them into a breathtaking digital invitation.
+              Enter your wedding details — your progress is automatically saved at each step.
             </p>
             {errors.events && <p className="text-sm text-red-500 font-semibold">{errors.events}</p>}
           </div>
@@ -475,10 +578,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
               return (
                 <button
                   key={tab.step}
-                  onClick={() => {
-                    if (tab.step > currentStep && !validateStep(currentStep)) return;
-                    setCurrentStep(tab.step);
-                  }}
+                  onClick={() => goToStep(tab.step)}
                   className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
                     isActive
                       ? "bg-gold text-emerald-dark font-bold shadow-md"
@@ -736,7 +836,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                   <div className="flex justify-end pt-2">
                     <Button
                       onClick={() => {
-                        if (validateStep(1)) setCurrentStep(2);
+                        if (validateStep(1)) goToStep(2);
                       }}
                       className="bg-gold hover:bg-gold-light text-emerald-dark font-bold gap-2 shadow-lg"
                     >
@@ -874,12 +974,12 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                   </section>
 
                   <div className="flex justify-between pt-2">
-                    <Button variant="outline" onClick={() => setCurrentStep(1)}>
+                    <Button variant="outline" onClick={() => goToStep(1)}>
                       <ArrowLeft className="w-4 h-4 mr-1" /> Previous
                     </Button>
                     <Button
                       onClick={() => {
-                        if (validateStep(2)) setCurrentStep(3);
+                        if (validateStep(2)) goToStep(3);
                       }}
                       className="bg-gold hover:bg-gold-light text-emerald-dark font-bold gap-2 shadow-lg"
                     >
@@ -1019,10 +1119,10 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                   </section>
 
                   <div className="flex justify-between pt-2">
-                    <Button variant="outline" onClick={() => setCurrentStep(2)}>
+                    <Button variant="outline" onClick={() => goToStep(2)}>
                       <ArrowLeft className="w-4 h-4 mr-1" /> Previous
                     </Button>
-                    <Button onClick={() => setCurrentStep(4)} className="bg-gold hover:bg-gold-light text-emerald-dark font-bold gap-2 shadow-lg">
+                    <Button onClick={() => goToStep(4)} className="bg-gold hover:bg-gold-light text-emerald-dark font-bold gap-2 shadow-lg">
                       Next: Details &amp; Shagun <ArrowRight className="w-4 h-4" />
                     </Button>
                   </div>
@@ -1251,7 +1351,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                   )}
 
                   <div className="flex items-center justify-between pt-4">
-                    <Button variant="outline" onClick={() => setCurrentStep(3)}>
+                    <Button variant="outline" onClick={() => goToStep(3)}>
                       <ArrowLeft className="w-4 h-4 mr-1" /> Previous
                     </Button>
 

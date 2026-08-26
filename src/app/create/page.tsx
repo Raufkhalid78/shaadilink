@@ -21,12 +21,31 @@ export default function CreateRoute() {
         .then((r) => r.json())
         .then(({ invitation }) => {
           if (invitation) {
+            const p1 = invitation.partner1_name ?? "";
+            const p2 = invitation.partner2_name ?? "";
+            const venue = invitation.venue ?? "";
+            const hero = invitation.hero_image_url;
+            const music = invitation.background_music;
+
+            let resumeStep = 1;
+            if (p1 && p2) {
+              if (venue) {
+                if (hero || (music && music !== 'no-music' && music !== 'soft-sitar')) {
+                  resumeStep = 4;
+                } else {
+                  resumeStep = 3;
+                }
+              } else {
+                resumeStep = 2;
+              }
+            }
+
             setFlowData({
               invitationId: invitation.id,
               selectedTemplateId: invitation.template_id,
-              partner1Name: invitation.partner1_name ?? "",
-              partner2Name: invitation.partner2_name ?? "",
-              venue: invitation.venue ?? "",
+              partner1Name: p1,
+              partner2Name: p2,
+              venue: venue,
               venueAddress: invitation.venue_address ?? "",
               welcomeMessage: invitation.welcome_message ?? "",
               backgroundMusic: invitation.background_music ?? "shaadi-classic",
@@ -48,6 +67,8 @@ export default function CreateRoute() {
               venueDetailsSegregated: invitation.venue_details_segregated ?? "",
               showNikahRegistration: invitation.show_nikah_registration ?? false,
               youtubeVideoId: invitation.youtube_video_id ?? "",
+              currentStep: resumeStep,
+              lastSavedStep: resumeStep,
             });
           }
         })

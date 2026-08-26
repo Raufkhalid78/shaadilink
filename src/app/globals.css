@@ -848,12 +848,34 @@
 .ss-card-float { animation: cardFloat 5s ease-in-out infinite; }
 
 /* ─────────────────────────────────────────────────────
-   📱 MOBILE PERFORMANCE OPTIMIZATIONS
-   Stop heavy animations/effects that destroy perf on
-   low-end Android devices. This targets screens <= 768px.
+   📱 MOBILE PERFORMANCE & RESPONSIVENESS OPTIMIZATIONS
+   Zero-lag smooth rendering on Android & iOS devices
    ───────────────────────────────────────────────────── */
+html, body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
 @media (max-width: 768px) {
-  /* Kill box-shadow pulse loops — these trigger repaints every frame */
+  /* Prevent iOS Safari auto-zoom on input focus */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+
+  /* Instant tap response on touchscreens */
+  button, a, input, select, textarea, [role="button"] {
+    touch-action: manipulation;
+  }
+
+  /* Native momentum scrolling for all scroll containers */
+  .overflow-y-auto, .overflow-x-auto, [class*="overflow-"] {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Kill continuous repaint loops on mobile GPU */
   .animate-button-glow,
   .gold-border-pulse,
   .countdown-pulse,
@@ -876,9 +898,7 @@
     animation: none !important;
   }
 
-  /* Optimize backdrop-blur for mobile GPU efficiency */
-
-  /* Reduce backdrop-blur: blur(20-30px) causes compositor lag during scroll */
+  /* Reduce heavy backdrop filters: blur(20-30px) causes compositor lag during touch scroll */
   .glass-card,
   .glass-card-strong,
   [class*="backdrop-blur"] {
@@ -891,4 +911,5 @@
     animation-duration: 8s !important;
   }
 }
+
 

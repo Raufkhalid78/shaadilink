@@ -37,22 +37,22 @@ export default function DashboardRoutePage() {
             return;
           }
 
-          setFlowData({
-            ...initialFlowData,
+          setFlowData((prev) => ({
+            ...prev,
             userId: user.id,
             email: user.email ?? "",
             fullName: user.user_metadata?.full_name ?? "",
-          });
+          }));
           setReady(true);
           return;
         }
         
-        setFlowData({
-          ...initialFlowData,
+        setFlowData((prev) => ({
+          ...prev,
           userId: session.user.id,
           email: session.user.email ?? "",
           fullName: session.user.user_metadata?.full_name ?? "",
-        });
+        }));
         setReady(true);
       } catch (err) {
         console.error("Dashboard checkAuth error:", err);

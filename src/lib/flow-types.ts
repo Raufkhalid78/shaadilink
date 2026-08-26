@@ -58,6 +58,9 @@ export interface FlowData {
   isSegregated?: boolean;
   venueDetailsSegregated?: string;
   showNikahRegistration?: boolean;
+  // Multi-step builder progress persistence
+  currentStep?: number;
+  lastSavedStep?: number;
 }
 
 export const initialFlowData: FlowData = {
@@ -65,6 +68,8 @@ export const initialFlowData: FlowData = {
   selectedTemplateId: null,
   fullName: "",
   email: "",
+  currentStep: 1,
+  lastSavedStep: 1,
   partner1Name: "",
   partner2Name: "",
   venue: "",

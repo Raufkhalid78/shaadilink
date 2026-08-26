@@ -300,6 +300,8 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
                       <img
                         src={template.image}
                         alt={template.name}
+                        loading="lazy"
+                        decoding="async"
                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/20" />

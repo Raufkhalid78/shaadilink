@@ -6,7 +6,7 @@ import { m, AnimatePresence } from "framer-motion";
 import {
   Heart, Plus, ExternalLink, Trash2, Users, MessageSquare, Calendar,
   Copy, Check, LayoutDashboard, LogOut, Loader2, Crown, Sparkles, X, Lock,
-  ArrowLeft, Share2, Home, Activity, QrCode, Eye, Download,
+  ArrowLeft, Share2, Home, Activity, QrCode, Eye, Download, DollarSign,
 } from "lucide-react";
 import { QRCodeSVG, QRCodeCanvas } from "qrcode.react";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ import { TEMPLATE_THEMES } from "@/components/viewer/themes";
 import { Star } from "lucide-react";
 import { AnalyticsDrawer } from "@/components/flow/analytics-drawer";
 import { PrintCardsDrawer } from "@/components/flow/print-cards-drawer";
+import { WhatsAppIcon } from "@/components/icons/whatsapp-icon";
 import Papa from "papaparse";
 
 interface Invitation {
@@ -878,6 +879,16 @@ export function DashboardPage({
                 </span>
               </div>
               <Button
+                variant="outline"
+                size="sm"
+                onClick={() => window.location.href = '/dashboard/affiliate'}
+                className="gap-1.5 text-xs text-gold border-gold/40 hover:bg-gold/10 font-semibold h-8 px-2.5"
+                title="Affiliate & Partner Program"
+              >
+                <DollarSign className="w-3.5 h-3.5" />
+                <span className="hidden md:inline">Partner Hub</span>
+              </Button>
+              <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleSignOut}
@@ -1363,7 +1374,7 @@ export function DashboardPage({
                               className="h-8 px-2 text-emerald hover:bg-emerald/10 text-xs gap-1"
                               title="Share via WhatsApp"
                             >
-                              <Share2 className="w-3.5 h-3.5" />
+                              <WhatsAppIcon className="w-3.5 h-3.5 text-[#25D366]" />
                               <span className="text-[10px]">WhatsApp</span>
                             </Button>
 

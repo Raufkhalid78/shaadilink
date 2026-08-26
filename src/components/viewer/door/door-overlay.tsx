@@ -95,8 +95,11 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
       }
     }
 
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
+    const ambientLimit = isMobile ? 8 : 25
+
     // Populate ambient particles
-    for (let i = 0; i < 25; i++) {
+    for (let i = 0; i < ambientLimit; i++) {
       particles.push(createAmbientParticle())
     }
 
@@ -105,8 +108,8 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
     const draw = () => {
       ctx.clearRect(0, 0, width, height)
 
-      // Maintain ambient particle count
-      if (particles.filter(p => p.gravity === 0).length < 25 && Math.random() < 0.1) {
+      // Maintain ambient particle count before doors open
+      if (!doorsOpened && particles.filter(p => p.gravity === 0).length < ambientLimit && Math.random() < 0.1) {
         particles.push(createAmbientParticle())
       }
 
@@ -115,18 +118,19 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
         burstTriggered = true
         const centerX = width / 2
         const centerY = height / 2
-        for (let i = 0; i < 60; i++) {
+        const burstCount = isMobile ? 22 : 60
+        for (let i = 0; i < burstCount; i++) {
           const angle = Math.random() * Math.PI * 2
-          const speed = Math.random() * 6 + 2
+          const speed = Math.random() * (isMobile ? 4 : 6) + 2
           particles.push({
             x: centerX,
             y: centerY,
             vx: Math.cos(angle) * speed,
             vy: Math.sin(angle) * speed - 1, // upward bias
-            radius: Math.random() * 3 + 1,
+            radius: Math.random() * (isMobile ? 2 : 3) + 1,
             color: Math.random() > 0.35 ? 'rgba(212, 168, 83, 1)' : 'rgba(255, 244, 208, 1)',
             alpha: 1,
-            decay: 0.015 + Math.random() * 0.02,
+            decay: (isMobile ? 0.025 : 0.015) + Math.random() * 0.02,
             gravity: 0.08, // drop down
             spin: Math.random() * Math.PI * 2,
             spinSpeed: (Math.random() - 0.5) * 0.1,
@@ -151,8 +155,8 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
 
         ctx.fillStyle = p.color
         ctx.beginPath()
-        if (p.gravity > 0) {
-          // Sparkle four-point star shape for burst particles
+        if (p.gravity > 0 && !isMobile) {
+          // Sparkle four-point star shape for burst particles on desktop
           ctx.moveTo(0, -p.radius * 2)
           ctx.lineTo(p.radius * 0.5, -p.radius * 0.5)
           ctx.lineTo(p.radius * 2, 0)
@@ -162,7 +166,7 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
           ctx.lineTo(-p.radius * 2, 0)
           ctx.lineTo(-p.radius * 0.5, -p.radius * 0.5)
         } else {
-          // Soft ambient circular drift
+          // Soft circular particle
           ctx.arc(0, 0, p.radius, 0, Math.PI * 2)
         }
         ctx.closePath()
@@ -172,7 +176,10 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
         return true
       })
 
-      animationFrameId = requestAnimationFrame(draw)
+      // Only schedule next frame if doors are closed OR particles are still active
+      if (!doorsOpened || particles.length > 0) {
+        animationFrameId = requestAnimationFrame(draw)
+      }
     }
 
     draw()
