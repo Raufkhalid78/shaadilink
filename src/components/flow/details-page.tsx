@@ -88,6 +88,8 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
           isActive: flowData.paymentDone ?? false,
           showBismillah: flowData.showBismillah,
           showQuranVerse: flowData.showQuranVerse,
+          customVerseText: flowData.customVerseText || undefined,
+          customVerseSource: flowData.customVerseSource || undefined,
           youtubeVideoId: flowData.youtubeVideoId,
           slug: flowData.slug || undefined,
           hostBrideFamily: flowData.hostBrideFamily,
@@ -338,6 +340,8 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
           isActive: flowData.paymentDone,
           showBismillah: flowData.showBismillah,
           showQuranVerse: flowData.showQuranVerse,
+          customVerseText: flowData.customVerseText || undefined,
+          customVerseSource: flowData.customVerseSource || undefined,
           youtubeVideoId: flowData.youtubeVideoId,
           slug: flowData.slug || undefined,
           hostBrideFamily: flowData.hostBrideFamily,
@@ -547,7 +551,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
       {/* Breadcrumb path — adapts for new vs edit mode */}
       <PageBreadcrumb crumbs={crumbs} />
 
-      <main id="main-content" className="flex-1 px-4 py-6 sm:py-10">
+      <main id="main-content" className="flex-1 px-4 py-6 sm:py-10 pb-16 sm:pb-10">
         <m.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -780,6 +784,90 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                       </div>
                     </button>
 
+                    {/* Custom Verse — only shown when Quran Verse toggle is ON */}
+                    <AnimatePresence>
+                      {flowData.showQuranVerse && (
+                        <m.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.3 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="rounded-2xl border border-gold/30 bg-gold/5 p-4 space-y-4">
+                            <div className="flex items-center gap-2">
+                              <span className="text-lg">📖</span>
+                              <div>
+                                <p className="text-sm font-semibold text-foreground">Custom Verse <span className="text-xs font-normal text-muted-foreground">(Optional)</span></p>
+                                <p className="text-xs text-muted-foreground">Replace the default Quran verse with your own — Quran, Bible, or any text.</p>
+                              </div>
+                            </div>
+
+                            {/* Quick-pick chips */}
+                            <div className="space-y-2">
+                              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Quick Pick</p>
+                              <div className="flex flex-wrap gap-2">
+                                {[
+                                  { label: "🕌 Al-Rum 30:21", text: "وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً", source: "Surah Al-Rum 30:21" },
+                                  { label: "🕌 Al-Furqan 25:74", text: "رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ وَاجْعَلْنَا لِلْمُتَّقِينَ إِمَامًا", source: "Surah Al-Furqan 25:74" },
+                                  { label: "✝️ 1 Corinthians 13:4", text: "Love is patient, love is kind. It does not envy, it does not boast, it is not proud.", source: "1 Corinthians 13:4" },
+                                  { label: "✝️ Matthew 19:6", text: "So they are no longer two, but one flesh. Therefore what God has joined together, let no one separate.", source: "Matthew 19:6" },
+                                  { label: "✝️ Genesis 2:24", text: "That is why a man leaves his father and mother and is united to his wife, and they become one flesh.", source: "Genesis 2:24" },
+                                ].map((chip) => (
+                                  <button
+                                    key={chip.source}
+                                    type="button"
+                                    onClick={() => onUpdateData({ customVerseText: chip.text, customVerseSource: chip.source })}
+                                    className={`text-[11px] px-3 py-1.5 rounded-full border transition-all font-medium ${
+                                      flowData.customVerseSource === chip.source
+                                        ? "bg-gold text-emerald-dark border-gold shadow-sm"
+                                        : "border-border/60 text-muted-foreground hover:border-gold/50 hover:text-foreground"
+                                    }`}
+                                  >
+                                    {chip.label}
+                                  </button>
+                                ))}
+                                {(flowData.customVerseText || flowData.customVerseSource) && (
+                                  <button
+                                    type="button"
+                                    onClick={() => onUpdateData({ customVerseText: "", customVerseSource: "" })}
+                                    className="text-[11px] px-3 py-1.5 rounded-full border border-red-400/40 text-red-400 hover:bg-red-400/10 transition-all font-medium"
+                                  >
+                                    ✕ Use Default
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Custom verse textarea */}
+                            <div className="space-y-1.5">
+                              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Your Verse Text</label>
+                              <textarea
+                                value={flowData.customVerseText || ""}
+                                onChange={(e) => onUpdateData({ customVerseText: e.target.value })}
+                                placeholder="Enter your verse here... (Arabic, English, Urdu or any language)"
+                                dir="auto"
+                                rows={3}
+                                className="w-full rounded-xl border border-border/60 bg-background/80 px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold/60 resize-none leading-relaxed"
+                              />
+                            </div>
+
+                            {/* Source / Reference */}
+                            <div className="space-y-1.5">
+                              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Source / Reference</label>
+                              <input
+                                type="text"
+                                value={flowData.customVerseSource || ""}
+                                onChange={(e) => onUpdateData({ customVerseSource: e.target.value })}
+                                placeholder="e.g. Surah Al-Rum 30:21  or  John 3:16"
+                                className="w-full rounded-xl border border-border/60 bg-background/80 px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold/60 h-10"
+                              />
+                            </div>
+                          </div>
+                        </m.div>
+                      )}
+                    </AnimatePresence>
+
                     <button
                       type="button"
                       role="switch"
@@ -833,7 +921,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                     </div>
                   </section>
 
-                  <div className="flex justify-end pt-2">
+                  <div className="flex justify-end pt-2 pb-4">
                     <Button
                       onClick={() => {
                         if (validateStep(1)) goToStep(2);
@@ -973,7 +1061,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                     </div>
                   </section>
 
-                  <div className="flex justify-between pt-2">
+                  <div className="flex justify-between pt-2 pb-4">
                     <Button variant="outline" onClick={() => goToStep(1)}>
                       <ArrowLeft className="w-4 h-4 mr-1" /> Previous
                     </Button>
@@ -1118,7 +1206,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                     </div>
                   </section>
 
-                  <div className="flex justify-between pt-2">
+                  <div className="flex justify-between pt-2 pb-4">
                     <Button variant="outline" onClick={() => goToStep(2)}>
                       <ArrowLeft className="w-4 h-4 mr-1" /> Previous
                     </Button>
@@ -1350,7 +1438,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between pt-4">
+                  <div className="flex items-center justify-between pt-4 pb-4">
                     <Button variant="outline" onClick={() => goToStep(3)}>
                       <ArrowLeft className="w-4 h-4 mr-1" /> Previous
                     </Button>
@@ -1431,11 +1519,17 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                       </div>
                     )}
 
-                    {/* Quranic Verse */}
+                    {/* Quranic / Custom Verse */}
                     {flowData.showQuranVerse && (
                       <div className="p-2.5 rounded-2xl bg-gold/10 border border-gold/20 text-[9px] space-y-1 text-center">
-                        <p className="font-arabic text-xs text-gold leading-relaxed" dir="rtl">وَمِنْ ءَايَـٰتِهِۦٓ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَٰجًا...</p>
-                        <p className="text-[8px] text-muted-foreground italic">&ldquo;And He created for you mates that you may find tranquility in them...&rdquo;</p>
+                        {flowData.customVerseText ? (
+                          <>
+                            <p className="text-xs text-gold leading-relaxed" dir="auto">{flowData.customVerseText.length > 80 ? flowData.customVerseText.slice(0, 80) + "..." : flowData.customVerseText}</p>
+                            {flowData.customVerseSource && <p className="text-[8px] text-muted-foreground italic">&mdash; {flowData.customVerseSource}</p>}
+                          </>
+                        ) : (
+                          <p className="text-[8px] text-muted-foreground italic">&ldquo;And He created for you mates that you may find tranquility in them... (Surah Al-Rum 30:21)&rdquo;</p>
+                        )}
                       </div>
                     )}
 

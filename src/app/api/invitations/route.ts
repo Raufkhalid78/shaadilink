@@ -58,6 +58,8 @@ export async function POST(request: NextRequest) {
         is_active: false,
         show_bismillah: body.showBismillah ?? true,
         show_quran_verse: body.showQuranVerse ?? true,
+        custom_verse_text: body.customVerseText || null,
+        custom_verse_source: body.customVerseSource || null,
         host_bride_family: body.hostBrideFamily || null,
         host_groom_family: body.hostGroomFamily || null,
         host_bride_city: body.hostBrideCity || null,

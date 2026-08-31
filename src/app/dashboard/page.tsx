@@ -75,7 +75,7 @@ export default function DashboardRoutePage() {
   return (
     <DashboardPage
       flowData={flowData}
-      onCreateNew={() => router.push("/create")}
+      onCreateNew={() => router.push("/templates")}
       onViewInvitation={(id) => router.push(`/inv/${id}`)}
       onEditInvitation={(id) => router.push(`/create?edit=${id}`)}
       onSignOut={() => router.replace("/")}

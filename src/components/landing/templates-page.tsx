@@ -415,9 +415,9 @@ function TemplateCard({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20, scale: 0.95 }}
       transition={{ duration: 0.4 }}
-      className="group relative rounded-2xl overflow-hidden border border-border/50 hover:border-gold/40 transition-all duration-500 hover:shadow-xl hover:shadow-gold/10 hover:-translate-y-1 bg-card"
+      className="group flex flex-col relative rounded-2xl overflow-hidden border border-border/50 hover:border-gold/40 transition-all duration-500 hover:shadow-xl hover:shadow-gold/10 hover:-translate-y-1 bg-card"
     >
-      <div className={`relative ${template.bgClass} h-56 sm:h-64 overflow-hidden flex flex-col items-center justify-center`}>
+      <div className={`relative shrink-0 ${template.bgClass} h-56 sm:h-64 overflow-hidden flex flex-col items-center justify-center`}>
         {template.image ? (
           <>
             <img
@@ -446,16 +446,6 @@ function TemplateCard({
           <ClassicDoorThumbnail template={template} />
         )}
 
-        {/* Hover overlay */}
-        <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-2.5 p-4 z-20">
-          <Button variant="outline" size="sm" onClick={() => onPreview(template.id)} className="w-44 border-gold text-gold hover:bg-gold hover:text-emerald-dark font-medium justify-center">
-            <Eye className="h-4.5 w-4.5 mr-1.5 shrink-0" /> Live Demo
-          </Button>
-          <Button size="sm" onClick={() => onSelect(template.id, isRoyal ? "royal" : "classic")} className="w-44 bg-gold hover:bg-gold-light text-emerald-dark font-medium border-none justify-center">
-            <Check className="h-4.5 w-4.5 mr-1.5 shrink-0" /> {isRoyal ? "Use Royal Design" : "Use This Design"}
-          </Button>
-        </div>
-
         <button
           onClick={(e) => { e.stopPropagation(); setLiked(!liked); }}
           className="absolute top-1 right-1 z-30 w-12 h-12 flex items-center justify-center focus:outline-none"
@@ -475,19 +465,29 @@ function TemplateCard({
         )}
       </div>
 
-      <div className="bg-card p-4">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="font-display text-base font-semibold text-foreground">{template.name}</h3>
-          <Badge className={`${template.badgeClass} text-[10px] px-1.5 py-0`}>{template.badgeText}</Badge>
+      <div className="bg-card p-4 flex flex-col flex-1 justify-between">
+        <div>
+          <div className="flex items-start justify-between mb-2 gap-2">
+            <h3 className="font-display text-base font-semibold text-foreground">{template.name}</h3>
+            <Badge className={`${template.badgeClass} text-[10px] px-1.5 py-0 whitespace-nowrap shrink-0`}>{template.badgeText}</Badge>
+          </div>
+          <p className="text-xs text-muted-foreground leading-relaxed">{template.description}</p>
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {template.features.slice(0, 4).map((feature: string) => (
+              <span key={feature} className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">{feature}</span>
+            ))}
+            {template.features.length > 4 && (
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">+{template.features.length - 4}</span>
+            )}
+          </div>
         </div>
-        <p className="text-xs text-muted-foreground leading-relaxed">{template.description}</p>
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          {template.features.slice(0, 4).map((feature) => (
-            <span key={feature} className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">{feature}</span>
-          ))}
-          {template.features.length > 4 && (
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">+{template.features.length - 4}</span>
-          )}
+        <div className="mt-5 grid grid-cols-2 gap-2">
+          <Button variant="outline" size="sm" onClick={() => onPreview(template.id)} className="w-full border-gold text-gold hover:bg-gold/10 font-medium">
+            <Eye className="h-4 w-4 mr-1.5 shrink-0" /> Demo
+          </Button>
+          <Button size="sm" onClick={() => onSelect(template.id, isRoyal ? "royal" : "classic")} className="w-full bg-gold hover:bg-gold-light text-emerald-dark font-medium border-none">
+            <Check className="h-4 w-4 mr-1.5 shrink-0" /> Select
+          </Button>
         </div>
       </div>
     </m.div>

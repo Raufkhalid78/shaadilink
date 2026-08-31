@@ -495,10 +495,25 @@ export default function RoyalEleganceViewer({ templateId, flowData, guestName, g
             <section className="py-16 md:py-20 px-6">
               <div className="max-w-2xl mx-auto text-center space-y-6 py-10 px-6 rounded-2xl border" style={{ borderColor: getOpacityStyle('border', 0.15), backgroundColor: getOpacityStyle('bg', 0.3) }}>
                 <div className="flex justify-center items-center gap-4 mb-2"><div className="w-8 h-px" style={{ background: `linear-gradient(90deg, transparent, ${theme.accent})` }} /><span className="text-gold opacity-80 text-2xl font-arabic">﷽</span><div className="w-8 h-px" style={{ background: `linear-gradient(-90deg, transparent, ${theme.accent})` }} /></div>
-                <p className="font-arabic text-2xl md:text-3xl leading-loose" dir="rtl" style={{ color: theme.accentLight }}>وَمِنْ ءَايَـٰتِهِۦٓ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَٰجًا لِّتَسْکُنُوٓا۟ إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً</p>
-                <p className="text-sm md:text-base italic leading-relaxed" style={{ color: theme.textSecondary }}>&ldquo;And of His signs is that He created for you from yourselves mates that you may find tranquility in them; and He placed between you affection and mercy.&rdquo;<span className="block text-xs mt-2 font-semibold not-italic" style={{ color: theme.accent }}>— Surah Ar-Rum [30:21]</span></p>
-                <div className="flex justify-center items-center gap-2"><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: getOpacityStyle('border', 0.3) }} /><div className="w-16 h-px" style={{ backgroundColor: getOpacityStyle('border', 0.2) }} /><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: getOpacityStyle('border', 0.3) }} /></div>
-                <p className="font-arabic text-lg md:text-xl leading-loose max-w-xl mx-auto px-4" dir="rtl" style={{ color: theme.textPrimary || '#ffffff' }}>&ldquo;اور اس کی نشانیوں میں سے ہے کہ اس نے تمہارے لیے تمہاری ہی جنس سے جوڑے پیدا کیے تاکہ تم ان سے آرام پاؤ اور اس نے تمہارے درمیان محبت اور رحمت پیدا کر دی، یقیناً اس میں غور و فکر کرنے والوں کے لیے نشانیاں ہیں۔&rdquo;<span className="block text-xs mt-2 font-sans not-italic opacity-85" style={{ color: theme.accent }}>— سورہ روم [30:21]</span></p>
+                {flowData?.customVerseText ? (
+                  <>
+                    <p className="text-xl md:text-2xl leading-loose px-2" dir="auto" style={{ color: theme.accentLight }}>
+                      {flowData.customVerseText}
+                    </p>
+                    {flowData?.customVerseSource && (
+                      <p className="text-sm italic" style={{ color: theme.textSecondary }}>
+                        <span className="block text-xs font-semibold not-italic" style={{ color: theme.accent }}>— {flowData.customVerseSource}</span>
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <p className="font-arabic text-2xl md:text-3xl leading-loose" dir="rtl" style={{ color: theme.accentLight }}>وَمِنْ ءَايَـٰتِهِۦٓ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَٰجًا لِّتَسْکُنُوٓا۟ إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً</p>
+                    <p className="text-sm md:text-base italic leading-relaxed" style={{ color: theme.textSecondary }}>&ldquo;And of His signs is that He created for you from yourselves mates that you may find tranquility in them; and He placed between you affection and mercy.&rdquo;<span className="block text-xs mt-2 font-semibold not-italic" style={{ color: theme.accent }}>— Surah Ar-Rum [30:21]</span></p>
+                    <div className="flex justify-center items-center gap-2"><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: getOpacityStyle('border', 0.3) }} /><div className="w-16 h-px" style={{ backgroundColor: getOpacityStyle('border', 0.2) }} /><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: getOpacityStyle('border', 0.3) }} /></div>
+                    <p className="font-arabic text-lg md:text-xl leading-loose max-w-xl mx-auto px-4" dir="rtl" style={{ color: theme.textPrimary || '#ffffff' }}>&ldquo;اور اس کی نشانیوں میں سے ہے کہ اس نے تمہارے لیے تمہاری ہی جنس سے جوڑے پیدا کیے&rdquo;<span className="block text-xs mt-2 font-sans not-italic opacity-85" style={{ color: theme.accent }}>— سورہ روم [30:21]</span></p>
+                  </>
+                )}
               </div>
             </section>
           </RevealSection>

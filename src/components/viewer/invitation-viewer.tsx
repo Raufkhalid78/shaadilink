@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import dynamic from 'next/dynamic'
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
@@ -1127,7 +1127,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
           </section>
         </RevealSection>
 
-        {/* ─── Quranic Verse ─── */}
+        {/* â”€â”€â”€ Quranic / Custom Verse â”€â”€â”€ */}
         {flowData?.showQuranVerse && (
           <RevealSection>
             <section className="py-16 md:py-20 px-6">
@@ -1139,52 +1139,80 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
                   boxShadow: `0 10px 30px -10px ${getOpacityStyle('border', 0.1)}`
                 }}
               >
-                {/* Subtle elegant Islamic geometric / design flourish */}
+                {/* Decorative flourish */}
                 <div className="flex justify-center items-center gap-4 mb-2">
                   <div className="w-8 h-px" style={{ background: `linear-gradient(90deg, transparent, ${theme.accent})` }} />
-                  <span className="text-gold opacity-80 text-2xl font-arabic">﷽</span>
+                  <span className="text-gold opacity-80 text-2xl font-arabic">ï·½</span>
                   <div className="w-8 h-px" style={{ background: `linear-gradient(-90deg, transparent, ${theme.accent})` }} />
                 </div>
 
-                {/* Arabic Calligraphy Verse */}
-                <p 
-                  className="font-arabic text-2xl md:text-3xl leading-loose text-gold px-2" 
-                  dir="rtl"
-                  style={{ color: theme.accentLight || '#d4af37' }}
-                >
-                  وَمِنْ ءَايَـٰتِهِۦٓ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَٰجًا لِّتَسْکُنُوٓا۟ إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً ۚ إِنَّ فِى ذَٰلِكَ لَـَٔايَـٰتٍ لِّقَوْمٍ يَتَفَكَّرُونَ
-                </p>
+                {flowData?.customVerseText ? (
+                  /* Custom verse entered by the user */
+                  <>
+                    <p 
+                      className="text-xl md:text-2xl leading-loose px-2"
+                      dir="auto"
+                      style={{ color: theme.accentLight || '#d4af37' }}
+                    >
+                      {flowData.customVerseText}
+                    </p>
 
-                <div className="flex justify-center items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: getOpacityStyle('border', 0.3) }} />
-                  <div className="w-16 h-px" style={{ backgroundColor: getOpacityStyle('border', 0.2) }} />
-                  <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: getOpacityStyle('border', 0.3) }} />
-                </div>
+                    <div className="flex justify-center items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: getOpacityStyle('border', 0.3) }} />
+                      <div className="w-16 h-px" style={{ backgroundColor: getOpacityStyle('border', 0.2) }} />
+                      <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: getOpacityStyle('border', 0.3) }} />
+                    </div>
 
-                {/* English Translation */}
-                <p 
-                  className="text-sm md:text-base italic leading-relaxed max-w-xl mx-auto px-4"
-                  style={{ color: theme.textSecondary || 'rgba(255,255,255,0.8)' }}
-                >
-                  &ldquo;And of His signs is that He created for you from yourselves mates that you may find tranquility in them; and He placed between you affection and mercy. Indeed in that are signs for a people who give thought.&rdquo;
-                  <span className="block text-xs mt-2 font-semibold not-italic" style={{ color: theme.accent }}>— Surah Ar-Rum [30:21]</span>
-                </p>
+                    {flowData.customVerseSource && (
+                      <p 
+                        className="text-sm md:text-base italic leading-relaxed max-w-xl mx-auto px-4"
+                        style={{ color: theme.textSecondary || 'rgba(255,255,255,0.8)' }}
+                      >
+                        <span className="block text-xs font-semibold not-italic" style={{ color: theme.accent }}>â€” {flowData.customVerseSource}</span>
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  /* Default Quran verse â€” Surah Ar-Rum 30:21 */
+                  <>
+                    <p 
+                      className="font-arabic text-2xl md:text-3xl leading-loose text-gold px-2" 
+                      dir="rtl"
+                      style={{ color: theme.accentLight || '#d4af37' }}
+                    >
+                      ÙˆÙŽÙ…ÙÙ†Ù’ Ø¢ÙŠÙŽØ§ØªÙÙ‡Ù Ø£ÙŽÙ†Ù’ Ø®ÙŽÙ„ÙŽÙ‚ÙŽ Ù„ÙŽÙƒÙÙ… Ù…ÙÙ‘Ù†Ù’ Ø£ÙŽÙ†ÙÙØ³ÙÙƒÙÙ…Ù’ Ø£ÙŽØ²Ù’ÙˆÙŽØ§Ø¬Ù‹Ø§ Ù„ÙÙ‘ØªÙŽØ³Ù’ÙƒÙÙ†ÙÙˆØ§ Ø¥ÙÙ„ÙŽÙŠÙ’Ù‡ÙŽØ§ ÙˆÙŽØ¬ÙŽØ¹ÙŽÙ„ÙŽ Ø¨ÙŽÙŠÙ’Ù†ÙŽÙƒÙÙ… Ù…ÙŽÙ‘ÙˆÙŽØ¯ÙŽÙ‘Ø©Ù‹ ÙˆÙŽØ±ÙŽØ­Ù’Ù…ÙŽØ©Ù‹
+                    </p>
 
-                <div className="flex justify-center items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: getOpacityStyle('border', 0.3) }} />
-                  <div className="w-16 h-px" style={{ backgroundColor: getOpacityStyle('border', 0.2) }} />
-                  <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: getOpacityStyle('border', 0.3) }} />
-                </div>
+                    <div className="flex justify-center items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: getOpacityStyle('border', 0.3) }} />
+                      <div className="w-16 h-px" style={{ backgroundColor: getOpacityStyle('border', 0.2) }} />
+                      <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: getOpacityStyle('border', 0.3) }} />
+                    </div>
 
-                {/* Urdu Translation */}
-                <p 
-                  className="font-arabic text-lg md:text-xl leading-loose max-w-xl mx-auto px-4" 
-                  dir="rtl"
-                  style={{ color: theme.textPrimary || '#ffffff' }}
-                >
-                  &ldquo;اور اس کی نشانیوں میں سے ہے کہ اس نے تمہارے لیے تمہاری ہی جنس سے جوڑے پیدا کیے تاکہ تم ان سے آرام پاؤ اور اس نے تمہارے درمیان محبت اور رحمت پیدا کر دی، یقیناً اس میں غور و فکر کرنے والوں کے لیے نشانیاں ہیں۔&rdquo;
-                  <span className="block text-xs mt-2 font-sans not-italic opacity-85" style={{ color: theme.accent }}>— سورہ روم [30:21]</span>
-                </p>
+                    <p 
+                      className="text-sm md:text-base italic leading-relaxed max-w-xl mx-auto px-4"
+                      style={{ color: theme.textSecondary || 'rgba(255,255,255,0.8)' }}
+                    >
+                      &ldquo;And of His signs is that He created for you from yourselves mates that you may find tranquility in them; and He placed between you affection and mercy.&rdquo;
+                      <span className="block text-xs mt-2 font-semibold not-italic" style={{ color: theme.accent }}>â€” Surah Ar-Rum [30:21]</span>
+                    </p>
+
+                    <div className="flex justify-center items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: getOpacityStyle('border', 0.3) }} />
+                      <div className="w-16 h-px" style={{ backgroundColor: getOpacityStyle('border', 0.2) }} />
+                      <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: getOpacityStyle('border', 0.3) }} />
+                    </div>
+
+                    <p 
+                      className="font-arabic text-lg md:text-xl leading-loose max-w-xl mx-auto px-4" 
+                      dir="rtl"
+                      style={{ color: theme.textPrimary || '#ffffff' }}
+                    >
+                      &ldquo;Ø§ÙˆØ± Ø§Ø³ Ú©ÛŒ Ù†Ø´Ø§Ù†ÛŒÙˆÚº Ù…ÛŒÚº Ø³Û’ ÛÛ’ Ú©Û Ø§Ø³ Ù†Û’ ØªÙ…ÛØ§Ø±Û’ Ù„ÛŒÛ’ ØªÙ…ÛØ§Ø±ÛŒ ÛÛŒ Ø¬Ù†Ø³ Ø³Û’ Ø¬ÙˆÚ‘Û’ Ù¾ÛŒØ¯Ø§ Ú©ÛŒÛ’ ØªØ§Ú©Û ØªÙ… Ø§Ù† Ø³Û’ Ø¢Ø±Ø§Ù… Ù¾Ø§Ø¤&rdquo;
+                      <span className="block text-xs mt-2 font-sans not-italic opacity-85" style={{ color: theme.accent }}>â€” Ø³ÙˆØ±Û Ø±ÙˆÙ… [30:21]</span>
+                    </p>
+                  </>
+                )}
               </div>
             </section>
           </RevealSection>

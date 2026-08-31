@@ -9,10 +9,24 @@ export default function TemplatesClientPage() {
   const router = useRouter();
   const { setFlowData } = useFlowStore();
 
-  const handleSelectTemplate = (id: string, plan: "classic" | "royal") => {
+  const handleSelectTemplate = async (id: string, plan: "classic" | "royal") => {
     localStorage.removeItem("shaadilink_pending_flow_data");
     localStorage.removeItem("shaadilink_oauth_in_progress");
     setFlowData({ selectedTemplateId: id, selectedPlan: plan });
+    
+    try {
+      const { createClient } = await import("@/lib/supabase/client");
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.user) {
+        router.push("/signup?next=/create");
+        return;
+      }
+    } catch (e) {
+      console.error("Auth check failed:", e);
+    }
+
     router.push("/create");
   };
 

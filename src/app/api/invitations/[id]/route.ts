@@ -80,6 +80,8 @@ export async function PUT(
       slideshowImageUrls: 'slideshow_image_urls',
       showBismillah: 'show_bismillah',
       showQuranVerse: 'show_quran_verse',
+      customVerseText: 'custom_verse_text',
+      customVerseSource: 'custom_verse_source',
       youtubeVideoId: 'youtube_video_id',
       slug: 'slug',
       hostBrideFamily: 'host_bride_family',

@@ -59,6 +59,8 @@ export default function CreateRoute() {
               slug: invitation.slug ?? "",
               showBismillah: invitation.show_bismillah ?? true,
               showQuranVerse: invitation.show_quran_verse ?? true,
+              customVerseText: invitation.custom_verse_text ?? "",
+              customVerseSource: invitation.custom_verse_source ?? "",
               hostBrideFamily: invitation.host_bride_family ?? "",
               hostGroomFamily: invitation.host_groom_family ?? "",
               hostBrideCity: invitation.host_bride_city ?? "",

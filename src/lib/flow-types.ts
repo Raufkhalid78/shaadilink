@@ -48,6 +48,9 @@ export interface FlowData {
   // Islamic opening — shown at top of invitation
   showBismillah: boolean;
   showQuranVerse: boolean;
+  // Custom verse — user can override the default Quran verse with any text
+  customVerseText?: string;    // The verse text (Arabic, English, or any language)
+  customVerseSource?: string;  // The source/reference e.g. "Surah Al-Rum 30:21" or "John 3:16"
   slug?: string;
   // Pakistani Wedding Optional Features
   hostBrideFamily?: string;
@@ -95,6 +98,8 @@ export const initialFlowData: FlowData = {
   youtubeVideoId: "",
   showBismillah: true,
   showQuranVerse: true,
+  customVerseText: "",
+  customVerseSource: "",
   paymentDone: false,
   guestLinksQuota: 0,
   originalGuestLinksQuota: 0,
