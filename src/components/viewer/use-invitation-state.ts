@@ -67,10 +67,20 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
   const dynamicEvents = useMemo(() => {
     let evs;
     if (flowData?.events && flowData.events.some(e => e.date || e.time)) {
-      evs = flowData.events.filter(e => e.name).map(e => ({
-        name: e.name, time: e.time || 'TBD', date: e.date || 'TBD',
-        description: e.venue ? `At ${e.venue}` : `Join us for the ${e.name} celebration.`,
-      }))
+      const seen = new Set<string>()
+      evs = flowData.events
+        .filter(e => {
+          if (!e.name) return false
+          const key = `${e.name.toLowerCase().trim()}|${(e.date || '').trim()}|${(e.time || '').trim()}`
+          if (seen.has(key)) return false
+          seen.add(key)
+          return true
+        })
+        .map((e, idx) => ({
+          id: e.id || `event-${idx}`,
+          name: e.name, time: e.time || 'TBD', date: e.date || 'TBD',
+          description: e.venue ? `At ${e.venue}` : `Join us for the ${e.name} celebration.`,
+        }))
     } else {
       evs = [
         { name: 'Qawali Night', time: '5:00 PM', date: 'March 11, 2027', description: 'A mystical evening of sufi music, devotion, and celebration.' },

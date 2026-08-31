@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import dynamic from 'next/dynamic'
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
@@ -186,13 +186,22 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
   const dynamicEvents = useMemo(() => {
     let evs;
     if (flowData?.events && flowData.events.some(e => e.date || e.time)) {
-      evs = flowData.events.filter(e => e.name).map(e => ({
-        id: e.id || e.name,
-        name: e.name,
-        time: e.time || 'TBD',
-        date: e.date || 'TBD',
-        description: e.venue ? `At ${e.venue}` : `Join us for the ${e.name} celebration.`,
-      }))
+      const seen = new Set<string>()
+      evs = flowData.events
+        .filter(e => {
+          if (!e.name) return false
+          const key = `${e.name.toLowerCase().trim()}|${(e.date || '').trim()}|${(e.time || '').trim()}`
+          if (seen.has(key)) return false
+          seen.add(key)
+          return true
+        })
+        .map((e, idx) => ({
+          id: e.id || `event-${idx}`,
+          name: e.name,
+          time: e.time || 'TBD',
+          date: e.date || 'TBD',
+          description: e.venue ? `At ${e.venue}` : `Join us for the ${e.name} celebration.`,
+        }))
     } else {
       // Default demo events
       evs = [
@@ -1127,7 +1136,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
           </section>
         </RevealSection>
 
-        {/* â”€â”€â”€ Quranic / Custom Verse â”€â”€â”€ */}
+        {/* ─── Quranic / Custom Verse ─── */}
         {flowData?.showQuranVerse && (
           <RevealSection>
             <section className="py-16 md:py-20 px-6">
@@ -1142,7 +1151,11 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
                 {/* Decorative flourish */}
                 <div className="flex justify-center items-center gap-4 mb-2">
                   <div className="w-8 h-px" style={{ background: `linear-gradient(90deg, transparent, ${theme.accent})` }} />
-                  <span className="text-gold opacity-80 text-2xl font-arabic">ï·½</span>
+                  {(!flowData?.customVerseText || /quran|surah|ayah|ayat|القرآن|سورة/i.test(flowData?.customVerseSource || '') || /[\u0600-\u06FF]/.test(flowData?.customVerseText || '')) ? (
+                    <span className="text-gold opacity-80 text-2xl font-arabic">﷽</span>
+                  ) : (
+                    <span className="text-gold opacity-80 text-base tracking-widest font-serif">✦</span>
+                  )}
                   <div className="w-8 h-px" style={{ background: `linear-gradient(-90deg, transparent, ${theme.accent})` }} />
                 </div>
 
@@ -1150,7 +1163,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
                   /* Custom verse entered by the user */
                   <>
                     <p 
-                      className="text-xl md:text-2xl leading-loose px-2"
+                      className="text-xl md:text-2xl leading-loose px-2 font-medium"
                       dir="auto"
                       style={{ color: theme.accentLight || '#d4af37' }}
                     >
@@ -1168,19 +1181,19 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
                         className="text-sm md:text-base italic leading-relaxed max-w-xl mx-auto px-4"
                         style={{ color: theme.textSecondary || 'rgba(255,255,255,0.8)' }}
                       >
-                        <span className="block text-xs font-semibold not-italic" style={{ color: theme.accent }}>â€” {flowData.customVerseSource}</span>
+                        <span className="block text-xs font-semibold not-italic" style={{ color: theme.accent }}>— {flowData.customVerseSource}</span>
                       </p>
                     )}
                   </>
                 ) : (
-                  /* Default Quran verse â€” Surah Ar-Rum 30:21 */
+                  /* Default Quran verse — Surah Ar-Rum 30:21 */
                   <>
                     <p 
                       className="font-arabic text-2xl md:text-3xl leading-loose text-gold px-2" 
                       dir="rtl"
                       style={{ color: theme.accentLight || '#d4af37' }}
                     >
-                      ÙˆÙŽÙ…ÙÙ†Ù’ Ø¢ÙŠÙŽØ§ØªÙÙ‡Ù Ø£ÙŽÙ†Ù’ Ø®ÙŽÙ„ÙŽÙ‚ÙŽ Ù„ÙŽÙƒÙÙ… Ù…ÙÙ‘Ù†Ù’ Ø£ÙŽÙ†ÙÙØ³ÙÙƒÙÙ…Ù’ Ø£ÙŽØ²Ù’ÙˆÙŽØ§Ø¬Ù‹Ø§ Ù„ÙÙ‘ØªÙŽØ³Ù’ÙƒÙÙ†ÙÙˆØ§ Ø¥ÙÙ„ÙŽÙŠÙ’Ù‡ÙŽØ§ ÙˆÙŽØ¬ÙŽØ¹ÙŽÙ„ÙŽ Ø¨ÙŽÙŠÙ’Ù†ÙŽÙƒÙÙ… Ù…ÙŽÙ‘ÙˆÙŽØ¯ÙŽÙ‘Ø©Ù‹ ÙˆÙŽØ±ÙŽØ­Ù’Ù…ÙŽØ©Ù‹
+                      وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً
                     </p>
 
                     <div className="flex justify-center items-center gap-2">
@@ -1194,7 +1207,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
                       style={{ color: theme.textSecondary || 'rgba(255,255,255,0.8)' }}
                     >
                       &ldquo;And of His signs is that He created for you from yourselves mates that you may find tranquility in them; and He placed between you affection and mercy.&rdquo;
-                      <span className="block text-xs mt-2 font-semibold not-italic" style={{ color: theme.accent }}>â€” Surah Ar-Rum [30:21]</span>
+                      <span className="block text-xs mt-2 font-semibold not-italic" style={{ color: theme.accent }}>— Surah Ar-Rum [30:21]</span>
                     </p>
 
                     <div className="flex justify-center items-center gap-2">
@@ -1208,8 +1221,8 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
                       dir="rtl"
                       style={{ color: theme.textPrimary || '#ffffff' }}
                     >
-                      &ldquo;Ø§ÙˆØ± Ø§Ø³ Ú©ÛŒ Ù†Ø´Ø§Ù†ÛŒÙˆÚº Ù…ÛŒÚº Ø³Û’ ÛÛ’ Ú©Û Ø§Ø³ Ù†Û’ ØªÙ…ÛØ§Ø±Û’ Ù„ÛŒÛ’ ØªÙ…ÛØ§Ø±ÛŒ ÛÛŒ Ø¬Ù†Ø³ Ø³Û’ Ø¬ÙˆÚ‘Û’ Ù¾ÛŒØ¯Ø§ Ú©ÛŒÛ’ ØªØ§Ú©Û ØªÙ… Ø§Ù† Ø³Û’ Ø¢Ø±Ø§Ù… Ù¾Ø§Ø¤&rdquo;
-                      <span className="block text-xs mt-2 font-sans not-italic opacity-85" style={{ color: theme.accent }}>â€” Ø³ÙˆØ±Û Ø±ÙˆÙ… [30:21]</span>
+                      &ldquo;اور اس کی نشانیوں میں سے ہے کہ اس نے تمہارے لیے تمہاری ہی جنس سے جوڑے پیدا کیے تاکہ تم ان سے آرام پاؤ اور اس نے تمہارے درمیان محبت اور رحمت پیدا کر دی&rdquo;
+                      <span className="block text-xs mt-2 font-sans not-italic opacity-85" style={{ color: theme.accent }}>— سورہ روم [30:21]</span>
                     </p>
                   </>
                 )}
@@ -1286,7 +1299,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
                   {events.map((event, idx) => {
                     const te = getTranslatedEvent(event, idx)
                     return (
-                    <RevealSection key={event.id || event.name} delay={idx * 0.12}>
+                    <RevealSection key={event.id || `${event.name}-${idx}`} delay={idx * 0.12}>
                       <div className="flex gap-5 items-start">
                         <div className="relative z-10 flex-shrink-0">
                           <div className="w-[10px] h-[10px] rounded-full mt-1.5" style={{ backgroundColor: theme.accent, boxShadow: `0 0 8px ${getOpacityStyle('border', 0.5)}` }} />
@@ -1787,8 +1800,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
                 <div className="absolute -bottom-3 -right-3 w-8 h-8 border-b-2 border-r-2 rounded-br-lg" style={{ borderColor: theme.borderSubtle }} />
 
                 {/* Floating hearts on RSVP accept */}
-                {rsvpHearts.map((h) => (
-                  <div key={h} className="absolute heart-float pointer-events-none" style={{ left: `${20 + ((h * 13) % 61)}%`, top: '40%', animationDelay: `${h * 0.15}s` }}>
+                {rsvpHearts.map((h, hIdx) => (<div key={`heart-${h}-${hIdx}`} className="absolute heart-float pointer-events-none" style={{ left: `${20 + ((h * 13) % 61)}%`, top: '40%', animationDelay: `${h * 0.15}s` }}>
                     <Heart className="w-5 h-5" style={{ color: theme.accent, fill: getOpacityStyle('text', 0.4) }} />
                   </div>
                 ))}

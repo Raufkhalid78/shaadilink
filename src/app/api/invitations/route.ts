@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 
 /* POST /api/invitations — create new invitation */
 export async function POST(request: NextRequest) {
@@ -101,7 +101,8 @@ export async function POST(request: NextRequest) {
         })
 
       if (eventRows.length > 0) {
-        const { error: evErr } = await supabase.from('events').insert(eventRows)
+        const service = createServiceClient()
+        const { error: evErr } = await service.from('events').insert(eventRows)
         if (evErr) {
           console.error('Events insert error:', evErr)
           // Return the invitation ID but signal a partial failure

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
@@ -139,25 +139,20 @@ for (const [jsKey, dbKey] of Object.entries(fieldMap)) {
 
     // Update events if provided
     if (body.events) {
-      await supabase.from('events').delete().eq('invitation_id', id)
+      const service = createServiceClient()
+      await service.from('events').delete().eq('invitation_id', id)
       const eventRows = body.events
         .filter((e: { name: string }) => e.name)
-        .map((e: { id?: string; name: string; date: string; time: string; venue?: string }, idx: number) => {
-          const row: any = {
-            invitation_id: id,
-            name: e.name,
-            date: e.date || '',
-            time: e.time || '',
-            venue: e.venue || '',
-            order_index: idx,
-          };
-          if (e.id && e.id.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
-             row.id = e.id;
-          }
-          return row;
-        })
+        .map((e: { id?: string; name: string; date: string; time: string; venue?: string }, idx: number) => ({
+          invitation_id: id,
+          name: e.name,
+          date: e.date || '',
+          time: e.time || '',
+          venue: e.venue || '',
+          order_index: idx,
+        }))
       if (eventRows.length > 0) {
-        await supabase.from('events').insert(eventRows)
+        await service.from('events').insert(eventRows)
       }
     }
 

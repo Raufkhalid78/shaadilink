@@ -135,6 +135,8 @@ export default async function InvitationPage({ params, searchParams }: { params:
     fullName: "",
     showBismillah: (invitation as { show_bismillah?: boolean }).show_bismillah ?? true,
     showQuranVerse: (invitation as { show_quran_verse?: boolean }).show_quran_verse ?? true,
+    customVerseText: (invitation as { custom_verse_text?: string }).custom_verse_text ?? "",
+    customVerseSource: (invitation as { custom_verse_source?: string }).custom_verse_source ?? "",
     hostBrideFamily: (invitation as { host_bride_family?: string }).host_bride_family ?? "",
     hostGroomFamily: (invitation as { host_groom_family?: string }).host_groom_family ?? "",
     hostBrideCity: (invitation as { host_bride_city?: string }).host_bride_city ?? "",

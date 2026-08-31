@@ -817,7 +817,14 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                                   <button
                                     key={chip.source}
                                     type="button"
-                                    onClick={() => onUpdateData({ customVerseText: chip.text, customVerseSource: chip.source })}
+                                    onClick={() => {
+                                      const isBible = chip.source.includes('Corinthians') || chip.source.includes('Matthew') || chip.source.includes('Genesis');
+                                      onUpdateData({ 
+                                        customVerseText: chip.text, 
+                                        customVerseSource: chip.source,
+                                        ...(isBible ? { showBismillah: false } : { showBismillah: true })
+                                      });
+                                    }}
                                     className={`text-[11px] px-3 py-1.5 rounded-full border transition-all font-medium ${
                                       flowData.customVerseSource === chip.source
                                         ? "bg-gold text-emerald-dark border-gold shadow-sm"

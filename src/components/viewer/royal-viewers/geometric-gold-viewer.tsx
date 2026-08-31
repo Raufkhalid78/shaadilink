@@ -441,23 +441,64 @@ export default function GeometricGoldViewer({ templateId, flowData, guestName, g
         {/* ─── SCRATCH CARD ─── */}
         <RevealSection><section className="py-16 md:py-20 px-6"><ScratchCard revealed={s.scratchRevealed} onReveal={s.handleScratchReveal} theme={theme} language={s.language} translations={s.translations} scratchDateInfo={s.scratchDateInfo} scratchTimeFormatted={s.scratchTimeFormatted} /></section></RevealSection>
 
-        {/* ─── QURANIC VERSE ─── */}
-        {flowData?.showQuranVerse && (<RevealSection><section className="py-16 md:py-20 px-6"><div className="max-w-2xl mx-auto text-center space-y-6 py-10 px-6 border" style={{ borderColor: getOpacityStyle('border', 0.15), backgroundColor: getOpacityStyle('bg', 0.3) }}><div className="flex justify-center items-center gap-4 mb-2"><div className="w-8 h-px" style={{ background: `linear-gradient(90deg, transparent, ${theme.accent})` }} /><span className="text-gold opacity-80 text-2xl font-arabic">﷽</span><div className="w-8 h-px" style={{ background: `linear-gradient(-90deg, transparent, ${theme.accent})` }} /></div><p className="font-arabic text-2xl md:text-3xl leading-loose" dir="rtl" style={{ color: theme.accentLight }}>وَمِنْ ءَايَـٰتِهِۦٓ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَٰجًا لِّتَسْکُنُوٓا۟ إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً</p>{flowData?.customVerseText ? (
+        {/* ─── QURANIC / CUSTOM VERSE ─── */}
+        {flowData?.showQuranVerse && (
+          <RevealSection>
+            <section className="relative py-16 md:py-20 px-6 overflow-hidden">
+              
+              <div 
+                className="max-w-2xl mx-auto text-center space-y-6 py-10 px-6 rounded-2xl border relative z-10" 
+                style={{ 
+                  borderColor: getOpacityStyle('border', 0.15), 
+                  backgroundColor: getOpacityStyle('bg', 0.3), 
+                  boxShadow: `0 0 30px ${theme.accent}18` 
+                }}
+              >
+                <div className="flex justify-center items-center gap-4 mb-2">
+                  <div className="w-8 h-px" style={{ background: `linear-gradient(90deg, transparent, ${theme.accent})` }} />
+                  {(!flowData?.customVerseText || /quran|surah|ayah|ayat|القرآن|سورة/i.test(flowData?.customVerseSource || '') || /[\u0600-\u06FF]/.test(flowData?.customVerseText || '')) ? (
+                    <span className="text-gold opacity-80 text-2xl font-arabic">﷽</span>
+                  ) : (
+                    <span className="text-gold opacity-80 text-base tracking-widest font-serif">✦</span>
+                  )}
+                  <div className="w-8 h-px" style={{ background: `linear-gradient(-90deg, transparent, ${theme.accent})` }} />
+                </div>
+
+                {flowData?.customVerseText ? (
                   <>
-                    <p className="text-xl md:text-2xl leading-loose px-2" dir="auto" style={{ color: theme.accentLight }}>
+                    <p className="text-xl md:text-2xl leading-loose px-2 font-medium" dir="auto" style={{ color: theme.accentLight }}>
                       {flowData.customVerseText}
                     </p>
                     {flowData?.customVerseSource && (
-                      <p className="text-sm italic mt-2" style={{ color: theme.textSecondary }}>
+                      <p className="text-sm italic" style={{ color: theme.textSecondary }}>
                         <span className="block text-xs font-semibold not-italic" style={{ color: theme.accent }}>— {flowData.customVerseSource}</span>
                       </p>
                     )}
                   </>
                 ) : (
                   <>
-                    <p className="text-sm md:text-base italic leading-relaxed" style={{ color: theme.textSecondary }}>&ldquo;And of His signs is that He created for you from yourselves mates that you may find tranquility in them.&rdquo;<span className="block text-xs mt-2 font-semibold not-italic" style={{ color: theme.accent }}>— Surah Ar-Rum [30:21]</span></p>
+                    <p className="font-arabic text-2xl md:text-3xl leading-loose" dir="rtl" style={{ color: theme.accentLight }}>
+                      وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً
+                    </p>
+                    <p className="text-sm md:text-base italic leading-relaxed" style={{ color: theme.textSecondary }}>
+                      &ldquo;And of His signs is that He created for you from yourselves mates that you may find tranquility in them; and He placed between you affection and mercy.&rdquo;
+                      <span className="block text-xs mt-2 font-semibold not-italic" style={{ color: theme.accent }}>— Surah Ar-Rum [30:21]</span>
+                    </p>
+                    <div className="flex justify-center items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: getOpacityStyle('border', 0.3) }} />
+                      <div className="w-16 h-px" style={{ backgroundColor: getOpacityStyle('border', 0.2) }} />
+                      <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: getOpacityStyle('border', 0.3) }} />
+                    </div>
+                    <p className="font-arabic text-lg md:text-xl leading-loose max-w-xl mx-auto px-4" dir="rtl" style={{ color: theme.textPrimary || '#ffffff' }}>
+                      &ldquo;اور اس کی نشانیوں میں سے ہے کہ اس نے تمہارے لیے تمہاری ہی جنس سے جوڑے پیدا کیے تاکہ تم ان سے آرام پاؤ اور اس نے تمہارے درمیان محبت اور رحمت پیدا کر دی&rdquo;
+                      <span className="block text-xs mt-2 font-sans not-italic opacity-85" style={{ color: theme.accent }}>— سورہ روم [30:21]</span>
+                    </p>
                   </>
-                )}<div className="flex justify-center items-center gap-2"><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: getOpacityStyle('border', 0.3) }} /><div className="w-16 h-px" style={{ backgroundColor: getOpacityStyle('border', 0.2) }} /><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: getOpacityStyle('border', 0.3) }} /></div><p className="font-arabic text-lg md:text-xl leading-loose max-w-xl mx-auto px-4" dir="rtl" style={{ color: theme.textPrimary || '#ffffff' }}>&ldquo;اور اس کی نشانیوں میں سے ہے کہ اس نے تمہارے لیے تمہاری ہی جنس سے جوڑے پیدا کیے تاکہ تم ان سے آرام پاؤ اور اس نے تمہارے درمیان محبت اور رحمت پیدا کر دی، یقیناً اس میں غور و فکر کرنے والوں کے لیے نشانیاں ہیں۔&rdquo;<span className="block text-xs mt-2 font-sans not-italic opacity-85" style={{ color: theme.accent }}>— سورہ روم [30:21]</span></p></div></section></RevealSection>)}
+                )}
+              </div>
+            </section>
+          </RevealSection>
+        )}
 
         {/* ─── PHOTO GALLERY ─── */}
         <RevealSection><section className="py-16 md:py-20 px-6"><div className="flex flex-col items-center gap-6"><h2 className="text-3xl sm:text-4xl text-center font-[var(--font-cinzel-dec)] uppercase tracking-wider" style={{ color: theme.accent }}>{s.t('ourMoments', 'Our Moments')}</h2><GoldLineDivider accent={theme.accent} /><PhotoGallery theme={theme} images={flowData?.slideshowImages} /></div></section></RevealSection>
@@ -486,7 +527,7 @@ export default function GeometricGoldViewer({ templateId, flowData, guestName, g
                 {s.dynamicEvents.map((event, idx) => {
                   const te = s.getTranslatedEvent(event, idx)
                   return (
-                    <RevealSection key={event.name} delay={idx * 0.1}>
+                    <RevealSection key={`${event.name}-${idx}`} delay={idx * 0.1}>
                       <ArtDecoEventCard accent={theme.accent} bg={getOpacityStyle('bg', 0.04)} border={theme.borderSubtle}>
                         <div className="flex items-center gap-3 mb-3">
                           <span className="text-sm font-mono" style={{ color: theme.accent }}>◆</span>
@@ -549,7 +590,7 @@ export default function GeometricGoldViewer({ templateId, flowData, guestName, g
               <h2 className="text-3xl sm:text-4xl text-center font-[var(--font-cinzel-dec)] uppercase tracking-wider" style={{ color: theme.accent }}>Confirm Attendance</h2>
               <GoldLineDivider accent={theme.accent} />
               <div className="relative w-full">
-                {s.rsvpHearts.map((h) => (<div key={h} className="absolute heart-float pointer-events-none" style={{ left: `${20 + ((h * 13) % 61)}%`, top: '40%', animationDelay: `${h * 0.15}s` }}><Heart className="w-5 h-5" style={{ color: theme.accent, fill: getOpacityStyle('text', 0.4) }} /></div>))}
+                {s.rsvpHearts.map((h, hIdx) => (<div key={`heart-${h}-${hIdx}`} className="absolute heart-float pointer-events-none" style={{ left: `${20 + ((h * 13) % 61)}%`, top: '40%', animationDelay: `${h * 0.15}s` }}><Heart className="w-5 h-5" style={{ color: theme.accent, fill: getOpacityStyle('text', 0.4) }} /></div>))}
                 {!s.rsvpSubmitted ? (
                   <div className="w-full border p-6" style={{ backgroundColor: theme.bgSecondary, borderColor: theme.borderSubtle }}>
                     <div className="space-y-4">
