@@ -1151,7 +1151,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
                 {/* Decorative flourish */}
                 <div className="flex justify-center items-center gap-4 mb-2">
                   <div className="w-8 h-px" style={{ background: `linear-gradient(90deg, transparent, ${theme.accent})` }} />
-                  {(!flowData?.customVerseText || /quran|surah|ayah|ayat|القرآن|سورة/i.test(flowData?.customVerseSource || '') || /[\u0600-\u06FF]/.test(flowData?.customVerseText || '')) ? (
+                  {flowData?.showBismillah !== false && (!flowData?.customVerseText || /quran|surah|ayah|ayat|القرآن|سورة/i.test(flowData?.customVerseSource || '') || /[\u0600-\u06FF]/.test(flowData?.customVerseText || '')) ? (
                     <span className="text-gold opacity-80 text-2xl font-arabic">﷽</span>
                   ) : (
                     <span className="text-gold opacity-80 text-base tracking-widest font-serif">✦</span>

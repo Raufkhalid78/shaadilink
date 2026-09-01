@@ -186,7 +186,7 @@ export default function DarkVelvetViewer({ templateId, flowData, guestName, gues
   }
 
   // Timing: Bismillah at 2s for 3s (ends at 5s), names appear at 5.5s and stay continuously
-  const showBismillahOverlay = isVideoEnvelope && envelopeStarted && !s.doorsOpened && videoTime >= 2.0 && videoTime < 5.0
+  const showBismillahOverlay = isVideoEnvelope && envelopeStarted && !s.doorsOpened && videoTime >= 2.0 && videoTime < 5.0 && flowData?.showBismillah !== false
   const showNamesOverlay = isVideoEnvelope && envelopeStarted && videoTime >= 5.5
   const parsedGifts = useMemo(() => s.gifts ? s.parseGiftDetails(s.gifts) : null, [s.gifts])
 
@@ -533,7 +533,7 @@ export default function DarkVelvetViewer({ templateId, flowData, guestName, gues
               >
                 <div className="flex justify-center items-center gap-4 mb-2">
                   <div className="w-8 h-px" style={{ background: `linear-gradient(90deg, transparent, ${theme.accent})` }} />
-                  {(!flowData?.customVerseText || /quran|surah|ayah|ayat|القرآن|سورة/i.test(flowData?.customVerseSource || '') || /[\u0600-\u06FF]/.test(flowData?.customVerseText || '')) ? (
+                  {flowData?.showBismillah !== false && (!flowData?.customVerseText || /quran|surah|ayah|ayat|القرآن|سورة/i.test(flowData?.customVerseSource || '') || /[\u0600-\u06FF]/.test(flowData?.customVerseText || '')) ? (
                     <span className="text-gold opacity-80 text-2xl font-arabic">﷽</span>
                   ) : (
                     <span className="text-gold opacity-80 text-base tracking-widest font-serif">✦</span>

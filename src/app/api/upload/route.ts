@@ -5,11 +5,7 @@ import { createClient, createServiceClient } from '@/lib/supabase/server'
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    const { data: { user } } = await supabase.auth.getUser()
 
     const formData = await request.formData()
     const files = formData.getAll('files') as File[]
@@ -23,34 +19,52 @@ export async function POST(request: NextRequest) {
     }
 
     const totalSize = files.reduce((acc, file) => acc + file.size, 0)
-    if (totalSize > 20 * 1024 * 1024) {
-      return NextResponse.json({ error: 'Total upload size exceeds 20MB limit' }, { status: 400 })
+    if (totalSize > 25 * 1024 * 1024) {
+      return NextResponse.json({ error: 'Total upload size exceeds 25MB limit' }, { status: 400 })
     }
 
     const service = createServiceClient()
+
+    // Ensure bucket exists and is public
+    try {
+      const { data: buckets } = await service.storage.listBuckets()
+      const bucketExists = buckets?.some(b => b.name === 'invitation-images')
+      if (!bucketExists) {
+        await service.storage.createBucket('invitation-images', {
+          public: true,
+          fileSizeLimit: 10 * 1024 * 1024,
+        })
+      }
+    } catch (bErr) {
+      console.warn('Bucket check/create note:', bErr)
+    }
+
     const uploadedUrls: string[] = []
 
     for (const file of files) {
-      const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
-      const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif']
-      
-      const ext = file.name.split('.').pop()?.toLowerCase() ?? ''
+      const rawExt = file.name.split('.').pop()?.toLowerCase() ?? 'jpg'
+      const ext = rawExt.replace(/[^a-z0-9]/g, '')
+      const isImage = file.type.startsWith('image/') || ['jpg', 'jpeg', 'png', 'webp', 'gif', 'heic', 'heif'].includes(ext)
 
-      if (!allowedMimeTypes.includes(file.type) || !allowedExtensions.includes(ext)) {
-        return NextResponse.json({ error: `Invalid file type or extension: ${file.name}` }, { status: 400 })
+      if (!isImage) {
+        return NextResponse.json({ error: `Invalid file type: ${file.name}. Only image files are allowed.` }, { status: 400 })
       }
 
       // Max 10MB per file
       if (file.size > 10 * 1024 * 1024) {
         return NextResponse.json({ error: `File ${file.name} exceeds 10MB limit` }, { status: 400 })
       }
-      const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+
+      const folder = user ? user.id : 'uploads'
+      const cleanExt = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'heic', 'heif'].includes(ext) ? ext : 'jpg'
+      const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${cleanExt}`
       const buffer = await file.arrayBuffer()
+      const contentType = file.type && file.type.startsWith('image/') ? file.type : `image/${cleanExt === 'jpg' ? 'jpeg' : cleanExt}`
 
       const { error: uploadError } = await service.storage
         .from('invitation-images')
         .upload(fileName, buffer, {
-          contentType: file.type,
+          contentType,
           upsert: false,
         })
 
@@ -67,8 +81,8 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ urls: uploadedUrls }, { status: 201 })
-  } catch (error) {
+  } catch (error: any) {
     console.error('POST /api/upload error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ error: error?.message || 'Internal server error' }, { status: 500 })
   }
 }
