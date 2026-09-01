@@ -434,41 +434,53 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
 
   /** Upload files to Supabase Storage via /api/upload */
   const uploadFiles = async (files: File[]): Promise<string[]> => {
+    const validFiles = (files || []).filter(f => f && f.size > 0);
+    if (validFiles.length === 0) {
+      throw new Error("Please select a valid image file");
+    }
+
     const formData = new FormData();
-    files.forEach((f) => formData.append("files", f));
+    validFiles.forEach((f) => formData.append("files", f, f.name));
 
     const res = await fetch("/api/upload", { method: "POST", body: formData });
+    const data = await res.json().catch(() => ({ error: "Upload response error" }));
     if (!res.ok) {
-      const data = await res.json();
-      throw new Error(data.error || "Upload failed");
+      throw new Error(data.error || `Upload failed with status ${res.status}`);
     }
-    const data = await res.json();
-    return data.urls as string[];
+    return (data.urls || []) as string[];
   };
 
   const handleFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
     type: "hero" | "slideshow"
   ) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-    e.target.value = "";
+    // Snapshot the files array BEFORE resetting e.target.value
+    const fileList = Array.from(e.target.files || []).filter(f => f && f.size > 0);
+    e.target.value = ""; // Clear input value so selecting the same file again works
+    if (fileList.length === 0) return;
 
     setIsUploading(true);
     try {
-      if (type === "hero" && files[0]) {
+      if (type === "hero" && fileList[0]) {
+        const heroFile = fileList[0];
         // Show local preview immediately for UX
-        const localUrl = URL.createObjectURL(files[0]);
+        const localUrl = URL.createObjectURL(heroFile);
         onUpdateData({ heroImage: localUrl });
 
         // Upload to Supabase Storage
-        const urls = await uploadFiles([files[0]]);
-        URL.revokeObjectURL(localUrl); // Fix memory leak — revoke after upload
-        onUpdateData({ heroImage: urls[0] });
-        toast.success("Hero image uploaded!");
+        const urls = await uploadFiles([heroFile]);
+        URL.revokeObjectURL(localUrl); // Revoke temporary object URL
+        if (urls && urls[0]) {
+          onUpdateData({ heroImage: urls[0] });
+          toast.success("Hero image uploaded successfully!");
+        }
       } else if (type === "slideshow") {
-        const available = 4 - flowData.slideshowImages.length;
-        const toUpload = Array.from(files).slice(0, available);
+        const available = Math.max(0, 4 - flowData.slideshowImages.length);
+        const toUpload = fileList.slice(0, available);
+        if (toUpload.length === 0) {
+          toast.info("Maximum 4 slideshow photos reached.");
+          return;
+        }
 
         // Show local previews immediately
         const localUrls = toUpload.map((f) => URL.createObjectURL(f));
@@ -479,19 +491,13 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
 
         // Replace local preview URLs with remote ones and revoke local
         localUrls.forEach((u) => URL.revokeObjectURL(u));
-        const updatedSlideshow = [
-          ...flowData.slideshowImages.slice(0, flowData.slideshowImages.length),
-          ...remoteUrls,
-        ];
-        // Rebuild: keep existing remote + new remote
         const existing = flowData.slideshowImages.filter((u) => !localUrls.includes(u));
         onUpdateData({ slideshowImages: [...existing, ...remoteUrls] });
-        toast.success(`${remoteUrls.length} photo(s) uploaded!`);
+        toast.success(`${remoteUrls.length} photo(s) uploaded successfully!`);
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Upload failed";
       toast.error(msg);
-      // Fallback: keep local preview if upload fails (user can still proceed)
     } finally {
       setIsUploading(false);
     }
