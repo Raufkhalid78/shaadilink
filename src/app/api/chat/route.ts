@@ -1,6 +1,6 @@
 import { createOpenAI } from '@ai-sdk/openai';
 import { streamText } from 'ai';
-import { chatLimiter } from '@/lib/rate-limit';
+import { chatLimiter, getClientIp } from '@/lib/rate-limit';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -13,8 +13,8 @@ const openrouter = createOpenAI({
 
 export async function POST(req: Request) {
   try {
-    const ip = req.headers.get('x-forwarded-for') ?? 'unknown';
-    const { success } = await chatLimiter.limit(ip);
+    const ip = getClientIp(req);
+    const { success } = await chatLimiter.limit(`chat_${ip}`);
     
     if (!success) {
       return new Response('Too many requests. Please wait a moment.', { status: 429 });

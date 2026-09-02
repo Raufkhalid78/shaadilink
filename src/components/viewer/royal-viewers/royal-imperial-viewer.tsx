@@ -500,15 +500,15 @@ export default function RoyalImperialViewer({ templateId, flowData, guestName, g
                   {flowData?.hostBrideFamily && (
                     <m.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="flex flex-col items-center">
                       <span className="text-[10px] tracking-widest uppercase mb-1" style={{ color: theme.textMuted }}>{s.language === 'ur' ? 'دلہن کے اہل خانہ' : 'Host (Bride)'}</span>
-                      <span className="text-lg font-semibold" style={{ color: theme.textPrimary }}>{flowData.hostBrideFamily}</span>
-                      {flowData.hostBrideCity && <span className="text-xs mt-1" style={{ color: getOpacityStyle('text', 0.6) }}>{flowData.hostBrideCity}</span>}
+                      <span className="text-lg font-semibold" style={{ color: theme.textPrimary }}>{s.translatedHostBrideFamily || flowData.hostBrideFamily}</span>
+                      {flowData.hostBrideCity && <span className="text-xs mt-1" style={{ color: getOpacityStyle('text', 0.6) }}>{s.translatedHostBrideCity || flowData.hostBrideCity}</span>}
                     </m.div>
                   )}
                   {flowData?.hostGroomFamily && (
                     <m.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="flex flex-col items-center">
                       <span className="text-[10px] tracking-widest uppercase mb-1" style={{ color: theme.textMuted }}>{s.language === 'ur' ? 'دلہے کے اہل خانہ' : 'Host (Groom)'}</span>
-                      <span className="text-lg font-semibold" style={{ color: theme.textPrimary }}>{flowData.hostGroomFamily}</span>
-                      {flowData.hostGroomCity && <span className="text-xs mt-1" style={{ color: getOpacityStyle('text', 0.6) }}>{flowData.hostGroomCity}</span>}
+                      <span className="text-lg font-semibold" style={{ color: theme.textPrimary }}>{s.translatedHostGroomFamily || flowData.hostGroomFamily}</span>
+                      {flowData.hostGroomCity && <span className="text-xs mt-1" style={{ color: getOpacityStyle('text', 0.6) }}>{s.translatedHostGroomCity || flowData.hostGroomCity}</span>}
                     </m.div>
                   )}
                 </div>

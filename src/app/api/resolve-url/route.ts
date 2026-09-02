@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { resolveLimiter } from '@/lib/rate-limit';
+import { resolveLimiter, getClientIp } from '@/lib/rate-limit';
 
 export async function GET(request: NextRequest) {
-  const ip = request.headers.get('x-forwarded-for') ?? 'unknown';
+  const ip = getClientIp(request);
   const { success } = await resolveLimiter.limit(ip);
   if (!success) {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429 });

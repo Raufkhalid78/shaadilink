@@ -1,5 +1,6 @@
 'use server'
 
+import { requireAdmin } from '@/lib/auth-helpers';
 import { createServiceClient, createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 

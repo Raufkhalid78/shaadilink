@@ -4,11 +4,11 @@ import {
   sendAffiliateApplicationAdminAlert,
   sendAffiliateApplicationConfirmation,
 } from '@/lib/resend'
-import { affiliateLimiter } from '@/lib/rate-limit'
+import { affiliateLimiter, getClientIp } from '@/lib/rate-limit'
 
 export async function POST(request: NextRequest) {
   try {
-    const ip = request.headers.get('x-forwarded-for') ?? '127.0.0.1'
+    const ip = getClientIp(request)
     const { success } = await affiliateLimiter.limit(ip)
     if (!success) {
       return NextResponse.json({ error: 'Too many requests. Please try again tomorrow.' }, { status: 429 })

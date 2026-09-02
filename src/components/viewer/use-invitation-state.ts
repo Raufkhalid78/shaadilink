@@ -152,7 +152,6 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
       setGuestNameFromUrl(guestName)
       if (!rsvpName) setRsvpName(guestName)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [guestName])
 
   useEffect(() => {
@@ -274,6 +273,11 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
       if (accommodation) dynamicTexts.accommodation = accommodation
       if (gifts) dynamicTexts.gifts = gifts
       if (guestNameFromUrl) dynamicTexts.guestName = guestNameFromUrl
+      if (flowData?.hostBrideFamily) dynamicTexts.hostBrideFamily = flowData.hostBrideFamily
+      if (flowData?.hostGroomFamily) dynamicTexts.hostGroomFamily = flowData.hostGroomFamily
+      if (flowData?.hostBrideCity) dynamicTexts.hostBrideCity = flowData.hostBrideCity
+      if (flowData?.hostGroomCity) dynamicTexts.hostGroomCity = flowData.hostGroomCity
+      
       dynamicEvents.forEach((event, idx) => {
         dynamicTexts[`event${idx}_name`] = event.name
         dynamicTexts[`event${idx}_date`] = event.date
@@ -300,7 +304,6 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
         }
       }
     } catch { /* static translations already set */ } finally { setIsTranslating(false) }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language, partner1, partner2, venueName, venueAddress, welcomeMsg, dressCodeWomen, dressCodeMen, transportation, accommodation, gifts, dynamicEvents, translations])
 
   useEffect(() => { document.documentElement.lang = language === 'ur' ? 'ur' : 'en'; document.documentElement.dir = language === 'ur' ? 'rtl' : 'ltr'; return () => { document.documentElement.lang = 'en'; document.documentElement.dir = 'ltr' } }, [language])
@@ -398,6 +401,10 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
   const translatedTransportation = language === 'ur' && translations.transportation ? translations.transportation : transportation
   const translatedGifts = language === 'ur' && translations.gifts ? translations.gifts : gifts
   const translatedGuestName = language === 'ur' && translations.guestName ? translations.guestName : guestNameFromUrl
+  const translatedHostBrideFamily = language === 'ur' && translations.hostBrideFamily ? translations.hostBrideFamily : flowData?.hostBrideFamily
+  const translatedHostGroomFamily = language === 'ur' && translations.hostGroomFamily ? translations.hostGroomFamily : flowData?.hostGroomFamily
+  const translatedHostBrideCity = language === 'ur' && translations.hostBrideCity ? translations.hostBrideCity : flowData?.hostBrideCity
+  const translatedHostGroomCity = language === 'ur' && translations.hostGroomCity ? translations.hostGroomCity : flowData?.hostGroomCity
 
   return {
     theme, getOpacityStyle,
@@ -421,6 +428,7 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
     translatedPartner1, translatedPartner2, translatedVenueName, translatedVenueAddress,
     translatedWelcomeMsg, translatedDressCodeWomen, translatedDressCodeMen,
     translatedAccommodation, translatedTransportation, translatedGifts, translatedGuestName,
+    translatedHostBrideFamily, translatedHostGroomFamily, translatedHostBrideCity, translatedHostGroomCity,
     // Helpers
     extractColors, parseGiftDetails, getGoogleCalendarLink, generateICSContent, getOutlookWebLink,
     // flowData pass-through

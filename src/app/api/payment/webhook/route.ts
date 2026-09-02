@@ -81,18 +81,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ received: true, status: 'failed' })
     }
 
-    // Verify payment amount matches order amount
-    const paidAmount = eventData.purchase_totals?.base_amount?.amount || 
-                       eventData.amount || 
+    // Verify payment amount matches expected order amount in lowest denomination (Paisa)
+    const paidAmount = eventData.purchase_totals?.base_amount?.amount ?? 
+                       eventData.amount ?? 
                        eventData.notification?.amount;
 
     if (paidAmount !== undefined && paidAmount !== null) {
-      // Handle potential denomination differences (e.g., amount in Paisa vs PKR)
-      const numericPaid = Number(paidAmount);
-      const isMatch = numericPaid === order.amount || numericPaid === order.amount * 100 || numericPaid === order.amount / 100;
+      const expectedPaisa = Math.round(Number(order.amount) * 100);
+      const receivedPaisa = Math.round(Number(paidAmount));
       
-      if (!isMatch) {
-        console.error(`Security alert: Payment amount mismatch for order ${order.id}. Expected: ${order.amount}, Got: ${paidAmount}`);
+      if (isNaN(receivedPaisa) || receivedPaisa !== expectedPaisa) {
+        console.error(`Security alert: Payment amount mismatch for order ${order.id}. Expected: ${expectedPaisa} paisa (PKR ${order.amount}), Got: ${receivedPaisa} paisa`);
         return NextResponse.json({ error: "Payment amount mismatch. Security verification failed." }, { status: 400 });
       }
     }

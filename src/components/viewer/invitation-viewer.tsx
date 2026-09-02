@@ -254,7 +254,6 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
       setGuestNameFromUrl(guestName)
       if (!rsvpName) setRsvpName(guestName)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [guestName])
   const [wishName, setWishName] = useState('')
   const [wishMessage, setWishMessage] = useState('')

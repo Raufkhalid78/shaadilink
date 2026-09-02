@@ -105,8 +105,10 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
 
       if (res.ok) {
         const data = await res.json();
-        if (!isEdit && data.invitation?.id) {
-          onUpdateData({ invitationId: data.invitation.id });
+        // POST returns { invitationId: ... }, PUT returns { invitation: { id: ... } }
+        const newId = data.invitationId || data.invitation?.id;
+        if (!isEdit && newId) {
+          onUpdateData({ invitationId: newId });
         }
         if (showToast) {
           toast.success("Progress saved as draft", { duration: 1500 });
@@ -1019,7 +1021,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                         </div>
                         <h2 className="font-display text-lg font-bold text-foreground">Events Schedule</h2>
                       </div>
-                      {!isEdit && (
+                      {!flowData.paymentDone && (
                         <Button
                           variant="ghost"
                           size="sm"
@@ -1036,7 +1038,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                         <div key={event.id || index} className="p-4 rounded-2xl border border-border/50 bg-muted/20 space-y-3">
                           <div className="flex items-center justify-between">
                             <span className="text-xs font-bold text-gold uppercase tracking-wider">Event {index + 1}</span>
-                            {!isEdit && flowData.events.length > 1 && (
+                            {!flowData.paymentDone && flowData.events.length > 1 && (
                               <button onClick={() => removeEvent(index)} className="text-muted-foreground hover:text-red-400">
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
@@ -1053,7 +1055,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                               type="date"
                               value={event.date}
                               onChange={(e) => updateEvent(index, "date", e.target.value)}
-                              disabled={isEdit}
+                              disabled={flowData.paymentDone}
                               className="h-10 bg-background/80"
                             />
                             <Input

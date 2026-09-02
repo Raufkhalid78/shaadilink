@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { invitationInputSchema } from '@/lib/validation-schemas'
 
 /* POST /api/invitations — create new invitation */
 export async function POST(request: NextRequest) {
@@ -12,12 +13,19 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
+    const parseResult = invitationInputSchema.safeParse(body)
+    if (!parseResult.success) {
+      const errorMsg = parseResult.error.issues[0]?.message || 'Invalid invitation details'
+      return NextResponse.json({ error: errorMsg }, { status: 400 })
+    }
+
+    const validData = parseResult.data
     const {
       templateId, plan, partner1Name, partner2Name, venue, venueAddress,
       welcomeMessage, backgroundMusic, dressCodeWomen, dressCodeMen,
       transportation, accommodation, gifts, heroImageUrl, slideshowImageUrls,
       youtubeVideoId, guestLinksQuota, events, slug,
-    } = body
+    } = validData
 
     let finalSlug = slug?.trim()
     if (!finalSlug) {
@@ -56,18 +64,18 @@ export async function POST(request: NextRequest) {
         youtube_video_id: youtubeVideoId || '',
         guest_links_quota: guestLinksQuota ?? 0,
         is_active: false,
-        show_bismillah: body.showBismillah ?? true,
-        show_quran_verse: body.showQuranVerse ?? true,
-        custom_verse_text: body.customVerseText || null,
-        custom_verse_source: body.customVerseSource || null,
-        host_bride_family: body.hostBrideFamily || null,
-        host_groom_family: body.hostGroomFamily || null,
-        host_bride_city: body.hostBrideCity || null,
-        host_groom_city: body.hostGroomCity || null,
-        contact_phone: body.contactPhone || null,
-        is_segregated: body.isSegregated || false,
-        venue_details_segregated: body.venueDetailsSegregated || null,
-        show_nikah_registration: body.showNikahRegistration || false,
+        show_bismillah: validData.showBismillah ?? true,
+        show_quran_verse: validData.showQuranVerse ?? true,
+        custom_verse_text: validData.customVerseText || null,
+        custom_verse_source: validData.customVerseSource || null,
+        host_bride_family: validData.hostBrideFamily || null,
+        host_groom_family: validData.hostGroomFamily || null,
+        host_bride_city: validData.hostBrideCity || null,
+        host_groom_city: validData.hostGroomCity || null,
+        contact_phone: validData.contactPhone || null,
+        is_segregated: (body as any).isSegregated || false,
+        venue_details_segregated: validData.venueDetailsSegregated || null,
+        show_nikah_registration: validData.showNikahRegistration || false,
         slug: finalSlug,
       })
       .select()
@@ -78,7 +86,7 @@ export async function POST(request: NextRequest) {
       if (invErr.code === '23505') {
         return NextResponse.json({ error: 'This custom link slug is already taken. Please try another one.' }, { status: 400 })
       }
-      return NextResponse.json({ error: invErr.message }, { status: 500 })
+      return NextResponse.json({ error: 'Failed to create invitation. Please check your information.' }, { status: 500 })
     }
 
     // Insert events

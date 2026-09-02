@@ -2,29 +2,27 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { Resend } from 'resend'
 import { getEmailWrapper } from '@/lib/email-templates'
-import { contactLimiter } from '@/lib/rate-limit'
+import { contactLimiter, getClientIp } from '@/lib/rate-limit'
+import { contactSchema } from '@/lib/validation-schemas'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(request: NextRequest) {
   try {
-    const ip = request.headers.get('x-forwarded-for') ?? '127.0.0.1'
+    const ip = getClientIp(request)
     const { success } = await contactLimiter.limit(`contact_${ip}`)
     if (!success) {
       return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 })
     }
 
     const body = await request.json()
-    const { name, email, message } = body
-
-    if (!name?.trim()) return NextResponse.json({ error: 'Name is required' }, { status: 400 })
-    if (!email?.trim()) return NextResponse.json({ error: 'Email is required' }, { status: 400 })
-    if (!message?.trim()) return NextResponse.json({ error: 'Message is required' }, { status: 400 })
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email)) {
-      return NextResponse.json({ error: 'Invalid email address' }, { status: 400 })
+    const parseResult = contactSchema.safeParse(body)
+    if (!parseResult.success) {
+      const errorMsg = parseResult.error.issues[0]?.message || 'Invalid contact form input'
+      return NextResponse.json({ error: errorMsg }, { status: 400 })
     }
+
+    const { name, email, message } = parseResult.data
 
     const supabase = await createClient()
     const { error } = await supabase.from('contact_messages').insert({

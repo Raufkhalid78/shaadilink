@@ -1,20 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { sendWelcomeEmail } from '@/lib/resend'
-import { newsletterLimiter } from '@/lib/rate-limit'
+import { newsletterLimiter, getClientIp } from '@/lib/rate-limit'
+import { newsletterSchema } from '@/lib/validation-schemas'
 
 export async function POST(request: NextRequest) {
   try {
-    const ip = request.headers.get('x-forwarded-for') ?? '127.0.0.1'
+    const ip = getClientIp(request)
     const { success } = await newsletterLimiter.limit(`newsletter_${ip}`)
     if (!success) {
       return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 })
     }
 
-    const { email } = await request.json()
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return NextResponse.json({ error: 'Valid email required' }, { status: 400 })
+    const body = await request.json()
+    const parseResult = newsletterSchema.safeParse(body)
+    if (!parseResult.success) {
+      return NextResponse.json({ error: 'Valid email address required' }, { status: 400 })
     }
+
+    const { email } = parseResult.data
     
     // 1. Save to Supabase
     const service = createServiceClient()

@@ -1,14 +1,13 @@
 import { redirect } from 'next/navigation';
-import { createClient } from '@/lib/supabase/server';
+import { requireAdmin } from '@/lib/auth-helpers';
 import Link from 'next/link';
 import { LayoutDashboard, MessageSquare, ShoppingBag, Users, LogOut, Mailbox, Settings, Ticket } from 'lucide-react';
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient();
-  const { data: { session } } = await supabase.auth.getSession();
-
-  if (!session || session.user.email !== process.env.ADMIN_EMAIL) {
-    redirect('/dashboard'); // redirect unauthorized users
+  try {
+    await requireAdmin();
+  } catch {
+    redirect('/dashboard');
   }
 
   return (

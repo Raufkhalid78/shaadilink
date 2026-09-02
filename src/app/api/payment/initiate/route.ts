@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
-import { paymentLimiter } from '@/lib/rate-limit'
+import { paymentLimiter, getClientIp } from '@/lib/rate-limit'
+import { paymentInitiateSchema } from '@/lib/validation-schemas'
 
 const PLAN_AMOUNTS: Record<string, number> = {
   classic: 3499,
@@ -9,7 +10,7 @@ const PLAN_AMOUNTS: Record<string, number> = {
 
 export async function POST(request: NextRequest) {
   try {
-    const ip = request.headers.get('x-forwarded-for') ?? '127.0.0.1'
+    const ip = getClientIp(request)
     const { success } = await paymentLimiter.limit(`payment_${ip}`)
     if (!success) {
       return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 })
@@ -23,11 +24,13 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { invitationId, plan, guestLinksQuota, promoCode } = body
-
-    if (!invitationId || !plan) {
-      return NextResponse.json({ error: 'invitationId and plan are required' }, { status: 400 })
+    const parseResult = paymentInitiateSchema.safeParse(body)
+    if (!parseResult.success) {
+      const errorMsg = parseResult.error.issues[0]?.message || 'Invalid payment parameters'
+      return NextResponse.json({ error: errorMsg }, { status: 400 })
     }
+
+    const { invitationId, plan, guestLinksQuota, promoCode } = parseResult.data
 
     const service = createServiceClient()
 

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { sendRsvpNotification } from '@/lib/resend'
-import { rsvpLimiter } from '@/lib/rate-limit'
+import { rsvpLimiter, getClientIp } from '@/lib/rate-limit'
+import { rsvpSchema } from '@/lib/validation-schemas'
 
 /* POST /api/invitations/[id]/rsvp — submit RSVP (public) */
 export async function POST(
@@ -12,21 +13,22 @@ export async function POST(
     const { id: rawId } = await params
     const id = rawId.replace(/%20| /g, "-")
 
-    const ip = request.headers.get('x-forwarded-for') ?? '127.0.0.1'
+    const ip = getClientIp(request)
     const { success } = await rsvpLimiter.limit(`rsvp_${ip}_${id}`)
     if (!success) {
       return NextResponse.json({ error: 'Too many RSVP submissions. Please try again shortly.' }, { status: 429 })
     }
 
     const body = await request.json()
-    const { guestName, guestEmail, status } = body
+    const parseResult = rsvpSchema.safeParse(body)
+    if (!parseResult.success) {
+      const errorMsg = parseResult.error.issues[0]?.message || 'Invalid RSVP input'
+      return NextResponse.json({ error: errorMsg }, { status: 400 })
+    }
 
-    if (!guestName?.trim()) {
-      return NextResponse.json({ error: 'Guest name is required' }, { status: 400 })
-    }
-    if (!['accept', 'decline'].includes(status)) {
-      return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
-    }
+    const { guestName, guestEmail, status } = parseResult.data
+    const cleanEmail = guestEmail ? guestEmail.trim().toLowerCase() : null
+    const cleanName = guestName.trim()
 
     const supabase = createServiceClient()
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
@@ -53,12 +55,12 @@ export async function POST(
 
     const invitationId = inv.id
 
-    // Check for existing RSVP
+    // Check for existing RSVP using canonicalized email or name
     let rsvpQuery = supabase.from('rsvps').select('id').eq('invitation_id', invitationId)
-    if (guestEmail?.trim()) {
-      rsvpQuery = rsvpQuery.eq('guest_email', guestEmail.trim())
+    if (cleanEmail) {
+      rsvpQuery = rsvpQuery.eq('guest_email', cleanEmail)
     } else {
-      rsvpQuery = rsvpQuery.eq('guest_name', guestName.trim())
+      rsvpQuery = rsvpQuery.eq('guest_name', cleanName)
     }
     const { data: existingRsvp } = await rsvpQuery.limit(1).maybeSingle()
     if (existingRsvp) {
@@ -69,8 +71,8 @@ export async function POST(
       .from('rsvps')
       .insert({
         invitation_id: invitationId,
-        guest_name: guestName.trim(),
-        guest_email: guestEmail?.trim() || null,
+        guest_name: cleanName,
+        guest_email: cleanEmail,
         status,
       })
       .select()
@@ -80,14 +82,15 @@ export async function POST(
       if (error.code === '23505') { // Unique violation
         return NextResponse.json({ error: 'You have already submitted an RSVP for this invitation.' }, { status: 409 })
       }
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('RSVP insert error:', error)
+      return NextResponse.json({ error: 'Unable to save RSVP. Please try again.' }, { status: 500 })
     }
 
     // Send Notification Email if email exists
     try {
       const hostEmail = (inv.profiles as any)?.email;
       if (hostEmail) {
-        await sendRsvpNotification(hostEmail, guestName.trim(), status)
+        await sendRsvpNotification(hostEmail, cleanName, status)
       }
     } catch (e) {
       console.error('Failed to send RSVP notification:', e)

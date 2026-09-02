@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { sendWishNotification } from '@/lib/resend'
-import { wishesLimiter } from '@/lib/rate-limit'
+import { wishesLimiter, getClientIp } from '@/lib/rate-limit'
+import { wishesSchema } from '@/lib/validation-schemas'
 
 /* POST /api/invitations/[id]/wishes — submit wish (public) */
 export async function POST(
@@ -12,21 +13,20 @@ export async function POST(
     const { id: rawId } = await params
     const id = rawId.replace(/%20| /g, "-")
 
-    const ip = request.headers.get('x-forwarded-for') ?? '127.0.0.1'
+    const ip = getClientIp(request)
     const { success } = await wishesLimiter.limit(`wishes_${ip}_${id}`)
     if (!success) {
       return NextResponse.json({ error: 'Too many wish submissions. Please try again shortly.' }, { status: 429 })
     }
 
     const body = await request.json()
-    const { senderName, message } = body
+    const parseResult = wishesSchema.safeParse(body)
+    if (!parseResult.success) {
+      const errorMsg = parseResult.error.issues[0]?.message || 'Invalid wish parameters'
+      return NextResponse.json({ error: errorMsg }, { status: 400 })
+    }
 
-    if (!senderName?.trim()) {
-      return NextResponse.json({ error: 'Sender name is required' }, { status: 400 })
-    }
-    if (!message?.trim()) {
-      return NextResponse.json({ error: 'Message is required' }, { status: 400 })
-    }
+    const { senderName, message } = parseResult.data
 
     const supabase = createServiceClient()
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
@@ -34,7 +34,7 @@ export async function POST(
     // 2. Fetch invitation to check if it exists and to get user_id for sending notifications
     let invQuery = supabase
       .from('invitations')
-      .select('id, user_id, profiles(email)')
+      .select('id, is_active, user_id, profiles(email)')
 
     if (isUUID) {
       invQuery = invQuery.eq('id', id)
@@ -46,6 +46,9 @@ export async function POST(
 
     if (!inv) {
       return NextResponse.json({ error: 'Invitation not found' }, { status: 404 })
+    }
+    if (!inv.is_active) {
+      return NextResponse.json({ error: 'Invitation is not active' }, { status: 403 })
     }
 
     const invitationId = inv.id

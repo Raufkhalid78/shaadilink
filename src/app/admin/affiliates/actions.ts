@@ -1,16 +1,16 @@
 'use server';
 
-import { createClient, createServiceClient } from '@/lib/supabase/server';
+import { requireAdmin } from '@/lib/auth-helpers';
+import { createServiceClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { resend } from '@/lib/resend';
 import { getEmailWrapper } from '@/lib/email-templates';
 
 export async function updateAffiliateStatus(id: string, status: 'approved' | 'rejected') {
-  const authSupabase = await createClient();
-  const { data: { session } } = await authSupabase.auth.getSession();
-  
-  if (!session || session.user.email !== process.env.ADMIN_EMAIL) {
-    return { error: 'Unauthorized' };
+  try {
+    await requireAdmin();
+  } catch (err: any) {
+    return { error: err.message || 'Unauthorized' };
   }
 
   const supabase = createServiceClient();
@@ -93,11 +93,10 @@ export async function updateAffiliateStatus(id: string, status: 'approved' | 're
 }
 
 export async function deleteAffiliate(id: string) {
-  const authSupabase = await createClient();
-  const { data: { session } } = await authSupabase.auth.getSession();
-  
-  if (!session || session.user.email !== process.env.ADMIN_EMAIL) {
-    return { error: 'Unauthorized' };
+  try {
+    await requireAdmin();
+  } catch (err: any) {
+    return { error: err.message || 'Unauthorized' };
   }
 
   const supabase = createServiceClient();
@@ -115,11 +114,10 @@ export async function deleteAffiliate(id: string) {
 }
 
 export async function markCommissionPaid(id: string) {
-  const authSupabase = await createClient();
-  const { data: { session } } = await authSupabase.auth.getSession();
-  
-  if (!session || session.user.email !== process.env.ADMIN_EMAIL) {
-    return { error: 'Unauthorized' };
+  try {
+    await requireAdmin();
+  } catch (err: any) {
+    return { error: err.message || 'Unauthorized' };
   }
 
   const supabase = createServiceClient();

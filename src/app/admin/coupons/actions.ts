@@ -1,14 +1,14 @@
 'use server';
 
-import { createClient, createServiceClient } from '@/lib/supabase/server';
+import { requireAdmin } from '@/lib/auth-helpers';
+import { createServiceClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 
 export async function addCoupon(formData: FormData) {
-  const authSupabase = await createClient();
-  const { data: { session } } = await authSupabase.auth.getSession();
-  
-  if (!session || session.user.email !== process.env.ADMIN_EMAIL) {
-    return { error: 'Unauthorized' };
+  try {
+    await requireAdmin();
+  } catch (err: any) {
+    return { error: err.message || 'Unauthorized' };
   }
 
   const code = formData.get('code') as string;
@@ -31,11 +31,10 @@ export async function addCoupon(formData: FormData) {
 }
 
 export async function deleteCoupon(id: string) {
-  const authSupabase = await createClient();
-  const { data: { session } } = await authSupabase.auth.getSession();
-  
-  if (!session || session.user.email !== process.env.ADMIN_EMAIL) {
-    return { error: 'Unauthorized' };
+  try {
+    await requireAdmin();
+  } catch (err: any) {
+    return { error: err.message || 'Unauthorized' };
   }
 
   const supabase = createServiceClient();

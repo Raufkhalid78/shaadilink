@@ -159,6 +159,7 @@ export default function Home() {
         <Pricing onSelectPlan={(plan) => {
           localStorage.removeItem("shaadilink_pending_flow_data");
           localStorage.removeItem("shaadilink_oauth_in_progress");
+          resetFlowData();
           setFlowData({ selectedPlan: plan });
           router.push("/templates");
         }} />

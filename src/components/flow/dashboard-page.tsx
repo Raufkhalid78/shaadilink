@@ -359,7 +359,6 @@ export function DashboardPage({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Normalise a DB guest_link row → frontend shape
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mapLink = (row: any) => ({
     id: row.id,
     name: row.guest_name ?? row.name ?? '',

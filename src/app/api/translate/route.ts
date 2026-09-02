@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createOpenAI } from '@ai-sdk/openai'
 import { generateText } from 'ai'
-import { translateLimiter } from '@/lib/rate-limit'
+import { translateLimiter, getClientIp } from '@/lib/rate-limit'
 
 export const runtime = 'edge';
 
 export async function POST(request: NextRequest) {
   try {
-    const ip = request.headers.get('x-forwarded-for') ?? '127.0.0.1'
+    const ip = getClientIp(request)
     const { success } = await translateLimiter.limit(`translate_${ip}`)
     if (!success) {
       return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 })

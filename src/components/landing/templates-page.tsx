@@ -511,7 +511,7 @@ export function TemplatesPage({
   crumbs,
 }: TemplatesPageProps) {
   const [search, setSearch] = useState("");
-  const defaultTab = selectedPlan === "royal" ? "royal" : "classic";
+  const [activeTab, setActiveTab] = useState<string>(selectedPlan === "royal" ? "royal" : "classic");
 
   const filterTemplates = (templates: typeof classicTemplates) => {
     if (search === "") return templates;
@@ -567,7 +567,7 @@ export function TemplatesPage({
           </div>
 
           {/* Tabs: Classics / Royal */}
-          <Tabs defaultValue={defaultTab} className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="flex justify-center mb-8">
               <TabsList className="bg-muted/50 border border-border/50 p-1 h-auto">
                 <TabsTrigger

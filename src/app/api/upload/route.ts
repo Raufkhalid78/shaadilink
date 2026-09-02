@@ -1,11 +1,46 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { uploadLimiter, getClientIp } from '@/lib/rate-limit'
 
-/* POST /api/upload — upload image to Supabase Storage */
+function isValidImageBytes(buffer: ArrayBuffer): boolean {
+  if (buffer.byteLength < 4) return false
+  const bytes = new Uint8Array(buffer.slice(0, 12))
+
+  // JPEG: FF D8 FF
+  if (bytes[0] === 0xFF && bytes[1] === 0xD8 && bytes[2] === 0xFF) return true
+
+  // PNG: 89 50 4E 47
+  if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4E && bytes[3] === 0x47) return true
+
+  // GIF: 47 49 46 38
+  if (bytes[0] === 0x47 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x38) return true
+
+  // WebP: RIFF ... WEBP (52 49 46 46 ... 57 45 42 50)
+  if (bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46) {
+    if (bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50) return true
+  }
+
+  // HEIC / HEIF: ftyp box
+  if (bytes[4] === 0x66 && bytes[5] === 0x74 && bytes[6] === 0x79 && bytes[7] === 0x70) return true
+
+  return false
+}
+
+/* POST /api/upload — upload authenticated user image to Supabase Storage */
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized. Please sign in to upload photos.' }, { status: 401 })
+    }
+
+    const ip = getClientIp(request)
+    const { success } = await uploadLimiter.limit(`upload_${user.id}_${ip}`)
+    if (!success) {
+      return NextResponse.json({ error: 'Upload rate limit reached. Please try again later.' }, { status: 429 })
+    }
 
     const formData = await request.formData()
     let rawFiles = formData.getAll('files') as File[]
@@ -13,7 +48,6 @@ export async function POST(request: NextRequest) {
       rawFiles = formData.getAll('file') as File[]
     }
     if (!rawFiles || rawFiles.length === 0) {
-      // Check all entries for File objects
       const allFiles: File[] = []
       for (const value of formData.values()) {
         if (value && typeof value === 'object' && 'name' in value && 'size' in value) {
@@ -39,66 +73,40 @@ export async function POST(request: NextRequest) {
     }
 
     const service = createServiceClient()
-
-    // Ensure bucket exists and is public
-    try {
-      const { data: buckets } = await service.storage.listBuckets()
-      const bucketExists = buckets?.some(b => b.name === 'invitation-images')
-      if (!bucketExists) {
-        await service.storage.createBucket('invitation-images', {
-          public: true,
-          fileSizeLimit: 10 * 1024 * 1024,
-        })
-      }
-    } catch (bErr) {
-      console.warn('Bucket check/create note:', bErr)
-    }
-
     const uploadedUrls: string[] = []
 
     for (const file of files) {
       const rawExt = file.name?.split('.').pop()?.toLowerCase() ?? 'jpg'
       const ext = rawExt.replace(/[^a-z0-9]/g, '')
-      const isImage = (file.type && file.type.startsWith('image/')) || ['jpg', 'jpeg', 'png', 'webp', 'gif', 'heic', 'heif'].includes(ext)
-
-      if (!isImage) {
-        return NextResponse.json({ error: `Invalid file type: ${file.name || 'file'}. Only image files are allowed.` }, { status: 400 })
-      }
+      const allowedExts = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'heic', 'heif']
+      const cleanExt = allowedExts.includes(ext) ? ext : 'jpg'
 
       // Max 10MB per file
       if (file.size > 10 * 1024 * 1024) {
         return NextResponse.json({ error: `File ${file.name || 'file'} exceeds 10MB limit` }, { status: 400 })
       }
 
-      const folder = user ? user.id : 'uploads'
-      const cleanExt = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'heic', 'heif'].includes(ext) ? ext : 'jpg'
-      const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${cleanExt}`
       const buffer = await file.arrayBuffer()
+
+      // Magic byte validation against polyglot or non-image files
+      if (!isValidImageBytes(buffer)) {
+        return NextResponse.json({ error: `Invalid image format for ${file.name || 'file'}. Only genuine image files are allowed.` }, { status: 400 })
+      }
+
+      // User-scoped storage isolation
+      const fileName = `users/${user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${cleanExt}`
       const contentType = file.type && file.type.startsWith('image/') ? file.type : `image/${cleanExt === 'jpg' ? 'jpeg' : cleanExt}`
 
-      let { error: uploadError } = await service.storage
+      const { error: uploadError } = await service.storage
         .from('invitation-images')
         .upload(fileName, buffer, {
           contentType,
           upsert: true,
         })
 
-      if (uploadError && (uploadError.message?.includes('not found') || uploadError.message?.includes('Bucket'))) {
-        try {
-          await service.storage.createBucket('invitation-images', { public: true })
-          const retry = await service.storage
-            .from('invitation-images')
-            .upload(fileName, buffer, {
-              contentType,
-              upsert: true,
-            })
-          uploadError = retry.error
-        } catch {}
-      }
-
       if (uploadError) {
         console.error('Storage upload error:', uploadError)
-        return NextResponse.json({ error: uploadError.message || 'Failed to upload image' }, { status: 500 })
+        return NextResponse.json({ error: 'Failed to upload image. Please try again.' }, { status: 500 })
       }
 
       const { data: { publicUrl } } = service.storage
@@ -111,6 +119,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ urls: uploadedUrls }, { status: 201 })
   } catch (error: any) {
     console.error('POST /api/upload error:', error)
-    return NextResponse.json({ error: error?.message || 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ error: 'Internal server error while processing upload' }, { status: 500 })
   }
 }

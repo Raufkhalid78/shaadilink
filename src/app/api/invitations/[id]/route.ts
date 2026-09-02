@@ -134,7 +134,8 @@ for (const [jsKey, dbKey] of Object.entries(fieldMap)) {
       if (error.code === '23505') {
         return NextResponse.json({ error: 'This custom link slug is already taken. Please try another one.' }, { status: 400 })
       }
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('Invitation update error:', error)
+      return NextResponse.json({ error: 'Failed to update invitation. Please try again.' }, { status: 500 })
     }
 
     // Update events if provided
