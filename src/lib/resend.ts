@@ -253,20 +253,20 @@ export async function sendDraftRecoveryEmail(toEmail: string, plan: string) {
       from: 'ShaadiLink <hello@shaadilink.com.pk>',
       to: [toEmail],
       replyTo: 'hello@shaadilink.com.pk',
-      subject: 'Save 15% on your ShaadiLink Invitation! 🎁',
-      text: `Your invitation is waiting for you!\n\nHi there,\n\nWe noticed you started designing your ${plan} plan invitation but haven't completed it yet.\n\nUse Promo Code: WELCOME15 for 15% OFF when you upgrade to active.\n\nContinue Editing: https://www.shaadilink.com.pk/dashboard\n\nNeed help? Just reply to this email!`,
+      subject: 'Save 10% on your ShaadiLink Invitation! 🎁',
+      text: `Your invitation is waiting for you!\n\nHi there,\n\nWe noticed you started designing your ${plan} plan invitation but haven't completed it yet.\n\nUse Promo Code: WELCOME10 for 10% OFF when you upgrade to active.\n\nContinue Editing: https://www.shaadilink.com.pk/dashboard\n\nNeed help? Just reply to this email!`,
       html: getEmailWrapper(
         "Finish Your Masterpiece",
-        "Complete your digital invitation today and get 15% off.",
+        "Complete your digital invitation today and get 10% OFF.",
         `
           <h2 style="color: #022c22; margin-top: 0;">Your invitation is waiting for you!</h2>
           <p>Hi there,</p>
           <p>We noticed you started designing your beautiful <strong>${plan}</strong> plan invitation but haven't completed it yet.</p>
-          <p>Your draft is saved securely in your dashboard. To help you cross this off your wedding to-do list, we're offering a special <strong>15% OFF</strong> coupon when you activate your invitation.</p>
+          <p>Your draft is saved securely in your dashboard. To help you cross this off your wedding to-do list, we're offering a special <strong>10% OFF</strong> coupon when you activate your invitation.</p>
           
           <div style="background-color: #022c22; border-radius: 8px; padding: 20px; margin: 30px 0; text-align: center; border: 1px dashed #d4af37;">
             <p style="margin: 0; color: #a7f3d0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Use Promo Code</p>
-            <p style="margin: 0; color: #d4af37; font-size: 28px; font-weight: 800; letter-spacing: 2px;">WELCOME15</p>
+            <p style="margin: 0; color: #d4af37; font-size: 28px; font-weight: 800; letter-spacing: 2px;">WELCOME10</p>
           </div>
           
           <p style="text-align: center; color: #64748b; font-size: 14px; font-style: italic; margin-bottom: 30px;">(Valid for a limited time on any premium plan)</p>
