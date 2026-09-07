@@ -460,26 +460,6 @@ export default function RoyalEleganceViewer({ templateId, flowData, guestName, g
               )}
               <RoseDivider accent={theme.accent} />
               <p className="text-xl md:text-2xl leading-relaxed italic my-8 font-[var(--font-great-vibes)] whitespace-pre-wrap break-words" style={{ color: theme.accentLight, textShadow: `0 0 15px ${getOpacityStyle('text', 0.2)}` }}>{s.translatedWelcomeMsg}</p>
-              
-              {/* Host Families */}
-              {(flowData?.hostBrideFamily || flowData?.hostGroomFamily) && (
-                <div className="flex flex-col gap-6 my-8">
-                  {flowData?.hostBrideFamily && (
-                    <m.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="flex flex-col items-center">
-                      <span className="text-[10px] tracking-widest uppercase mb-1" style={{ color: theme.textMuted }}>{s.language === 'ur' ? 'دلہن کے اہل خانہ' : 'Host (Bride)'}</span>
-                      <span className="text-lg font-semibold" style={{ color: theme.textPrimary }}>{s.translatedHostBrideFamily || flowData.hostBrideFamily}</span>
-                      {flowData.hostBrideCity && <span className="text-xs mt-1" style={{ color: getOpacityStyle('text', 0.6) }}>{s.translatedHostBrideCity || flowData.hostBrideCity}</span>}
-                    </m.div>
-                  )}
-                  {flowData?.hostGroomFamily && (
-                    <m.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="flex flex-col items-center">
-                      <span className="text-[10px] tracking-widest uppercase mb-1" style={{ color: theme.textMuted }}>{s.language === 'ur' ? 'دلہے کے اہل خانہ' : 'Host (Groom)'}</span>
-                      <span className="text-lg font-semibold" style={{ color: theme.textPrimary }}>{s.translatedHostGroomFamily || flowData.hostGroomFamily}</span>
-                      {flowData.hostGroomCity && <span className="text-xs mt-1" style={{ color: getOpacityStyle('text', 0.6) }}>{s.translatedHostGroomCity || flowData.hostGroomCity}</span>}
-                    </m.div>
-                  )}
-                </div>
-              )}
 
               <RoseDivider accent={theme.accent} />
             </div>
