@@ -1,14 +1,9 @@
 import { NextResponse } from 'next/server';
-import { createClient as createAdminClient } from '@supabase/supabase-js';
-import { createClient } from '@/lib/supabase/server';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-
-const supabaseAdmin = createAdminClient(supabaseUrl, supabaseServiceKey);
+import { createClient, createServiceClient } from '@/lib/supabase/server';
 
 export async function GET(req: Request) {
   try {
+    const supabaseAdmin = createServiceClient();
     // Fetch approved reviews
     const { data: reviews, error } = await supabaseAdmin
       .from('reviews')
@@ -67,7 +62,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const { data, error } = await supabaseAdmin
+    const supabaseAdminClient = createServiceClient();
+    const { data, error } = await supabaseAdminClient
       .from('reviews')
       .insert({
         invitation_id,
