@@ -18,22 +18,22 @@ export async function sendWelcomeEmail(toEmail: string) {
 
   try {
     const data = await resend.emails.send({
-      from: 'ShaadiLink <hello@shaadilink.com.pk>',
+      from: 'Smart Invites <info@smartinvites.com.pk>',
       to: [toEmail],
-      replyTo: 'hello@shaadilink.com.pk',
-      subject: 'Welcome to ShaadiLink! 🎉',
-      text: `Welcome to ShaadiLink!\n\nHi there,\n\nThank you for subscribing to our newsletter! We're thrilled to have you join our community.\n\nYou'll be the first to know about our newest wedding templates, exclusive offers, and platform updates.\n\nBest regards,\nThe ShaadiLink Team\nhttps://www.shaadilink.com.pk`,
+      replyTo: 'info@smartinvites.com.pk',
+      subject: 'Welcome to Smart Invites! 🎉',
+      text: `Welcome to Smart Invites!\n\nHi there,\n\nThank you for subscribing to our newsletter! We're thrilled to have you join our community.\n\nYou'll be the first to know about our newest wedding templates, exclusive offers, and platform updates.\n\nBest regards,\nThe Smart Invites Team\nhttps://www.smartinvites.com.pk`,
       html: getEmailWrapper(
-        'Welcome to ShaadiLink!',
+        'Welcome to Smart Invites!',
         'Thank you for subscribing to our newsletter!',
         `
-          <h2 style="color: #022c22; margin-top: 0;">Welcome to ShaadiLink!</h2>
+          <h2 style="color: #022c22; margin-top: 0;">Welcome to Smart Invites!</h2>
           <p>Hi there,</p>
           <p>Thank you for subscribing to our newsletter! We're thrilled to have you join our community.</p>
           <p>You'll be the first to know about our newest wedding templates, exclusive offers, and platform updates.</p>
           <br/>
           <p>Best regards,</p>
-          <p><strong>The ShaadiLink Team</strong></p>
+          <p><strong>The Smart Invites Team</strong></p>
         `
       ),
     });
@@ -52,11 +52,11 @@ export async function sendRsvpNotification(toEmail: string, guestName: string, s
     const statusText = status === 'accept' ? 'Accepted' : 'Declined';
     
     return await resend.emails.send({
-      from: 'ShaadiLink <hello@shaadilink.com.pk>',
+      from: 'Smart Invites <info@smartinvites.com.pk>',
       to: [toEmail],
-      replyTo: 'hello@shaadilink.com.pk',
+      replyTo: 'info@smartinvites.com.pk',
       subject: `New RSVP: ${guestName} has ${statusText.toLowerCase()}`,
-      text: `New RSVP Received\n\nHi there,\n\n${guestName} has just submitted an RSVP for your invitation.\nStatus: ${statusText}\n\nView All RSVPs: https://www.shaadilink.com.pk/dashboard`,
+      text: `New RSVP Received\n\nHi there,\n\n${guestName} has just submitted an RSVP for your invitation.\nStatus: ${statusText}\n\nView All RSVPs: https://www.smartinvites.com.pk/dashboard`,
       html: getEmailWrapper(
         'New RSVP Received',
         `${guestName} has ${statusText.toLowerCase()} your invitation.`,
@@ -72,7 +72,7 @@ export async function sendRsvpNotification(toEmail: string, guestName: string, s
           
           <br/>
           <center>
-            <a href="https://shaadilink.com.pk/dashboard" style="background-color: #d4af37; color: #111827; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">View All RSVPs</a>
+            <a href="https://smartinvites.com.pk/dashboard" style="background-color: #d4af37; color: #111827; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">View All RSVPs</a>
           </center>
         `
       ),
@@ -88,11 +88,11 @@ export async function sendWishNotification(toEmail: string, guestName: string, m
 
   try {
     return await resend.emails.send({
-      from: 'ShaadiLink <hello@shaadilink.com.pk>',
+      from: 'Smart Invites <info@smartinvites.com.pk>',
       to: [toEmail],
-      replyTo: 'hello@shaadilink.com.pk',
+      replyTo: 'info@smartinvites.com.pk',
       subject: `New Wish from ${guestName}`,
-      text: `New Wish Received\n\nHi there,\n\n${guestName} left a new wish on your invitation:\n\n"${message}"\n\nView All Wishes: https://www.shaadilink.com.pk/dashboard`,
+      text: `New Wish Received\n\nHi there,\n\n${guestName} left a new wish on your invitation:\n\n"${message}"\n\nView All Wishes: https://www.smartinvites.com.pk/dashboard`,
       html: getEmailWrapper(
         'New Wish Received',
         `${guestName} left a new wish on your invitation.`,
@@ -107,7 +107,7 @@ export async function sendWishNotification(toEmail: string, guestName: string, m
           
           <br/>
           <center>
-            <a href="https://shaadilink.com.pk/dashboard" style="background-color: #d4af37; color: #111827; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">View All Wishes</a>
+            <a href="https://smartinvites.com.pk/dashboard" style="background-color: #d4af37; color: #111827; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">View All Wishes</a>
           </center>
         `
       ),
@@ -123,11 +123,11 @@ export async function sendRecoveryEmail(toEmail: string, orderId: string, plan: 
 
   try {
     return await resend.emails.send({
-      from: 'ShaadiLink <hello@shaadilink.com.pk>',
+      from: 'Smart Invites <info@smartinvites.com.pk>',
       to: [toEmail],
-      replyTo: 'hello@shaadilink.com.pk',
+      replyTo: 'info@smartinvites.com.pk',
       subject: 'Complete Your Dream Invitation & Get 10% Off! 💍',
-      text: `Don't lose your progress!\n\nHi there,\n\nWe noticed you started setting up your ${plan} plan invitation but didn't complete the payment.\n\nUse Promo Code: EARLYBIRD10 for 10% OFF.\n\nComplete My Invitation: https://www.shaadilink.com.pk/dashboard\n\nNeed help? Just reply to this email!`,
+      text: `Don't lose your progress!\n\nHi there,\n\nWe noticed you started setting up your ${plan} plan invitation but didn't complete the payment.\n\nUse Promo Code: EARLYBIRD10 for 10% OFF.\n\nComplete My Invitation: https://www.smartinvites.com.pk/dashboard\n\nNeed help? Just reply to this email!`,
       html: getEmailWrapper(
         "Don't lose your progress!",
         "Complete your order today and get 10% off your digital invitation.",
@@ -145,13 +145,13 @@ export async function sendRecoveryEmail(toEmail: string, orderId: string, plan: 
           <p style="text-align: center; color: #64748b; font-size: 14px; font-style: italic; margin-bottom: 30px;">(Hurry! This code is only valid for the first 10 people who use it.)</p>
           
           <center>
-            <a href="https://shaadilink.com.pk/dashboard" style="background-color: #d4af37; color: #111827; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; display: inline-block;">Complete My Invitation</a>
+            <a href="https://smartinvites.com.pk/dashboard" style="background-color: #d4af37; color: #111827; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; display: inline-block;">Complete My Invitation</a>
           </center>
           
           <br/><br/>
           <p>Need help choosing a template or have questions? Just reply to this email, and our team will be happy to assist you.</p>
           <p>Best wishes,</p>
-          <p><strong>The ShaadiLink Team</strong></p>
+          <p><strong>The Smart Invites Team</strong></p>
         `
       ),
     });
@@ -170,20 +170,20 @@ export async function sendAffiliateApplicationAdminAlert(data: {
   if (!resend) return null;
 
   try {
-    const adminEmail = process.env.ADMIN_EMAIL || 'hello@shaadilink.com.pk';
+    const adminEmail = process.env.ADMIN_EMAIL || 'info@smartinvites.com.pk';
     return await resend.emails.send({
-      from: 'ShaadiLink System <hello@shaadilink.com.pk>',
+      from: 'Smart Invites System <info@smartinvites.com.pk>',
       to: [adminEmail],
       replyTo: data.email,
       subject: `New Partner Application: ${data.name} 💼`,
-      text: `New Partner Application Received!\n\nName: ${data.name}\nEmail: ${data.email}\nSocial Link/Channel: ${data.socialId || 'None provided'}\nPromotion Strategy: ${data.promotionPlan}\n\nReview & Approve in Admin Portal: https://www.shaadilink.com.pk/admin/affiliates`,
+      text: `New Partner Application Received!\n\nName: ${data.name}\nEmail: ${data.email}\nSocial Link/Channel: ${data.socialId || 'None provided'}\nPromotion Strategy: ${data.promotionPlan}\n\nReview & Approve in Admin Portal: https://www.smartinvites.com.pk/admin/affiliates`,
       html: getEmailWrapper(
         'New Partner Application',
-        `${data.name} has applied to join the ShaadiLink Partner Program.`,
+        `${data.name} has applied to join the Smart Invites Partner Program.`,
         `
           <h2 style="color: #022c22; margin-top: 0;">New Partner Application</h2>
           <p>Hi Admin,</p>
-          <p>A new applicant has submitted their registration for the <strong>ShaadiLink Partner / Affiliate Program</strong>.</p>
+          <p>A new applicant has submitted their registration for the <strong>Smart Invites Partner / Affiliate Program</strong>.</p>
           
           <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 20px 0;">
             <p style="margin: 0 0 10px 0; color: #334155;"><strong>Applicant Name:</strong> ${data.name}</p>
@@ -197,7 +197,7 @@ export async function sendAffiliateApplicationAdminAlert(data: {
           
           <br/>
           <center>
-            <a href="https://www.shaadilink.com.pk/admin/affiliates" style="background-color: #d4af37; color: #111827; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Review &amp; Approve Application</a>
+            <a href="https://www.smartinvites.com.pk/admin/affiliates" style="background-color: #d4af37; color: #111827; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Review &amp; Approve Application</a>
           </center>
         `
       ),
@@ -213,18 +213,18 @@ export async function sendAffiliateApplicationConfirmation(toEmail: string, name
 
   try {
     return await resend.emails.send({
-      from: 'ShaadiLink Partners <hello@shaadilink.com.pk>',
+      from: 'Smart Invites Partners <info@smartinvites.com.pk>',
       to: [toEmail],
-      replyTo: 'hello@shaadilink.com.pk',
-      subject: "We've Received Your ShaadiLink Partner Application! 🤝",
-      text: `Application Received\n\nHi ${name},\n\nThank you for applying to the ShaadiLink Partner Program!\n\nWe have received your application and our team is currently reviewing your details. You will receive an email update within 24 to 48 hours once your application has been processed.\n\nBest regards,\nThe ShaadiLink Team\nhttps://www.shaadilink.com.pk`,
+      replyTo: 'info@smartinvites.com.pk',
+      subject: "We've Received Your Smart Invites Partner Application! 🤝",
+      text: `Application Received\n\nHi ${name},\n\nThank you for applying to the Smart Invites Partner Program!\n\nWe have received your application and our team is currently reviewing your details. You will receive an email update within 24 to 48 hours once your application has been processed.\n\nBest regards,\nThe Smart Invites Team\nhttps://www.smartinvites.com.pk`,
       html: getEmailWrapper(
         'Application Received!',
-        'Thank you for applying to the ShaadiLink Partner Program.',
+        'Thank you for applying to the Smart Invites Partner Program.',
         `
           <h2 style="color: #022c22; margin-top: 0;">Application Received!</h2>
           <p>Hi ${name},</p>
-          <p>Thank you for applying to the <strong>ShaadiLink Partner Program</strong>! We're excited about the opportunity to collaborate with you.</p>
+          <p>Thank you for applying to the <strong>Smart Invites Partner Program</strong>! We're excited about the opportunity to collaborate with you.</p>
           <p>Our team is currently reviewing your application. You will receive an email update with your unique referral link and dashboard access once approved (typically within <strong>24 to 48 hours</strong>).</p>
           
           <div style="background-color: #f1f5f9; border-radius: 8px; padding: 20px; margin: 25px 0; border-left: 4px solid #d4af37;">
@@ -235,7 +235,7 @@ export async function sendAffiliateApplicationConfirmation(toEmail: string, name
           <p>If you have any questions in the meantime, simply reply to this email.</p>
           <br/>
           <p>Best regards,</p>
-          <p><strong>The ShaadiLink Team</strong></p>
+          <p><strong>The Smart Invites Team</strong></p>
         `
       ),
     });
@@ -250,11 +250,11 @@ export async function sendDraftRecoveryEmail(toEmail: string, plan: string) {
 
   try {
     return await resend.emails.send({
-      from: 'ShaadiLink <hello@shaadilink.com.pk>',
+      from: 'Smart Invites <info@smartinvites.com.pk>',
       to: [toEmail],
-      replyTo: 'hello@shaadilink.com.pk',
-      subject: 'Save 10% on your ShaadiLink Invitation! 🎁',
-      text: `Your invitation is waiting for you!\n\nHi there,\n\nWe noticed you started designing your ${plan} plan invitation but haven't completed it yet.\n\nUse Promo Code: WELCOME10 for 10% OFF when you upgrade to active.\n\nContinue Editing: https://www.shaadilink.com.pk/dashboard\n\nNeed help? Just reply to this email!`,
+      replyTo: 'info@smartinvites.com.pk',
+      subject: 'Save 10% on your Smart Invites Invitation! 🎁',
+      text: `Your invitation is waiting for you!\n\nHi there,\n\nWe noticed you started designing your ${plan} plan invitation but haven't completed it yet.\n\nUse Promo Code: WELCOME10 for 10% OFF when you upgrade to active.\n\nContinue Editing: https://www.smartinvites.com.pk/dashboard\n\nNeed help? Just reply to this email!`,
       html: getEmailWrapper(
         "Finish Your Masterpiece",
         "Complete your digital invitation today and get 10% OFF.",
@@ -272,13 +272,13 @@ export async function sendDraftRecoveryEmail(toEmail: string, plan: string) {
           <p style="text-align: center; color: #64748b; font-size: 14px; font-style: italic; margin-bottom: 30px;">(Valid for a limited time on any premium plan)</p>
           
           <center>
-            <a href="https://shaadilink.com.pk/dashboard" style="background-color: #d4af37; color: #111827; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; display: inline-block;">Continue Editing</a>
+            <a href="https://smartinvites.com.pk/dashboard" style="background-color: #d4af37; color: #111827; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; display: inline-block;">Continue Editing</a>
           </center>
           
           <br/><br/>
           <p>Need help choosing a template or have questions? Just reply to this email, and our team will be happy to assist you.</p>
           <p>Best wishes,</p>
-          <p><strong>The ShaadiLink Team</strong></p>
+          <p><strong>The Smart Invites Team</strong></p>
         `
       ),
     });

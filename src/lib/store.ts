@@ -20,7 +20,7 @@ export const useFlowStore = create<FlowState>()(
       resetFlowData: () => set({ flowData: initialFlowData }),
     }),
     {
-      name: 'shaadilink_pending_flow_data',
+      name: 'smartinvites_pending_flow_data',
       storage: createJSONStorage(() => localStorage),
     }
   )

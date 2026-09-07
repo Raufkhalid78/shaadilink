@@ -3,8 +3,8 @@ import { redirect } from 'next/navigation';
 import { AffiliateDashboardClient } from './affiliate-client';
 
 export const metadata = {
-  title: 'Affiliate Dashboard | ShaadiLink',
-  description: 'Manage your ShaadiLink affiliate account, view earnings, and generate your referral code.',
+  title: 'Affiliate Dashboard | Smart Invites',
+  description: 'Manage your Smart Invites affiliate account, view earnings, and generate your referral code.',
 };
 
 export default async function AffiliateDashboardPage() {

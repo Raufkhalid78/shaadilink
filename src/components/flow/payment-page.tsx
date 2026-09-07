@@ -153,7 +153,7 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
         >
           {/* Section Header */}
           <div className="text-center space-y-2">
-            <Badge className="bg-gold/15 text-gold border-gold/30 px-3 py-1 text-xs font-semibold">
+            <Badge className="bg-primary/15 text-primary border-gold/30 px-3 py-1 text-xs font-semibold">
               <Lock className="w-3 h-3 mr-1.5" /> 256-Bit SSL Encrypted Safepay Checkout
             </Badge>
             <h1 className="font-display text-3xl sm:text-4xl font-extrabold text-foreground">
@@ -180,7 +180,7 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                 
                 <div className="flex items-center justify-between border-b border-border/50 pb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-2xl bg-gold/15 border border-gold/30 flex items-center justify-center text-gold shrink-0">
+                    <div className="w-10 h-10 rounded-2xl bg-primary/15 border border-gold/30 flex items-center justify-center text-primary shrink-0">
                       <Shield className="w-5 h-5" />
                     </div>
                     <div>
@@ -188,7 +188,7 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                       <p className="text-xs text-muted-foreground">Official encrypted checkout for Pakistan &amp; International cards</p>
                     </div>
                   </div>
-                  <Badge className="bg-emerald/20 text-emerald border-emerald/30 text-[10px] font-bold">Safepay Verified</Badge>
+                  <Badge className="bg-emerald/20 text-foreground border-primary/30 text-[10px] font-bold">Safepay Verified</Badge>
                 </div>
 
                 {/* Supported Payment Methods Showcase */}
@@ -198,7 +198,7 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {/* Method 1: Cards */}
                     <div className="p-4 rounded-2xl bg-background/80 border border-gold/30 flex items-center gap-3 shadow-sm">
-                      <div className="w-9 h-9 rounded-xl bg-gold/10 flex items-center justify-center text-gold shrink-0">
+                      <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
                         <CreditCard className="w-5 h-5" />
                       </div>
                       <div>
@@ -209,7 +209,7 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
 
                     {/* Method 2: Google Pay */}
                     <div className="p-4 rounded-2xl bg-background/80 border border-gold/30 flex items-center gap-3 shadow-sm">
-                      <div className="w-9 h-9 rounded-xl bg-emerald/10 flex items-center justify-center text-emerald shrink-0">
+                      <div className="w-9 h-9 rounded-xl bg-emerald/10 flex items-center justify-center text-foreground shrink-0">
                         <Globe className="w-5 h-5" />
                       </div>
                       <div>
@@ -224,7 +224,7 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                 {!flowData.paymentDone && (
                   <div className="space-y-2 pt-2 border-t border-border/40">
                     <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                      <Tag className="w-3.5 h-3.5 text-gold" /> Promo Code
+                      <Tag className="w-3.5 h-3.5 text-primary" /> Promo Code
                     </label>
                     <div className="flex gap-2">
                       <Input
@@ -253,14 +253,14 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                           type="button"
                           variant="outline"
                           onClick={handleApplyPromo}
-                          className="border-gold/50 text-gold hover:bg-gold/10 font-bold shrink-0"
+                          className="border-gold/50 text-primary hover:bg-primary/10 font-bold shrink-0"
                         >
                           Apply
                         </Button>
                       )}
                     </div>
                     {appliedPromo && (
-                      <p className="text-xs text-emerald font-semibold flex items-center gap-1">
+                      <p className="text-xs text-foreground font-semibold flex items-center gap-1">
                         <CheckCircle2 className="w-3.5 h-3.5" /> Promo code '{appliedPromo}' applied! {discountPercent}% discount active.
                       </p>
                     )}
@@ -273,10 +273,10 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                     id="terms-checkbox"
                     checked={acceptedTerms}
                     onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
-                    className="mt-0.5 border-gold data-[state=checked]:bg-gold data-[state=checked]:text-emerald-dark shrink-0"
+                    className="mt-0.5 border-gold data-[state=checked]:bg-primary data-[state=checked]:text-foreground-dark shrink-0"
                   />
                   <label htmlFor="terms-checkbox" className="text-xs text-muted-foreground leading-relaxed cursor-pointer">
-                    I agree to the <a href="/terms" target="_blank" className="text-gold underline hover:text-gold-light">Terms of Service</a> and acknowledge that all purchases are subject to the <a href="/refund" target="_blank" className="text-gold underline hover:text-gold-light">Refund Policy</a>.
+                    I agree to the <a href="/terms" target="_blank" className="text-primary underline hover:text-primary-light">Terms of Service</a> and acknowledge that all purchases are subject to the <a href="/refund" target="_blank" className="text-primary underline hover:text-primary-light">Refund Policy</a>.
                   </label>
                 </div>
 
@@ -285,7 +285,7 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                   onClick={handleInitiatePayment}
                   disabled={processing || finalTotal <= 0 || !acceptedTerms}
                   size="lg"
-                  className="w-full bg-gold hover:bg-gold-light text-emerald-dark font-extrabold text-base gap-2 shadow-2xl h-14"
+                  className="w-full bg-primary hover:bg-primary-light text-foreground-dark font-extrabold text-base gap-2 shadow-2xl h-14"
                 >
                   {processing ? (
                     <><Loader2 className="w-5 h-5 animate-spin" /> Redirecting to Safepay Checkout...</>
@@ -314,17 +314,17 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
               {/* 3 Key Trust Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="p-4 rounded-2xl bg-card/50 border border-border/50 text-center space-y-1">
-                  <Lock className="w-5 h-5 text-gold mx-auto" />
+                  <Lock className="w-5 h-5 text-primary mx-auto" />
                   <p className="text-xs font-bold text-foreground">256-Bit SSL</p>
                   <p className="text-[10px] text-muted-foreground">Bank-level encrypted checkout</p>
                 </div>
                 <div className="p-4 rounded-2xl bg-card/50 border border-border/50 text-center space-y-1">
-                  <Sparkles className="w-5 h-5 text-emerald mx-auto" />
+                  <Sparkles className="w-5 h-5 text-foreground mx-auto" />
                   <p className="text-xs font-bold text-foreground">Instant Activation</p>
                   <p className="text-[10px] text-muted-foreground">Link active immediately</p>
                 </div>
                 <div className="p-4 rounded-2xl bg-card/50 border border-border/50 text-center space-y-1">
-                  <Shield className="w-5 h-5 text-gold mx-auto" />
+                  <Shield className="w-5 h-5 text-primary mx-auto" />
                   <p className="text-xs font-bold text-foreground">100% Guarantee</p>
                   <p className="text-[10px] text-muted-foreground">Secure encrypted transaction</p>
                 </div>
@@ -340,9 +340,9 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                 
                 <div className="flex items-center justify-between border-b border-border/50 pb-3">
                   <h3 className="font-display text-base font-bold text-foreground flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-gold" /> Invitation Preview
+                    <Sparkles className="w-4 h-4 text-primary" /> Invitation Preview
                   </h3>
-                  <Badge className={flowData.selectedPlan === "royal" ? "bg-gold/20 text-gold border-gold/30" : "bg-emerald/20 text-emerald border-emerald/30"}>
+                  <Badge className={flowData.selectedPlan === "royal" ? "bg-primary/20 text-primary border-gold/30" : "bg-emerald/20 text-foreground border-primary/30"}>
                     {flowData.selectedPlan === "royal" && <Crown className="w-3 h-3 mr-1" />}
                     {plan.name}
                   </Badge>
@@ -350,13 +350,13 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
 
                 {/* Compact Preview Thumbnail Card */}
                 <div className="p-4 rounded-2xl bg-muted/40 border border-border/50 space-y-2 text-center">
-                  <p className="text-[9px] uppercase tracking-widest text-gold font-bold">The Wedding of</p>
+                  <p className="text-[9px] uppercase tracking-widest text-primary font-bold">The Wedding of</p>
                   <h4 className="font-display text-xl font-bold text-foreground">
-                    {flowData.partner1Name || "Partner 1"} <span className="text-gold italic">&amp;</span> {flowData.partner2Name || "Partner 2"}
+                    {flowData.partner1Name || "Partner 1"} <span className="text-primary italic">&amp;</span> {flowData.partner2Name || "Partner 2"}
                   </h4>
                   <div className="flex items-center justify-center gap-3 text-[10px] text-muted-foreground pt-1">
-                    <span className="flex items-center gap-1"><Heart className="w-3 h-3 text-gold" /> {templateName}</span>
-                    <span className="flex items-center gap-1"><MapPin className="w-3 h-3 text-gold" /> {flowData.venue || "Venue"}</span>
+                    <span className="flex items-center gap-1"><Heart className="w-3 h-3 text-primary" /> {templateName}</span>
+                    <span className="flex items-center gap-1"><MapPin className="w-3 h-3 text-primary" /> {flowData.venue || "Venue"}</span>
                   </div>
                 </div>
 
@@ -365,7 +365,7 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                   <p className="font-semibold text-muted-foreground uppercase text-[10px] tracking-wider">Plan Highlights Included:</p>
                   {plan.features.slice(0, 6).map((f) => (
                     <div key={f} className="flex items-center gap-2 text-muted-foreground">
-                      <Check className="w-3.5 h-3.5 text-emerald shrink-0" />
+                      <Check className="w-3.5 h-3.5 text-foreground shrink-0" />
                       <span>{f}</span>
                     </div>
                   ))}
@@ -400,7 +400,7 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                           const current = flowData.guestLinksQuota || (flowData.originalGuestLinksQuota || 0);
                           onUpdateData({ guestLinksQuota: current + 50 });
                         }}
-                        className="w-6 h-6 rounded-lg flex items-center justify-center bg-gold text-emerald-dark hover:bg-gold-light text-xs font-bold"
+                        className="w-6 h-6 rounded-lg flex items-center justify-center bg-primary text-foreground-dark hover:bg-primary-light text-xs font-bold"
                       >
                         +
                       </button>
@@ -423,7 +423,7 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                   )}
 
                   {appliedPromo && discountAmount > 0 && (
-                    <div className="flex justify-between text-emerald font-semibold">
+                    <div className="flex justify-between text-foreground font-semibold">
                       <span>Promo Discount ({discountPercent}%)</span>
                       <span>- Rs. {discountAmount.toLocaleString("en-PK")}</span>
                     </div>
@@ -433,7 +433,7 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                     <span className="font-bold text-sm text-foreground">Total Payable</span>
                     <div className="text-right">
                       <span className="text-xs text-muted-foreground">PKR </span>
-                      <span className="font-display text-2xl font-extrabold text-gold">
+                      <span className="font-display text-2xl font-extrabold text-primary">
                         Rs. {finalTotal.toLocaleString("en-PK")}
                       </span>
                     </div>
@@ -457,7 +457,7 @@ function StepDot({ done, current, label, stepNumber }: { done?: boolean; current
     <div className="flex items-center gap-1">
       <div
         className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center ${
-          done ? "bg-gold text-emerald-dark" : current ? "bg-emerald text-primary-foreground" : "bg-muted text-muted-foreground"
+          done ? "bg-primary text-foreground-dark" : current ? "bg-emerald text-primary-foreground" : "bg-muted text-muted-foreground"
         }`}
       >
         {done ? <Check className="w-3 h-3" /> : current ? String(stepNumber) : ""}
@@ -470,5 +470,5 @@ function StepDot({ done, current, label, stepNumber }: { done?: boolean; current
 }
 
 function StepLine({ active }: { active?: boolean }) {
-  return <div className={`w-4 sm:w-6 h-px ${active ? "bg-gold/30" : "bg-border"}`} />;
+  return <div className={`w-4 sm:w-6 h-px ${active ? "bg-primary/30" : "bg-border"}`} />;
 }

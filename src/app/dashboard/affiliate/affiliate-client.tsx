@@ -80,7 +80,7 @@ export function AffiliateDashboardClient({
 
   const shareOnWhatsApp = () => {
     if (!referralCode) return;
-    const text = encodeURIComponent(`Use my code *${referralCode.code}* on ShaadiLink for 10% off your digital wedding invitation! 🎉 https://shaadilink.com.pk`);
+    const text = encodeURIComponent(`Use my code *${referralCode.code}* on Smart Invites for 10% off your digital wedding invitation! 🎉 https://smartinvites.com.pk`);
     window.open(`https://wa.me/?text=${text}`, '_blank');
   };
 

@@ -131,7 +131,7 @@ export function AffiliatePage({ onBack }: AffiliatePageProps) {
                 commission on every sale
               </h1>
               <p className="mt-4 text-muted-foreground text-lg max-w-xl mx-auto">
-                Share ShaadiLink with your audience using your unique coupon code. They get 10% off their invitation, and you earn 10% commission on the sale!
+                Share Smart Invites with your audience using your unique coupon code. They get 10% off their invitation, and you earn 10% commission on the sale!
               </p>
             </m.div>
           </div>
@@ -268,7 +268,7 @@ export function AffiliatePage({ onBack }: AffiliatePageProps) {
 
                       <div className="space-y-1.5">
                       <label htmlFor="aff-promo" className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                        How will you promote ShaadiLink? <span className="text-red-400">*</span>
+                        How will you promote Smart Invites? <span className="text-red-400">*</span>
                       </label>
                       <Textarea
                         id="aff-promo"

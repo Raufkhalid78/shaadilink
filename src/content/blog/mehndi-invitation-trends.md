@@ -6,7 +6,7 @@ description: 'Discover the latest digital invitation trends for Mehndi ceremonie
 
 The Mehndi ceremony is often the most vibrant and energetic event of a Pakistani wedding. In recent years, couples have increasingly turned to digital invitations to set the perfect tone for their dholki and mehndi nights.
 
-Here are the top 5 trends we are seeing on **ShaadiLink** right now:
+Here are the top 5 trends we are seeing on **Smart Invites** right now:
 
 ## 1. Interactive Scratch-to-Reveal Cards
 
@@ -30,4 +30,4 @@ Say goodbye to manual spreadsheets. The best digital invitations now include bui
 
 ---
 
-*Ready to create your own unforgettable Mehndi invitation? Explore our stunning templates at [ShaadiLink](/templates) today.*
+*Ready to create your own unforgettable Mehndi invitation? Explore our stunning templates at [Smart Invites](/templates) today.*

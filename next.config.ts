@@ -61,7 +61,7 @@ const nextConfig: NextConfig = {
 import { withSentryConfig } from "@sentry/nextjs";
 
 export default withSentryConfig(nextConfig, {
-  org: "shaadilink",
+  org: "smartinvites",
   project: "javascript-nextjs",
 
   // Only print logs for uploading source maps in CI

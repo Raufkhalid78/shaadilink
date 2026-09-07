@@ -6,27 +6,27 @@ import { Button } from "@/components/ui/button";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Blog | ShaadiLink",
-  description: "Read the latest tips, trends, and news about Pakistani wedding invitations on the ShaadiLink blog.",
+  title: "Blog | Smart Invites",
+  description: "Read the latest tips, trends, and news about Pakistani wedding invitations on the Smart Invites blog.",
   openGraph: {
-    title: "Blog | ShaadiLink",
-    description: "Read the latest tips, trends, and news about Pakistani wedding invitations on the ShaadiLink blog.",
+    title: "Blog | Smart Invites",
+    description: "Read the latest tips, trends, and news about Pakistani wedding invitations on the Smart Invites blog.",
     type: "website",
     locale: "en_PK",
-    siteName: "ShaadiLink",
+    siteName: "Smart Invites",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "ShaadiLink - Premium Digital Wedding Invitations",
+        alt: "Smart Invites - Premium Digital Wedding Invitations",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Blog | ShaadiLink",
-    description: "Read the latest tips, trends, and news about Pakistani wedding invitations on the ShaadiLink blog.",
+    title: "Blog | Smart Invites",
+    description: "Read the latest tips, trends, and news about Pakistani wedding invitations on the Smart Invites blog.",
     images: ["/og-image.png"],
   }
 };
@@ -37,16 +37,16 @@ export default function BlogListingPage() {
   const schemaJson = {
     "@context": "https://schema.org",
     "@type": "Blog",
-    "@id": "https://shaadilink.com.pk/blog",
-    "name": "ShaadiLink Blog",
+    "@id": "https://smartinvites.com.pk/blog",
+    "name": "Smart Invites Blog",
     "description": "Tips, trends, and inspiration for your perfect digital wedding invitation.",
-    "url": "https://shaadilink.com.pk/blog",
+    "url": "https://smartinvites.com.pk/blog",
     "publisher": {
       "@type": "Organization",
-      "name": "ShaadiLink",
+      "name": "Smart Invites",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://shaadilink.com.pk/logo.svg"
+        "url": "https://smartinvites.com.pk/logo.svg"
       }
     },
     "blogPost": posts.map(post => ({
@@ -54,10 +54,10 @@ export default function BlogListingPage() {
       "headline": post.title,
       "description": post.description,
       "datePublished": new Date(post.date).toISOString(),
-      "url": `https://shaadilink.com.pk/blog/${post.slug}`,
+      "url": `https://smartinvites.com.pk/blog/${post.slug}`,
       "author": {
         "@type": "Organization",
-        "name": "ShaadiLink"
+        "name": "Smart Invites"
       }
     }))
   };
@@ -76,7 +76,7 @@ export default function BlogListingPage() {
               Back to Home
             </Button>
           </Link>
-          <h1 className="text-4xl md:text-5xl font-display text-gold">The ShaadiLink Blog</h1>
+          <h1 className="text-4xl md:text-5xl font-display text-gold">The Smart Invites Blog</h1>
           <p className="text-muted-foreground text-lg max-w-2xl">
             Tips, trends, and inspiration for your perfect digital wedding invitation.
           </p>

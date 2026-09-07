@@ -21,7 +21,7 @@ export default async function AdminUsers() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold font-display tracking-tight">Registered Users</h1>
-        <p className="text-muted-foreground text-sm">View all registered user accounts on ShaadiLink.</p>
+        <p className="text-muted-foreground text-sm">View all registered user accounts on Smart Invites.</p>
       </div>
 
       <Card className="border-border/50 bg-card/30">

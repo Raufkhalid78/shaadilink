@@ -112,7 +112,7 @@ export function AddToCalendarDropdown({
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `${event.name.replace(/\s+/g, '-')}-shaadilink.ics`
+    a.download = `${event.name.replace(/\s+/g, '-')}-smartinvites.ics`
     a.click()
     URL.revokeObjectURL(url)
     setOpen(false)

@@ -34,8 +34,8 @@ function AppPurposeSection() {
     { icon: "🗺️", label: t('purpose.feat.6.label'), desc: t('purpose.feat.6.desc') },
   ];
   return (
-    <section id="about-shaadilink" className="py-16 px-4 sm:px-6 bg-gradient-to-b from-emerald-dark/20 to-background relative overflow-hidden">
-      <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(15,107,78,0.08) 0%, transparent 70%)' }} />
+    <section id="about-smartinvites" className="py-16 px-4 sm:px-6 bg-gradient-to-b from-primary/10 to-background relative overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(168,85,247,0.08) 0%, transparent 70%)' }} />
       <div className="max-w-5xl mx-auto relative z-10">
         <m.div
           initial={{ opacity: 0, y: 20 }}
@@ -52,7 +52,7 @@ function AppPurposeSection() {
             <span className="gold-shimmer">{t('purpose.title.2')}</span> {t('purpose.title.3')}
           </h2>
           <p className="mt-4 text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-            <strong className="text-foreground">ShaadiLink</strong> {t('purpose.desc').replace('ShaadiLink', '')}
+            <strong className="text-foreground">Smart Invites</strong> {t('purpose.desc').replace('Smart Invites', '')}
           </p>
         </m.div>
 
@@ -144,21 +144,17 @@ export default function Home() {
       />
       
       <main id="main-content" className="flex-1">
-        <Hero
-          onViewTemplates={() => router.push("/templates")}
-          onGetStarted={scrollToPricing}
-          onViewDemo={() => router.push("/demo/emerald-noir")}
-        />
+        <Hero />
         
-        <AppPurposeSection />
+        
         <Features />
-        <TemplateShowcase onViewAllClick={() => router.push("/templates")} />
+        
         <HowItWorks />
-        <Comparison />
-        <Testimonials />
+        {/* <Comparison /> */}
+        {/* <Testimonials /> */}
         <Pricing onSelectPlan={(plan) => {
-          localStorage.removeItem("shaadilink_pending_flow_data");
-          localStorage.removeItem("shaadilink_oauth_in_progress");
+          localStorage.removeItem("smartinvites_pending_flow_data");
+          localStorage.removeItem("smartinvites_oauth_in_progress");
           resetFlowData();
           setFlowData({ selectedPlan: plan });
           router.push("/templates");
@@ -175,7 +171,7 @@ export default function Home() {
               </summary>
               <p className="mt-3 text-[11px] leading-relaxed text-center text-muted-foreground/80">
                 {language === 'en'
-                  ? 'ShaadiLink uses Google Sign-In solely to authenticate your identity and secure access to your wedding invitation drafts and RSVP details. We retrieve your name and email address to maintain account sync. None of this data is shared with third parties or used for any other purpose.'
+                  ? 'Smart Invites uses Google Sign-In solely to authenticate your identity and secure access to your event invitation drafts and RSVP details. We retrieve your name and email address to maintain account sync. None of this data is shared with third parties or used for any other purpose.'
                   : 'شادی لنک گوگل سائن ان کا استعمال صرف آپ کی شناخت کی تصدیق اور آپ کے دعوت ناموں اور RSVP کی تفصیلات تک محفوظ رسائی کے لیے کرتا ہے۔ ہم آپ کا نام اور ای میل ایڈریس حاصل کرتے ہیں تاکہ اکاؤنٹ سنک کو برقرار رکھا جا سکے۔ یہ ڈیٹا کسی تیسرے فریق کے ساتھ شیئر نہیں کیا جاتا۔'}
               </p>
             </details>

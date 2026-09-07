@@ -92,10 +92,10 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
           customVerseSource: flowData.customVerseSource || undefined,
           youtubeVideoId: flowData.youtubeVideoId,
           slug: flowData.slug || undefined,
-          hostBrideFamily: flowData.hostBrideFamily,
-          hostGroomFamily: flowData.hostGroomFamily,
-          hostBrideCity: flowData.hostBrideCity,
-          hostGroomCity: flowData.hostGroomCity,
+          primaryHostFamily: flowData.primaryHostFamily,
+          secondaryHostFamily: flowData.secondaryHostFamily,
+          primaryHostCity: flowData.primaryHostCity,
+          secondaryHostCity: flowData.secondaryHostCity,
           contactPhone: flowData.contactPhone,
           isSegregated: flowData.isSegregated,
           venueDetailsSegregated: flowData.venueDetailsSegregated,
@@ -346,10 +346,10 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
           customVerseSource: flowData.customVerseSource || undefined,
           youtubeVideoId: flowData.youtubeVideoId,
           slug: flowData.slug || undefined,
-          hostBrideFamily: flowData.hostBrideFamily,
-          hostGroomFamily: flowData.hostGroomFamily,
-          hostBrideCity: flowData.hostBrideCity,
-          hostGroomCity: flowData.hostGroomCity,
+          primaryHostFamily: flowData.primaryHostFamily,
+          secondaryHostFamily: flowData.secondaryHostFamily,
+          primaryHostCity: flowData.primaryHostCity,
+          secondaryHostCity: flowData.secondaryHostCity,
           contactPhone: flowData.contactPhone,
           isSegregated: flowData.isSegregated,
           venueDetailsSegregated: flowData.venueDetailsSegregated,
@@ -361,7 +361,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
         const data = await res.json();
         // If user is not authenticated (e.g. demo mode), continue anyway
         if (res.status === 401) {
-          sessionStorage.setItem('shaadilink_draft', JSON.stringify(flowData))
+          sessionStorage.setItem('smartinvites_draft', JSON.stringify(flowData))
           toast.error("Please sign in. Your progress has been saved.")
           if (onRequireLogin) {
             onRequireLogin();
@@ -542,12 +542,12 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                 size="sm"
                 onClick={() => autoSaveDraft(currentStep, true)}
                 disabled={isSaving || isAutoSaving}
-                className="h-8 px-3 text-xs border-gold/40 text-gold hover:bg-gold/10 font-semibold gap-1.5 shadow-sm"
+                className="h-8 px-3 text-xs border-gold/40 text-primary hover:bg-primary/10 font-semibold gap-1.5 shadow-sm"
               >
                 {isAutoSaving ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 ) : (
-                  <Check className="w-3.5 h-3.5 text-emerald" />
+                  <Check className="w-3.5 h-3.5 text-foreground" />
                 )}
                 <span className="hidden sm:inline">Save Draft</span>
               </Button>
@@ -572,7 +572,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
               Fill Your Details
             </h1>
             <p className="text-muted-foreground text-xs sm:text-sm">
-              Enter your wedding details — your progress is automatically saved at each step.
+              Enter your event details — your progress is automatically saved at each step.
             </p>
             {errors.events && <p className="text-sm text-red-500 font-semibold">{errors.events}</p>}
           </div>
@@ -593,7 +593,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                   onClick={() => goToStep(tab.step)}
                   className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
                     isActive
-                      ? "bg-gold text-emerald-dark font-bold shadow-md"
+                      ? "bg-primary text-foreground-dark font-bold shadow-md"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
                   }`}
                 >
@@ -620,7 +620,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                   {/* Couple Names */}
                   <section className="p-6 rounded-3xl bg-card/70 border border-border/60 shadow-xl backdrop-blur-xl space-y-4">
                     <div className="flex items-center gap-2.5 mb-1">
-                      <div className="w-8 h-8 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-gold">
+                      <div className="w-8 h-8 rounded-xl bg-primary/15 border border-gold/30 flex items-center justify-center text-primary">
                         <Heart className="w-4 h-4" />
                       </div>
                       <h2 className="font-display text-lg font-bold text-foreground">Couple Names</h2>
@@ -662,13 +662,13 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                   {/* Host Families */}
                   <section className="p-6 rounded-3xl bg-card/70 border border-border/60 shadow-xl backdrop-blur-xl space-y-4">
                     <div className="flex items-center gap-2.5 mb-1">
-                      <div className="w-8 h-8 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-gold">
+                      <div className="w-8 h-8 rounded-xl bg-primary/15 border border-gold/30 flex items-center justify-center text-primary">
                         <User className="w-4 h-4" />
                       </div>
                       <h2 className="font-display text-lg font-bold text-foreground">Host Families (Optional)</h2>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      In Pakistani invitations, it is customary to include the names of parents or families hosting the wedding.
+                      Please enter the names of the primary and secondary hosts for this event.
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-1.5">
@@ -676,14 +676,14 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                           Partner 1 Family / Parents
                         </label>
                         <Input
-                          value={flowData.hostBrideFamily || ""}
-                          onChange={(e) => onUpdateData({ hostBrideFamily: e.target.value })}
+                          value={flowData.primaryHostFamily || ""}
+                          onChange={(e) => onUpdateData({ primaryHostFamily: e.target.value })}
                           placeholder="e.g. Mr. & Mrs. Tariq Hussain"
                           className="h-11 bg-background/80"
                         />
                         <Input
-                          value={flowData.hostBrideCity || ""}
-                          onChange={(e) => onUpdateData({ hostBrideCity: e.target.value })}
+                          value={flowData.primaryHostCity || ""}
+                          onChange={(e) => onUpdateData({ primaryHostCity: e.target.value })}
                           placeholder="City (e.g. from Lahore)"
                           className="h-11 mt-2 text-xs bg-background/80"
                         />
@@ -693,14 +693,14 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                           Partner 2 Family / Parents
                         </label>
                         <Input
-                          value={flowData.hostGroomFamily || ""}
-                          onChange={(e) => onUpdateData({ hostGroomFamily: e.target.value })}
+                          value={flowData.secondaryHostFamily || ""}
+                          onChange={(e) => onUpdateData({ secondaryHostFamily: e.target.value })}
                           placeholder="e.g. Mr. & Mrs. Imran Sheikh"
                           className="h-11 bg-background/80"
                         />
                         <Input
-                          value={flowData.hostGroomCity || ""}
-                          onChange={(e) => onUpdateData({ hostGroomCity: e.target.value })}
+                          value={flowData.secondaryHostCity || ""}
+                          onChange={(e) => onUpdateData({ secondaryHostCity: e.target.value })}
                           placeholder="City (e.g. from Karachi)"
                           className="h-11 mt-2 text-xs bg-background/80"
                         />
@@ -711,7 +711,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                   {/* Custom Invitation Link */}
                   <section className="p-6 rounded-3xl bg-card/70 border border-border/60 shadow-xl backdrop-blur-xl space-y-4">
                     <div className="flex items-center gap-2.5 mb-1">
-                      <div className="w-8 h-8 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-gold">
+                      <div className="w-8 h-8 rounded-xl bg-primary/15 border border-gold/30 flex items-center justify-center text-primary">
                         <Globe className="w-4 h-4" />
                       </div>
                       <h2 className="font-display text-lg font-bold text-foreground">Custom Invitation Link</h2>
@@ -722,7 +722,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                       </label>
                       <div className="relative flex items-center">
                         <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-border bg-muted text-muted-foreground text-xs h-11">
-                          shaadilink.com/inv/
+                          smartinvites.com/inv/
                         </span>
                         <div className="relative flex-1">
                           <Input
@@ -742,7 +742,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                             {isCheckingSlug ? (
                               <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />
                             ) : flowData.slug && slugAvailable ? (
-                              <Check className="w-4 h-4 text-emerald" />
+                              <Check className="w-4 h-4 text-foreground" />
                             ) : flowData.slug && slugAvailable === false ? (
                               <X className="w-4 h-4 text-red-500" />
                             ) : null}
@@ -751,7 +751,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                       </div>
                       {errors.slug && <p className="text-xs text-red-500">{errors.slug}</p>}
                       {slugAvailable && flowData.slug && !errors.slug && (
-                        <p className="text-xs text-emerald font-medium flex items-center gap-1">
+                        <p className="text-xs text-foreground font-medium flex items-center gap-1">
                           <Check className="w-3 h-3" /> Link is available!
                         </p>
                       )}
@@ -771,7 +771,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                         <p className="text-sm font-semibold text-foreground">Show Bismillah Header</p>
                         <p className="text-xs text-muted-foreground mt-0.5">Displays Bismillah in Arabic calligraphy at the top.</p>
                       </div>
-                      <div className={`relative w-12 h-6 rounded-full transition-colors ${flowData.showBismillah ? "bg-gold" : "bg-muted"}`}>
+                      <div className={`relative w-12 h-6 rounded-full transition-colors ${flowData.showBismillah ? "bg-primary" : "bg-muted"}`}>
                         <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${flowData.showBismillah ? "translate-x-7" : "translate-x-1"}`} />
                       </div>
                     </button>
@@ -787,7 +787,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                         <p className="text-sm font-semibold text-foreground">Show Quranic Verse (Surah Ar-Rum 30:21)</p>
                         <p className="text-xs text-muted-foreground mt-0.5">Displays marriage verse in Arabic, English &amp; Urdu.</p>
                       </div>
-                      <div className={`relative w-12 h-6 rounded-full transition-colors ${flowData.showQuranVerse ? "bg-gold" : "bg-muted"}`}>
+                      <div className={`relative w-12 h-6 rounded-full transition-colors ${flowData.showQuranVerse ? "bg-primary" : "bg-muted"}`}>
                         <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${flowData.showQuranVerse ? "translate-x-7" : "translate-x-1"}`} />
                       </div>
                     </button>
@@ -802,7 +802,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                           transition={{ duration: 0.3 }}
                           className="overflow-hidden"
                         >
-                          <div className="rounded-2xl border border-gold/30 bg-gold/5 p-4 space-y-4">
+                          <div className="rounded-2xl border border-gold/30 bg-primary/5 p-4 space-y-4">
                             <div className="flex items-center gap-2">
                               <span className="text-lg">📖</span>
                               <div>
@@ -835,7 +835,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                                     }}
                                     className={`text-[11px] px-3 py-1.5 rounded-full border transition-all font-medium ${
                                       flowData.customVerseSource === chip.source
-                                        ? "bg-gold text-emerald-dark border-gold shadow-sm"
+                                        ? "bg-primary text-foreground-dark border-gold shadow-sm"
                                         : "border-border/60 text-muted-foreground hover:border-gold/50 hover:text-foreground"
                                     }`}
                                   >
@@ -894,7 +894,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                         <p className="text-sm font-semibold text-foreground">Show Nikah Registration Note</p>
                         <p className="text-xs text-muted-foreground mt-0.5">Displays a formal note about Nikah registration.</p>
                       </div>
-                      <div className={`relative w-12 h-6 rounded-full transition-colors ${flowData.showNikahRegistration ? "bg-gold" : "bg-muted"}`}>
+                      <div className={`relative w-12 h-6 rounded-full transition-colors ${flowData.showNikahRegistration ? "bg-primary" : "bg-muted"}`}>
                         <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${flowData.showNikahRegistration ? "translate-x-7" : "translate-x-1"}`} />
                       </div>
                     </button>
@@ -911,7 +911,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                           <p className="text-sm font-semibold text-foreground">Separate Ladies/Gents Setup</p>
                           <p className="text-xs text-muted-foreground mt-0.5">Indicate segregated seating at the venue.</p>
                         </div>
-                        <div className={`relative w-12 h-6 rounded-full transition-colors ${flowData.isSegregated ? "bg-gold" : "bg-muted"}`}>
+                        <div className={`relative w-12 h-6 rounded-full transition-colors ${flowData.isSegregated ? "bg-primary" : "bg-muted"}`}>
                           <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${flowData.isSegregated ? "translate-x-7" : "translate-x-1"}`} />
                         </div>
                       </button>
@@ -941,7 +941,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                       onClick={() => {
                         if (validateStep(1)) goToStep(2);
                       }}
-                      className="bg-gold hover:bg-gold-light text-emerald-dark font-bold gap-2 shadow-lg"
+                      className="bg-primary hover:bg-primary-light text-foreground-dark font-bold gap-2 shadow-lg"
                     >
                       Next: Events &amp; Venue <ArrowRight className="w-4 h-4" />
                     </Button>
@@ -960,7 +960,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                   {/* Venue Details */}
                   <section className="p-6 rounded-3xl bg-card/70 border border-border/60 shadow-xl backdrop-blur-xl space-y-4">
                     <div className="flex items-center gap-2.5 mb-1">
-                      <div className="w-8 h-8 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-gold">
+                      <div className="w-8 h-8 rounded-xl bg-primary/15 border border-gold/30 flex items-center justify-center text-primary">
                         <MapPin className="w-4 h-4" />
                       </div>
                       <h2 className="font-display text-lg font-bold text-foreground">Venue Location</h2>
@@ -1016,7 +1016,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                   <section id="field-events" className="p-6 rounded-3xl bg-card/70 border border-border/60 shadow-xl backdrop-blur-xl space-y-4">
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-gold">
+                        <div className="w-8 h-8 rounded-xl bg-primary/15 border border-gold/30 flex items-center justify-center text-primary">
                           <Calendar className="w-4 h-4" />
                         </div>
                         <h2 className="font-display text-lg font-bold text-foreground">Events Schedule</h2>
@@ -1026,7 +1026,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                           variant="ghost"
                           size="sm"
                           onClick={addEvent}
-                          className="text-gold hover:text-gold-light gap-1"
+                          className="text-primary hover:text-primary-light gap-1"
                         >
                           <Plus className="w-3.5 h-3.5" /> Add Event
                         </Button>
@@ -1037,7 +1037,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                       {flowData.events.map((event, index) => (
                         <div key={event.id || index} className="p-4 rounded-2xl border border-border/50 bg-muted/20 space-y-3">
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-gold uppercase tracking-wider">Event {index + 1}</span>
+                            <span className="text-xs font-bold text-primary uppercase tracking-wider">Event {index + 1}</span>
                             {!flowData.paymentDone && flowData.events.length > 1 && (
                               <button onClick={() => removeEvent(index)} className="text-muted-foreground hover:text-red-400">
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -1084,7 +1084,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                       onClick={() => {
                         if (validateStep(2)) goToStep(3);
                       }}
-                      className="bg-gold hover:bg-gold-light text-emerald-dark font-bold gap-2 shadow-lg"
+                      className="bg-primary hover:bg-primary-light text-foreground-dark font-bold gap-2 shadow-lg"
                     >
                       Next: Media &amp; Music <ArrowRight className="w-4 h-4" />
                     </Button>
@@ -1103,7 +1103,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                   {/* Photo Uploads */}
                   <section className="p-6 rounded-3xl bg-card/70 border border-border/60 shadow-xl backdrop-blur-xl space-y-4">
                     <div className="flex items-center gap-2.5 mb-1">
-                      <div className="w-8 h-8 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-gold">
+                      <div className="w-8 h-8 rounded-xl bg-primary/15 border border-gold/30 flex items-center justify-center text-primary">
                         <ImagePlus className="w-4 h-4" />
                       </div>
                       <h2 className="font-display text-lg font-bold text-foreground">
@@ -1135,7 +1135,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                           disabled={isUploading}
                           className="w-full p-6 rounded-2xl border-2 border-dashed border-border/50 hover:border-gold/40 transition-colors flex flex-col items-center gap-2 text-muted-foreground"
                         >
-                          <ImagePlus className="w-8 h-8 text-gold" />
+                          <ImagePlus className="w-8 h-8 text-primary" />
                           <span className="text-sm font-medium text-foreground">Upload Hero Cover Photo</span>
                         </button>
                       )}
@@ -1163,7 +1163,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                             disabled={isUploading}
                             className="rounded-xl border-2 border-dashed border-border/50 hover:border-gold/40 transition-colors flex flex-col items-center justify-center gap-1 text-muted-foreground aspect-square"
                           >
-                            <Plus className="w-5 h-5 text-gold" />
+                            <Plus className="w-5 h-5 text-primary" />
                             <span className="text-[10px]">Add Photo</span>
                           </button>
                         )}
@@ -1175,7 +1175,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                     {flowData.selectedPlan === "royal" && (
                       <div className="space-y-2 pt-2">
                         <label className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase flex items-center gap-2">
-                          <Video className="w-3.5 h-3.5 text-gold" /> YouTube Video ID
+                          <Video className="w-3.5 h-3.5 text-primary" /> YouTube Video ID
                         </label>
                         <Input
                           value={flowData.youtubeVideoId || ""}
@@ -1190,7 +1190,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                   {/* Background Music Track Selector */}
                   <section className="p-6 rounded-3xl bg-card/70 border border-border/60 shadow-xl backdrop-blur-xl space-y-4">
                     <div className="flex items-center gap-2.5 mb-1">
-                      <div className="w-8 h-8 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-gold">
+                      <div className="w-8 h-8 rounded-xl bg-primary/15 border border-gold/30 flex items-center justify-center text-primary">
                         <Music className="w-4 h-4" />
                       </div>
                       <h2 className="font-display text-lg font-bold text-foreground">Background Music</h2>
@@ -1210,7 +1210,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                           onClick={() => handleMusicSelection(track.id)}
                           className={`p-3 rounded-2xl border text-xs font-semibold transition-all flex items-center gap-2 ${
                             flowData.backgroundMusic === track.id
-                              ? "bg-gold text-emerald-dark border-gold shadow-md font-bold"
+                              ? "bg-primary text-foreground-dark border-gold shadow-md font-bold"
                               : "bg-background/80 text-muted-foreground border-border/60 hover:border-gold/40"
                           }`}
                         >
@@ -1225,7 +1225,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                     <Button variant="outline" onClick={() => goToStep(2)}>
                       <ArrowLeft className="w-4 h-4 mr-1" /> Previous
                     </Button>
-                    <Button onClick={() => goToStep(4)} className="bg-gold hover:bg-gold-light text-emerald-dark font-bold gap-2 shadow-lg">
+                    <Button onClick={() => goToStep(4)} className="bg-primary hover:bg-primary-light text-foreground-dark font-bold gap-2 shadow-lg">
                       Next: Details &amp; Shagun <ArrowRight className="w-4 h-4" />
                     </Button>
                   </div>
@@ -1243,7 +1243,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                   {/* Welcome Message & Contact Phone */}
                   <section className="p-6 rounded-3xl bg-card/70 border border-border/60 shadow-xl backdrop-blur-xl space-y-4">
                     <div className="flex items-center gap-2.5 mb-1">
-                      <div className="w-8 h-8 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-gold">
+                      <div className="w-8 h-8 rounded-xl bg-primary/15 border border-gold/30 flex items-center justify-center text-primary">
                         <MessageSquare className="w-4 h-4" />
                       </div>
                       <h2 className="font-display text-lg font-bold text-foreground">Welcome Message &amp; Contact</h2>
@@ -1274,7 +1274,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                   {flowData.selectedPlan === "royal" ? (
                     <section className="p-6 rounded-3xl bg-card/70 border border-border/60 shadow-xl backdrop-blur-xl space-y-4">
                       <div className="flex items-center gap-2.5 mb-1">
-                        <div className="w-8 h-8 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-gold">
+                        <div className="w-8 h-8 rounded-xl bg-primary/15 border border-gold/30 flex items-center justify-center text-primary">
                           <Shirt className="w-4 h-4" />
                         </div>
                         <h2 className="font-display text-lg font-bold text-foreground">Royal Plan Extras</h2>
@@ -1311,12 +1311,12 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                     <div className="p-6 rounded-3xl bg-card/40 border border-gold/30 backdrop-blur-md relative overflow-hidden space-y-4">
                       <div className="flex items-center justify-between gap-4 border-b border-border/40 pb-3">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-gold">
+                          <div className="w-8 h-8 rounded-xl bg-primary/15 border border-gold/30 flex items-center justify-center text-primary">
                             <Crown className="w-4 h-4" />
                           </div>
                           <h2 className="font-display text-base font-bold text-foreground">Dress Code, Transport &amp; Hotel Info</h2>
                         </div>
-                        <Badge className="bg-gold/20 text-gold border-gold/30 text-[10px] font-bold">👑 Royal Plan</Badge>
+                        <Badge className="bg-primary/20 text-primary border-gold/30 text-[10px] font-bold">👑 Royal Plan</Badge>
                       </div>
 
                       <div className="space-y-3 opacity-50 pointer-events-none filter blur-[1px]">
@@ -1329,7 +1329,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
 
                       <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 bg-gradient-to-r from-gold/10 via-amber-500/10 to-transparent p-4 rounded-2xl border border-gold/30">
                         <p className="text-xs text-muted-foreground">
-                          Upgrade to the <strong className="text-gold">Royal Plan</strong> to include dress code guidelines, valet transport, and accommodation details.
+                          Upgrade to the <strong className="text-primary">Royal Plan</strong> to include dress code guidelines, valet transport, and accommodation details.
                         </p>
                         <Button
                           size="sm"
@@ -1337,7 +1337,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                             onUpdateData({ selectedPlan: 'royal' });
                             toast.success("Switched to Royal Plan! Feature unlocked.");
                           }}
-                          className="bg-gold hover:bg-gold-light text-emerald-dark font-bold text-xs gap-1.5 shrink-0 shadow-md"
+                          className="bg-primary hover:bg-primary-light text-foreground-dark font-bold text-xs gap-1.5 shrink-0 shadow-md"
                         >
                           <Sparkles className="w-3.5 h-3.5" /> Upgrade to Royal
                         </Button>
@@ -1349,7 +1349,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                   {flowData.selectedPlan === "royal" ? (
                     <section className="p-6 rounded-3xl bg-card/70 border border-border/60 shadow-xl backdrop-blur-xl space-y-4">
                       <div className="flex items-center gap-2.5 mb-1">
-                        <div className="w-8 h-8 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-gold">
+                        <div className="w-8 h-8 rounded-xl bg-primary/15 border border-gold/30 flex items-center justify-center text-primary">
                           <Gift className="w-4 h-4" />
                         </div>
                         <h2 className="font-display text-lg font-bold text-foreground">Digital Shagun Registry</h2>
@@ -1369,7 +1369,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                           </p>
                           <p className="text-[10px] text-muted-foreground mt-0.5">Toggle visibility of these details for guests</p>
                         </div>
-                        <div className={`w-10 h-6 rounded-full transition-colors relative flex items-center ${!flowData.hideDigitalShagun ? 'bg-gold' : 'bg-muted-foreground/30'}`}>
+                        <div className={`w-10 h-6 rounded-full transition-colors relative flex items-center ${!flowData.hideDigitalShagun ? 'bg-primary' : 'bg-muted-foreground/30'}`}>
                           <div className={`w-4 h-4 rounded-full bg-white absolute transition-all duration-300 shadow-sm ${!flowData.hideDigitalShagun ? 'right-1' : 'left-1'}`} />
                         </div>
                       </button>
@@ -1418,12 +1418,12 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                     <div className="p-6 rounded-3xl bg-card/40 border border-gold/30 backdrop-blur-md relative overflow-hidden space-y-4">
                       <div className="flex items-center justify-between gap-4 border-b border-border/40 pb-3">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-gold">
+                          <div className="w-8 h-8 rounded-xl bg-primary/15 border border-gold/30 flex items-center justify-center text-primary">
                             <Gift className="w-4 h-4" />
                           </div>
                           <h2 className="font-display text-base font-bold text-foreground">Digital Shagun Registry</h2>
                         </div>
-                        <Badge className="bg-gold/20 text-gold border-gold/30 text-[10px] font-bold">👑 Royal Plan</Badge>
+                        <Badge className="bg-primary/20 text-primary border-gold/30 text-[10px] font-bold">👑 Royal Plan</Badge>
                       </div>
 
                       <div className="space-y-3 opacity-50 pointer-events-none filter blur-[1px]">
@@ -1437,7 +1437,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
 
                       <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 bg-gradient-to-r from-gold/10 via-amber-500/10 to-transparent p-4 rounded-2xl border border-gold/30">
                         <p className="text-xs text-muted-foreground">
-                          Upgrade to the <strong className="text-gold">Royal Plan</strong> to allow guests to transfer Digital Shagun via Bank, EasyPaisa, JazzCash &amp; Raast.
+                          Upgrade to the <strong className="text-primary">Royal Plan</strong> to allow guests to transfer Digital Shagun via Bank, EasyPaisa, JazzCash &amp; Raast.
                         </p>
                         <Button
                           size="sm"
@@ -1445,7 +1445,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                             onUpdateData({ selectedPlan: 'royal' });
                             toast.success("Switched to Royal Plan! Feature unlocked.");
                           }}
-                          className="bg-gold hover:bg-gold-light text-emerald-dark font-bold text-xs gap-1.5 shrink-0 shadow-md"
+                          className="bg-primary hover:bg-primary-light text-foreground-dark font-bold text-xs gap-1.5 shrink-0 shadow-md"
                         >
                           <Sparkles className="w-3.5 h-3.5" /> Upgrade to Royal
                         </Button>
@@ -1462,7 +1462,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                       onClick={handleSubmit}
                       disabled={isSaving || isUploading}
                       size="lg"
-                      className="bg-gold hover:bg-gold-light text-emerald-dark font-bold text-base gap-2 shadow-xl px-8"
+                      className="bg-primary hover:bg-primary-light text-foreground-dark font-bold text-base gap-2 shadow-xl px-8"
                     >
                       {isSaving ? (
                         <><Loader2 className="w-5 h-5 animate-spin" /> Saving Details...</>
@@ -1482,10 +1482,10 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
             <div className="hidden lg:block lg:col-span-5 sticky top-24">
               <div className="p-6 rounded-3xl bg-card/70 border border-border/60 backdrop-blur-xl shadow-2xl flex flex-col items-center">
                 <div className="flex items-center justify-between w-full mb-4">
-                  <span className="text-xs font-bold uppercase tracking-wider text-gold flex items-center gap-1.5">
+                  <span className="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
                     <Sparkles className="w-3.5 h-3.5" /> Live Preview
                   </span>
-                  <Badge className="bg-emerald/20 text-emerald border-0 text-[10px]">Real-Time Sync</Badge>
+                  <Badge className="bg-emerald/20 text-foreground border-0 text-[10px]">Real-Time Sync</Badge>
                 </div>
 
                 {/* Smartphone Container */}
@@ -1499,31 +1499,31 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                     {/* Bismillah Calligraphy Header */}
                     {flowData.showBismillah && (
                       <div className="py-1">
-                        <p className="font-arabic text-sm text-gold leading-loose" dir="rtl">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</p>
+                        <p className="font-arabic text-sm text-primary leading-loose" dir="rtl">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</p>
                       </div>
                     )}
 
                     {/* Host Families / Parents */}
-                    {(flowData.hostBrideFamily || flowData.hostGroomFamily) && (
+                    {(flowData.primaryHostFamily || flowData.secondaryHostFamily) && (
                       <p className="text-[9px] text-muted-foreground italic leading-tight">
                         Together with their families: <br />
                         <strong className="text-foreground font-semibold">
-                          {flowData.hostBrideFamily} {flowData.hostGroomFamily && `& ${flowData.hostGroomFamily}`}
+                          {flowData.primaryHostFamily} {flowData.secondaryHostFamily && `& ${flowData.secondaryHostFamily}`}
                         </strong>
                       </p>
                     )}
                     
-                    <p className="text-[8px] tracking-[0.25em] uppercase text-gold font-bold">We invite you to celebrate</p>
+                    <p className="text-[8px] tracking-[0.25em] uppercase text-primary font-bold">We invite you to celebrate</p>
                     
                     {/* Couple Names */}
                     <h3 className="font-display text-2xl font-extrabold text-foreground leading-tight">
-                      {flowData.partner1Name || "Partner 1"} <span className="text-gold font-serif italic">&amp;</span> {flowData.partner2Name || "Partner 2"}
+                      {flowData.partner1Name || "Partner 1"} <span className="text-primary font-serif italic">&amp;</span> {flowData.partner2Name || "Partner 2"}
                     </h3>
 
                     {/* Custom Slug Badge */}
                     {flowData.slug && (
-                      <span className="inline-block px-2.5 py-0.5 rounded-full bg-emerald/10 border border-emerald/30 text-emerald text-[8px] font-mono">
-                        shaadilink.com/inv/{flowData.slug}
+                      <span className="inline-block px-2.5 py-0.5 rounded-full bg-emerald/10 border border-primary/30 text-foreground text-[8px] font-mono">
+                        smartinvites.com/inv/{flowData.slug}
                       </span>
                     )}
 
@@ -1536,10 +1536,10 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
 
                     {/* Quranic / Custom Verse */}
                     {flowData.showQuranVerse && (
-                      <div className="p-2.5 rounded-2xl bg-gold/10 border border-gold/20 text-[9px] space-y-1 text-center">
+                      <div className="p-2.5 rounded-2xl bg-primary/10 border border-primary/20 text-[9px] space-y-1 text-center">
                         {flowData.customVerseText ? (
                           <>
-                            <p className="text-xs text-gold leading-relaxed" dir="auto">{flowData.customVerseText.length > 80 ? flowData.customVerseText.slice(0, 80) + "..." : flowData.customVerseText}</p>
+                            <p className="text-xs text-primary leading-relaxed" dir="auto">{flowData.customVerseText.length > 80 ? flowData.customVerseText.slice(0, 80) + "..." : flowData.customVerseText}</p>
                             {flowData.customVerseSource && <p className="text-[8px] text-muted-foreground italic">&mdash; {flowData.customVerseSource}</p>}
                           </>
                         ) : (
@@ -1557,27 +1557,27 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
 
                     {/* All Events List */}
                     <div className="space-y-2 text-left">
-                      <p className="text-[9px] font-bold uppercase tracking-wider text-gold">Events Schedule ({flowData.events?.length || 1})</p>
+                      <p className="text-[9px] font-bold uppercase tracking-wider text-primary">Events Schedule ({flowData.events?.length || 1})</p>
                       {flowData.events?.map((ev, i) => (
                         <div key={i} className="p-2.5 rounded-2xl bg-card border border-border/60 text-[10px] flex items-center justify-between shadow-sm">
                           <div>
                             <p className="font-bold text-foreground">{ev.name || `Event ${i + 1}`}</p>
                             <p className="text-[9px] text-muted-foreground">{ev.date || "Date TBA"} {ev.time && `at ${ev.time}`}</p>
                           </div>
-                          <Badge className="bg-gold/15 text-gold border-gold/30 text-[8px]">Event {i + 1}</Badge>
+                          <Badge className="bg-primary/15 text-primary border-gold/30 text-[8px]">Event {i + 1}</Badge>
                         </div>
                       ))}
                     </div>
 
                     {/* Main Venue & Address */}
                     <div className="p-3 rounded-2xl bg-card border border-border/60 text-[10px] text-left space-y-1 shadow-sm">
-                      <div className="flex items-center gap-1.5 text-gold font-bold">
+                      <div className="flex items-center gap-1.5 text-primary font-bold">
                         <MapPin className="w-3.5 h-3.5 shrink-0" />
                         <span className="truncate">{flowData.venue || "Venue Location Name"}</span>
                       </div>
                       {addressText && <p className="text-[9px] text-muted-foreground leading-tight">{addressText}</p>}
                       {mapsUrl && (
-                        <div className="pt-0.5 flex items-center gap-1 text-emerald text-[8px] font-semibold">
+                        <div className="pt-0.5 flex items-center gap-1 text-foreground text-[8px] font-semibold">
                           <Globe className="w-2.5 h-2.5" /> Google Maps Link Attached
                         </div>
                       )}
@@ -1585,13 +1585,13 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
 
                     {/* Segregation & Nikah Notes */}
                     {flowData.isSegregated && (
-                      <div className="p-2 rounded-xl bg-emerald/10 border border-emerald/30 text-[9px] text-emerald font-medium">
+                      <div className="p-2 rounded-xl bg-emerald/10 border border-primary/30 text-[9px] text-foreground font-medium">
                         ✨ Separate Ladies &amp; Gents Setup {flowData.venueDetailsSegregated && `(${flowData.venueDetailsSegregated})`}
                       </div>
                     )}
 
                     {flowData.showNikahRegistration && (
-                      <div className="p-2 rounded-xl bg-gold/10 border border-gold/20 text-[9px] text-gold font-medium">
+                      <div className="p-2 rounded-xl bg-primary/10 border border-primary/20 text-[9px] text-primary font-medium">
                         📜 Formal Nikah Registration Note
                       </div>
                     )}
@@ -1599,7 +1599,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                     {/* Royal Plan Dress Code & Accommodations */}
                     {flowData.selectedPlan === "royal" && (
                       <div className="p-3 rounded-2xl bg-card border border-border/60 text-[9px] text-left space-y-1 shadow-sm">
-                        <p className="font-bold text-gold uppercase tracking-wider">Dress Code &amp; Info</p>
+                        <p className="font-bold text-primary uppercase tracking-wider">Dress Code &amp; Info</p>
                         {flowData.dressCodeWomen && <p className="text-muted-foreground">👗 Women: {flowData.dressCodeWomen}</p>}
                         {flowData.dressCodeMen && <p className="text-muted-foreground">👔 Men: {flowData.dressCodeMen}</p>}
                         {flowData.transportation && <p className="text-muted-foreground">🚗 Transport: {flowData.transportation}</p>}
@@ -1610,7 +1610,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                     {/* Digital Shagun Details */}
                     {(flowData.gifts || "").trim() && (
                       <div className="p-3 rounded-2xl bg-card border border-gold/30 text-[9px] text-left space-y-1 shadow-sm">
-                        <div className="flex items-center gap-1.5 text-gold font-bold">
+                        <div className="flex items-center gap-1.5 text-primary font-bold">
                           <Gift className="w-3.5 h-3.5 shrink-0" />
                           <span>Digital Shagun Registry</span>
                         </div>
@@ -1625,7 +1625,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
 
                     {/* Music Player Bar */}
                     {flowData.backgroundMusic && flowData.backgroundMusic !== "no-music" && (
-                      <div className="flex items-center justify-center gap-2 p-2.5 rounded-2xl bg-gradient-to-r from-gold/20 via-amber-500/10 to-gold/20 border border-gold/40 text-gold text-[10px] font-bold shadow-md">
+                      <div className="flex items-center justify-center gap-2 p-2.5 rounded-2xl bg-gradient-to-r from-gold/20 via-amber-500/10 to-gold/20 border border-gold/40 text-primary text-[10px] font-bold shadow-md">
                         <Music className="w-3.5 h-3.5 animate-pulse" />
                         <span className="truncate">Music: {flowData.backgroundMusic}</span>
                       </div>
@@ -1633,7 +1633,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                   </div>
 
                   <div className="w-full pt-2 border-t border-border/40 text-[9px] text-muted-foreground">
-                    <span>ShaadiLink Digital Invitation</span>
+                    <span>Smart Invites Digital Invitation</span>
                   </div>
                 </div>
               </div>
@@ -1652,7 +1652,7 @@ function StepDot({ done, current, label, stepNumber }: { done?: boolean; current
     <div className="flex items-center gap-1">
       <div
         className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center ${
-          done ? "bg-gold text-emerald-dark" : current ? "bg-emerald text-primary-foreground" : "bg-muted text-muted-foreground"
+          done ? "bg-primary text-foreground-dark" : current ? "bg-emerald text-primary-foreground" : "bg-muted text-muted-foreground"
         }`}
       >
         {done ? <Check className="w-3 h-3" /> : current ? String(stepNumber) : ""}
@@ -1665,5 +1665,5 @@ function StepDot({ done, current, label, stepNumber }: { done?: boolean; current
 }
 
 function StepLine({ active }: { active?: boolean }) {
-  return <div className={`w-4 sm:w-6 h-px ${active ? "bg-gold/30" : "bg-border"}`} />;
+  return <div className={`w-4 sm:w-6 h-px ${active ? "bg-primary/30" : "bg-border"}`} />;
 }

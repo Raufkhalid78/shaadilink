@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import Image from "next/image";
 import { m, AnimatePresence } from "framer-motion";
 import {
-  Heart, Plus, ExternalLink, Trash2, Users, MessageSquare, Calendar,
+  Send, Heart, Plus, ExternalLink, Trash2, Users, MessageSquare, Calendar,
   Copy, Check, LayoutDashboard, LogOut, Loader2, Crown, Sparkles, X, Lock,
   ArrowLeft, Share2, Home, Activity, QrCode, Eye, Download, DollarSign,
 } from "lucide-react";
@@ -138,10 +138,10 @@ function DashboardCardThumbnail({ inv }: { inv: Invitation }) {
             <p className="font-display text-white text-sm font-semibold tracking-wide mt-0.5 truncate">
               {inv.partner1_name && inv.partner2_name ? `${inv.partner1_name} & ${inv.partner2_name}` : "Wedding Invitation"}
             </p>
-            <div className="w-8 h-px bg-gold/50 mx-auto my-1.5" />
+            <div className="w-8 h-px bg-primary/50 mx-auto my-1.5" />
             <div className="flex items-center justify-center gap-1">
-              <Crown className="w-3 h-3 text-gold" />
-              <span className="text-[9px] uppercase tracking-widest text-gold font-bold">Royal Edition</span>
+              <Crown className="w-3 h-3 text-primary" />
+              <span className="text-[9px] uppercase tracking-widest text-primary font-bold">Royal Edition</span>
             </div>
           </div>
         </div>
@@ -495,7 +495,7 @@ export function DashboardPage({
     if (!inv) return;
     const invSlug = inv.slug || guestLinksInvId;
     const guestSlug = newGuestName.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
-    const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://shaadilink.com.pk';
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://smartinvites.com.pk';
 
     // Build URL with optional event filter and seat count
     const allEventSlugs = (inv.events || []).map(e => e.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'));
@@ -742,7 +742,7 @@ export function DashboardPage({
       const pngUrl = canvas.toDataURL("image/png");
       const downloadLink = document.createElement("a");
       downloadLink.href = pngUrl;
-      downloadLink.download = "shaadilink-qr-code.png";
+      downloadLink.download = "smartinvites-qr-code.png";
       document.body.appendChild(downloadLink);
       downloadLink.click();
       document.body.removeChild(downloadLink);
@@ -850,7 +850,7 @@ export function DashboardPage({
               {onGoHome && (
                 <button
                   onClick={onGoHome}
-                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-gold transition-colors duration-200 shrink-0"
+                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors duration-200 shrink-0"
                   aria-label="Go to Home"
                 >
                   <Home className="w-3.5 h-3.5" />
@@ -859,10 +859,10 @@ export function DashboardPage({
               )}
               <div className="flex items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald text-primary-foreground">
-                  <Heart className="h-4 w-4 fill-current" />
+                  <Send className="h-4 w-4 fill-current" />
                 </div>
                 <span className="font-display text-lg font-bold">
-                  Shaadi<span className="text-gold">Link</span>
+                  Smart<span className="text-primary">Invites</span>
                 </span>
               </div>
             </div>
@@ -881,7 +881,7 @@ export function DashboardPage({
                 variant="outline"
                 size="sm"
                 onClick={() => window.location.href = '/dashboard/affiliate'}
-                className="gap-1.5 text-xs text-gold border-gold/40 hover:bg-gold/10 font-semibold h-8 px-2.5"
+                className="gap-1.5 text-xs text-primary border-gold/40 hover:bg-primary/10 font-semibold h-8 px-2.5"
                 title="Affiliate & Partner Program"
               >
                 <DollarSign className="w-3.5 h-3.5" />
@@ -919,24 +919,24 @@ export function DashboardPage({
             transition={{ duration: 0.5 }}
             className="relative p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-emerald-950/60 via-background to-gold/10 border border-gold/25 shadow-2xl overflow-hidden backdrop-blur-xl"
           >
-            <div className="absolute top-0 right-0 w-96 h-96 bg-gold/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
+            <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
             <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div className="space-y-2 max-w-2xl">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs font-semibold">
-                  <Sparkles className="w-3.5 h-3.5" /> Luxury Digital Suite
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-gold/30 text-primary text-xs font-semibold">
+                  <Sparkles className="w-3.5 h-3.5" /> Smart Event Suite
                 </div>
                 <h1 className="font-display text-2xl sm:text-4xl font-extrabold text-foreground tracking-tight">
                   Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold via-amber-300 to-gold-light">{flowData.fullName || "Valued Host"}</span> ✨
                 </h1>
                 <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
-                  Manage your digital wedding invitations, monitor real-time guest RSVPs, create personalized links, and export 300 DPI print-ready cards.
+                  Manage your digital event invitations, monitor real-time guest RSVPs, create personalized links, and export 300 DPI print-ready cards.
                 </p>
               </div>
 
               <Button
                 onClick={onCreateNew}
                 size="lg"
-                className="bg-gradient-to-r from-gold via-amber-400 to-gold-light hover:brightness-110 text-emerald-dark font-bold gap-2.5 shrink-0 shadow-lg shadow-gold/20 hover:scale-105 transition-all duration-200"
+                className="bg-gradient-to-r from-gold via-amber-400 to-gold-light hover:brightness-110 text-foreground-dark font-bold gap-2.5 shrink-0 shadow-lg shadow-primary/20 hover:scale-105 transition-all duration-200"
               >
                 <Plus className="w-5 h-5 stroke-[2.5]" />
                 Create New Invitation
@@ -955,16 +955,16 @@ export function DashboardPage({
               <div className="absolute inset-0 bg-gradient-to-r from-gold/10 via-transparent to-emerald/5 opacity-60 pointer-events-none" />
               <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-gold/15 border border-gold/40 flex items-center justify-center text-gold shrink-0 shadow-inner">
+                  <div className="w-12 h-12 rounded-xl bg-primary/15 border border-gold/40 flex items-center justify-center text-primary shrink-0 shadow-inner">
                     <Crown className="w-6 h-6" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="font-display font-bold text-base text-foreground">Affiliate &amp; Discount Code</span>
-                      <Badge className="bg-gold/20 text-gold border-gold/40 text-[10px]">{myReferralCode.discount_percent}% OFF</Badge>
+                      <Badge className="bg-primary/20 text-primary border-gold/40 text-[10px]">{myReferralCode.discount_percent}% OFF</Badge>
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Share your referral code with friends. They receive <strong className="text-gold">{myReferralCode.discount_percent}% OFF</strong> any package and you help them create an exquisite invitation!
+                      Share your referral code with friends. They receive <strong className="text-primary">{myReferralCode.discount_percent}% OFF</strong> any package and you help them create an exquisite invitation!
                     </p>
                   </div>
                 </div>
@@ -979,11 +979,11 @@ export function DashboardPage({
                     <Button
                       size="sm"
                       onClick={() => {
-                        const copyText = `Use coupon code "${myReferralCode.code}" on ShaadiLink for ${myReferralCode.discount_percent}% off! It can only be used for ${myReferralCode.max_uses ? myReferralCode.max_uses : 'unlimited'} persons.`;
+                        const copyText = `Use coupon code "${myReferralCode.code}" on Smart Invites for ${myReferralCode.discount_percent}% off! It can only be used for ${myReferralCode.max_uses ? myReferralCode.max_uses : 'unlimited'} persons.`;
                         navigator.clipboard.writeText(copyText);
                         toast.success("Discount code message copied to clipboard!");
                       }}
-                      className="bg-gold hover:bg-gold-light text-emerald-dark font-semibold gap-1.5 shadow-md"
+                      className="bg-primary hover:bg-primary-light text-foreground-dark font-semibold gap-1.5 shadow-md"
                     >
                       <Copy className="w-3.5 h-3.5" />
                       Copy Code
@@ -997,7 +997,7 @@ export function DashboardPage({
                   <Button 
                     variant="outline" 
                     size="sm"
-                    className="border-gold text-gold hover:bg-gold/10 ml-2"
+                    className="border-gold text-primary hover:bg-primary/10 ml-2"
                     onClick={() => window.location.href = '/dashboard/affiliate'}
                   >
                     View Earnings & Portal
@@ -1020,15 +1020,15 @@ export function DashboardPage({
                   label: "Total Invitations",
                   value: invitations.length,
                   icon: Heart,
-                  color: "text-emerald",
+                  color: "text-foreground",
                   bg: "bg-emerald/5 border-emerald/20 hover:border-emerald/40",
                 },
                 {
                   label: "Live Now",
                   value: invitations.filter((i) => i.is_active).length,
                   icon: Activity,
-                  color: "text-gold",
-                  bg: "bg-gold/5 border-gold/20 hover:border-gold/40",
+                  color: "text-primary",
+                  bg: "bg-primary/5 border-primary/20 hover:border-gold/40",
                 },
                 {
                   label: "Total RSVPs",
@@ -1149,7 +1149,7 @@ export function DashboardPage({
               transition={{ duration: 0.4 }}
               className="flex flex-col items-center justify-center py-16 gap-6 text-center bg-card/40 border border-border/40 rounded-3xl p-8 backdrop-blur-md"
             >
-              <div className="w-16 h-16 rounded-2xl bg-gold/15 border border-gold/30 flex items-center justify-center text-gold shadow-inner">
+              <div className="w-16 h-16 rounded-2xl bg-primary/15 border border-gold/30 flex items-center justify-center text-primary shadow-inner">
                 <Sparkles className="w-8 h-8" />
               </div>
               <div>
@@ -1168,7 +1168,7 @@ export function DashboardPage({
                 ].map((s) => (
                   <div key={s.step} className="flex flex-col items-center gap-2 p-5 rounded-2xl border border-border/50 bg-card/60">
                     <span className="text-3xl">{s.icon}</span>
-                    <span className="text-[10px] font-bold tracking-widest uppercase text-gold">Step {s.step}</span>
+                    <span className="text-[10px] font-bold tracking-widest uppercase text-primary">Step {s.step}</span>
                     <p className="text-sm font-semibold text-foreground">{s.title}</p>
                     <p className="text-xs text-muted-foreground leading-relaxed">{s.desc}</p>
                   </div>
@@ -1239,7 +1239,7 @@ export function DashboardPage({
                             <Badge
                               className={
                                 inv.plan === "royal"
-                                  ? "bg-gold/90 text-emerald-dark text-[10px] border-0 font-bold shadow-md"
+                                  ? "bg-primary/90 text-foreground-dark text-[10px] border-0 font-bold shadow-md"
                                   : "bg-white/20 text-white text-[10px] border-0 backdrop-blur-md"
                               }
                             >
@@ -1252,9 +1252,9 @@ export function DashboardPage({
                                   e.stopPropagation();
                                   onUpgradeInvitation?.(inv.id);
                                 }}
-                                className="text-[9px] bg-gold/20 hover:bg-gold/30 text-gold border border-gold/40 px-2 py-0.5 rounded-full transition-all flex items-center gap-1 font-semibold shadow-md backdrop-blur-md"
+                                className="text-[9px] bg-primary/20 hover:bg-primary/30 text-primary border border-gold/40 px-2 py-0.5 rounded-full transition-all flex items-center gap-1 font-semibold shadow-md backdrop-blur-md"
                               >
-                                <Sparkles className="w-2.5 h-2.5 text-gold shrink-0 animate-pulse" />
+                                <Sparkles className="w-2.5 h-2.5 text-primary shrink-0 animate-pulse" />
                                 Upgrade
                               </button>
                             )}
@@ -1270,20 +1270,20 @@ export function DashboardPage({
                               </h3>
                             </div>
                             <div className="flex items-center justify-between text-xs text-muted-foreground mt-1">
-                              <span className="font-medium text-gold/90">{templateName}</span>
+                              <span className="font-medium text-primary/90">{templateName}</span>
                               <span>Created {formatDate(inv.created_at)}</span>
                             </div>
 
                             {/* Share Short Link */}
                             {inv.is_active && (
-                              <div className="mt-2 flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-xl bg-muted/40 border border-border/40 text-[11px] text-emerald font-mono">
-                                <span className="truncate">shaadilink.com.pk/inv/{inv.slug || inv.id.slice(0, 8)}</span>
+                              <div className="mt-2 flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-xl bg-muted/40 border border-border/40 text-[11px] text-foreground font-mono">
+                                <span className="truncate">smartinvites.com.pk/inv/{inv.slug || inv.id.slice(0, 8)}</span>
                                 <button
                                   onClick={() => handleCopyLink(inv.id)}
-                                  className="text-muted-foreground hover:text-gold transition-colors shrink-0"
+                                  className="text-muted-foreground hover:text-primary transition-colors shrink-0"
                                   title="Copy Link"
                                 >
-                                  {copiedId === inv.id ? <Check className="w-3.5 h-3.5 text-emerald" /> : <Copy className="w-3.5 h-3.5" />}
+                                  {copiedId === inv.id ? <Check className="w-3.5 h-3.5 text-foreground" /> : <Copy className="w-3.5 h-3.5" />}
                                 </button>
                               </div>
                             )}
@@ -1296,7 +1296,7 @@ export function DashboardPage({
                                 setAnalyticsInvId(inv.id);
                                 setAnalyticsDrawerOpen(true);
                               }}
-                              className="flex flex-col items-center hover:text-gold transition-colors p-1"
+                              className="flex flex-col items-center hover:text-primary transition-colors p-1"
                             >
                               <Eye className="w-3.5 h-3.5 text-indigo-400 mb-0.5" />
                               <span className="font-bold text-foreground">{inv.view_count || 0}</span>
@@ -1305,25 +1305,25 @@ export function DashboardPage({
 
                             <button
                               onClick={() => handleOpenRsvps(inv.id)}
-                              className="flex flex-col items-center hover:text-gold transition-colors p-1"
+                              className="flex flex-col items-center hover:text-primary transition-colors p-1"
                             >
-                              <Users className="w-3.5 h-3.5 text-emerald mb-0.5" />
+                              <Users className="w-3.5 h-3.5 text-foreground mb-0.5" />
                               <span className="font-bold text-foreground">{acceptedRsvps}</span>
                               <span className="text-[9px] text-muted-foreground">RSVPs</span>
                             </button>
 
                             <button
                               onClick={() => handleOpenWishes(inv.id)}
-                              className="flex flex-col items-center hover:text-gold transition-colors p-1"
+                              className="flex flex-col items-center hover:text-primary transition-colors p-1"
                             >
-                              <MessageSquare className="w-3.5 h-3.5 text-gold mb-0.5" />
+                              <MessageSquare className="w-3.5 h-3.5 text-primary mb-0.5" />
                               <span className="font-bold text-foreground">{inv.wishes?.length || 0}</span>
                               <span className="text-[9px] text-muted-foreground">Wishes</span>
                             </button>
 
                             <button
                               onClick={() => handleOpenGuestLinks(inv.id)}
-                              className="flex flex-col items-center hover:text-gold transition-colors p-1"
+                              className="flex flex-col items-center hover:text-primary transition-colors p-1"
                             >
                               <Users className="w-3.5 h-3.5 text-amber-500 mb-0.5" />
                               <span className="font-bold text-foreground">{inv.guest_links_quota || 0}</span>
@@ -1346,7 +1346,7 @@ export function DashboardPage({
                               variant="outline"
                               disabled={passed}
                               onClick={() => onEditInvitation(inv.id)}
-                              className="flex-1 h-9 border-gold/40 text-gold hover:bg-gold/10 font-semibold text-xs gap-1.5"
+                              className="flex-1 h-9 border-gold/40 text-primary hover:bg-primary/10 font-semibold text-xs gap-1.5"
                             >
                               {passed ? (
                                 <>
@@ -1370,7 +1370,7 @@ export function DashboardPage({
                                 const text = encodeURIComponent(`You're invited! 🎉 View our wedding invitation: ${link}`);
                                 window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");
                               }}
-                              className="h-8 px-2 text-emerald hover:bg-emerald/10 text-xs gap-1"
+                              className="h-8 px-2 text-foreground hover:bg-emerald/10 text-xs gap-1"
                               title="Share via WhatsApp"
                             >
                               <WhatsAppIcon className="w-3.5 h-3.5 text-[#25D366]" />
@@ -1435,7 +1435,7 @@ export function DashboardPage({
                                 setReviewMessage("");
                                 setReviewDrawerOpen(true);
                               }}
-                              className="h-8 px-2 text-gold hover:bg-gold/10 text-xs"
+                              className="h-8 px-2 text-primary hover:bg-primary/10 text-xs"
                               title="Review"
                             >
                               <Star className="w-3.5 h-3.5" />
@@ -1508,7 +1508,7 @@ export function DashboardPage({
               {/* Stats Bar */}
               <div className="grid grid-cols-2 gap-3 mb-6">
                 <div className="p-3 rounded-lg border border-emerald/15 bg-emerald/5 text-center">
-                  <span className="block text-2xl font-bold text-emerald">
+                  <span className="block text-2xl font-bold text-foreground">
                     {rsvpList.filter((r) => r.status === "accept").length}
                   </span>
                   <span className="text-[10px] text-muted-foreground uppercase font-semibold">Attending</span>
@@ -1525,7 +1525,7 @@ export function DashboardPage({
                 <a
                   href={`/api/invitations/${rsvpInvId}/export-rsvp`}
                   download
-                  className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-emerald/30 text-emerald hover:bg-emerald/10 transition-colors"
+                  className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-primary/30 text-foreground hover:bg-emerald/10 transition-colors"
                 >
                   <Download className="w-3.5 h-3.5" />
                   Export CSV
@@ -1536,7 +1536,7 @@ export function DashboardPage({
               <div className="flex-1 overflow-y-auto space-y-3 pr-1">
                 {rsvpLoading ? (
                   <div className="flex flex-col items-center justify-center py-20 gap-2">
-                    <Loader2 className="w-6 h-6 animate-spin text-emerald" />
+                    <Loader2 className="w-6 h-6 animate-spin text-foreground" />
                     <span className="text-xs text-muted-foreground">Loading guests...</span>
                   </div>
                 ) : rsvpList.length === 0 ? (
@@ -1565,7 +1565,7 @@ export function DashboardPage({
                       <Badge
                         className={
                           rsvp.status === "accept"
-                            ? "bg-emerald/10 text-emerald hover:bg-emerald/20 border-emerald/20"
+                            ? "bg-emerald/10 text-foreground hover:bg-emerald/20 border-emerald/20"
                             : "bg-red-500/10 text-red-400 hover:bg-red-500/20 border-red-500/20"
                         }
                       >
@@ -1680,7 +1680,7 @@ export function DashboardPage({
                                 onClick={() => toggleEventSlug(slug)}
                                 className={`flex items-center gap-2 px-2.5 py-1.5 rounded-md border text-xs font-medium transition-all ${
                                   checked
-                                    ? 'border-emerald bg-emerald/10 text-emerald'
+                                    ? 'border-emerald bg-emerald/10 text-foreground'
                                     : 'border-border/50 bg-muted/20 text-muted-foreground hover:border-emerald/40'
                                 }`}
                               >
@@ -1748,7 +1748,7 @@ export function DashboardPage({
                                 onBuyMoreLinks?.(guestLinksInvId);
                               }
                             }}
-                            className="text-xs text-gold hover:text-gold-light font-semibold underline cursor-pointer ml-2 shrink-0"
+                            className="text-xs text-primary hover:text-primary-light font-semibold underline cursor-pointer ml-2 shrink-0"
                           >
                             {quota === 0 ? 'Buy Links' : 'Buy More'}
                           </button>
@@ -1788,7 +1788,7 @@ export function DashboardPage({
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex items-center gap-2 min-w-0">
                             <div className="w-7 h-7 rounded-full bg-emerald/10 border border-emerald/20 flex items-center justify-center shrink-0">
-                              <span className="text-xs font-bold text-emerald">{link.name.charAt(0).toUpperCase()}</span>
+                              <span className="text-xs font-bold text-foreground">{link.name.charAt(0).toUpperCase()}</span>
                             </div>
                             <div className="font-semibold text-sm text-foreground truncate">{link.name}</div>
                           </div>
@@ -1811,7 +1811,7 @@ export function DashboardPage({
                         {/* Analytics Badge */}
                         <div className="flex items-center gap-2 mb-1">
                           {link.view_count ? (
-                            <Badge variant="outline" className="text-[10px] bg-emerald/10 text-emerald border-emerald/20 px-2 py-0">
+                            <Badge variant="outline" className="text-[10px] bg-emerald/10 text-foreground border-emerald/20 px-2 py-0">
                               <Eye className="w-3 h-3 mr-1" />
                               Opened {link.view_count} time{link.view_count !== 1 && 's'}
                             </Badge>
@@ -1829,7 +1829,7 @@ export function DashboardPage({
                         {link.events && link.events.length > 0 && (
                           <div className="flex flex-wrap gap-1">
                             {link.events.map(ev => (
-                              <span key={ev} className="text-xs px-2 py-0.5 rounded-full bg-emerald/10 text-emerald border border-emerald/20 capitalize">
+                              <span key={ev} className="text-xs px-2 py-0.5 rounded-full bg-emerald/10 text-foreground border border-emerald/20 capitalize">
                                 {ev.replace(/-/g, ' ')}
                               </span>
                             ))}
@@ -1912,7 +1912,7 @@ export function DashboardPage({
               <div className="flex-1 overflow-y-auto space-y-3 pr-1">
                 {wishesLoading ? (
                   <div className="flex flex-col items-center justify-center py-20 gap-2">
-                    <Loader2 className="w-6 h-6 animate-spin text-emerald" />
+                    <Loader2 className="w-6 h-6 animate-spin text-foreground" />
                     <span className="text-xs text-muted-foreground">Loading blessings...</span>
                   </div>
                 ) : wishesList.length === 0 ? (
@@ -2025,7 +2025,7 @@ export function DashboardPage({
                 </Button>
               </div>
               <p className="text-sm text-muted-foreground">
-                How was your experience using ShaadiLink for this invitation? Your review will be featured on our homepage!
+                How was your experience using Smart Invites for this invitation? Your review will be featured on our homepage!
               </p>
               <div className="flex justify-center gap-2 py-2">
                 {[1, 2, 3, 4, 5].map((star) => (
@@ -2034,7 +2034,7 @@ export function DashboardPage({
                     onClick={() => setReviewRating(star)}
                     className="focus:outline-none transition-transform hover:scale-110"
                   >
-                    <Star className={`w-8 h-8 ${reviewRating >= star ? 'fill-gold text-gold' : 'text-muted-foreground/30'}`} />
+                    <Star className={`w-8 h-8 ${reviewRating >= star ? 'fill-gold text-primary' : 'text-muted-foreground/30'}`} />
                   </button>
                 ))}
               </div>
@@ -2047,7 +2047,7 @@ export function DashboardPage({
               <Button
                 onClick={handleSubmitReview}
                 disabled={reviewLoading || reviewRating === 0 || !reviewMessage.trim()}
-                className="w-full bg-gold hover:bg-gold-light text-emerald-dark font-semibold mt-2"
+                className="w-full bg-primary hover:bg-primary-light text-foreground-dark font-semibold mt-2"
               >
                 {reviewLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Submit Review'}
               </Button>

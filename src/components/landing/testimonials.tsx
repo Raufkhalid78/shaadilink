@@ -27,7 +27,7 @@ const fallbackTestimonials: Testimonial[] = [
     eventType: "Walima",
     date: "October 2026",
     stars: 5,
-    quote: "ShaadiLink made our Walima invitation absolutely magical. Our guests couldn't believe it wasn't a printed card — the 3D door reveal left everyone speechless!",
+    quote: "Smart Invites made our Walima invitation absolutely magical. Our guests couldn't believe it wasn't a printed card — the 3D door reveal left everyone speechless!",
     avatarColor: "bg-[#f59e0b]", // Solid orange-amber
     templateName: "Used Crimson Royale",
   },
@@ -39,7 +39,7 @@ const fallbackTestimonials: Testimonial[] = [
     eventType: "Baraat",
     date: "December 2026",
     stars: 5,
-    quote: "The scratch card feature for revealing our wedding date was the most talked about thing at our engagement! Every family member loved it.",
+    quote: "The scratch card feature for revealing our event date was the most talked about thing at our engagement! Every family member loved it.",
     avatarColor: "bg-[#10b981]", // Solid emerald
     templateName: "Used Emerald Noir",
   },
@@ -93,7 +93,7 @@ export function Testimonials() {
               stars: r.rating,
               quote: r.message,
               avatarColor,
-              templateName: r.template_name ? `Used ${r.template_name}` : "Used ShaadiLink",
+              templateName: r.template_name ? `Used ${r.template_name}` : "Used Smart Invites",
             };
           });
           
@@ -122,17 +122,17 @@ export function Testimonials() {
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-gold/20 bg-gold/10 text-gold text-xs font-semibold tracking-wider uppercase mb-4"
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/10 text-primary text-xs font-semibold tracking-wider uppercase mb-4"
           >
             <Heart className="w-3.5 h-3.5 fill-current" />
             {language === 'en' ? 'Love Stories' : 'محبت کی کہانیاں'}
           </m.span>
-          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-white">
+          <h2 className="font-sans tracking-tight text-3xl sm:text-4xl md:text-5xl font-bold text-white">
             {language === 'en' ? 'What Our ' : 'ہمارے '}<span className="gold-shimmer">{language === 'en' ? 'Couples' : 'جوڑوں'}</span>{language === 'en' ? ' Say' : ' کی رائے'}
           </h2>
           <div className="flex items-center justify-center gap-3 mt-5">
             <div className="h-px w-16 bg-gradient-to-r from-transparent to-gold/50" />
-            <div className="h-1.5 w-1.5 rounded-full bg-gold/60" />
+            <div className="h-1.5 w-1.5 rounded-full bg-primary/60" />
             <div className="h-px w-16 bg-gradient-to-l from-transparent to-gold/50" />
           </div>
         </div>
@@ -146,7 +146,7 @@ export function Testimonials() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: idx * 0.15 }}
-              className="relative p-8 rounded-2xl border border-gold/20 bg-[#0f1110] flex flex-col justify-between transition-all duration-300 hover:border-gold/40 group shadow-lg"
+              className="relative p-8 rounded-2xl border border-primary/20 bg-[#0f1110] flex flex-col justify-between transition-all duration-300 hover:border-gold/40 group shadow-lg"
             >
               <div>
                 {/* Profile Header */}
@@ -155,7 +155,7 @@ export function Testimonials() {
                     {t.initials}
                   </div>
                   <div className="text-left">
-                    <p className="font-display font-bold text-base text-white">
+                    <p className="font-sans tracking-tight font-bold text-base text-white">
                       {t.name}
                     </p>
                     <span className="text-xs text-muted-foreground/80">
@@ -166,12 +166,12 @@ export function Testimonials() {
 
                 {/* Stars and Event Badge */}
                 <div className="flex items-center justify-between gap-2 mb-4">
-                  <div className="flex gap-1 text-gold">
+                  <div className="flex gap-1 text-primary">
                     {[...Array(t.stars)].map((_, i) => (
                       <Star key={i} className="w-4 h-4 fill-current" />
                     ))}
                   </div>
-                  <span className="text-[10px] uppercase tracking-wider text-gold px-3 py-1 rounded-full font-semibold border border-gold/30 bg-black/40">
+                  <span className="text-[10px] uppercase tracking-wider text-primary px-3 py-1 rounded-full font-semibold border border-gold/30 bg-black/40">
                     {t.eventType}
                   </span>
                 </div>
@@ -190,7 +190,7 @@ export function Testimonials() {
                 </span>
                 
                 {t.templateName && (
-                  <span className="flex items-center gap-1.5 text-gold/80">
+                  <span className="flex items-center gap-1.5 text-primary/80">
                     <LayoutTemplate className="w-4 h-4" />
                     {t.templateName}
                   </span>

@@ -14,7 +14,7 @@ Traditional wedding invitations require paper for the card itself, the envelope,
 
 ## 2. Instant Delivery
 
-No more worrying about postal delays or lost mail. With ShaadiLink, your invitation reaches your guests' WhatsApp or email inbox instantly, no matter where they are in the world. 
+No more worrying about postal delays or lost mail. With Smart Invites, your invitation reaches your guests' WhatsApp or email inbox instantly, no matter where they are in the world. 
 
 ## 3. Cost-Effective
 
@@ -26,6 +26,6 @@ Did the venue change? Did the timing shift by an hour? With paper invitations, a
 
 ## 5. A Premium, Interactive Experience
 
-Digital invitations are not just "emails". With platforms like ShaadiLink, they are interactive experiences. Guests can listen to background music, interact with scratch-to-reveal cards, view photo galleries, and navigate to the venue using integrated Google Maps. 
+Digital invitations are not just "emails". With platforms like Smart Invites, they are interactive experiences. Guests can listen to background music, interact with scratch-to-reveal cards, view photo galleries, and navigate to the venue using integrated Google Maps. 
 
-Make the sustainable choice for your big day. Start your journey with [ShaadiLink](/templates).
+Make the sustainable choice for your big day. Start your journey with [Smart Invites](/templates).

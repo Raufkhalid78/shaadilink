@@ -33,7 +33,7 @@ export function SettingsManager({ initialSettings }: { initialSettings: any }) {
         <Label>Admin Notification Email</Label>
         <Input 
           name="admin_email" 
-          defaultValue={initialSettings?.admin_email || process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@shaadilink.com"} 
+          defaultValue={initialSettings?.admin_email || process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@smartinvites.com"} 
           required 
           className="bg-background" 
         />

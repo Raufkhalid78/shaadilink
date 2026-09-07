@@ -50,13 +50,13 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://shaadilink.com.pk"),
-  applicationName: "ShaadiLink",
-  title: "ShaadiLink — Premium Digital Wedding Invitations for Pakistani Weddings",
+  metadataBase: new URL("https://smartinvites.com.pk"),
+  applicationName: "Smart Invites",
+  title: "Smart Invites — Premium Digital Invitations for Every Event",
   description:
-    "Create stunning digital wedding invitations with premium animations, 3D door reveals, scratch card date reveals, and interactive RSVP. For Mehndi, Baraat, Walima and more — celebrate every moment in cinematic style.",
+    "Create stunning digital invitations for Weddings, Birthdays, School Events, and Meetings. Premium animations, RSVP tracking, and elegant templates for every occasion.",
   keywords: [
-    "ShaadiLink",
+    "Smart Invites",
     "digital wedding invitation",
     "Pakistani wedding card",
     "online wedding invitation",
@@ -68,25 +68,25 @@ export const metadata: Metadata = {
     "premium wedding invitation",
   ],
   openGraph: {
-    url: "https://www.shaadilink.com.pk/",
-    title: "ShaadiLink — Premium Digital Wedding Invitations",
+    url: "https://www.smartinvites.com.pk/",
+    title: "Smart Invites — Premium Digital Wedding Invitations",
     description:
       "Cinematic digital wedding invitations with 3D animations, scratch card reveals, live countdowns, and RSVP. Made for Pakistani weddings.",
     type: "website",
     locale: "en_PK",
-    siteName: "ShaadiLink",
+    siteName: "Smart Invites",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "ShaadiLink - Premium Digital Wedding Invitations",
+        alt: "Smart Invites - Premium Digital Wedding Invitations",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "ShaadiLink — Premium Digital Wedding Invitations",
+    title: "Smart Invites — Premium Digital Wedding Invitations",
     description: "Cinematic digital invitations for Pakistani weddings. Starting Rs. 3,499.",
   },
   robots: {
@@ -109,9 +109,9 @@ export default function RootLayout({
     "@graph": [
       {
         "@type": "SoftwareApplication",
-        "@id": "https://shaadilink.com.pk/#software",
-        "name": "ShaadiLink",
-        "url": "https://shaadilink.com.pk",
+        "@id": "https://smartinvites.com.pk/#software",
+        "name": "Smart Invites",
+        "url": "https://smartinvites.com.pk",
         "applicationCategory": "DesignApplication",
         "operatingSystem": "All",
         "offers": {
@@ -138,14 +138,14 @@ export default function RootLayout({
       },
       {
         "@type": "FAQPage",
-        "@id": "https://shaadilink.com.pk/#faq",
+        "@id": "https://smartinvites.com.pk/#faq",
         "mainEntity": [
           {
             "@type": "Question",
-            "name": "What is ShaadiLink?",
+            "name": "What is Smart Invites?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "ShaadiLink is Pakistan's premium digital wedding invitation platform, allowing you to create beautiful online cards with 3D animations, realistic door reveals, scratch-to-reveal dates, music, photo galleries, and guest RSVPs."
+              "text": "Smart Invites is Pakistan's premium digital wedding invitation platform, allowing you to create beautiful online cards with 3D animations, realistic door reveals, scratch-to-reveal dates, music, photo galleries, and guest RSVPs."
             }
           },
           {
@@ -153,7 +153,7 @@ export default function RootLayout({
             "name": "How much does a digital wedding card cost in Pakistan?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "ShaadiLink offers two plans: the Classic Plan for Rs. 3,499 (featuring 8 elegant templates and core features) and the Royal Plan for Rs. 5,799 (unlocking 18 premium templates, 3D door reveals, scratch cards, travel details, and digital shagun)."
+              "text": "Smart Invites offers two plans: the Classic Plan for Rs. 3,499 (featuring 8 elegant templates and core features) and the Royal Plan for Rs. 5,799 (unlocking 18 premium templates, 3D door reveals, scratch cards, travel details, and digital shagun)."
             }
           },
           {
@@ -161,29 +161,29 @@ export default function RootLayout({
             "name": "Can I edit the invitation card after publishing?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Yes, both plans allow you to make unlimited edits to event dates, timings, venues, and photos right up until your wedding day from your ShaadiLink dashboard."
+              "text": "Yes, both plans allow you to make unlimited edits to event dates, timings, venues, and photos right up until your wedding day from your Smart Invites dashboard."
             }
           }
         ]
       },
       {
         "@type": "Organization",
-        "@id": "https://shaadilink.com.pk/#organization",
-        "name": "ShaadiLink",
-        "url": "https://shaadilink.com.pk",
-        "logo": "https://shaadilink.com.pk/logo.svg",
+        "@id": "https://smartinvites.com.pk/#organization",
+        "name": "Smart Invites",
+        "url": "https://smartinvites.com.pk",
+        "logo": "https://smartinvites.com.pk/logo.svg",
         "sameAs": [
-          "https://www.instagram.com/shaadilink.pk",
-          "https://www.facebook.com/shaadilink"
+          "https://www.instagram.com/smartinvites.pk",
+          "https://www.facebook.com/smartinvites"
         ]
       },
       {
         "@type": "WebSite",
-        "@id": "https://shaadilink.com.pk/#website",
-        "url": "https://shaadilink.com.pk",
-        "name": "ShaadiLink",
+        "@id": "https://smartinvites.com.pk/#website",
+        "url": "https://smartinvites.com.pk",
+        "name": "Smart Invites",
         "publisher": {
-          "@id": "https://shaadilink.com.pk/#organization"
+          "@id": "https://smartinvites.com.pk/#organization"
         }
       }
     ]

@@ -11,14 +11,14 @@ export function CookieBanner() {
 
   useEffect(() => {
     // Check if user has already accepted or declined cookies
-    const consent = localStorage.getItem('shaadilink_cookie_consent')
+    const consent = localStorage.getItem('smartinvites_cookie_consent')
     if (!consent) {
       setIsVisible(true)
     }
   }, [])
 
   const handleConsent = (accepted: boolean) => {
-    localStorage.setItem('shaadilink_cookie_consent', accepted ? 'accepted' : 'declined')
+    localStorage.setItem('smartinvites_cookie_consent', accepted ? 'accepted' : 'declined')
     setIsVisible(false)
     if (accepted) {
       // Initialize analytics here if they accepted

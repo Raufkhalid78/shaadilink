@@ -1,6 +1,6 @@
-# ShaadiLink — Digital Wedding Invitations Platform
+# Smart Invites — Digital Wedding Invitations Platform
 
-> **Live Website:** [https://www.shaadilink.com.pk](https://www.shaadilink.com.pk)  
+> **Live Website:** [https://www.smartinvites.com.pk](https://www.smartinvites.com.pk)  
 > **Tech Stack:** Next.js 16 (App Router, Turbopack), TypeScript, Tailwind CSS, Shadcn UI, Supabase (PostgreSQL, Auth, Storage), Safepay Gateway, Upstash Redis, Resend, Vitest.
 
 ---
@@ -22,7 +22,7 @@ Create a `.env.local` file in the root directory:
 
 ```env
 # Next.js Public
-NEXT_PUBLIC_APP_URL="https://www.shaadilink.com.pk"
+NEXT_PUBLIC_APP_URL="https://www.smartinvites.com.pk"
 NEXT_PUBLIC_SUPABASE_URL="https://your-supabase-project.supabase.co"
 NEXT_PUBLIC_SUPABASE_ANON_KEY="your-anon-key"
 
@@ -46,7 +46,7 @@ RESEND_API_KEY="re_your_resend_api_key"
 OPENROUTER_API_KEY="sk-or-v1-..."
 
 # Admin Access
-ADMIN_EMAIL="admin@shaadilink.com.pk"
+ADMIN_EMAIL="admin@smartinvites.com.pk"
 ```
 
 ---

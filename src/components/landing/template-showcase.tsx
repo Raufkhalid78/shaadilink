@@ -204,10 +204,10 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="0.5"
-                className="text-gold"
+                className="text-primary"
               />
-              <circle cx="60" cy="60" r="25" fill="none" stroke="currentColor" strokeWidth="0.3" className="text-gold" />
-              <circle cx="60" cy="60" r="10" fill="none" stroke="currentColor" strokeWidth="0.3" className="text-gold" />
+              <circle cx="60" cy="60" r="25" fill="none" stroke="currentColor" strokeWidth="0.3" className="text-primary" />
+              <circle cx="60" cy="60" r="10" fill="none" stroke="currentColor" strokeWidth="0.3" className="text-primary" />
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#template-pattern)" />
@@ -223,10 +223,10 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
           transition={{ duration: 0.6 }}
           className="text-center mb-10 sm:mb-14"
         >
-          <span className="inline-block font-calligraphy text-gold text-lg mb-3">
+          <span className="inline-block font-medium tracking-widest uppercase text-xs text-primary text-lg mb-3">
             {t('showcase.badge')}
           </span>
-          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-white">
+          <h2 className="font-sans tracking-tight text-3xl sm:text-4xl md:text-5xl font-bold text-white">
             {t('showcase.title')}
           </h2>
           <p className="mt-4 text-white/60 max-w-xl mx-auto text-base sm:text-lg text-center">
@@ -235,7 +235,7 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
           {/* Gold divider */}
           <div className="mt-6 flex items-center justify-center gap-3">
             <div className="h-px w-16 bg-gradient-to-r from-transparent to-gold/60" />
-            <div className="w-2 h-2 rounded-full bg-gold/70" />
+            <div className="w-2 h-2 rounded-full bg-primary/70" />
             <div className="h-px w-16 bg-gradient-to-l from-transparent to-gold/60" />
           </div>
         </m.div>
@@ -250,7 +250,7 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 10 }}
                 onClick={handlePrev}
-                className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 w-12 h-12 items-center justify-center rounded-full bg-card/95 backdrop-blur-sm border border-gold/30 shadow-lg shadow-black/30 text-gold hover:bg-gold/10 hover:border-gold/50 transition-all duration-300"
+                className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 w-12 h-12 items-center justify-center rounded-full bg-card/95 backdrop-blur-sm border border-gold/30 shadow-lg shadow-black/30 text-primary hover:bg-primary/10 hover:border-gold/50 transition-all duration-300"
                 aria-label="Previous templates"
               >
                 <ChevronLeft className="w-5 h-5" />
@@ -266,7 +266,7 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -10 }}
                 onClick={handleNext}
-                className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 w-12 h-12 items-center justify-center rounded-full bg-card/95 backdrop-blur-sm border border-gold/30 shadow-lg shadow-black/30 text-gold hover:bg-gold/10 hover:border-gold/50 transition-all duration-300"
+                className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 w-12 h-12 items-center justify-center rounded-full bg-card/95 backdrop-blur-sm border border-gold/30 shadow-lg shadow-black/30 text-primary hover:bg-primary/10 hover:border-gold/50 transition-all duration-300"
                 aria-label="Next templates"
               >
                 <ChevronRight className="w-5 h-5" />
@@ -292,7 +292,7 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
                 <m.div
                   whileHover={{ scale: 1.03, y: -4 }}
                   transition={{ duration: 0.3 }}
-                  className="relative w-[280px] sm:w-[300px] aspect-[3/4] rounded-2xl overflow-hidden border border-gold/20 hover:border-gold/50 hover:shadow-2xl hover:shadow-gold/10 transition-all duration-300 cursor-pointer group bg-black"
+                  className="relative w-[280px] sm:w-[300px] aspect-[3/4] rounded-2xl overflow-hidden border border-primary/20 hover:border-gold/50 hover:shadow-2xl hover:shadow-gold/10 transition-all duration-300 cursor-pointer group bg-black"
                 >
                   {template.image ? (
                     <>
@@ -306,21 +306,21 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/20" />
 
-                      {/* Glass overlay with couple names */}
+                      {/* Glass overlay with host names */}
                       <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
                         <div className="bg-black/55 backdrop-blur-md rounded-xl p-4 border border-gold/30 shadow-2xl max-w-[220px] w-full">
-                          <p className="font-calligraphy text-[#f0e6d3] text-2xl font-bold mb-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
-                            Aisha
+                          <p className="font-medium tracking-widest uppercase text-xs text-[#f0e6d3] text-2xl font-bold mb-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+                            Summit
                           </p>
                           <div className="flex items-center justify-center gap-2 my-1.5">
                             <div className="w-6 h-px bg-gradient-to-r from-transparent to-gold/60" />
                             <div className="w-1.5 h-1.5 rotate-45 border border-gold/70" />
                             <div className="w-6 h-px bg-gradient-to-l from-transparent to-gold/60" />
                           </div>
-                          <p className="font-calligraphy text-[#f0e6d3] text-2xl font-bold mt-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
-                            Ahmad
+                          <p className="font-medium tracking-widest uppercase text-xs text-[#f0e6d3] text-2xl font-bold mt-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+                            2026
                           </p>
-                          <p className="font-display text-gold/80 text-[10px] tracking-[0.25em] uppercase mt-2">
+                          <p className="font-sans tracking-tight text-primary/80 text-[10px] tracking-[0.25em] uppercase mt-2">
                             Cinematic Royal
                           </p>
                         </div>
@@ -354,34 +354,34 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
 
                       {/* Gold corner accents */}
                       <div className="absolute top-4 left-4 w-4 h-4 pointer-events-none">
-                        <div className="absolute top-0 left-0 w-full h-px bg-gold/60" />
-                        <div className="absolute top-0 left-0 h-full w-px bg-gold/60" />
+                        <div className="absolute top-0 left-0 w-full h-px bg-primary/60" />
+                        <div className="absolute top-0 left-0 h-full w-px bg-primary/60" />
                       </div>
                       <div className="absolute top-4 right-4 w-4 h-4 pointer-events-none">
-                        <div className="absolute top-0 right-0 w-full h-px bg-gold/60" />
-                        <div className="absolute top-0 right-0 h-full w-px bg-gold/60" />
+                        <div className="absolute top-0 right-0 w-full h-px bg-primary/60" />
+                        <div className="absolute top-0 right-0 h-full w-px bg-primary/60" />
                       </div>
                       <div className="absolute bottom-4 left-4 w-4 h-4 pointer-events-none">
-                        <div className="absolute bottom-0 left-0 w-full h-px bg-gold/60" />
-                        <div className="absolute bottom-0 left-0 h-full w-px bg-gold/60" />
+                        <div className="absolute bottom-0 left-0 w-full h-px bg-primary/60" />
+                        <div className="absolute bottom-0 left-0 h-full w-px bg-primary/60" />
                       </div>
                       <div className="absolute bottom-4 right-4 w-4 h-4 pointer-events-none">
-                        <div className="absolute bottom-0 right-0 w-full h-px bg-gold/60" />
-                        <div className="absolute bottom-0 right-0 h-full w-px bg-gold/60" />
+                        <div className="absolute bottom-0 right-0 w-full h-px bg-primary/60" />
+                        <div className="absolute bottom-0 right-0 h-full w-px bg-primary/60" />
                       </div>
 
                       {/* Template content simulation */}
                       <div className="absolute inset-0 flex flex-col items-center justify-between p-6 text-center select-none">
                         {/* Top Calligraphy */}
                         <div className="pt-2">
-                          <span className="font-calligraphy text-gold/90 text-lg block drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]">
+                          <span className="font-medium tracking-widest uppercase text-xs text-primary/90 text-lg block drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]">
                             دعوة زفاف
                           </span>
                         </div>
 
                         {/* Center Monogram & Wax Seal */}
                         <div className="flex flex-col items-center justify-center my-auto">
-                          <p className="font-display text-white text-base sm:text-lg font-bold tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                          <p className="font-sans tracking-tight text-white text-base sm:text-lg font-bold tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
                             Ahmed &amp; Fatima
                           </p>
 
@@ -409,7 +409,7 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
 
                         {/* Bottom Subtext */}
                         <div className="pb-1">
-                          <p className="font-display text-white/70 text-[10px] tracking-[0.2em] uppercase">
+                          <p className="font-sans tracking-tight text-white/70 text-[10px] tracking-[0.2em] uppercase">
                             14 · March · 2027
                           </p>
                         </div>
@@ -419,7 +419,7 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
 
                   {/* Template name overlay at bottom */}
                   <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent pt-14 pb-5 px-5">
-                    <p className="font-display text-white text-sm font-semibold text-center drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
+                    <p className="font-sans tracking-tight text-white text-sm font-semibold text-center drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
                       {template.name}
                     </p>
                   </div>
@@ -457,8 +457,8 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
               >
                 <div className={`transition-all duration-300 rounded-full ${
                   i === currentIndex
-                    ? "w-5 h-2 bg-gold"
-                    : "w-2 h-2 bg-gold/30 hover:bg-gold/50"
+                    ? "w-5 h-2 bg-primary"
+                    : "w-2 h-2 bg-primary/30 hover:bg-primary/50"
                 }`} />
               </button>
             ))}
@@ -468,7 +468,7 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
           <div className="flex justify-center mt-8">
             <button
               onClick={onViewAllClick}
-              className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-gold/10 border border-gold/25 text-gold font-semibold text-sm hover:bg-gold/20 hover:border-gold/40 transition-all duration-200 group"
+              className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-primary/10 border border-gold/25 text-primary font-semibold text-sm hover:bg-primary/20 hover:border-gold/40 transition-all duration-200 group"
             >
               {t('showcase.viewAll')}
               <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />

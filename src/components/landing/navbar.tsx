@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { m, AnimatePresence } from "framer-motion";
-import { Heart, ChevronDown, LayoutDashboard, LogOut, Plus } from "lucide-react";
+import { Send, ChevronDown, LayoutDashboard, LogOut, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -109,11 +109,11 @@ export function Navbar({
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <a href="#" className="flex items-center gap-2 group">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald text-primary-foreground shadow-lg shadow-emerald/20 group-hover:shadow-emerald/40 transition-shadow duration-300">
-            <Heart className="h-5 w-5 fill-current" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-shadow duration-300">
+            <Send className="h-5 w-5 fill-current" />
           </div>
           <span className="font-display text-xl font-bold tracking-tight text-white">
-            Shaadi<span className="gold-shimmer-strong">Link</span>
+            Smart<span className="gold-shimmer-strong">Invites</span>
           </span>
         </a>
 

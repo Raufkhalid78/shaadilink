@@ -306,7 +306,7 @@ function ClassicDoorThumbnail({ template }: { template: any }) {
           <div className="w-7 h-px" style={{ background: `linear-gradient(270deg, transparent, ${m.accent})` }} />
         </div>
         <span 
-          className="font-calligraphy text-base sm:text-lg block tracking-wide"
+          className="font-medium tracking-widest uppercase text-xs text-base sm:text-lg block tracking-wide"
           style={{ 
             color: isLight ? '#475569' : '#ffffff',
             textShadow: isLight ? 'none' : `0 0 15px ${m.accent}66`
@@ -432,7 +432,7 @@ function TemplateCard({
             {/* Elegant glass overlay card over the picture */}
             <div className="relative z-10 w-full px-5 flex flex-col items-center justify-center text-center">
               <div className="bg-black/55 backdrop-blur-md rounded-xl p-3.5 border border-gold/30 shadow-xl max-w-[210px] w-full">
-                <span className="font-calligraphy text-amber-300 text-base sm:text-lg block">دعوة زفاف</span>
+                <span className="font-medium tracking-widest uppercase text-xs text-amber-300 text-base sm:text-lg block">دعوة زفاف</span>
                 <p className="font-display text-white text-sm sm:text-base font-semibold tracking-wide mt-0.5">Ahmed & Fatima</p>
                 <div className="w-10 h-px bg-gold/50 mx-auto my-1.5" />
                 <div className="flex items-center justify-center gap-1.5">
@@ -575,14 +575,14 @@ export function TemplatesPage({
                   className="data-[state=active]:bg-emerald data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm px-6 py-2.5 text-sm font-semibold gap-1.5"
                 >
                   <Gem className="w-4 h-4" />
-                  ShaadiLink Classics
+                  Smart Invites Classics
                 </TabsTrigger>
                 <TabsTrigger
                   value="royal"
                   className="data-[state=active]:bg-gold data-[state=active]:text-emerald-dark data-[state=active]:shadow-sm px-6 py-2.5 text-sm font-semibold gap-1.5"
                 >
                   <Crown className="w-4 h-4" />
-                  ShaadiLink Royal
+                  Smart Invites Royal
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -591,7 +591,7 @@ export function TemplatesPage({
             <TabsContent value="classic">
               <div className="text-center mb-6">
                 <h2 className="font-display text-xl sm:text-2xl font-bold text-foreground">
-                  ShaadiLink Classic Invitations
+                  Smart Invites Classic Invitations
                 </h2>
                 <p className="text-sm text-muted-foreground mt-1">
                   {filterTemplates(classicTemplates).length} premium designs included with Classic plan
@@ -618,7 +618,7 @@ export function TemplatesPage({
             <TabsContent value="royal">
               <div className="text-center mb-6">
                 <h2 className="font-display text-xl sm:text-2xl font-bold text-foreground">
-                  ShaadiLink Royal Invitations
+                  Smart Invites Royal Invitations
                 </h2>
                 <p className="text-sm text-muted-foreground mt-1">
                   {filterTemplates(royalTemplates).length} cinematic designs with premium animations

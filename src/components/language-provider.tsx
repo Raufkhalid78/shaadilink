@@ -20,7 +20,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    const saved = localStorage.getItem('shaadilink_lang') as Language
+    const saved = localStorage.getItem('smartinvites_lang') as Language
     if (saved && (saved === 'en' || saved === 'ur')) {
       setLanguageState(saved)
     }
@@ -29,7 +29,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang)
-    localStorage.setItem('shaadilink_lang', lang)
+    localStorage.setItem('smartinvites_lang', lang)
     if (lang === 'ur') {
       document.documentElement.dir = 'rtl'
       document.documentElement.lang = 'ur'

@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
     const post = getPostBySlug(resolvedParams.slug);
     return {
-      title: `${post.title} | ShaadiLink Blog`,
+      title: `${post.title} | Smart Invites Blog`,
       description: post.description,
       openGraph: {
         title: post.title,
@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   } catch {
     return {
-      title: "Blog | ShaadiLink",
+      title: "Blog | Smart Invites",
     };
   }
 }

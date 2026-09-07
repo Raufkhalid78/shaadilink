@@ -33,29 +33,29 @@ export async function updateAffiliateStatus(id: string, status: 'approved' | 're
   if (status === 'approved' && application?.email && resend) {
     try {
       await resend.emails.send({
-        from: 'ShaadiLink Partners <hello@shaadilink.com.pk>',
+        from: 'Smart Invites Partners <info@smartinvites.com.pk>',
         to: [application.email],
-        replyTo: 'hello@shaadilink.com.pk',
-        subject: 'Welcome to the ShaadiLink Partner Program! 🎉',
-        text: `Welcome to the ShaadiLink Partner Program!\n\nHi ${application.name},\n\nGreat news! Your application to the ShaadiLink Partner Program has been approved.\n\nYou can now log in to your dashboard to get your unique referral links and track earnings: https://www.shaadilink.com.pk/affiliate/dashboard\n\nBest regards,\nThe ShaadiLink Team`,
+        replyTo: 'info@smartinvites.com.pk',
+        subject: 'Welcome to the Smart Invites Partner Program! 🎉',
+        text: `Welcome to the Smart Invites Partner Program!\n\nHi ${application.name},\n\nGreat news! Your application to the Smart Invites Partner Program has been approved.\n\nYou can now log in to your dashboard to get your unique referral links and track earnings: https://www.smartinvites.com.pk/affiliate/dashboard\n\nBest regards,\nThe Smart Invites Team`,
         html: getEmailWrapper(
           'Application Approved!',
           'Great news! Your affiliate application has been approved.',
           `
             <h2 style="color: #022c22; margin-top: 0;">Welcome to the Team!</h2>
             <p>Hi ${application.name},</p>
-            <p>Great news! Your application to the <strong>ShaadiLink Partner Program</strong> has been approved.</p>
-            <p>You can now log in to your dashboard to get your unique referral links, track your earnings, and view resources to help you promote ShaadiLink.</p>
+            <p>Great news! Your application to the <strong>Smart Invites Partner Program</strong> has been approved.</p>
+            <p>You can now log in to your dashboard to get your unique referral links, track your earnings, and view resources to help you promote Smart Invites.</p>
             
             <br/>
             <center>
-              <a href="https://shaadilink.com.pk/affiliate/dashboard" style="background-color: #d4af37; color: #111827; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Go to Dashboard</a>
+              <a href="https://smartinvites.com.pk/affiliate/dashboard" style="background-color: #d4af37; color: #111827; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Go to Dashboard</a>
             </center>
             
             <br/>
             <p>We're thrilled to have you partner with us. If you have any questions, don't hesitate to reach out.</p>
             <p>Best regards,</p>
-            <p><strong>The ShaadiLink Team</strong></p>
+            <p><strong>The Smart Invites Team</strong></p>
           `
         )
       });
@@ -65,21 +65,21 @@ export async function updateAffiliateStatus(id: string, status: 'approved' | 're
   } else if (status === 'rejected' && application?.email && resend) {
     try {
       await resend.emails.send({
-        from: 'ShaadiLink Partners <hello@shaadilink.com.pk>',
+        from: 'Smart Invites Partners <info@smartinvites.com.pk>',
         to: [application.email],
-        subject: 'Update on your ShaadiLink Partner Application',
+        subject: 'Update on your Smart Invites Partner Application',
         html: getEmailWrapper(
           'Application Update',
-          'An update regarding your application to the ShaadiLink Partner Program.',
+          'An update regarding your application to the Smart Invites Partner Program.',
           `
             <h2 style="color: #022c22; margin-top: 0;">Application Update</h2>
             <p>Hi ${application.name},</p>
-            <p>Thank you for applying to the ShaadiLink Partner Program. We appreciate your interest in partnering with us.</p>
+            <p>Thank you for applying to the Smart Invites Partner Program. We appreciate your interest in partnering with us.</p>
             <p>After careful consideration, we are unable to approve your application at this time. We receive many applications and unfortunately cannot accept everyone into the program.</p>
             <p>We wish you the best of luck in your future endeavors!</p>
             <br/>
             <p>Best regards,</p>
-            <p><strong>The ShaadiLink Team</strong></p>
+            <p><strong>The Smart Invites Team</strong></p>
           `
         )
       });

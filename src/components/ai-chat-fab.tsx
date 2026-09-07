@@ -65,7 +65,7 @@ export function AIChatFAB() {
   if (pathname?.startsWith("/inv/")) return null;
 
   const whatsappNumber = "447517879333";
-  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=Hi ShaadiLink, I need some help!`;
+  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=Hi Smart Invites, I need some help!`;
 
   if (!isVisible) return null;
 
@@ -92,7 +92,7 @@ export function AIChatFAB() {
               </div>
               <div>
                 <h4 className="font-semibold text-sm leading-tight text-white flex items-center gap-1.5">
-                  ShaadiLink Assistant
+                  Smart Invites Assistant
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 </h4>
                 <p className="text-[11px] text-emerald-200/80">Online & ready to help</p>
@@ -157,7 +157,7 @@ export function AIChatFAB() {
                 <Bot className="w-3.5 h-3.5" />
               </div>
               <div className="bg-card border border-border/60 text-foreground rounded-2xl rounded-tl-sm p-3 text-xs leading-relaxed shadow-sm">
-                Assalam-o-Alaikum! 👋 I&apos;m the ShaadiLink AI Assistant. How can I help you with your wedding invitation plans today?
+                Assalam-o-Alaikum! 👋 I&apos;m the Smart Invites AI Assistant. How can I help you with your wedding invitation plans today?
               </div>
             </div>
 
@@ -228,7 +228,7 @@ export function AIChatFAB() {
               </button>
             </div>
             <div className="text-center mt-1.5">
-              <span className="text-[10px] text-muted-foreground/70">ShaadiLink AI • Available 24/7</span>
+              <span className="text-[10px] text-muted-foreground/70">Smart Invites AI • Available 24/7</span>
             </div>
           </form>
         </div>
@@ -242,7 +242,7 @@ export function AIChatFAB() {
           setIsOpen(!isOpen);
         }}
         className="w-14 h-14 rounded-full bg-emerald-900 border-2 border-gold/60 text-white shadow-2xl flex items-center justify-center hover:bg-emerald-800 active:scale-95 transition-all duration-200 cursor-pointer touch-manipulation relative focus:outline-none focus:ring-2 focus:ring-gold/50 shadow-emerald-950/40"
-        aria-label={isOpen ? "Close ShaadiLink Assistant" : "Open ShaadiLink Assistant"}
+        aria-label={isOpen ? "Close Smart Invites Assistant" : "Open Smart Invites Assistant"}
         style={{ WebkitTapHighlightColor: "transparent" }}
       >
         {isOpen ? (

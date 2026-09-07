@@ -95,7 +95,7 @@ describe('Zod Validation Schemas', () => {
     it('validates contact email and message', () => {
       const res = contactSchema.safeParse({
         name: 'Usman',
-        email: 'usman@shaadilink.pk',
+        email: 'usman@smartinvites.pk',
         message: 'Need help with template customization',
       })
       expect(res.success).toBe(true)

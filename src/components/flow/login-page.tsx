@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { m } from "framer-motion";
-import { ArrowLeft, Eye, EyeOff, Mail, Lock, Heart, Loader2 } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Mail, Lock, Heart, Send, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -29,7 +29,7 @@ export function LoginPage({ onBack, onLogin, onSignup, crumbs }: LoginPageProps)
   const handleGoogleLogin = async () => {
     setIsGoogleLoading(true);
     try {
-      localStorage.setItem("shaadilink_oauth_in_progress", "true");
+      localStorage.setItem("smartinvites_oauth_in_progress", "true");
       const supabase = createClient();
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
@@ -39,12 +39,12 @@ export function LoginPage({ onBack, onLogin, onSignup, crumbs }: LoginPageProps)
       });
       if (error) {
         toast.error(error.message);
-        localStorage.removeItem("shaadilink_oauth_in_progress");
+        localStorage.removeItem("smartinvites_oauth_in_progress");
       }
     } catch (err) {
       console.error("Google login error:", err);
       toast.error("Could not initialize Google login.");
-      localStorage.removeItem("shaadilink_oauth_in_progress");
+      localStorage.removeItem("smartinvites_oauth_in_progress");
     } finally {
       setIsGoogleLoading(false);
     }
@@ -136,10 +136,10 @@ export function LoginPage({ onBack, onLogin, onSignup, crumbs }: LoginPageProps)
             {/* Logo */}
             <div className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald text-primary-foreground">
-                <Heart className="h-4 w-4 fill-current" />
+                <Send className="h-4 w-4 fill-current" />
               </div>
               <span className="font-display text-lg font-bold">
-                Shaadi<span className="text-gold">Link</span>
+                Smart<span className="text-primary">Invites</span>
               </span>
             </div>
 
@@ -154,7 +154,7 @@ export function LoginPage({ onBack, onLogin, onSignup, crumbs }: LoginPageProps)
       <main id="main-content" className="flex-1 flex items-center justify-center px-4 py-12 relative overflow-hidden">
         {/* Background ambient elements */}
         <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-emerald/10 blur-[120px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[400px] h-[400px] bg-gold/5 blur-[120px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[400px] h-[400px] bg-primary/5 blur-[120px] rounded-full pointer-events-none" />
 
         <m.div
           initial={{ opacity: 0, y: 20 }}
@@ -164,14 +164,14 @@ export function LoginPage({ onBack, onLogin, onSignup, crumbs }: LoginPageProps)
         >
           {/* Card ambient glows */}
           <div className="absolute -top-20 -right-20 w-40 h-40 bg-emerald/15 blur-[60px] rounded-full pointer-events-none" />
-          <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-gold/5 blur-[60px] rounded-full pointer-events-none" />
+          <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-primary/5 blur-[60px] rounded-full pointer-events-none" />
 
           <div className="relative z-10 space-y-6">
             {/* Brand */}
             <div className="text-center mb-6">
               <div className="flex items-center justify-center gap-2 mb-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald to-emerald-dark text-primary-foreground shadow-lg shadow-emerald/20 border border-emerald/30">
-                  <Heart className="h-5 w-5 fill-current text-gold animate-pulse" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald to-emerald-dark text-primary-foreground shadow-lg shadow-emerald/20 border border-primary/30">
+                  <Heart className="h-5 w-5 fill-current text-primary animate-pulse" />
                 </div>
               </div>
               <h1 className="font-display text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
@@ -190,7 +190,7 @@ export function LoginPage({ onBack, onLogin, onSignup, crumbs }: LoginPageProps)
                   Email
                 </label>
                 <div className="relative">
-                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground">
                     <Mail className="w-4 h-4" />
                   </div>
                   <Input
@@ -212,7 +212,7 @@ export function LoginPage({ onBack, onLogin, onSignup, crumbs }: LoginPageProps)
                   Password
                 </label>
                 <div className="relative">
-                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground">
                     <Lock className="w-4 h-4" />
                   </div>
                   <Input
@@ -241,7 +241,7 @@ export function LoginPage({ onBack, onLogin, onSignup, crumbs }: LoginPageProps)
                   type="button"
                   onClick={handleForgotPassword}
                   disabled={isForgotLoading}
-                  className="text-xs text-gold hover:text-gold-light font-medium flex items-center gap-1 transition-colors"
+                  className="text-xs text-primary hover:text-primary-light font-medium flex items-center gap-1 transition-colors"
                 >
                   {isForgotLoading && <Loader2 className="w-3 h-3 animate-spin" />}
                   Forgot password?
@@ -281,7 +281,7 @@ export function LoginPage({ onBack, onLogin, onSignup, crumbs }: LoginPageProps)
                 className="w-full h-12 bg-background/40 hover:bg-background/80 border border-emerald/20 hover:border-gold/30 text-foreground font-semibold text-base shadow-md transition-all hover:scale-[1.01] flex items-center justify-center gap-3"
               >
                 {isGoogleLoading ? (
-                  <Loader2 className="w-4 h-4 animate-spin text-emerald" />
+                  <Loader2 className="w-4 h-4 animate-spin text-foreground" />
                 ) : (
                   <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
                     <path
@@ -312,7 +312,7 @@ export function LoginPage({ onBack, onLogin, onSignup, crumbs }: LoginPageProps)
                   onClick={onSignup}
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  Don&apos;t have an account? <span className="text-gold hover:text-gold-light font-semibold">Sign up</span>
+                  Don&apos;t have an account? <span className="text-primary hover:text-primary-light font-semibold">Sign up</span>
                 </button>
               </div>
             </form>

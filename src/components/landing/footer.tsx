@@ -2,7 +2,7 @@
 
 import { m } from "framer-motion";
 import { CONTACT_CONFIG } from "@/lib/config";
-import { Heart, Instagram, Facebook, Linkedin, Mail, Globe, Sparkles } from "lucide-react";
+import { Send, Heart, Instagram, Facebook, Linkedin, Mail, Globe, Sparkles } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 import { NewsletterForm } from "./newsletter-form";
 import { WhatsAppIcon } from "@/components/icons/whatsapp-icon";
@@ -94,17 +94,17 @@ export function Footer({
             >
               {/* Logo */}
               <div className="flex items-center gap-2.5 mb-5 justify-start">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gold text-emerald-dark shadow-lg shadow-gold/30">
-                  <Heart className="h-5 w-5 fill-current" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-lg shadow-primary/20">
+                  <Send className="h-5 w-5 fill-current" />
                 </div>
                 <span className="font-display text-2xl font-bold text-white">
-                  Shaadi<span className="gold-shimmer-strong">Link</span>
+                  Smart<span className="gold-shimmer-strong">Invites</span>
                 </span>
               </div>
 
               <p className="text-white/50 text-sm leading-relaxed max-w-xs mb-6 text-left">
                 {language === 'en'
-                  ? "Premium digital wedding invitations crafted for Pakistani weddings. Celebrate every moment — from Mehndi to Walima — in cinematic style."
+                  ? "Premium digital invitations crafted for all your events. Celebrate every moment — from birthdays to galas — in cinematic style."
                   : "شاندار اور پریمیم ڈیجیٹل شادی دعوت نامے جو خاص طور پر پاکستانی شادیوں کے لیے تیار کیے گئے ہیں۔ مہندی سے ولیمہ تک، ہر لمحے کو شاہی انداز میں منائیں۔"}
               </p>
 
@@ -249,12 +249,12 @@ export function Footer({
           {/* Bottom bar */}
           <div className="border-t border-white/8 py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-xs text-white/60">
-              &copy; {new Date().getFullYear()} {language === 'en' ? "ShaadiLink. All rights reserved." : "شادی لنک۔ جملہ حقوق محفوظ ہیں۔"}
+              &copy; {new Date().getFullYear()} {language === 'en' ? "Smart Invites. All rights reserved." : "شادی لنک۔ جملہ حقوق محفوظ ہیں۔"}
             </p>
             <p className="text-xs text-white/60 flex items-center gap-1.5">
-              {language === 'en' ? "Made with" : "پاکستانی شادیوں کے لیے"}{" "}
+              {language === 'en' ? "Made with" : "محبت کے ساتھ بنایا گیا ہے"}{" "}
               <Heart className="h-3 w-3 text-rose-400 fill-rose-400 animate-pulse" />
-              {" "}{language === 'en' ? "for Pakistani Weddings" : "محبت سے تیار کردہ"}
+              {" "}{language === 'en' ? "for Pakistani Events" : "پاکستانی تقریبات کے لیے"}
             </p>
           </div>
         </div>

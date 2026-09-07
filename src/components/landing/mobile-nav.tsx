@@ -1,7 +1,7 @@
 "use client";
 
 import { m } from "framer-motion";
-import { Menu, Heart } from "lucide-react";
+import { Menu, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -74,11 +74,11 @@ export function MobileNav({
       >
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald text-primary-foreground">
-              <Heart className="h-4 w-4 fill-current" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-lg shadow-primary/20">
+              <Send className="h-4 w-4 fill-current" />
             </div>
             <span className="font-display text-lg font-bold text-white">
-              Shaadi<span className="gold-shimmer-strong">Link</span>
+              Smart<span className="gold-shimmer-strong">Invites</span>
             </span>
           </SheetTitle>
         </SheetHeader>

@@ -31,12 +31,12 @@ const legalDataEn: Record<
       {
         heading: "1. Introduction",
         content:
-          "Welcome to ShaadiLink. ShaadiLink is owned and operated by TechyDez. By accessing and using our services, you agree to be bound by these Terms and Conditions. ShaadiLink provides premium digital wedding invitation webpages for Pakistani weddings.",
+          "Welcome to Smart Invites. Smart Invites is owned and operated by TechyDez. By accessing and using our services, you agree to be bound by these Terms and Conditions. Smart Invites provides premium digital wedding invitation webpages for Pakistani weddings.",
       },
       {
         heading: "2. Eligibility",
         content:
-          "You must be at least 18 years of age to use our services. By using ShaadiLink, you represent and warrant that you are at least 18 years old and have the legal capacity to enter into these terms.",
+          "You must be at least 18 years of age to use our services. By using Smart Invites, you represent and warrant that you are at least 18 years old and have the legal capacity to enter into these terms.",
       },
       {
         heading: "3. Account Registration",
@@ -61,7 +61,7 @@ const legalDataEn: Record<
       {
         heading: "7. Intellectual Property",
         content:
-          "All templates, designs, and code are the property of ShaadiLink. You may not reproduce, distribute, or create derivative works from our templates without explicit permission.",
+          "All templates, designs, and code are the property of Smart Invites. You may not reproduce, distribute, or create derivative works from our templates without explicit permission.",
       },
       {
         heading: "8. Service Availability",
@@ -71,7 +71,7 @@ const legalDataEn: Record<
       {
         heading: "9. Business Entity & Governing Law",
         content:
-          "These Terms and Conditions constitute a legally binding agreement between you and TechyDez (the parent company operating ShaadiLink). Our registered business address is Jhelum, Punjab, Pakistan. These terms are governed by the laws of the Islamic Republic of Pakistan and you agree that the courts of Jhelum will have exclusive jurisdiction in any dispute.",
+          "These Terms and Conditions constitute a legally binding agreement between you and TechyDez (the parent company operating Smart Invites). Our registered business address is Jhelum, Punjab, Pakistan. These terms are governed by the laws of the Islamic Republic of Pakistan and you agree that the courts of Jhelum will have exclusive jurisdiction in any dispute.",
       },
       {
         heading: "10. Complaint Handling Mechanism",
@@ -93,7 +93,7 @@ const legalDataEn: Record<
       {
         heading: "2. Google User Data & Authentication",
         content:
-          "ShaadiLink uses Google Sign-In for secure authentication. When you log in with Google, we securely collect your basic profile information (name and email address). This data is used exclusively to create your personal dashboard and authenticate your identity, allowing you to save, edit, and manage your wedding invitations. We do not sell, share, or use your Google user data for any other purpose.",
+          "Smart Invites uses Google Sign-In for secure authentication. When you log in with Google, we securely collect your basic profile information (name and email address). This data is used exclusively to create your personal dashboard and authenticate your identity, allowing you to save, edit, and manage your wedding invitations. We do not sell, share, or use your Google user data for any other purpose.",
       },
       {
         heading: "3. How We Use Your Data",
@@ -103,7 +103,7 @@ const legalDataEn: Record<
       {
         heading: "4. Payment Data",
         content:
-          "Payment processing is securely handled by our authorized partner, Safepay (Private) Limited. ShaadiLink does not store your full credit card details. Payment data is transmitted via encrypted SSL connections and processed in accordance with Safepay's Privacy Policy and PCI-DSS standards.",
+          "Payment processing is securely handled by our authorized partner, Safepay (Private) Limited. Smart Invites does not store your full credit card details. Payment data is transmitted via encrypted SSL connections and processed in accordance with Safepay's Privacy Policy and PCI-DSS standards.",
       },
       {
         heading: "5. Data Protection",
@@ -135,7 +135,7 @@ const legalDataEn: Record<
       {
         heading: "1. General Policy",
         content:
-          "All purchases on ShaadiLink are final. As our service provides immediate digital access to premium templates and invitation creation tools, we are unable to offer refunds once the service has been accessed.",
+          "All purchases on Smart Invites are final. As our service provides immediate digital access to premium templates and invitation creation tools, we are unable to offer refunds once the service has been accessed.",
       },
       {
         heading: "2. Duplicate Payments",
@@ -172,7 +172,7 @@ const legalDataEn: Record<
       {
         heading: "1. Digital Service",
         content:
-          "ShaadiLink is a 100% digital service. There are no physical products, printed cards, or tangible items shipped to your address.",
+          "Smart Invites is a 100% digital service. There are no physical products, printed cards, or tangible items shipped to your address.",
       },
       {
         heading: "2. Instant Delivery",
@@ -192,7 +192,7 @@ const legalDataEn: Record<
       {
         heading: "5. No Physical Shipping",
         content:
-          "Since ShaadiLink provides only digital products, there are no shipping charges, delivery delays, or physical logistics involved. Everything is available instantly online.",
+          "Since Smart Invites provides only digital products, there are no shipping charges, delivery delays, or physical logistics involved. Everything is available instantly online.",
       },
     ],
   },

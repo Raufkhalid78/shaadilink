@@ -21,7 +21,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   ).single();
 
   if (!data) {
-    return { title: "Wedding Invitation | ShaadiLink" };
+    return { title: "Wedding Invitation | Smart Invites" };
   }
 
   const names = `${data.partner1_name || 'Wedding'} & ${data.partner2_name || 'Invitation'}`;
@@ -29,8 +29,8 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   const ogImageUrl = `/api/og/invitation?id=${encodeURIComponent(cleanId)}${guestQuery}`;
 
   return {
-    title: `${names} — Wedding Invitation | ShaadiLink`,
-    description: `You are invited to the wedding celebration of ${names}${data.venue ? ` at ${data.venue}` : ''}. View the digital invitation on ShaadiLink.`,
+    title: `${names} — Wedding Invitation | Smart Invites`,
+    description: `You are invited to the wedding celebration of ${names}${data.venue ? ` at ${data.venue}` : ''}. View the digital invitation on Smart Invites.`,
     robots: {
       index: false,
       follow: false,
@@ -38,8 +38,8 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
     openGraph: {
       title: `${names} — Wedding Invitation`,
       description: `You are invited to the wedding celebration of ${names}. Touch & open the digital invitation.`,
-      url: `https://www.shaadilink.com.pk/inv/${cleanId}`,
-      siteName: 'ShaadiLink',
+      url: `https://www.smartinvites.com.pk/inv/${cleanId}`,
+      siteName: 'Smart Invites',
       images: [
         {
           url: ogImageUrl,
@@ -140,10 +140,10 @@ export default async function InvitationPage({ params, searchParams }: { params:
     showQuranVerse: (invitation as { show_quran_verse?: boolean }).show_quran_verse ?? true,
     customVerseText: (invitation as { custom_verse_text?: string }).custom_verse_text ?? "",
     customVerseSource: (invitation as { custom_verse_source?: string }).custom_verse_source ?? "",
-    hostBrideFamily: (invitation as { host_bride_family?: string }).host_bride_family ?? "",
-    hostGroomFamily: (invitation as { host_groom_family?: string }).host_groom_family ?? "",
-    hostBrideCity: (invitation as { host_bride_city?: string }).host_bride_city ?? "",
-    hostGroomCity: (invitation as { host_groom_city?: string }).host_groom_city ?? "",
+    primaryHostFamily: (invitation as { host_bride_family?: string }).host_bride_family ?? "",
+    secondaryHostFamily: (invitation as { host_groom_family?: string }).host_groom_family ?? "",
+    primaryHostCity: (invitation as { host_bride_city?: string }).host_bride_city ?? "",
+    secondaryHostCity: (invitation as { host_groom_city?: string }).host_groom_city ?? "",
     contactPhone: (invitation as { contact_phone?: string }).contact_phone ?? "",
     isSegregated: (invitation as { is_segregated?: boolean }).is_segregated ?? false,
     venueDetailsSegregated: (invitation as { venue_details_segregated?: string }).venue_details_segregated ?? "",

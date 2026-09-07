@@ -52,33 +52,33 @@
 
 /* ═══════════════════════════════════
    DARK PREMIUM DESIGN SYSTEM (Default)
-   Rich deep emerald — like a royal chamber
+   Rich deep indigo — sleek modern SaaS
    ═══════════════════════════════════ */
 :root {
   --radius: 0.75rem;
 
   /* Core dark palette — lifted for visibility */
-  --background: oklch(0.14 0.022 155);          /* Rich emerald, not pure black */
-  --foreground: oklch(0.93 0.01 80);            /* Bright warm off-white */
+  --background: oklch(0.20 0.03 260);          /* Rich emerald, not pure black */
+  --foreground: oklch(0.95 0.01 260);            /* Bright warm off-white */
 
   /* Cards — clearly lifted above bg */
-  --card: oklch(0.18 0.025 155);
+  --card: oklch(0.25 0.03 260);
   --card-foreground: oklch(0.93 0.01 80);
 
   /* Popovers */
-  --popover: oklch(0.18 0.025 155);
+  --popover: oklch(0.25 0.03 260);
   --popover-foreground: oklch(0.93 0.01 80);
 
   /* Primary — emerald */
-  --primary: oklch(0.52 0.14 155);
-  --primary-foreground: oklch(0.98 0.005 80);
+  --primary: oklch(0.85 0.06 60);
+  --primary-foreground: oklch(0.15 0.02 260);
 
   /* Secondary */
-  --secondary: oklch(0.22 0.03 155);
+  --secondary: oklch(0.28 0.03 260);
   --secondary-foreground: oklch(0.88 0.02 80);
 
   /* Muted — subtle container bg */
-  --muted: oklch(0.20 0.025 155);
+  --muted: oklch(0.28 0.03 260);
   --muted-foreground: oklch(0.68 0.03 130);
 
   /* Accent */
@@ -89,9 +89,9 @@
   --destructive: oklch(0.577 0.245 27.325);
 
   /* Borders & inputs */
-  --border: oklch(0.28 0.03 155);
-  --input: oklch(0.24 0.03 155);
-  --ring: oklch(0.52 0.14 155);
+  --border: oklch(0.32 0.03 260);
+  --input: oklch(0.30 0.03 260);
+  --ring: oklch(0.85 0.06 60);
 
   /* Charts */
   --chart-1: oklch(0.646 0.222 41.116);
@@ -103,18 +103,18 @@
   /* Brand colors */
   --gold: oklch(0.74 0.16 78);
   --gold-light: oklch(0.84 0.11 82);
-  --emerald: oklch(0.52 0.14 155);
-  --emerald-dark: oklch(0.16 0.035 155);
+  --emerald: oklch(0.60 0.15 260);
+  --emerald-dark: oklch(0.18 0.04 260);
 
   /* Sidebar */
-  --sidebar: oklch(0.16 0.025 155);
+  --sidebar: oklch(0.22 0.03 260);
   --sidebar-foreground: oklch(0.92 0.01 80);
-  --sidebar-primary: oklch(0.52 0.14 155);
+  --sidebar-primary: oklch(0.60 0.15 260);
   --sidebar-primary-foreground: oklch(0.98 0.005 80);
-  --sidebar-accent: oklch(0.22 0.03 155);
+  --sidebar-accent: oklch(0.24 0.03 260);
   --sidebar-accent-foreground: oklch(0.88 0.02 80);
-  --sidebar-border: oklch(0.28 0.03 155);
-  --sidebar-ring: oklch(0.52 0.14 155);
+  --sidebar-border: oklch(0.32 0.03 260);
+  --sidebar-ring: oklch(0.85 0.06 60);
 }
 
 /* ═══════════════════════════════════
@@ -146,7 +146,7 @@
   width: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: oklch(0.14 0.022 155);
+  background: oklch(0.14 0.022 260);
 }
 ::-webkit-scrollbar-thumb {
   background: oklch(0.74 0.16 78 / 0.4);
@@ -229,14 +229,14 @@
    GLASS & CARD UTILITIES
    ═══════════════════════════════════ */
 .glass-card {
-  background: oklch(0.14 0.02 155 / 0.8);
+  background: oklch(0.14 0.02 260 / 0.8);
   backdrop-filter: blur(20px) saturate(1.4);
   -webkit-backdrop-filter: blur(20px) saturate(1.4);
   border: 1px solid oklch(0.74 0.16 78 / 0.12);
 }
 
 .glass-card-strong {
-  background: oklch(0.16 0.025 155 / 0.9);
+  background: oklch(0.16 0.025 260 / 0.9);
   backdrop-filter: blur(30px) saturate(1.6);
   -webkit-backdrop-filter: blur(30px) saturate(1.6);
   border: 1px solid oklch(0.74 0.16 78 / 0.2);
@@ -769,7 +769,7 @@
 
 /* ═══ Section gradient dividers ═══ */
 .section-divider-top {
-  background: linear-gradient(to bottom, oklch(0.12 0.02 155), transparent);
+  background: linear-gradient(to bottom, oklch(0.12 0.02 260), transparent);
   height: 80px;
   margin-bottom: -80px;
   pointer-events: none;
@@ -793,9 +793,9 @@
 .skeleton {
   background: linear-gradient(
     90deg,
-    oklch(0.16 0.02 155) 25%,
-    oklch(0.22 0.03 155) 50%,
-    oklch(0.16 0.02 155) 75%
+    oklch(0.16 0.02 260) 25%,
+    oklch(0.22 0.03 260) 50%,
+    oklch(0.16 0.02 260) 75%
   );
   background-size: 200% 100%;
   animation: skeletonShimmer 1.5s ease-in-out infinite;

@@ -9,12 +9,15 @@
       "schedule": "0 12 * * *"
     },
     {
-      "path": "/api/cron/shaadilink_secure_cron_auto_delete",
+      "path": "/api/cron/smartinvites_secure_cron_auto_delete",
       "schedule": "0 12 * * *"
     },
     {
       "path": "/api/cron/abandoned-drafts",
       "schedule": "0 13 * * *"
     }
-  ]
+  ],
+  "git": {
+    "deploymentEnabled": false
+  }
 }

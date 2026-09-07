@@ -37,7 +37,7 @@ function AuthErrorContent() {
         <div className="relative w-20 h-20 mb-2">
           <Image
             src="/logo.svg"
-            alt="ShaadiLink Logo"
+            alt="Smart Invites Logo"
             fill
             className="object-contain drop-shadow-[0_0_15px_rgba(212,175,55,0.3)]"
             priority

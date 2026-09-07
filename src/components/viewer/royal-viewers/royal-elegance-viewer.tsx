@@ -176,10 +176,10 @@ export default function RoyalEleganceViewer({ templateId, flowData, guestName, g
   const showNamesOverlay = isVideoEnvelope && envelopeStarted && videoTime >= 5.5
   const parsedGifts = useMemo(() => s.gifts ? s.parseGiftDetails(s.gifts) : null, [s.gifts])
 
-  const groomParents = flowData?.hostGroomFamily?.trim() || (s.isDemo ? 'Mr. & Mrs. Tariq Mahmood' : '')
-  const brideParents = flowData?.hostBrideFamily?.trim() || (s.isDemo ? 'Mr. & Mrs. Aslam Khan' : '')
-  const groomCity = flowData?.hostGroomCity?.trim() || (s.isDemo ? 'Lahore' : '')
-  const brideCity = flowData?.hostBrideCity?.trim() || (s.isDemo ? 'Islamabad' : '')
+  const groomParents = flowData?.secondaryHostFamily?.trim() || (s.isDemo ? 'Mr. & Mrs. Tariq Mahmood' : '')
+  const brideParents = flowData?.primaryHostFamily?.trim() || (s.isDemo ? 'Mr. & Mrs. Aslam Khan' : '')
+  const groomCity = flowData?.secondaryHostCity?.trim() || (s.isDemo ? 'Lahore' : '')
+  const brideCity = flowData?.primaryHostCity?.trim() || (s.isDemo ? 'Islamabad' : '')
 
   return (
     <div
@@ -656,9 +656,9 @@ export default function RoyalEleganceViewer({ templateId, flowData, guestName, g
         <div className="py-10 text-center border-t" style={{ borderColor: getOpacityStyle('border', 0.1) }}>
           <div className="flex items-center justify-center gap-3 mb-3"><div className="w-8 h-px" style={{ backgroundColor: getOpacityStyle('bg', 0.2) }} /><Heart className="w-3 h-3" style={{ color: getOpacityStyle('text', 0.3) }} /><div className="w-8 h-px" style={{ backgroundColor: getOpacityStyle('bg', 0.2) }} /></div>
           <p className="text-xs tracking-wider" style={{ color: getOpacityStyle('text', 0.4) }}>
-            {s.t('madeWithLove', 'Made with love by ShaadiLink').split(/(ShaadiLink|شادی لنک)/i).map((part, i) => 
-              part.toLowerCase() === 'shaadilink' || part === 'شادی لنک' ? (
-                <a key={i} href="https://www.shaadilink.com.pk/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline' }}>
+            {s.t('madeWithLove', 'Made with love by Smart Invites').split(/(Smart Invites|شادی لنک)/i).map((part, i) => 
+              part.toLowerCase() === 'smartinvites' || part === 'شادی لنک' ? (
+                <a key={i} href="https://www.smartinvites.com.pk/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline' }}>
                   {part}
                 </a>
               ) : (

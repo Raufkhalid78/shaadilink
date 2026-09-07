@@ -169,7 +169,7 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
 
   useEffect(() => {
     if (typeof window !== 'undefined' && flowData?.invitationId) {
-      const savedStatus = localStorage.getItem(`shaadilink_rsvp_${flowData.invitationId}`)
+      const savedStatus = localStorage.getItem(`smartinvites_rsvp_${flowData.invitationId}`)
       if (savedStatus) { setRsvpSubmitted(true); setRsvpStatus(savedStatus as 'accept' | 'decline') }
     }
   }, [flowData?.invitationId])
@@ -273,10 +273,10 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
       if (accommodation) dynamicTexts.accommodation = accommodation
       if (gifts) dynamicTexts.gifts = gifts
       if (guestNameFromUrl) dynamicTexts.guestName = guestNameFromUrl
-      if (flowData?.hostBrideFamily) dynamicTexts.hostBrideFamily = flowData.hostBrideFamily
-      if (flowData?.hostGroomFamily) dynamicTexts.hostGroomFamily = flowData.hostGroomFamily
-      if (flowData?.hostBrideCity) dynamicTexts.hostBrideCity = flowData.hostBrideCity
-      if (flowData?.hostGroomCity) dynamicTexts.hostGroomCity = flowData.hostGroomCity
+      if (flowData?.primaryHostFamily) dynamicTexts.primaryHostFamily = flowData.primaryHostFamily
+      if (flowData?.secondaryHostFamily) dynamicTexts.secondaryHostFamily = flowData.secondaryHostFamily
+      if (flowData?.primaryHostCity) dynamicTexts.primaryHostCity = flowData.primaryHostCity
+      if (flowData?.secondaryHostCity) dynamicTexts.secondaryHostCity = flowData.secondaryHostCity
       
       dynamicEvents.forEach((event, idx) => {
         dynamicTexts[`event${idx}_name`] = event.name
@@ -337,7 +337,7 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
       try {
         const response = await fetch(`/api/invitations/${flowData.invitationId}/rsvp`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ guestName: rsvpName.trim(), guestEmail: rsvpEmail.trim() || undefined, status }) })
         if (!response.ok) { const errData = await response.json(); toast.error(errData.error || 'Failed to submit RSVP.'); return }
-        if (typeof window !== 'undefined') localStorage.setItem(`shaadilink_rsvp_${flowData.invitationId}`, status)
+        if (typeof window !== 'undefined') localStorage.setItem(`smartinvites_rsvp_${flowData.invitationId}`, status)
       } catch { toast.error('Network error. Please try again.'); return }
     }
     setRsvpStatus(status); setRsvpSubmitted(true)
@@ -401,10 +401,10 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
   const translatedTransportation = language === 'ur' && translations.transportation ? translations.transportation : transportation
   const translatedGifts = language === 'ur' && translations.gifts ? translations.gifts : gifts
   const translatedGuestName = language === 'ur' && translations.guestName ? translations.guestName : guestNameFromUrl
-  const translatedHostBrideFamily = language === 'ur' && translations.hostBrideFamily ? translations.hostBrideFamily : flowData?.hostBrideFamily
-  const translatedHostGroomFamily = language === 'ur' && translations.hostGroomFamily ? translations.hostGroomFamily : flowData?.hostGroomFamily
-  const translatedHostBrideCity = language === 'ur' && translations.hostBrideCity ? translations.hostBrideCity : flowData?.hostBrideCity
-  const translatedHostGroomCity = language === 'ur' && translations.hostGroomCity ? translations.hostGroomCity : flowData?.hostGroomCity
+  const translatedHostBrideFamily = language === 'ur' && translations.primaryHostFamily ? translations.primaryHostFamily : flowData?.primaryHostFamily
+  const translatedHostGroomFamily = language === 'ur' && translations.secondaryHostFamily ? translations.secondaryHostFamily : flowData?.secondaryHostFamily
+  const translatedHostBrideCity = language === 'ur' && translations.primaryHostCity ? translations.primaryHostCity : flowData?.primaryHostCity
+  const translatedHostGroomCity = language === 'ur' && translations.secondaryHostCity ? translations.secondaryHostCity : flowData?.secondaryHostCity
 
   return {
     theme, getOpacityStyle,

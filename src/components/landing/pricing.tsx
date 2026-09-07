@@ -82,7 +82,7 @@ export function Pricing({ onSelectPlan }: PricingProps) {
 
   return (
     <section id="pricing" className="py-24 sm:py-32 relative overflow-hidden bg-background">
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-emerald-dark/10 to-background" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-background/10 to-background" />
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
@@ -93,17 +93,17 @@ export function Pricing({ onSelectPlan }: PricingProps) {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-gold/20 bg-gold/10 text-gold text-sm font-medium mb-4">
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/10 text-primary text-sm font-medium mb-4">
             <Sparkles className="w-3.5 h-3.5" />
             {t("pricing.badge")}
           </span>
-          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">
+          <h2 className="font-sans tracking-tight text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">
             {t("pricing.title")}
           </h2>
           <div className="flex items-center justify-center gap-3 mt-5">
-            <div className="h-px w-16 bg-gradient-to-r from-transparent to-gold/50" />
-            <div className="h-1.5 w-1.5 rounded-full bg-gold/60" />
-            <div className="h-px w-16 bg-gradient-to-l from-transparent to-gold/50" />
+            <div className="h-px w-16 bg-gradient-to-r from-transparent to-primary/50" />
+            <div className="h-1.5 w-1.5 rounded-full bg-primary/60" />
+            <div className="h-px w-16 bg-gradient-to-l from-transparent to-primary/50" />
           </div>
           <p className="mt-5 text-muted-foreground max-w-xl mx-auto text-base sm:text-lg text-center">
             {t("pricing.subtitle")}
@@ -128,8 +128,8 @@ export function Pricing({ onSelectPlan }: PricingProps) {
                 onMouseLeave={() => hovered === plan.id && setHovered(null)}
                 className={`relative rounded-2xl overflow-hidden transition-all duration-500 shadow-md flex flex-col h-full ${
                   plan.highlighted
-                    ? "border border-gold/40 shadow-xl shadow-gold/5 hover:shadow-gold/15 hover:shadow-2xl"
-                    : "border border-border/20 hover:border-gold/20 hover:shadow-xl hover:shadow-gold/5"
+                    ? "border border-primary/40 shadow-xl shadow-primary/5 hover:shadow-primary/15 hover:shadow-2xl"
+                    : "border border-border/20 hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5"
                 } ${isHovered ? "-translate-y-2" : ""}`}
                 style={{
                   background: plan.highlighted
@@ -143,8 +143,8 @@ export function Pricing({ onSelectPlan }: PricingProps) {
                   <div
                     className={`absolute inset-0 ${
                       plan.highlighted
-                        ? "bg-gradient-to-r from-gold/60 via-gold-light to-gold/60"
-                        : "bg-gradient-to-r from-emerald/40 via-emerald to-emerald/40"
+                        ? "bg-gradient-to-r from-primary/60 via-primary/80 to-primary/60"
+                        : "bg-gradient-to-r from-primary/40 via-primary to-primary/40"
                     }`}
                   />
                   {plan.highlighted && (
@@ -166,8 +166,8 @@ export function Pricing({ onSelectPlan }: PricingProps) {
                   <Badge
                     className={`rounded-lg font-bold px-3 py-1 text-xs flex items-center gap-1.5 ${
                       plan.highlighted
-                        ? "bg-gold text-emerald-dark shadow-lg shadow-gold/30"
-                        : "bg-emerald/80 text-primary-foreground border border-emerald/40"
+                        ? "bg-primary text-background shadow-lg shadow-primary/30"
+                        : "bg-primary/80 text-primary-foreground border border-primary/40"
                     }`}
                   >
                     {plan.highlighted && <Crown className="h-3 w-3" />}
@@ -177,7 +177,7 @@ export function Pricing({ onSelectPlan }: PricingProps) {
 
                 <div className="p-7 sm:p-9 flex flex-col flex-grow text-left">
                   {/* Plan name */}
-                  <h3 className="font-display text-2xl font-bold text-foreground mb-1 text-left">
+                  <h3 className="font-sans tracking-tight text-2xl font-bold text-foreground mb-1 text-left">
                     {plan.name}
                   </h3>
                   <p className="text-sm text-muted-foreground text-left">{plan.description}</p>
@@ -187,8 +187,8 @@ export function Pricing({ onSelectPlan }: PricingProps) {
                     <div className="flex items-baseline gap-1">
                       <span className="text-sm text-muted-foreground">Rs.</span>
                       <span
-                        className={`font-display text-5xl font-bold ${
-                          plan.highlighted ? "text-gold text-glow-gold" : "text-foreground"
+                        className={`font-sans tracking-tight text-5xl font-bold ${
+                          plan.highlighted ? "text-primary drop-shadow-md" : "text-foreground"
                         }`}
                       >
                         {plan.price}
@@ -201,8 +201,8 @@ export function Pricing({ onSelectPlan }: PricingProps) {
                   </div>
 
                   {plan.savings && (
-                    <div className="mt-2 self-start inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald/10 border border-emerald/20 text-emerald text-xs font-semibold">
-                      <Star className="w-3 h-3 fill-emerald" />
+                    <div className="mt-2 self-start inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-semibold">
+                      <Star className="w-3 h-3 fill-primary" />
                       {plan.savings}
                     </div>
                   )}
@@ -216,14 +216,14 @@ export function Pricing({ onSelectPlan }: PricingProps) {
                       <li key={i} className="flex items-start gap-3 justify-start">
                         <div
                           className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${
-                            plan.highlighted ? "bg-gold/20 text-gold" : "bg-emerald/10 text-emerald"
+                            plan.highlighted ? "bg-primary/20 text-primary" : "bg-primary/10 text-primary"
                           }`}
                         >
                           <Check className="h-3 w-3" />
                         </div>
                         <span
                           className={`text-sm text-left ${
-                            i === 0 && plan.highlighted ? "text-gold font-semibold" : "text-foreground/75"
+                            i === 0 && plan.highlighted ? "text-primary font-semibold" : "text-foreground/75"
                           }`}
                         >
                           {feature}
@@ -239,8 +239,8 @@ export function Pricing({ onSelectPlan }: PricingProps) {
                       size="lg"
                       className={`w-full font-bold text-base h-13 rounded-xl transition-all duration-300 ${
                         plan.highlighted
-                          ? "bg-gold hover:bg-gold-light text-emerald-dark pulse-glow border-none shadow-lg shadow-gold/25"
-                          : "bg-card border border-emerald/60 text-emerald hover:bg-emerald hover:text-primary-foreground hover:border-emerald shadow-sm"
+                          ? "bg-primary hover:bg-primary-light text-background pulse-glow border-none shadow-lg shadow-primary/25"
+                          : "bg-card border border-primary/60 text-primary hover:bg-primary hover:text-primary-foreground hover:border-primary shadow-sm"
                       }`}
                     >
                       {plan.highlighted && <Crown className="w-4 h-4 mr-2" />}
@@ -264,10 +264,10 @@ export function Pricing({ onSelectPlan }: PricingProps) {
         >
           <div className="flex-1 text-left">
             <div className="flex items-center gap-2 mb-2 justify-start">
-              <Badge className="bg-emerald/10 text-emerald border-emerald/20 px-2 py-0.5 text-[10px]">
+              <Badge className="bg-primary/10 text-primary border-primary/20 px-2 py-0.5 text-[10px]">
                 {language === 'en' ? 'NEW ADD-ON' : 'نیا فیچر'}
               </Badge>
-              <h3 className="font-display text-xl font-bold text-foreground">
+              <h3 className="font-sans tracking-tight text-xl font-bold text-foreground">
                 {language === 'en' ? 'Personalized Guest Links' : 'مہمانوں کے نام کے ساتھ لنکس'}
               </h3>
             </div>
@@ -284,7 +284,7 @@ export function Pricing({ onSelectPlan }: PricingProps) {
               </span>
               <div className="flex items-baseline gap-1 justify-start">
                 <span className="text-sm text-foreground">Rs.</span>
-                <span className="font-display text-3xl font-bold text-foreground">1,000</span>
+                <span className="font-sans tracking-tight text-3xl font-bold text-foreground">1,000</span>
               </div>
               <span className="text-xs text-muted-foreground">
                 {language === 'en' ? 'per 50 guests' : 'فی 50 مہمان'}
@@ -295,7 +295,7 @@ export function Pricing({ onSelectPlan }: PricingProps) {
                 onSelectPlan?.("royal");
               }}
               variant="outline"
-              className="border-emerald/30 text-emerald hover:bg-emerald hover:text-white"
+              className="border-primary/30 text-primary hover:bg-primary hover:text-white"
             >
               {language === 'en' ? 'Add to Plan' : 'شامل کریں'}
             </Button>
@@ -312,21 +312,21 @@ export function Pricing({ onSelectPlan }: PricingProps) {
         >
           <div 
             onClick={() => onSelectPlan?.("royal")}
-            className="inline-flex items-center gap-2 px-5 py-3 rounded-xl border border-gold/15 bg-gold/5 cursor-pointer hover:bg-gold/10 hover:border-gold/30 transition-all duration-300 group"
+            className="inline-flex items-center gap-2 px-5 py-3 rounded-xl border border-primary/15 bg-primary/5 cursor-pointer hover:bg-primary/10 hover:border-primary/30 transition-all duration-300 group"
           >
-            <Sparkles className="w-4 h-4 text-gold shrink-0 group-hover:scale-110 transition-transform" />
+            <Sparkles className="w-4 h-4 text-primary shrink-0 group-hover:scale-110 transition-transform" />
             <p className="text-sm text-muted-foreground text-left">
               {language === 'en' ? 'Already on Classic? ' : 'پہلے سے کلاسک موجود ہے؟ '}
-              <span className="text-gold font-semibold hover:text-gold-light underline underline-offset-4 decoration-gold/30">
+              <span className="text-primary font-semibold hover:text-primary-light underline underline-offset-4 decoration-primary/30">
                 {language === 'en' ? 'Upgrade to Royal' : 'رائل پر اپ گریڈ کریں'}
               </span>{' '}
               {language === 'en' ? 'anytime' : 'کسی بھی وقت'}
             </p>
-            <ArrowRight className="w-4 h-4 text-gold shrink-0 group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="w-4 h-4 text-primary shrink-0 group-hover:translate-x-1 transition-transform" />
           </div>
           <div className="flex flex-col items-end gap-1">
             <div className="flex items-center gap-2 text-xs text-muted-foreground justify-end">
-              <Lock className="w-3.5 h-3.5 text-emerald shrink-0" />
+              <Lock className="w-3.5 h-3.5 text-primary shrink-0" />
               {language === 'en' ? 'Secure payments • SSL encrypted' : 'محفوظ ادائیگی • SSL سے محفوظ'}
             </div>
             <p className="text-[10px] text-muted-foreground/60 text-right max-w-[200px] mt-1">

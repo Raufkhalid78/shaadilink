@@ -2,28 +2,28 @@ import type { Metadata } from "next";
 import PrivacyClientPage from "./privacy-client";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | ShaadiLink — Secure Digital Invitations",
-  description: "Read our privacy policy to understand how ShaadiLink handles and protects guest RSVPs, user accounts, and invitation details.",
-  keywords: ["privacy policy", "data safety", "ShaadiLink security"],
+  title: "Privacy Policy | Smart Invites — Secure Digital Invitations",
+  description: "Read our privacy policy to understand how Smart Invites handles and protects guest RSVPs, user accounts, and invitation details.",
+  keywords: ["privacy policy", "data safety", "Smart Invites security"],
   openGraph: {
-    title: "Privacy Policy | ShaadiLink — Secure Digital Invitations",
-    description: "Read our privacy policy to understand how ShaadiLink handles and protects guest RSVPs, user accounts, and invitation details.",
+    title: "Privacy Policy | Smart Invites — Secure Digital Invitations",
+    description: "Read our privacy policy to understand how Smart Invites handles and protects guest RSVPs, user accounts, and invitation details.",
     type: "website",
     locale: "en_PK",
-    siteName: "ShaadiLink",
+    siteName: "Smart Invites",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "ShaadiLink - Premium Digital Wedding Invitations",
+        alt: "Smart Invites - Premium Digital Wedding Invitations",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Privacy Policy | ShaadiLink — Secure Digital Invitations",
-    description: "Read our privacy policy to understand how ShaadiLink handles and protects guest RSVPs, user accounts, and invitation details.",
+    title: "Privacy Policy | Smart Invites — Secure Digital Invitations",
+    description: "Read our privacy policy to understand how Smart Invites handles and protects guest RSVPs, user accounts, and invitation details.",
     images: ["/og-image.png"],
   }
 };

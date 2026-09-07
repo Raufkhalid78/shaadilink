@@ -3,7 +3,7 @@ import { getClientIp, contactLimiter } from '../src/lib/rate-limit'
 
 describe('Rate Limiter and IP Extraction', () => {
   it('extracts client IP from x-real-ip header', () => {
-    const req = new Request('https://www.shaadilink.com.pk/api/contact', {
+    const req = new Request('https://www.smartinvites.com.pk/api/contact', {
       headers: {
         'x-real-ip': '203.0.113.195',
       },
@@ -12,7 +12,7 @@ describe('Rate Limiter and IP Extraction', () => {
   })
 
   it('extracts client IP from cf-connecting-ip header', () => {
-    const req = new Request('https://www.shaadilink.com.pk/api/contact', {
+    const req = new Request('https://www.smartinvites.com.pk/api/contact', {
       headers: {
         'cf-connecting-ip': '198.51.100.42',
       },
@@ -21,7 +21,7 @@ describe('Rate Limiter and IP Extraction', () => {
   })
 
   it('extracts client IP from leftmost entry in x-forwarded-for', () => {
-    const req = new Request('https://www.shaadilink.com.pk/api/contact', {
+    const req = new Request('https://www.smartinvites.com.pk/api/contact', {
       headers: {
         'x-forwarded-for': '192.0.2.1, 10.0.0.1, 10.0.0.2',
       },
@@ -30,7 +30,7 @@ describe('Rate Limiter and IP Extraction', () => {
   })
 
   it('falls back to 127.0.0.1 when no IP headers are present', () => {
-    const req = new Request('https://www.shaadilink.com.pk/api/contact')
+    const req = new Request('https://www.smartinvites.com.pk/api/contact')
     expect(getClientIp(req)).toBe('127.0.0.1')
   })
 

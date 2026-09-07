@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { TemplatesPage } from "@/components/landing/templates-page";
+import { CategorySelector } from "@/components/landing/category-selector";
 import { Suspense, useEffect, useState } from "react";
 import { useFlowStore } from "@/lib/store";
 
@@ -9,14 +10,15 @@ export default function TemplatesClientPage() {
   const router = useRouter();
   const { flowData, setFlowData, resetFlowData } = useFlowStore();
   const [mounted, setMounted] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   const handleSelectTemplate = async (id: string, plan: "classic" | "royal") => {
-    localStorage.removeItem("shaadilink_pending_flow_data");
-    localStorage.removeItem("shaadilink_oauth_in_progress");
+    localStorage.removeItem("smartinvites_pending_flow_data");
+    localStorage.removeItem("smartinvites_oauth_in_progress");
     resetFlowData();
     setFlowData({ selectedTemplateId: id, selectedPlan: plan });
     
@@ -38,6 +40,10 @@ export default function TemplatesClientPage() {
 
   if (!mounted) {
     return <div className="min-h-screen bg-background" />;
+  }
+
+  if (!selectedCategory) {
+    return <CategorySelector onSelect={setSelectedCategory} />;
   }
 
   return (

@@ -263,7 +263,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
   // Check if user already RSVP'd in this browser
   useEffect(() => {
     if (typeof window !== 'undefined' && flowData?.invitationId) {
-      const savedStatus = localStorage.getItem(`shaadilink_rsvp_${flowData.invitationId}`)
+      const savedStatus = localStorage.getItem(`smartinvites_rsvp_${flowData.invitationId}`)
       if (savedStatus) {
         setRsvpSubmitted(true)
         setRsvpStatus(savedStatus as 'accept' | 'decline')
@@ -412,7 +412,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
 
         // Save to local storage to prevent duplicate submissions
         if (typeof window !== 'undefined') {
-          localStorage.setItem(`shaadilink_rsvp_${flowData.invitationId}`, status)
+          localStorage.setItem(`smartinvites_rsvp_${flowData.invitationId}`, status)
         }
       } catch (err) {
         console.error('RSVP submit error:', err)
@@ -573,10 +573,10 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
       const dynamicTexts: Record<string, string> = {}
       if (partner1) dynamicTexts.partner1 = partner1
       if (partner2) dynamicTexts.partner2 = partner2
-      if (flowData?.hostGroomFamily) dynamicTexts.hostGroomFamily = flowData.hostGroomFamily
-      if (flowData?.hostBrideFamily) dynamicTexts.hostBrideFamily = flowData.hostBrideFamily
-      if (flowData?.hostGroomCity) dynamicTexts.hostGroomCity = flowData.hostGroomCity.replace(/^from\s+/i, '')
-      if (flowData?.hostBrideCity) dynamicTexts.hostBrideCity = flowData.hostBrideCity.replace(/^from\s+/i, '')
+      if (flowData?.secondaryHostFamily) dynamicTexts.secondaryHostFamily = flowData.secondaryHostFamily
+      if (flowData?.primaryHostFamily) dynamicTexts.primaryHostFamily = flowData.primaryHostFamily
+      if (flowData?.secondaryHostCity) dynamicTexts.secondaryHostCity = flowData.secondaryHostCity.replace(/^from\s+/i, '')
+      if (flowData?.primaryHostCity) dynamicTexts.primaryHostCity = flowData.primaryHostCity.replace(/^from\s+/i, '')
       if (venueName) dynamicTexts.venueName = venueName
       if (venueAddress) dynamicTexts.venueAddress = venueAddress
       if (welcomeMsg) dynamicTexts.welcomeMsg = welcomeMsg
@@ -647,7 +647,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
     } finally {
       setIsTranslating(false)
     }
-  }, [language, partner1, partner2, venueName, venueAddress, welcomeMsg, dressCodeWomen, dressCodeMen, transportation, accommodation, gifts, events, translations, flowData?.hostBrideFamily, flowData?.hostGroomFamily, flowData?.hostBrideCity, flowData?.hostGroomCity])
+  }, [language, partner1, partner2, venueName, venueAddress, welcomeMsg, dressCodeWomen, dressCodeMen, transportation, accommodation, gifts, events, translations, flowData?.primaryHostFamily, flowData?.secondaryHostFamily, flowData?.primaryHostCity, flowData?.secondaryHostCity])
 
   // Update html element lang/dir attributes when language changes
   useEffect(() => {
@@ -978,14 +978,14 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
           <CornerOrnament position="br" themeId={theme.id} accentColor={theme.accent} />
           {/* Top gold line */}
           <div className="absolute top-16 md:top-20 left-1/2 -translate-x-1/2 w-64 md:w-80 z-10">
-            {!(flowData?.hostBrideFamily || flowData?.hostGroomFamily) && (
+            {!(flowData?.primaryHostFamily || flowData?.secondaryHostFamily) && (
               <GoldDivider themeId={theme.id} accentColor={theme.accent} />
             )}
           </div>
 
           <div className="relative z-10 max-w-4xl w-full px-4 text-center flex flex-col items-center justify-center">
             {/* Host Families / Parents (Optional Pakistani Feature) */}
-            {(flowData?.hostBrideFamily || flowData?.hostGroomFamily) ? (
+            {(flowData?.primaryHostFamily || flowData?.secondaryHostFamily) ? (
               <div
                 className="ss-animate-in mb-8 flex flex-col items-center gap-1 w-full"
                 style={{ animationDelay: '0.3s' }}
@@ -993,17 +993,17 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
                 <div className="w-64 md:w-80 mb-6">
                   <GoldDivider themeId={theme.id} accentColor={theme.accent} />
                 </div>
-                {flowData.hostBrideFamily && (
+                {flowData.primaryHostFamily && (
                   <p className={`${theme.fontCalligraphy} text-lg sm:text-xl`} style={{ color: theme.textSecondary }}>
-                    {translations.hostBrideFamily || flowData.hostBrideFamily} <span className="text-xs opacity-75">{flowData.hostBrideCity ? `(${language === 'ur' ? '' : 'from '}${translations.hostBrideCity || flowData.hostBrideCity.replace(/^from\s+/i, '')}${language === 'ur' ? '  ' : ''})` : ''}</span>
+                    {translations.primaryHostFamily || flowData.primaryHostFamily} <span className="text-xs opacity-75">{flowData.primaryHostCity ? `(${language === 'ur' ? '' : 'from '}${translations.primaryHostCity || flowData.primaryHostCity.replace(/^from\s+/i, '')}${language === 'ur' ? '  ' : ''})` : ''}</span>
                   </p>
                 )}
-                {flowData.hostBrideFamily && flowData.hostGroomFamily && (
+                {flowData.primaryHostFamily && flowData.secondaryHostFamily && (
                   <span className="text-sm my-1" style={{ color: getOpacityStyle('text', 0.5) }}>&amp;</span>
                 )}
-                {flowData.hostGroomFamily && (
+                {flowData.secondaryHostFamily && (
                   <p className={`${theme.fontCalligraphy} text-lg sm:text-xl`} style={{ color: theme.textSecondary }}>
-                    {translations.hostGroomFamily || flowData.hostGroomFamily} <span className="text-xs opacity-75">{flowData.hostGroomCity ? `(${language === 'ur' ? '' : 'from '}${translations.hostGroomCity || flowData.hostGroomCity.replace(/^from\s+/i, '')}${language === 'ur' ? '  ' : ''})` : ''}</span>
+                    {translations.secondaryHostFamily || flowData.secondaryHostFamily} <span className="text-xs opacity-75">{flowData.secondaryHostCity ? `(${language === 'ur' ? '' : 'from '}${translations.secondaryHostCity || flowData.secondaryHostCity.replace(/^from\s+/i, '')}${language === 'ur' ? '  ' : ''})` : ''}</span>
                   </p>
                 )}
                 <p className={`mt-4 text-xs tracking-[0.2em] uppercase`} style={{ color: getOpacityStyle('text', 0.6) }}>
@@ -1063,7 +1063,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
               className={`ss-animate-in ${theme.fontCalligraphy} text-base sm:text-lg tracking-[0.15em]`}
               style={{ color: theme.textSecondary, animationDelay: '1.4s' }}
             >
-              {!(flowData?.hostBrideFamily || flowData?.hostGroomFamily) && t('requestHonour', 'Request the honour of your presence')}
+              {!(flowData?.primaryHostFamily || flowData?.secondaryHostFamily) && t('requestHonour', 'Request the honour of your presence')}
             </p>
           </div>
 
@@ -1961,9 +1961,9 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
             <div className="w-8 h-px" style={{ backgroundColor: getOpacityStyle('bg', 0.2) }} />
           </div>
           <p className="text-xs tracking-wider" style={{ color: getOpacityStyle('text', 0.4) }}>
-            {t('madeWithLove', 'Made with love by ShaadiLink').split(/(ShaadiLink|شادی لنک)/i).map((part, i) => 
-              part.toLowerCase() === 'shaadilink' || part === 'شادی لنک' ? (
-                <a key={i} href="https://www.shaadilink.com.pk/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline' }}>
+            {t('madeWithLove', 'Made with love by Smart Invites').split(/(Smart Invites|شادی لنک)/i).map((part, i) => 
+              part.toLowerCase() === 'smartinvites' || part === 'شادی لنک' ? (
+                <a key={i} href="https://www.smartinvites.com.pk/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline' }}>
                   {part}
                 </a>
               ) : (

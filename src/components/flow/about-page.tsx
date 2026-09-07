@@ -92,7 +92,7 @@ export function AboutPage({ onBack }: AboutPageProps) {
       <PageBreadcrumb
         crumbs={[
           { label: "Home", onClick: onBack },
-          { label: "About ShaadiLink" },
+          { label: "About Smart Invites" },
         ]}
       />
 
@@ -125,7 +125,7 @@ export function AboutPage({ onBack }: AboutPageProps) {
               </div>
 
               <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold text-foreground">
-                About <span className="gold-shimmer">ShaadiLink</span>
+                About <span className="gold-shimmer">Smart Invites</span>
               </h1>
               <p className="mt-4 font-calligraphy text-gold text-lg sm:text-xl">
                 Where Tradition Meets Technology
@@ -151,7 +151,7 @@ export function AboutPage({ onBack }: AboutPageProps) {
                 </h2>
               </div>
               <p className="text-muted-foreground text-base sm:text-lg leading-relaxed">
-                ShaadiLink was born from a simple belief: your wedding invitation should be
+                Smart Invites was born from a simple belief: your wedding invitation should be
                 as beautiful and memorable as the celebration itself. We noticed Pakistani
                 families spending weeks coordinating paper invitations — printing, addressing,
                 mailing — only to lose the personal touch in the process. So we set out to
@@ -302,7 +302,7 @@ export function AboutPage({ onBack }: AboutPageProps) {
                 life deserve to be shared beautifully.&rdquo;
               </p>
               <p className="mt-4 text-gold font-display font-semibold">
-                — The ShaadiLink Team
+                — The Smart Invites Team
               </p>
             </m.div>
           </div>

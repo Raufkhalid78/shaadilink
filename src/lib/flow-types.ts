@@ -5,6 +5,7 @@ export interface FlowData {
   selectedPlan: "classic" | "royal" | null;
   // Step 2: Template selection
   selectedTemplateId: string | null;
+  category?: string;
   // Step 3: Account creation (password never stored here — Supabase handles it)
   fullName: string;
   email: string;
@@ -53,10 +54,10 @@ export interface FlowData {
   customVerseSource?: string;  // The source/reference e.g. "Surah Al-Rum 30:21" or "John 3:16"
   slug?: string;
   // Pakistani Wedding Optional Features
-  hostBrideFamily?: string;
-  hostGroomFamily?: string;
-  hostBrideCity?: string;
-  hostGroomCity?: string;
+  primaryHostFamily?: string;
+  secondaryHostFamily?: string;
+  primaryHostCity?: string;
+  secondaryHostCity?: string;
   contactPhone?: string;
   isSegregated?: boolean;
   venueDetailsSegregated?: string;
@@ -104,10 +105,10 @@ export const initialFlowData: FlowData = {
   guestLinksQuota: 0,
   originalGuestLinksQuota: 0,
   slug: "",
-  hostBrideFamily: "",
-  hostGroomFamily: "",
-  hostBrideCity: "",
-  hostGroomCity: "",
+  primaryHostFamily: "",
+  secondaryHostFamily: "",
+  primaryHostCity: "",
+  secondaryHostCity: "",
   contactPhone: "",
   isSegregated: false,
   venueDetailsSegregated: "",

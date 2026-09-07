@@ -2,7 +2,7 @@
 
 export const CONTACT_CONFIG = {
   // Primary email address for customer queries and legal issues
-  email: "hello@shaadilink.com.pk",
+  email: "info@smartinvites.com.pk",
 
   // Contact phone number displayed on the website
   phone: "+44 7517 879333",
@@ -20,13 +20,13 @@ export const CONTACT_CONFIG = {
   responseTime: "Our 24/7 support team will respond shortly",
 
   // Official domain name of the platform
-  domain: "shaadilink.com.pk",
+  domain: "smartinvites.com.pk",
 
   // Social media handle links
   socials: {
-    facebook: "https://www.facebook.com/shaadilink1",
-    instagram: "https://www.instagram.com/shaadilink",
-    linkedin: "http://linkedin.com/showcase/shaadilink",
+    facebook: "https://www.facebook.com/smartinvites1",
+    instagram: "https://www.instagram.com/smartinvites",
+    linkedin: "http://linkedin.com/showcase/smartinvites",
     youtube: "#",
   }
 };

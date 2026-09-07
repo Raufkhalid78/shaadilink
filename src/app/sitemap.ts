@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next'
 import { getAllPosts } from "@/lib/markdown"
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://shaadilink.com.pk'
+  const baseUrl = 'https://smartinvites.com.pk'
   const lastModified = new Date()
   const posts = getAllPosts()
   

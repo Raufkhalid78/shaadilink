@@ -39,7 +39,7 @@ export function SignupPage({
   const handleGoogleSignup = async () => {
     setIsGoogleLoading(true);
     try {
-      localStorage.setItem("shaadilink_oauth_in_progress", "true");
+      localStorage.setItem("smartinvites_oauth_in_progress", "true");
       const supabase = createClient();
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
@@ -49,12 +49,12 @@ export function SignupPage({
       });
       if (error) {
         toast.error(error.message);
-        localStorage.removeItem("shaadilink_oauth_in_progress");
+        localStorage.removeItem("smartinvites_oauth_in_progress");
       }
     } catch (err) {
       console.error("Google signup error:", err);
       toast.error("Could not initialize Google signup.");
-      localStorage.removeItem("shaadilink_oauth_in_progress");
+      localStorage.removeItem("smartinvites_oauth_in_progress");
     } finally {
       setIsGoogleLoading(false);
     }
@@ -116,7 +116,7 @@ export function SignupPage({
 
       if (data.user) {
         onUpdateData({ userId: data.user.id, email: flowData.email.trim(), fullName: flowData.fullName.trim() });
-        toast.success("Account created! Welcome to ShaadiLink 🎉");
+        toast.success("Account created! Welcome to Smart Invites 🎉");
         onContinue();
       }
     } catch (err) {
@@ -164,7 +164,7 @@ export function SignupPage({
       <main id="main-content" className="flex-1 flex items-center justify-center px-4 py-12 relative overflow-hidden">
         {/* Background ambient elements */}
         <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-emerald/10 blur-[120px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[400px] h-[400px] bg-gold/5 blur-[120px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[400px] h-[400px] bg-primary/5 blur-[120px] rounded-full pointer-events-none" />
 
         <m.div
           initial={{ opacity: 0, y: 20 }}
@@ -174,14 +174,14 @@ export function SignupPage({
         >
           {/* Card ambient glows */}
           <div className="absolute -top-20 -right-20 w-40 h-40 bg-emerald/15 blur-[60px] rounded-full pointer-events-none" />
-          <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-gold/5 blur-[60px] rounded-full pointer-events-none" />
+          <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-primary/5 blur-[60px] rounded-full pointer-events-none" />
 
           <div className="relative z-10 space-y-6">
             {/* Brand */}
             <div className="text-center mb-6">
               <div className="flex items-center justify-center gap-2 mb-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald to-emerald-dark text-primary-foreground shadow-lg shadow-emerald/20 border border-emerald/30">
-                  <Heart className="h-5 w-5 fill-current text-gold animate-pulse" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald to-emerald-dark text-primary-foreground shadow-lg shadow-emerald/20 border border-primary/30">
+                  <Heart className="h-5 w-5 fill-current text-primary animate-pulse" />
                 </div>
               </div>
               <h1 className="font-display text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
@@ -189,7 +189,7 @@ export function SignupPage({
               </h1>
               <p className="mt-2 text-muted-foreground text-sm">
                 Sign up to get started with your{" "}
-                <span className="text-gold font-semibold">{templateName}</span>{" "}
+                <span className="text-primary font-semibold">{templateName}</span>{" "}
                 invitation
               </p>
             </div>
@@ -198,7 +198,7 @@ export function SignupPage({
             <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-4">
               <FormField
                 label="Full Name"
-                icon={<User className="w-4 h-4 text-emerald" />}
+                icon={<User className="w-4 h-4 text-foreground" />}
                 value={flowData.fullName}
                 onChange={(v) => onUpdateData({ fullName: v })}
                 placeholder="Enter your full name"
@@ -206,7 +206,7 @@ export function SignupPage({
               />
               <FormField
                 label="Email"
-                icon={<Mail className="w-4 h-4 text-emerald" />}
+                icon={<Mail className="w-4 h-4 text-foreground" />}
                 type="email"
                 value={flowData.email}
                 onChange={(v) => onUpdateData({ email: v })}
@@ -218,7 +218,7 @@ export function SignupPage({
                   Password
                 </label>
                 <div className="relative">
-                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground">
                     <Lock className="w-4 h-4" />
                   </div>
                   <Input
@@ -245,7 +245,7 @@ export function SignupPage({
                   Re-enter Password
                 </label>
                 <div className="relative">
-                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground">
                     <Lock className="w-4 h-4" />
                   </div>
                   <Input
@@ -294,7 +294,7 @@ export function SignupPage({
                 className="w-full h-12 bg-background/40 hover:bg-background/80 border border-emerald/20 hover:border-gold/30 text-foreground font-semibold text-base shadow-md transition-all hover:scale-[1.01] flex items-center justify-center gap-3"
               >
                 {isGoogleLoading ? (
-                  <Loader2 className="w-4 h-4 animate-spin text-emerald" />
+                  <Loader2 className="w-4 h-4 animate-spin text-foreground" />
                 ) : (
                   <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
                     <path
@@ -321,7 +321,7 @@ export function SignupPage({
 
             <p className="text-center mt-6 text-sm text-muted-foreground">
               Already have an account?{" "}
-              <button onClick={onLogin} className="text-gold hover:text-gold-light font-semibold underline transition-colors">
+              <button onClick={onLogin} className="text-primary hover:text-primary-light font-semibold underline transition-colors">
                 Login
               </button>
             </p>
@@ -339,7 +339,7 @@ function StepDot({ done, current, label }: { done?: boolean; current?: boolean; 
       <div
         className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center ${
           done
-            ? "bg-gold text-emerald-dark"
+            ? "bg-primary text-foreground-dark"
             : current
             ? "bg-emerald text-primary-foreground"
             : "bg-muted text-muted-foreground"
@@ -355,7 +355,7 @@ function StepDot({ done, current, label }: { done?: boolean; current?: boolean; 
 }
 
 function StepLine({ active }: { active?: boolean }) {
-  return <div className={`w-4 sm:w-6 h-px ${active ? "bg-gold/30" : "bg-border"}`} />;
+  return <div className={`w-4 sm:w-6 h-px ${active ? "bg-primary/30" : "bg-border"}`} />;
 }
 
 function FormField({
