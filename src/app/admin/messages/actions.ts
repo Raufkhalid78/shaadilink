@@ -5,12 +5,7 @@ import { createServiceClient, createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 export async function deleteContactMessage(id: string) {
-  const authSupabase = await createClient();
-  const { data: { session } } = await authSupabase.auth.getSession();
-  
-  if (!session || session.user.email !== process.env.ADMIN_EMAIL) {
-    throw new Error('Unauthorized');
-  }
+  await requireAdmin();
 
   const supabase = createServiceClient()
   

@@ -99,9 +99,22 @@ function parseWindowMs(windowStr: `${number} ms` | `${number} s` | `${number} m`
  */
 function createLimiter(
   maxRequests: number,
-  windowStr: `${number} ms` | `${number} s` | `${number} m` | `${number} h` | `${number} d`
+  windowStr: `${number} ms` | `${number} s` | `${number} m` | `${number} h` | `${number} d`,
+  failClosed: boolean = false
 ): RateLimiterInstance {
   if (!hasRedisConfig) {
+    if (failClosed) {
+      console.error(`CRITICAL: Upstash Redis is not configured. Failing closed for high-risk endpoint.`);
+      return {
+        limit: async () => ({
+          success: false,
+          limit: maxRequests,
+          remaining: 0,
+          reset: Date.now() + parseWindowMs(windowStr),
+        })
+      };
+    }
+    console.warn(`WARNING: Upstash Redis is missing. Falling back to in-memory limiter. This is unsafe for distributed production.`);
     const windowMs = parseWindowMs(windowStr)
     return new InMemoryRateLimiter(maxRequests, windowMs)
   }
@@ -148,10 +161,10 @@ export function getClientIp(request: Request | NextRequest): string {
   return '127.0.0.1'
 }
 
-export const uploadLimiter = createLimiter(20, '1 h')
+export const uploadLimiter = createLimiter(20, '1 h', true)
 export const contactLimiter = createLimiter(5, '1 h')
 export const newsletterLimiter = createLimiter(3, '1 h')
-export const paymentLimiter = createLimiter(10, '1 h')
+export const paymentLimiter = createLimiter(10, '1 h', true)
 export const translateLimiter = createLimiter(30, '1 m')
 export const chatLimiter = createLimiter(10, '1 m')
 export const resolveLimiter = createLimiter(5, '1 m')

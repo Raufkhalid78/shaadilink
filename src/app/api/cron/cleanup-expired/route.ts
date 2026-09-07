@@ -11,10 +11,11 @@ export async function GET(request: Request) {
 
     const service = createServiceClient()
 
-    // 1. Fetch all invitations with their events
+    // 1. Fetch invitations with their events, limited to 50 per run
     const { data: invitations, error: invError } = await service
       .from('invitations')
       .select('id, created_at, hero_image_url, slideshow_image_urls, events(date)')
+      .limit(50)
 
     if (invError || !invitations) {
       console.error('Failed to fetch invitations:', invError)
