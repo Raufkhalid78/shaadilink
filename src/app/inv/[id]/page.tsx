@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import InvitationViewerWrapper from "./invitation-viewer-wrapper";
@@ -89,7 +89,8 @@ export default async function InvitationPage({ params, searchParams }: { params:
   let guestSeats = null;
 
   if (guest) {
-    const { data: guestLinks } = await supabase
+    const service = createServiceClient();
+    const { data: guestLinks } = await service
       .from("guest_links")
       .select("guest_name, allowed_events, seats")
       .eq("invitation_id", invitation.id)
