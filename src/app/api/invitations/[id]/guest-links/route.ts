@@ -67,6 +67,19 @@ export async function POST(
         { status: 403 }
       )
     }
+    // Check for duplicate slug to prevent broken lookups
+    const { data: existingSlug } = await service
+      .from('guest_links')
+      .select('id')
+      .eq('invitation_id', id)
+      .eq('guest_slug', guestSlug.trim())
+      .limit(1)
+    if (existingSlug && existingSlug.length > 0) {
+      return NextResponse.json(
+        { error: 'A guest link for this name already exists. Please use a different name.' },
+        { status: 409 }
+      )
+    }
     const { data: link, error: insertErr } = await service
       .from('guest_links')
       .insert({

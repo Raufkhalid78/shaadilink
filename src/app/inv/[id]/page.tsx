@@ -89,12 +89,14 @@ export default async function InvitationPage({ params, searchParams }: { params:
   let guestSeats = null;
 
   if (guest) {
-    const { data: guestLink } = await supabase
+    const { data: guestLinks } = await supabase
       .from("guest_links")
       .select("guest_name, allowed_events, seats")
       .eq("invitation_id", invitation.id)
       .eq("guest_slug", guest)
-      .single();
+      .limit(1);
+
+    const guestLink = guestLinks?.[0] ?? null;
 
     if (guestLink) {
       rawGuestName = guestLink.guest_name;
