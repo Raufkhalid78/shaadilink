@@ -5,7 +5,7 @@ import { getEmailWrapper } from '@/lib/email-templates'
 import { contactLimiter, getClientIp } from '@/lib/rate-limit'
 import { contactSchema } from '@/lib/validation-schemas'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+
 
 export async function POST(request: NextRequest) {
   try {
@@ -39,7 +39,8 @@ export async function POST(request: NextRequest) {
     // Try to send email, but don't fail the request if it fails
     try {
       if (process.env.RESEND_API_KEY) {
-        const { data, error } = await resend.emails.send({
+        const resendClient = new Resend(process.env.RESEND_API_KEY);
+        const { data, error } = await resendClient.emails.send({
           from: 'Smart Invites Contact <info@smartinvites.com.pk>',
           to: ['info@smartinvites.com.pk'],
           replyTo: email.trim().toLowerCase(),

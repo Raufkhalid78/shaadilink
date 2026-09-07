@@ -45,7 +45,9 @@ export async function sendWelcomeEmail(toEmail: string) {
 }
 
 export async function sendRsvpNotification(toEmail: string, guestName: string, status: 'accept' | 'decline') {
-  if (!resend) return null;
+  const resendApiKey = process.env.RESEND_API_KEY;
+  if (!resendApiKey) return null;
+  const resend = new Resend(resendApiKey);
 
   try {
     const statusColor = status === 'accept' ? '#059669' : '#dc2626';
@@ -84,7 +86,9 @@ export async function sendRsvpNotification(toEmail: string, guestName: string, s
 }
 
 export async function sendWishNotification(toEmail: string, guestName: string, message: string) {
-  if (!resend) return null;
+  const resendApiKey = process.env.RESEND_API_KEY;
+  if (!resendApiKey) return null;
+  const resend = new Resend(resendApiKey);
 
   try {
     return await resend.emails.send({
@@ -119,7 +123,9 @@ export async function sendWishNotification(toEmail: string, guestName: string, m
 }
 
 export async function sendRecoveryEmail(toEmail: string, orderId: string, plan: string) {
-  if (!resend) return null;
+  const resendApiKey = process.env.RESEND_API_KEY;
+  if (!resendApiKey) return null;
+  const resend = new Resend(resendApiKey);
 
   try {
     return await resend.emails.send({
@@ -167,7 +173,9 @@ export async function sendAffiliateApplicationAdminAlert(data: {
   socialId?: string | null;
   promotionPlan: string;
 }) {
-  if (!resend) return null;
+  const resendApiKey = process.env.RESEND_API_KEY;
+  if (!resendApiKey) return null;
+  const resend = new Resend(resendApiKey);
 
   try {
     const adminEmail = process.env.ADMIN_EMAIL || 'info@smartinvites.com.pk';
@@ -209,7 +217,9 @@ export async function sendAffiliateApplicationAdminAlert(data: {
 }
 
 export async function sendAffiliateApplicationConfirmation(toEmail: string, name: string) {
-  if (!resend) return null;
+  const resendApiKey = process.env.RESEND_API_KEY;
+  if (!resendApiKey) return null;
+  const resend = new Resend(resendApiKey);
 
   try {
     return await resend.emails.send({
@@ -246,7 +256,9 @@ export async function sendAffiliateApplicationConfirmation(toEmail: string, name
 }
 
 export async function sendDraftRecoveryEmail(toEmail: string, plan: string) {
-  if (!resend) return null;
+  const resendApiKey = process.env.RESEND_API_KEY;
+  if (!resendApiKey) return null;
+  const resend = new Resend(resendApiKey);
 
   try {
     return await resend.emails.send({

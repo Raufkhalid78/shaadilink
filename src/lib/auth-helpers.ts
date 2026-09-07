@@ -33,27 +33,15 @@ export async function requireUser(): Promise<User> {
 export async function requireAdmin(): Promise<User> {
   const user = await requireUser()
 
-  const adminEmails = (process.env.ADMIN_EMAIL || '')
-    .split(',')
-    .map(e => e.trim().toLowerCase())
-    .filter(Boolean)
-
-  const isEmailAdmin = user.email && adminEmails.includes(user.email.toLowerCase())
-
-  if (isEmailAdmin) {
-    return user
-  }
-
-  // Fallback: Check profile role
   try {
     const service = createServiceClient()
     const { data: profile } = await service
       .from('profiles')
-      .select('plan')
+      .select('plan, is_admin')
       .eq('id', user.id)
       .single()
 
-    if (profile?.plan === 'admin') {
+    if (profile?.is_admin === true || profile?.plan === 'admin') {
       return user
     }
   } catch (err) {

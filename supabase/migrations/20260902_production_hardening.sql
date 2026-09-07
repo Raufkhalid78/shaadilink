@@ -378,6 +378,7 @@ CREATE POLICY "Public can view invitation images" ON storage.objects
 DROP POLICY IF EXISTS "Authenticated users can upload invitation images" ON storage.objects;
 CREATE POLICY "Authenticated users can upload invitation images" ON storage.objects
   FOR INSERT WITH CHECK (
-    bucket_id = 'invitation-images'
+        bucket_id = 'invitation-images'
     AND auth.role() = 'authenticated'
+    AND (storage.foldername(name))[1] = auth.uid()::text
   );
