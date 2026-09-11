@@ -59,7 +59,7 @@ export function ScratchCard({
   const isRoyal = theme.id.includes('royal') || theme.id === 'geometric-gold' || theme.id === 'dark-velvet'
   const clipId = useId().replace(/:/g, '')
   // Responsive width: never exceed viewport width minus padding (fixes overflow on iPhone SE)
-  const maxWidth = typeof window !== 'undefined' ? window.innerWidth - 32 : 340
+  const maxWidth = typeof window !== 'undefined' ? window.innerWidth - 48 : 312
   const CARD_W = Math.min(340, maxWidth)
   // Taller heart card so revealed content fits without clipping
   const CARD_H = isRoyal ? 360 : 220
@@ -615,6 +615,30 @@ export function ScratchCard({
           />
         )}
       </div>
+
+      {/* Interactive touch hint */}
+      {!revealed && (
+        <m.div
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center gap-2 mt-4 px-4 py-1.5 rounded-full border bg-black/30 backdrop-blur-sm shadow-md"
+          style={{ borderColor: theme.getOpacityStyle('border', 0.25) }}
+        >
+          <m.span
+            animate={{ x: [-5, 5, -5] }}
+            transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+            className="text-sm select-none"
+          >
+            👆
+          </m.span>
+          <span
+            className="text-xs font-medium tracking-wider"
+            style={{ color: theme.accentLight || theme.accent }}
+          >
+            {language === 'ur' ? 'کھولنے کے لیے انگلی سے اسکریچ کریں' : 'Scratch with finger to reveal ✨'}
+          </span>
+        </m.div>
+      )}
     </div>
   )
 }

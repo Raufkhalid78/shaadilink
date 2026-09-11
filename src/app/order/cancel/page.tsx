@@ -20,7 +20,7 @@ export default function OrderCancelPage() {
           You cancelled the checkout process. No charges were made to your account.
         </p>
         <Button 
-          onClick={() => router.push("/?step=payment")} 
+          onClick={() => router.push("/payment")} 
           className="mt-4 gap-2 bg-gold hover:bg-gold-light text-emerald-dark"
         >
           <ArrowLeft className="w-4 h-4" />

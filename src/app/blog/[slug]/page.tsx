@@ -5,6 +5,7 @@ import remarkGfm from "remark-gfm";
 import Link from "next/link";
 import { ArrowLeft, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
 import type { Metadata } from "next";
 
 export async function generateStaticParams() {
@@ -54,15 +55,23 @@ export default async function BlogPostPage({ params }: Props) {
   }
 
   return (
-    <article className="min-h-screen bg-background pt-24 pb-12 px-6">
-      <div className="max-w-3xl mx-auto space-y-10">
-        <div className="space-y-6">
-          <Link href="/blog">
-            <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-foreground">
-              <ArrowLeft className="w-4 h-4" />
-              Back to Blog
+    <article className="min-h-screen bg-background flex flex-col">
+      <PageBreadcrumb
+        crumbs={[
+          { label: "Home", href: "/" },
+          { label: "Blog", href: "/blog" },
+          { label: post.title },
+        ]}
+      />
+      <div className="flex-1 pt-10 pb-12 px-6">
+        <div className="max-w-3xl mx-auto space-y-10">
+          <div className="space-y-6">
+            <Button variant="ghost" size="sm" asChild className="gap-2 text-muted-foreground hover:text-foreground">
+              <Link href="/blog">
+                <ArrowLeft className="w-4 h-4" />
+                Back to Blog
+              </Link>
             </Button>
-          </Link>
           
           <h1 className="text-4xl md:text-5xl font-bold font-display text-gold leading-tight">
             {post.title}
@@ -91,13 +100,14 @@ export default async function BlogPostPage({ params }: Props) {
           <p className="text-muted-foreground max-w-md mx-auto">
             Choose from our stunning collection of templates and personalize it for your big day.
           </p>
-          <Link href="/templates">
-            <Button size="lg" className="bg-gold text-background hover:bg-gold/90 text-lg px-8 py-6 h-auto mt-4">
+          <Button size="lg" asChild className="bg-gold text-background hover:bg-gold/90 text-lg px-8 py-6 h-auto mt-4">
+            <Link href="/templates">
               Explore Templates
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </div>
       </div>
-    </article>
-  );
+    </div>
+  </article>
+);
 }

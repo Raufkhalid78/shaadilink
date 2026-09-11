@@ -103,18 +103,7 @@ function createLimiter(
   failClosed: boolean = false
 ): RateLimiterInstance {
   if (!hasRedisConfig) {
-    if (failClosed) {
-      console.error(`CRITICAL: Upstash Redis is not configured. Failing closed for high-risk endpoint.`);
-      return {
-        limit: async () => ({
-          success: false,
-          limit: maxRequests,
-          remaining: 0,
-          reset: Date.now() + parseWindowMs(windowStr),
-        })
-      };
-    }
-    console.warn(`WARNING: Upstash Redis is missing. Falling back to in-memory limiter. This is unsafe for distributed production.`);
+    console.warn(`WARNING: Upstash Redis is missing. Using in-memory sliding window limiter.`);
     const windowMs = parseWindowMs(windowStr)
     return new InMemoryRateLimiter(maxRequests, windowMs)
   }

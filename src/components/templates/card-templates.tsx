@@ -1,7 +1,7 @@
 import React from 'react'
 import type { FlowData } from '@/lib/flow-types'
 
-export type CardTemplateTheme = 'classic-gold' | 'emerald-royal' | 'minimalist-floral' | 'minimalist-modern' | 'luxurious-botanical'
+export type CardTemplateTheme = 'classic-gold' | 'emerald-royal' | 'minimalist-floral' | 'minimalist-modern' | 'luxurious-botanical' | 'birthday-milestone' | 'school-convocation' | 'corporate-summit'
 
 export interface CardEvent {
   id?: string
@@ -114,6 +114,49 @@ function BotanicalLeafHeader({ color = '#9BB8A1' }: { color?: string }) {
         <path d="M70 20C52 8 35 12 10 2C28 18 48 18 70 20Z" fill={color} />
         <path d="M70 20C88 8 105 12 130 2C112 18 92 18 70 20Z" fill={color} />
         <circle cx="70" cy="20" r="3" fill={color} />
+      </svg>
+    </div>
+  )
+}
+
+function AcademicCrestHeader({ color = '#d4af37' }: { color?: string }) {
+  return (
+    <div className="mb-4 flex flex-col items-center opacity-95">
+      <svg width="60" height="60" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M50 5 L85 22 L85 55 C85 75 50 95 50 95 C50 95 15 75 15 55 L15 22 Z" stroke={color} strokeWidth="2.5" fill="none" />
+        <path d="M50 15 L78 30 L78 52 C78 68 50 83 50 83 C50 83 22 68 22 52 L22 30 Z" stroke={color} strokeWidth="1" strokeDasharray="2 2" fill="none" />
+        <polygon points="50,28 70,42 50,56 30,42" fill={color} opacity="0.8" />
+        <path d="M50 56 L50 72" stroke={color} strokeWidth="2" />
+        <circle cx="50" cy="74" r="3" fill={color} />
+      </svg>
+    </div>
+  )
+}
+
+function CorporateExecutiveHeader({ color = '#C5A059' }: { color?: string }) {
+  return (
+    <div className="mb-4 flex flex-col items-center opacity-95">
+      <svg width="70" height="40" viewBox="0 0 120 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="10" width="100" height="40" rx="4" stroke={color} strokeWidth="1.5" fill="none" />
+        <line x1="10" y1="20" x2="110" y2="20" stroke={color} strokeWidth="1" strokeDasharray="3 3" />
+        <circle cx="20" cy="15" r="2" fill={color} />
+        <circle cx="28" cy="15" r="2" fill={color} />
+        <circle cx="36" cy="15" r="2" fill={color} />
+        <path d="M45 42 L60 28 L75 42" stroke={color} strokeWidth="2" fill="none" />
+      </svg>
+    </div>
+  )
+}
+
+function BirthdayCrownHeader({ color = '#d4af37' }: { color?: string }) {
+  return (
+    <div className="mb-4 flex flex-col items-center opacity-95">
+      <svg width="60" height="40" viewBox="0 0 100 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10 50 L20 15 L40 35 L50 10 L60 35 L80 15 L90 50 Z" stroke={color} strokeWidth="2" fill="none" />
+        <circle cx="50" cy="8" r="3" fill={color} />
+        <circle cx="20" cy="13" r="2.5" fill={color} />
+        <circle cx="80" cy="13" r="2.5" fill={color} />
+        <line x1="10" y1="52" x2="90" y2="52" stroke={color} strokeWidth="2" />
       </svg>
     </div>
   )
@@ -388,6 +431,193 @@ export function PrintableCard({ flowData, theme, selectedEvents }: PrintableCard
           )}
         </div>
         <CardBranding color="#9BB8A1" />
+      </div>
+    )
+  }
+
+  // --- Theme: Birthday Milestone ---
+  if (theme === 'birthday-milestone') {
+    const celebrantName = flowData.partner1Name?.trim() || 'Zara'
+    const milestoneTitle = flowData.partner2Name?.trim() || '21st Birthday Gala'
+    const defaultBirthdayVenue = flowData.venue?.trim() || 'Crystal Ballroom'
+
+    return (
+      <div id="printable-card-node" className="relative w-[595px] h-[842px] mx-auto overflow-hidden flex flex-col items-center justify-center p-12 text-center"
+        style={{ backgroundColor: '#0f0518', backgroundImage: 'radial-gradient(ellipse at center, #240c36 0%, #0a0312 100%)', fontFamily: "Georgia, 'Playfair Display', serif", color: '#ffffff' }}>
+        
+        {/* Confetti & Gold Frame */}
+        <div className="absolute inset-5 border-[2px] rounded-2xl opacity-80 pointer-events-none" style={{ borderColor: '#fbbf24' }} />
+        <div className="absolute inset-8 border border-dashed rounded-xl opacity-40 pointer-events-none" style={{ borderColor: '#f472b6' }} />
+
+        <div className="relative z-10 w-full flex flex-col items-center px-4">
+          <BirthdayCrownHeader color="#fbbf24" />
+
+          <p className="tracking-[0.35em] uppercase text-xs mb-3 font-sans font-semibold" style={{ color: '#f472b6' }}>
+            Join Us To Celebrate
+          </p>
+
+          <h1 className="text-5xl font-bold mb-2 tracking-wider drop-shadow-lg" style={{ color: '#fbbf24' }}>
+            {celebrantName}
+          </h1>
+
+          <p className="text-xl font-light tracking-[0.2em] uppercase mb-6 font-sans" style={{ color: '#e2d5f8' }}>
+            {milestoneTitle}
+          </p>
+
+          <div className="w-16 h-px mb-6 opacity-60" style={{ backgroundColor: '#fbbf24' }} />
+
+          {isMultiEvent ? (
+            <div className="flex flex-col gap-3.5 w-full max-w-[85%] my-2 font-sans">
+              {eventsToRender.map((ev, i) => (
+                <div key={i} className="flex flex-col items-center">
+                  <span className="text-xs font-bold tracking-[0.2em] uppercase" style={{ color: '#fbbf24' }}>{ev.name}</span>
+                  <span className="text-sm font-semibold tracking-wide mt-0.5" style={{ color: '#ffffff' }}>{ev.date} {ev.time && `· ${ev.time}`}</span>
+                  {ev.venue && <span className="text-[11px] uppercase tracking-wider opacity-85" style={{ color: '#e2d5f8' }}>{ev.venue}</span>}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center mb-4">
+              <p className="text-xs font-bold tracking-[0.25em] uppercase mb-1 font-sans" style={{ color: '#fbbf24' }}>{eventsToRender[0].name}</p>
+              <p className="text-2xl mb-1 font-semibold tracking-wide" style={{ color: '#ffffff' }}>{eventsToRender[0].date}</p>
+              <p className="text-base mb-4 tracking-widest font-sans" style={{ color: '#f472b6' }}>At {eventsToRender[0].time}</p>
+              <p className="text-lg tracking-wider uppercase font-medium" style={{ color: '#e2d5f8' }}>{eventsToRender[0].venue || defaultBirthdayVenue}</p>
+            </div>
+          )}
+
+          {flowData.venueAddress && !isMultiEvent && (
+            <p className="text-xs mt-2 max-w-[75%] mx-auto opacity-80 font-sans" style={{ color: '#e2d5f8' }}>
+              {flowData.venueAddress.split('|||')[0]}
+            </p>
+          )}
+        </div>
+        <CardBranding color="#fbbf24" />
+      </div>
+    )
+  }
+
+  // --- Theme: School Convocation ---
+  if (theme === 'school-convocation') {
+    const institutionName = flowData.partner1Name?.trim() || 'Collegiate Academy'
+    const convocationTitle = flowData.partner2Name?.trim() || 'Annual Commencement 2026'
+    const defaultAcademicVenue = flowData.venue?.trim() || 'Main Convocation Auditorium'
+
+    return (
+      <div id="printable-card-node" className="relative w-[595px] h-[842px] mx-auto overflow-hidden flex flex-col items-center justify-center p-12 text-center"
+        style={{ backgroundColor: '#091524', backgroundImage: 'radial-gradient(ellipse at center, #102642 0%, #060e18 100%)', fontFamily: "Georgia, 'Times New Roman', serif", color: '#ffffff' }}>
+        
+        {/* Formal Collegiate Academic Double Frame */}
+        <div className="absolute inset-5 border-[2px] opacity-80 pointer-events-none" style={{ borderColor: '#d4af37' }} />
+        <div className="absolute inset-7 border opacity-35 pointer-events-none" style={{ borderColor: '#93c5fd' }} />
+
+        <div className="relative z-10 w-full flex flex-col items-center px-4">
+          <AcademicCrestHeader color="#d4af37" />
+
+          <p className="tracking-[0.3em] uppercase text-xs mb-4 font-sans font-semibold" style={{ color: '#93c5fd' }}>
+            The Chancellor &amp; Faculty Of
+          </p>
+
+          <h1 className="text-4xl font-bold mb-2 tracking-wider" style={{ color: '#ffffff' }}>
+            {institutionName}
+          </h1>
+
+          <p className="tracking-[0.25em] uppercase text-xs mb-3 font-sans opacity-90" style={{ color: '#d4af37' }}>
+            Cordially Invite You To Attend The
+          </p>
+
+          <h2 className="text-3xl font-semibold mb-6 tracking-wide" style={{ color: '#fef08a' }}>
+            {convocationTitle}
+          </h2>
+
+          <div className="w-20 h-px mb-6 opacity-60" style={{ backgroundColor: '#d4af37' }} />
+
+          {isMultiEvent ? (
+            <div className="flex flex-col gap-3.5 w-full max-w-[85%] my-1 font-sans">
+              {eventsToRender.map((ev, i) => (
+                <div key={i} className="flex flex-col items-center">
+                  <span className="text-xs font-bold tracking-[0.2em] uppercase" style={{ color: '#d4af37' }}>{ev.name}</span>
+                  <span className="text-sm font-semibold tracking-wide mt-0.5" style={{ color: '#ffffff' }}>{ev.date} {ev.time && `· ${ev.time}`}</span>
+                  {ev.venue && <span className="text-[10px] tracking-wider uppercase opacity-80" style={{ color: '#93c5fd' }}>{ev.venue}</span>}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center mb-4">
+              <p className="text-xs font-bold tracking-[0.2em] uppercase mb-1 font-sans" style={{ color: '#d4af37' }}>{eventsToRender[0].name}</p>
+              <p className="text-2xl mb-1 font-semibold tracking-wide" style={{ color: '#ffffff' }}>{eventsToRender[0].date}</p>
+              <p className="text-base mb-4 tracking-widest font-sans" style={{ color: '#93c5fd' }}>At {eventsToRender[0].time}</p>
+              <p className="text-lg tracking-wider uppercase font-medium" style={{ color: '#ffffff' }}>{eventsToRender[0].venue || defaultAcademicVenue}</p>
+            </div>
+          )}
+
+          {flowData.venueAddress && !isMultiEvent && (
+            <p className="text-xs mt-2 max-w-[75%] mx-auto opacity-75 font-sans" style={{ color: '#93c5fd' }}>
+              {flowData.venueAddress.split('|||')[0]}
+            </p>
+          )}
+        </div>
+        <CardBranding color="#d4af37" />
+      </div>
+    )
+  }
+
+  // --- Theme: Corporate Summit ---
+  if (theme === 'corporate-summit') {
+    const orgName = flowData.partner1Name?.trim() || 'Global Technology Forum'
+    const conferenceTitle = flowData.partner2Name?.trim() || 'Executive Leadership Summit 2026'
+    const defaultCorporateVenue = flowData.venue?.trim() || 'Grand Exhibition & Convention Center'
+
+    return (
+      <div id="printable-card-node" className="relative w-[595px] h-[842px] mx-auto overflow-hidden flex flex-col items-center justify-center p-12 text-center"
+        style={{ backgroundColor: '#0b111e', backgroundImage: 'radial-gradient(ellipse at center, #152238 0%, #070b14 100%)', fontFamily: "Helvetica, Arial, sans-serif", color: '#ffffff' }}>
+        
+        {/* Sleek Minimalist Tech Borders */}
+        <div className="absolute inset-5 border-[1.5px] opacity-70 pointer-events-none" style={{ borderColor: '#38bdf8' }} />
+        <div className="absolute inset-7 border opacity-30 pointer-events-none" style={{ borderColor: '#94a3b8' }} />
+
+        <div className="relative z-10 w-full flex flex-col items-center px-4">
+          <CorporateExecutiveHeader color="#38bdf8" />
+
+          <p className="tracking-[0.35em] uppercase text-xs mb-3 font-semibold" style={{ color: '#38bdf8' }}>
+            Official Delegate Invitation
+          </p>
+
+          <h1 className="text-4xl font-bold mb-2 tracking-wide" style={{ color: '#ffffff' }}>
+            {orgName}
+          </h1>
+
+          <p className="text-xl font-light tracking-wider uppercase mb-6" style={{ color: '#cbd5e1' }}>
+            {conferenceTitle}
+          </p>
+
+          <div className="w-16 h-px mb-6 opacity-50" style={{ backgroundColor: '#38bdf8' }} />
+
+          {isMultiEvent ? (
+            <div className="flex flex-col gap-3.5 w-full max-w-[85%] my-1">
+              {eventsToRender.map((ev, i) => (
+                <div key={i} className="flex flex-col items-center">
+                  <span className="text-xs font-bold tracking-[0.2em] uppercase" style={{ color: '#38bdf8' }}>{ev.name}</span>
+                  <span className="text-sm font-semibold tracking-wide mt-0.5" style={{ color: '#ffffff' }}>{ev.date} {ev.time && `· ${ev.time}`}</span>
+                  {ev.venue && <span className="text-[10px] tracking-wider uppercase opacity-75" style={{ color: '#94a3b8' }}>{ev.venue}</span>}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center mb-4">
+              <p className="text-xs font-bold tracking-[0.2em] uppercase mb-1" style={{ color: '#38bdf8' }}>{eventsToRender[0].name}</p>
+              <p className="text-2xl mb-1 font-semibold tracking-wide" style={{ color: '#ffffff' }}>{eventsToRender[0].date}</p>
+              <p className="text-base mb-4 tracking-widest" style={{ color: '#94a3b8' }}>At {eventsToRender[0].time}</p>
+              <p className="text-lg tracking-wider uppercase font-medium" style={{ color: '#cbd5e1' }}>{eventsToRender[0].venue || defaultCorporateVenue}</p>
+            </div>
+          )}
+
+          {flowData.venueAddress && !isMultiEvent && (
+            <p className="text-xs mt-2 max-w-[75%] mx-auto opacity-75" style={{ color: '#94a3b8' }}>
+              {flowData.venueAddress.split('|||')[0]}
+            </p>
+          )}
+        </div>
+        <CardBranding color="#38bdf8" />
       </div>
     )
   }

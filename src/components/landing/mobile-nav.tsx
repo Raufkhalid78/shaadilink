@@ -1,7 +1,8 @@
 "use client";
 
 import { m } from "framer-motion";
-import { Menu, Send } from "lucide-react";
+import Link from "next/link";
+import { Menu, Send, Briefcase, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -14,6 +15,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/components/language-provider";
 import { LanguageToggle } from "./language-toggle";
+import { BrandLogo } from "@/components/brand-logo";
 
 export interface NavLink {
   label: string;
@@ -59,7 +61,7 @@ export function MobileNav({
         <Button
           variant="ghost"
           size="icon"
-          className="lg:hidden text-white/80 hover:text-white hover:bg-white/10"
+          className="lg:hidden text-white/80 hover:text-white hover:bg-white/10 h-11 w-11 min-h-[44px] min-w-[44px] touch-manipulation"
           aria-expanded={mobileOpen}
           aria-controls="mobile-menu"
         >
@@ -70,16 +72,11 @@ export function MobileNav({
       <SheetContent
         id="mobile-menu"
         side="right"
-        className="w-[300px] bg-emerald-dark/95 backdrop-blur-2xl border-l border-gold/10"
+        className="w-[300px] bg-emerald-dark/95 backdrop-blur-2xl border-l border-gold/10 overflow-y-auto max-h-[100dvh] pb-10"
       >
         <SheetHeader>
-          <SheetTitle className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-lg shadow-primary/20">
-              <Send className="h-4 w-4 fill-current" />
-            </div>
-            <span className="font-display text-lg font-bold text-white">
-              Smart<span className="gold-shimmer-strong">Invites</span>
-            </span>
+          <SheetTitle className="flex items-center">
+            <BrandLogo size="sm" href="/" subtitle="Digital Invitations" />
           </SheetTitle>
         </SheetHeader>
         <div className="flex flex-col gap-1 px-4 mt-6">
@@ -122,7 +119,27 @@ export function MobileNav({
               </m.div>
             );
           })}
-          <div className="mt-6 pt-6 border-t border-gold/10 space-y-3">
+          <div className="mt-4 pt-4 border-t border-gold/10 space-y-1">
+            <SheetClose asChild>
+              <Link
+                href="/agency"
+                className="flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-amber-300 hover:text-amber-200 hover:bg-white/5 rounded-lg transition-colors"
+              >
+                <Briefcase className="w-4 h-4 text-amber-400 shrink-0" />
+                <span>Agency & Planners</span>
+              </Link>
+            </SheetClose>
+            <SheetClose asChild>
+              <Link
+                href="/affiliate"
+                className="flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-gold/80 hover:text-gold hover:bg-white/5 rounded-lg transition-colors"
+              >
+                <Sparkles className="w-4 h-4 text-gold shrink-0" />
+                <span>Affiliate Program</span>
+              </Link>
+            </SheetClose>
+          </div>
+          <div className="mt-4 pt-4 border-t border-gold/10 space-y-3">
             <LanguageToggle isMobile />
             {isLoggedIn && (
               <div className="px-4 py-2 bg-emerald/10 border border-gold/20 rounded-xl mb-4">
@@ -131,35 +148,39 @@ export function MobileNav({
                 <p className="text-xs text-white/60 truncate">{userEmail}</p>
               </div>
             )}
-            <SheetClose asChild>
-              {isLoggedIn ? (
-                <div className="space-y-3 w-full">
+            {isLoggedIn ? (
+              <div className="space-y-3 w-full">
+                <SheetClose asChild>
                   <Button
                     variant="outline"
                     onClick={onDashboardClick}
-                    className="w-full border-gold/30 text-gold hover:bg-gold/10 font-medium bg-transparent"
+                    className="w-full border-gold/30 text-gold hover:bg-gold/10 font-medium bg-transparent min-h-[44px]"
                     size="lg"
                   >
                     Dashboard
                   </Button>
+                </SheetClose>
+                <SheetClose asChild>
                   <Button
                     variant="destructive"
                     onClick={onSignOut}
-                    className="w-full bg-red-600/20 text-red-400 hover:bg-red-600/30 border border-red-500/30 font-medium"
+                    className="w-full bg-red-600/20 text-red-400 hover:bg-red-600/30 border border-red-500/30 font-medium min-h-[44px]"
                     size="lg"
                   >
                     Sign Out
                   </Button>
-                </div>
-              ) : (
+                </SheetClose>
+              </div>
+            ) : (
+              <SheetClose asChild>
                 <Button
                   variant="outline"
                   onClick={onLoginClick}
-                  className="w-full border-gold/30 text-gold hover:bg-gold/10 font-medium bg-transparent"
+                  className="w-full border-gold/30 text-gold hover:bg-gold/10 font-medium bg-transparent min-h-[44px]"
                   size="lg"
                 >{t('nav.login')}</Button>
-              )}
-            </SheetClose>
+              </SheetClose>
+            )}
             <SheetClose asChild>
               <Button
                 onClick={onGetStarted}

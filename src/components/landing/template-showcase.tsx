@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { m, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowRight, Eye, Sparkles } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 
 interface Template {
@@ -11,114 +13,184 @@ interface Template {
   accentColor: string;
   accentGlow: string;
   image?: string;
+  category?: string;
+  headerLabel?: string;
+  sampleTitle?: string;
+  sealText?: string;
 }
 
 const templates: Template[] = [
   {
     name: "Emerald Noir",
     badge: "Classic",
+    category: "Wedding",
     gradient: "from-[#0f1a16] via-[#152822] to-[#0a1210]",
     pattern: "radial-gradient(circle at 30% 40%, rgba(15,107,78,0.3) 0%, transparent 50%), radial-gradient(circle at 70% 70%, rgba(180,145,77,0.15) 0%, transparent 40%)",
     accentColor: "#d4a853",
     accentGlow: "rgba(212,168,83,0.15)",
+    headerLabel: "دعوة زفاف",
+    sampleTitle: "Ahmed & Fatima",
+    sealText: "OPEN",
   },
   {
     name: "Crimson Royale",
     badge: "Classic",
+    category: "Wedding",
     gradient: "from-[#1a0a0e] via-[#2a1018] to-[#120810]",
     pattern: "radial-gradient(circle at 50% 30%, rgba(180,40,40,0.25) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(180,145,77,0.2) 0%, transparent 40%)",
     accentColor: "#dc2626",
     accentGlow: "rgba(220,38,38,0.15)",
+    headerLabel: "دعوة زفاف",
+    sampleTitle: "Ahmed & Fatima",
+    sealText: "OPEN",
   },
   {
-    name: "Majestic Love",
+    name: "Academic Excellence",
     badge: "Classic",
-    gradient: "from-[#1a1408] via-[#2a2010] to-[#12100a]",
-    pattern: "radial-gradient(circle at 40% 50%, rgba(245,158,11,0.2) 0%, transparent 50%)",
-    accentColor: "#f59e0b",
-    accentGlow: "rgba(245,158,11,0.12)",
+    category: "School",
+    gradient: "from-[#0a121e] via-[#102035] to-[#060c14]",
+    pattern: "radial-gradient(circle at 50% 30%, rgba(251,191,36,0.2) 0%, transparent 50%)",
+    accentColor: "#fbbf24",
+    accentGlow: "rgba(251,191,36,0.15)",
+    headerLabel: "CONVOCATION",
+    sampleTitle: "Class of 2026",
+    sealText: "ENTER",
   },
   {
-    name: "Mughal Emerald",
+    name: "Pastel Paradise",
     badge: "Classic",
-    gradient: "from-[#0f1a16] via-[#152822] to-[#0a1210]",
-    pattern: "radial-gradient(circle at 25% 25%, rgba(180,145,77,0.25) 0%, transparent 40%), radial-gradient(circle at 75% 75%, rgba(15,107,78,0.3) 0%, transparent 45%)",
-    accentColor: "#d4a853",
-    accentGlow: "rgba(212,168,83,0.15)",
+    category: "Birthday",
+    gradient: "from-[#1a0f1d] via-[#2d1233] to-[#120a14]",
+    pattern: "radial-gradient(circle at 40% 40%, rgba(244,114,182,0.25) 0%, transparent 50%)",
+    accentColor: "#f472b6",
+    accentGlow: "rgba(244,114,182,0.15)",
+    headerLabel: "CELEBRATION",
+    sampleTitle: "Sophia's Sweet 16",
+    sealText: "PARTY",
+  },
+  {
+    name: "Executive Summit",
+    badge: "Classic",
+    category: "Meeting",
+    gradient: "from-[#0b1320] via-[#12233c] to-[#070d17]",
+    pattern: "radial-gradient(circle at 50% 40%, rgba(56,189,248,0.2) 0%, transparent 50%)",
+    accentColor: "#38bdf8",
+    accentGlow: "rgba(56,189,248,0.15)",
+    headerLabel: "EXECUTIVE SUMMIT",
+    sampleTitle: "Global Tech Summit",
+    sealText: "ACCESS",
   },
   {
     name: "Royal Imperial",
     badge: "Royal",
+    category: "Wedding",
     image: "/templates/royal-imperial.jpg",
     gradient: "from-[#1a100a] via-[#2a1a10] to-[#120c08]",
     pattern: "radial-gradient(circle at 60% 40%, rgba(245,158,11,0.2) 0%, transparent 50%)",
     accentColor: "#f59e0b",
     accentGlow: "rgba(245,158,11,0.15)",
+    headerLabel: "دعوة زفاف",
+    sampleTitle: "Ahmed & Fatima",
+    sealText: "OPEN",
+  },
+  {
+    name: "Valedictorian Prestige",
+    badge: "Royal",
+    category: "School",
+    image: "/templates/valedictorian-prestige.jpg",
+    gradient: "from-[#061410] via-[#0a251e] to-[#040e0b]",
+    pattern: "radial-gradient(circle at 50% 50%, rgba(16,185,129,0.2) 0%, transparent 50%)",
+    accentColor: "#10b981",
+    accentGlow: "rgba(16,185,129,0.15)",
+    headerLabel: "HONORS CONVOCATION",
+    sampleTitle: "Summa Cum Laude",
+    sealText: "ENTER",
+  },
+  {
+    name: "Lumina Celebration",
+    badge: "Royal",
+    category: "Birthday",
+    image: "/templates/lumina-celebration.jpg",
+    gradient: "from-[#0f0518] via-[#190a2a] to-[#0a0312]",
+    pattern: "radial-gradient(circle at 50% 40%, rgba(0,240,255,0.2) 0%, transparent 50%)",
+    accentColor: "#00f0ff",
+    accentGlow: "rgba(0,240,255,0.15)",
+    headerLabel: "VIP BIRTHDAY",
+    sampleTitle: "Zara's 21st Gala",
+    sealText: "PARTY",
+  },
+  {
+    name: "The Boardroom",
+    badge: "Royal",
+    category: "Meeting",
+    image: "/templates/the-boardroom.jpg",
+    gradient: "from-[#171108] via-[#261c0d] to-[#0e0a05]",
+    pattern: "radial-gradient(circle at 50% 50%, rgba(245,158,11,0.2) 0%, transparent 50%)",
+    accentColor: "#f59e0b",
+    accentGlow: "rgba(245,158,11,0.15)",
+    headerLabel: "ANNUAL ASSEMBLY",
+    sampleTitle: "Global Boardroom 2026",
+    sealText: "ACCESS",
   },
   {
     name: "Royal Elegance",
     badge: "Royal",
+    category: "Wedding",
     image: "/templates/royal-elegance.jpg",
     gradient: "from-[#1a080e] via-[#2a1018] to-[#12060a]",
     pattern: "radial-gradient(circle at 50% 50%, rgba(244,63,94,0.25) 0%, transparent 50%)",
     accentColor: "#f43f5e",
     accentGlow: "rgba(244,63,94,0.15)",
-  },
-  {
-    name: "Watercolor Peach",
-    badge: "Classic",
-    gradient: "from-[#1a100c] via-[#2a1a15] to-[#120b08]",
-    pattern: "radial-gradient(circle at 30% 40%, rgba(249,115,22,0.2) 0%, transparent 50%)",
-    accentColor: "#f97316",
-    accentGlow: "rgba(249,115,22,0.15)",
+    headerLabel: "دعوة زفاف",
+    sampleTitle: "Zayd & Ayla",
+    sealText: "OPEN",
   },
   {
     name: "Geometric Gold",
     badge: "Royal",
+    category: "Wedding",
     image: "/templates/geometric-gold.jpg",
     gradient: "from-[#111827] via-[#1e293b] to-[#0f172a]",
     pattern: "radial-gradient(circle at 50% 50%, rgba(245,158,11,0.2) 0%, transparent 50%)",
     accentColor: "#f59e0b",
     accentGlow: "rgba(245,158,11,0.15)",
-  },
-  {
-    name: "Dark Velvet",
-    badge: "Royal",
-    image: "/templates/dark-velvet.jpg",
-    gradient: "from-[#020617] via-[#1e293b] to-[#0f172a]",
-    pattern: "radial-gradient(circle at 40% 60%, rgba(139,92,246,0.2) 0%, transparent 50%)",
-    accentColor: "#8b5cf6",
-    accentGlow: "rgba(139,92,246,0.15)",
-  },
-  {
-    name: "Pastel Floral",
-    badge: "Classic",
-    gradient: "from-[#1a1018] via-[#2a1a2a] to-[#120b12]",
-    pattern: "radial-gradient(circle at 60% 30%, rgba(244,114,182,0.2) 0%, transparent 50%)",
-    accentColor: "#f472b6",
-    accentGlow: "rgba(244,114,182,0.15)",
+    headerLabel: "دعوة زفاف",
+    sampleTitle: "Saad & Maryam",
+    sealText: "OPEN",
   },
   {
     name: "Minimal White",
     badge: "Classic",
+    category: "Wedding",
     gradient: "from-[#f8fafc] via-[#f1f5f9] to-[#e2e8f0]",
     pattern: "radial-gradient(circle at 50% 50%, rgba(148,163,184,0.2) 0%, transparent 50%)",
     accentColor: "#94a3b8",
     accentGlow: "rgba(148,163,184,0.15)",
+    headerLabel: "دعوة زفاف",
+    sampleTitle: "Mustafa & Maham",
+    sealText: "OPEN",
   },
 ];
 
 export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => void }) {
-  const { t } = useLanguage();
+  const router = useRouter();
+  const { language, t } = useLanguage();
+  const [selectedCategory, setSelectedCategory] = useState<"all" | "royal" | "classic">("all");
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
+  const displayedTemplates = templates.filter(tmpl => {
+    if (selectedCategory === "royal") return tmpl.badge === "Royal";
+    if (selectedCategory === "classic") return tmpl.badge === "Classic";
+    return true;
+  });
+
   const CARD_WIDTH = 280;
   const CARD_GAP = 20;
 
-  const maxIndex = Math.max(0, templates.length - 3);
+  const maxIndex = Math.max(0, displayedTemplates.length - 3);
 
   const scrollToIndex = (index: number) => {
     const clamped = Math.max(0, Math.min(index, maxIndex));
@@ -238,6 +310,31 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
             <div className="w-2 h-2 rounded-full bg-primary/70" />
             <div className="h-px w-16 bg-gradient-to-l from-transparent to-gold/60" />
           </div>
+
+          {/* Category Filter Chips */}
+          <div className="flex flex-wrap items-center justify-center gap-2 mt-6">
+            {[
+              { id: "all" as const, label: language === 'ur' ? 'تمام ڈیزائنز' : 'All Templates' },
+              { id: "royal" as const, label: language === 'ur' ? 'شاہی 3D گیٹ (Royal)' : 'Royal 3D Door Open' },
+              { id: "classic" as const, label: language === 'ur' ? 'کلاسک (Classic)' : 'Classic Elegance' },
+            ].map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => {
+                  setSelectedCategory(cat.id);
+                  setCurrentIndex(0);
+                  if (scrollRef.current) scrollRef.current.scrollTo({ left: 0, behavior: "smooth" });
+                }}
+                className={`px-4 py-1.5 rounded-full text-xs transition-all duration-200 border cursor-pointer ${
+                  selectedCategory === cat.id
+                    ? "bg-primary text-slate-950 font-black border-gold shadow-md shadow-primary/25 ring-1 ring-gold/40"
+                    : "bg-card/40 text-slate-200 border-border/60 hover:text-white hover:border-gold/30 font-medium"
+                }`}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
         </m.div>
 
         {/* Gallery Container */}
@@ -280,7 +377,7 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
             className="flex gap-5 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
-            {templates.map((template, index) => (
+            {displayedTemplates.map((template, index) => (
               <m.div
                 key={template.name}
                 className="flex-shrink-0 snap-center"
@@ -297,32 +394,88 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
                   {template.image ? (
                     <>
                       {/* Real Template Picture */}
-                      <img
+                      <Image
                         src={template.image}
                         alt={template.name}
+                        fill
+                        sizes="(max-width: 640px) 280px, 300px"
                         loading="lazy"
-                        decoding="async"
-                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        className="object-cover transition-transform duration-700 group-hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/20" />
 
                       {/* Glass overlay with host names */}
                       <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
                         <div className="bg-black/55 backdrop-blur-md rounded-xl p-4 border border-gold/30 shadow-2xl max-w-[220px] w-full">
-                          <p className="font-medium tracking-widest uppercase text-xs text-[#f0e6d3] text-2xl font-bold mb-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
-                            Summit
-                          </p>
-                          <div className="flex items-center justify-center gap-2 my-1.5">
-                            <div className="w-6 h-px bg-gradient-to-r from-transparent to-gold/60" />
-                            <div className="w-1.5 h-1.5 rotate-45 border border-gold/70" />
-                            <div className="w-6 h-px bg-gradient-to-l from-transparent to-gold/60" />
-                          </div>
-                          <p className="font-medium tracking-widest uppercase text-xs text-[#f0e6d3] text-2xl font-bold mt-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
-                            2026
-                          </p>
-                          <p className="font-sans tracking-tight text-primary/80 text-[10px] tracking-[0.25em] uppercase mt-2">
-                            Cinematic Royal
-                          </p>
+                          {template.category === 'School' ? (
+                            <>
+                              <p className="font-medium tracking-widest uppercase text-xs text-[#f0e6d3] text-xl font-bold mb-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+                                Class of
+                              </p>
+                              <div className="flex items-center justify-center gap-2 my-1.5">
+                                <div className="w-6 h-px bg-gradient-to-r from-transparent to-gold/60" />
+                                <div className="w-1.5 h-1.5 rotate-45 border border-gold/70" />
+                                <div className="w-6 h-px bg-gradient-to-l from-transparent to-gold/60" />
+                              </div>
+                              <p className="font-medium tracking-widest uppercase text-xs text-[#f0e6d3] text-xl font-bold mt-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+                                2026
+                              </p>
+                              <p className="font-sans tracking-tight text-primary/80 text-[10px] tracking-[0.25em] uppercase mt-2">
+                                Honors Convocation
+                              </p>
+                            </>
+                          ) : template.category === 'Meeting' ? (
+                            <>
+                              <p className="font-medium tracking-widest uppercase text-xs text-[#f0e6d3] text-xl font-bold mb-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+                                Executive
+                              </p>
+                              <div className="flex items-center justify-center gap-2 my-1.5">
+                                <div className="w-6 h-px bg-gradient-to-r from-transparent to-gold/60" />
+                                <div className="w-1.5 h-1.5 rotate-45 border border-gold/70" />
+                                <div className="w-6 h-px bg-gradient-to-l from-transparent to-gold/60" />
+                              </div>
+                              <p className="font-medium tracking-widest uppercase text-xs text-[#f0e6d3] text-xl font-bold mt-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+                                Summit
+                              </p>
+                              <p className="font-sans tracking-tight text-primary/80 text-[10px] tracking-[0.25em] uppercase mt-2">
+                                Leadership Keynote
+                              </p>
+                            </>
+                          ) : template.category === 'Birthday' ? (
+                            <>
+                              <p className="font-medium tracking-widest uppercase text-xs text-[#f0e6d3] text-xl font-bold mb-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+                                Zara&apos;s
+                              </p>
+                              <div className="flex items-center justify-center gap-2 my-1.5">
+                                <div className="w-6 h-px bg-gradient-to-r from-transparent to-gold/60" />
+                                <div className="w-1.5 h-1.5 rotate-45 border border-gold/70" />
+                                <div className="w-6 h-px bg-gradient-to-l from-transparent to-gold/60" />
+                              </div>
+                              <p className="font-medium tracking-widest uppercase text-xs text-[#f0e6d3] text-xl font-bold mt-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+                                21st Gala
+                              </p>
+                              <p className="font-sans tracking-tight text-primary/80 text-[10px] tracking-[0.25em] uppercase mt-2">
+                                VIP Celebration
+                              </p>
+                            </>
+                          ) : (
+                            <>
+                              <p className="font-medium tracking-widest uppercase text-xs text-[#f0e6d3] text-2xl font-bold mb-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+                                Ahmed
+                              </p>
+                              <div className="flex items-center justify-center gap-2 my-1.5">
+                                <div className="w-6 h-px bg-gradient-to-r from-transparent to-gold/60" />
+                                <div className="w-1.5 h-1.5 rotate-45 border border-gold/70" />
+                                <div className="w-6 h-px bg-gradient-to-l from-transparent to-gold/60" />
+                              </div>
+                              <p className="font-medium tracking-widest uppercase text-xs text-[#f0e6d3] text-2xl font-bold mt-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+                                Fatima
+                              </p>
+                              <p className="font-sans tracking-tight text-primary/80 text-[10px] tracking-[0.25em] uppercase mt-2">
+                                Cinematic Royal
+                              </p>
+                            </>
+                          )}
                         </div>
                       </div>
                     </>
@@ -372,17 +525,17 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
 
                       {/* Template content simulation */}
                       <div className="absolute inset-0 flex flex-col items-center justify-between p-6 text-center select-none">
-                        {/* Top Calligraphy */}
+                        {/* Top Calligraphy / Category Header */}
                         <div className="pt-2">
-                          <span className="font-medium tracking-widest uppercase text-xs text-primary/90 text-lg block drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]">
-                            دعوة زفاف
+                          <span className={`tracking-widest uppercase text-xs text-primary/90 block drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)] ${template.category && template.category !== 'Wedding' ? 'font-sans font-bold text-xs tracking-[0.2em]' : 'font-medium text-lg'}`}>
+                            {template.headerLabel || (template.category === 'Birthday' ? 'CELEBRATION' : template.category === 'School' ? 'CONVOCATION' : template.category === 'Meeting' ? 'EXECUTIVE SUMMIT' : 'دعوة زفاف')}
                           </span>
                         </div>
 
-                        {/* Center Monogram & Wax Seal */}
+                        {/* Center Monogram / Event Title & Wax Seal */}
                         <div className="flex flex-col items-center justify-center my-auto">
-                          <p className="font-sans tracking-tight text-white text-base sm:text-lg font-bold tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-                            Ahmed &amp; Fatima
+                          <p className="font-sans tracking-tight text-white text-base sm:text-lg font-bold tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] truncate max-w-[200px]">
+                            {template.sampleTitle || (template.category === 'Birthday' ? "Zara's 21st" : template.category === 'School' ? 'Class of 2026' : template.category === 'Meeting' ? 'Global Tech Summit' : 'Ahmed & Fatima')}
                           </p>
 
                           {/* 3D Wax Seal */}
@@ -399,7 +552,7 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
                                 ✦
                               </span>
                               <span className="text-[7px] uppercase tracking-[0.2em] font-semibold mt-0.5" style={{ color: `${template.accentColor}ee` }}>
-                                OPEN
+                                {template.sealText || (template.category === 'School' ? 'ENTER' : template.category === 'Birthday' ? 'PARTY' : template.category === 'Meeting' ? 'ACCESS' : 'OPEN')}
                               </span>
                             </div>
                             <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 w-0.5 h-2.5" style={{ background: `linear-gradient(to top, ${template.accentColor}, transparent)` }} />
@@ -410,7 +563,7 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
                         {/* Bottom Subtext */}
                         <div className="pb-1">
                           <p className="font-sans tracking-tight text-white/70 text-[10px] tracking-[0.2em] uppercase">
-                            14 · March · 2027
+                            {template.category === 'School' ? 'Class of 2026' : template.category === 'Meeting' ? 'Annual Summit 2026' : template.category === 'Birthday' ? 'Celebrate Life' : '14 · March · 2027'}
                           </p>
                         </div>
                       </div>
@@ -440,6 +593,34 @@ export function TemplateShowcase({ onViewAllClick }: { onViewAllClick?: () => vo
                   {/* Shimmer effect on hover */}
                   <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gold/[0.12] to-transparent -translate-x-full animate-[blockShimmerComposited_3s_infinite]" />
+                  </div>
+
+                  {/* Interactive Hover / Tap Actions */}
+                  <div className="absolute inset-0 bg-black/80 backdrop-blur-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-2.5 p-5 z-20 pointer-events-auto">
+                    <span className="text-white font-bold text-base text-center mb-1 drop-shadow-md">
+                      {template.name}
+                    </span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/create?template=${template.name.toLowerCase().replace(/\s+/g, '-')}`);
+                      }}
+                      className="w-full py-2.5 px-4 rounded-xl bg-primary hover:bg-primary-light text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-primary/25 transition-all cursor-pointer"
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-slate-950 stroke-[2.5]" />
+                      {language === 'ur' ? 'یہ کارڈ منتخب کریں' : 'Use This Template'}
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (onViewAllClick) onViewAllClick();
+                        else router.push("/templates");
+                      }}
+                      className="w-full py-2 px-4 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium text-xs border border-white/20 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                      {language === 'ur' ? 'ڈیمو دیکھیں' : 'Preview Demo'}
+                    </button>
                   </div>
                 </m.div>
               </m.div>

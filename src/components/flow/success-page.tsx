@@ -9,13 +9,14 @@ import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import type { FlowData } from "@/lib/flow-types";
-import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
+import { PageBreadcrumb, BreadcrumbCrumb } from "@/components/ui/page-breadcrumb";
+import { BrandLogo } from "@/components/brand-logo";
 
 interface SuccessPageProps {
   flowData: FlowData;
   onViewInvitation: () => void;
   onGoToDashboard: () => void;
-  crumbs: { label: string; onClick?: () => void }[];
+  crumbs: BreadcrumbCrumb[];
 }
 
 export function SuccessPage({ flowData, onViewInvitation, onGoToDashboard, crumbs }: SuccessPageProps) {
@@ -82,14 +83,7 @@ export function SuccessPage({ flowData, onViewInvitation, onGoToDashboard, crumb
               <LayoutDashboard className="w-4 h-4" />
               <span>Dashboard</span>
             </button>
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald text-primary-foreground">
-                <PartyPopper className="h-4 w-4" />
-              </div>
-              <span className="font-display text-lg font-bold">
-                Shaadi<span className="text-gold">Link</span>
-              </span>
-            </div>
+            <BrandLogo size="sm" href="/" />
             <div className="w-24" />
           </div>
         </div>

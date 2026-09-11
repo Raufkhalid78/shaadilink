@@ -11,7 +11,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   
   return {
     title: `${templateName} — Demo | Smart Invites`,
-    description: `View the live demo of the ${templateName} wedding invitation template on Smart Invites.`,
+    description: `View the live demo of the ${templateName} digital invitation template on Smart Invites.`,
     robots: {
       index: false,
       follow: false,

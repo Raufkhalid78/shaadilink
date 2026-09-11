@@ -5,21 +5,34 @@ import Image from "next/image";
 import { m, AnimatePresence } from "framer-motion";
 import {
   Send, Heart, Plus, ExternalLink, Trash2, Users, MessageSquare, Calendar,
-  Copy, Check, LayoutDashboard, LogOut, Loader2, Crown, Sparkles, X, Lock,
-  ArrowLeft, Share2, Home, Activity, QrCode, Eye, Download, DollarSign,
+  Copy, Check, LayoutDashboard, LogOut, Loader2, Crown, Sparkles, X, Lock, Edit,
+  ArrowLeft, Share2, Home, Activity, QrCode, Eye, Download, DollarSign, Camera,
+  MoreHorizontal, Shield, Clock, CreditCard, Palette, FileText,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { QRScannerModal } from "@/components/dashboard/qr-scanner-modal";
 import { QRCodeSVG, QRCodeCanvas } from "qrcode.react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
+import { BrandLogo } from "@/components/brand-logo";
 import type { FlowData } from "@/lib/flow-types";
 import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
 import { TEMPLATE_THEMES } from "@/components/viewer/themes";
 import { Star } from "lucide-react";
 import { AnalyticsDrawer } from "@/components/flow/analytics-drawer";
 import { PrintCardsDrawer } from "@/components/flow/print-cards-drawer";
+import { AgencyPortalDrawer } from "@/components/dashboard/agency-portal-drawer";
+import { PhotoWallDrawer } from "@/components/dashboard/photo-wall-drawer";
+import { Briefcase } from "lucide-react";
 import { WhatsAppIcon } from "@/components/icons/whatsapp-icon";
 import Papa from "papaparse";
 
@@ -39,6 +52,11 @@ interface Invitation {
   view_count?: number;
   slug?: string;
   guest_links_quota?: number;
+  title?: string;
+  client_approval_status?: string;
+  client_approval_notes?: string;
+  client_approved_at?: string;
+  agency_phone?: string;
 }
 
 interface DashboardPageProps {
@@ -58,6 +76,10 @@ interface RSVP {
   guest_email: string | null;
   status: 'accept' | 'decline';
   created_at: string;
+  adults_count?: number | null;
+  children_count?: number | null;
+  dietary_notes?: string | null;
+  attending_events?: string[] | null;
 }
 
 interface Wish {
@@ -75,25 +97,108 @@ const royalImageMap: Record<string, string> = {
   'dark-velvet': '/templates/dark-velvet.jpg',
 };
 
-const classicMeta: Record<string, { icon: string; accent: string; subtext: string; leftText?: string; rightText?: string }> = {
-  'emerald-noir': { icon: '✦', accent: '#d4a853', subtext: 'Mehndi', leftText: 'بِسْمِ اللَّهِ', rightText: 'الرَّحْمَنِ الرَّحِيمِ' },
-  'crimson-royale': { icon: '👑', accent: '#f87171', subtext: 'Baraat', leftText: 'نّ', rightText: 'و' },
-  'majestic-love': { icon: '💫', accent: '#f59e0b', subtext: 'Baraat', leftText: 'ع', rightText: 'ش' },
+const classicMeta: Record<string, { icon: string; accent: string; subtext: string; leftText?: string; rightText?: string; isArabicFont?: boolean }> = {
+  // Wedding
+  'emerald-noir': { icon: '✦', accent: '#d4a853', subtext: 'Mehndi', leftText: 'بِسْمِ اللَّهِ', rightText: 'الرَّحْمَنِ الرَّحِيمِ', isArabicFont: true },
+  'crimson-royale': { icon: '👑', accent: '#f87171', subtext: 'Baraat', leftText: 'نّ', rightText: 'و', isArabicFont: true },
+  'majestic-love': { icon: '💫', accent: '#f59e0b', subtext: 'Baraat', leftText: 'ع', rightText: 'ش', isArabicFont: true },
   'garden-romance': { icon: '🌸', accent: '#ec4899', subtext: 'Walima' },
   'modern-minimal': { icon: '▷', accent: '#60a5fa', subtext: 'Reception' },
-  'mughal-emerald': { icon: '✦', accent: '#2dd4bf', subtext: 'Nikkah', leftText: 'مغل', rightText: 'شاہی' },
+  'mughal-emerald': { icon: '✦', accent: '#2dd4bf', subtext: 'Nikkah', leftText: 'مغل', rightText: 'شاہی', isArabicFont: true },
   'rose-gold-blush': { icon: '🌹', accent: '#fb7185', subtext: 'Walima' },
   'ivory-dream': { icon: '◈', accent: '#d97706', subtext: 'Mayun' },
   'watercolor-peach': { icon: '🍑', accent: '#f97316', subtext: 'Mehndi' },
   'pastel-floral': { icon: '🌸', accent: '#f472b6', subtext: 'Walima' },
   'minimal-white': { icon: '💍', accent: '#64748b', subtext: 'Reception' },
+  
+  // Birthday
+  'pastel-paradise': { icon: '🎂', accent: '#f472b6', subtext: 'Sweet 16', leftText: 'Sweet', rightText: 'Sixteen' },
+  'boho-chic': { icon: '✨', accent: '#d97706', subtext: 'Golden 25th', leftText: 'Make A', rightText: 'Wish' },
+  'vintage-milestones': { icon: '👑', accent: '#fbbf24', subtext: 'Milestone', leftText: 'Celebrate', rightText: 'Life' },
+  'lumina-celebration': { icon: '🎉', accent: '#00f0ff', subtext: 'Neon VIP', leftText: 'Party', rightText: 'Vibe' },
+  'golden-jubilee': { icon: '👑', accent: '#fbbf24', subtext: 'Jubilee', leftText: 'Golden', rightText: 'Jubilee' },
+  
+  // School & Academics
+  'academic-excellence': { icon: '🎓', accent: '#fbbf24', subtext: 'Commencement', leftText: 'Class of', rightText: '2026' },
+  'future-innovators': { icon: '⚡', accent: '#06b6d4', subtext: 'Hackathon', leftText: 'Hack', rightText: 'Innovate' },
+  'campus-memories': { icon: '🏛️', accent: '#dc2626', subtext: 'Reunion', leftText: 'Farewell', rightText: 'Reunion' },
+  'grand-gala': { icon: '✨', accent: '#f43f5e', subtext: 'Gala', leftText: 'Grand', rightText: 'Gala' },
+  'valedictorian-prestige': { icon: '📜', accent: '#10b981', subtext: 'Graduation', leftText: 'Summa Cum', rightText: 'Laude' },
+  
+  // Corporate & Meeting
+  'executive-summit': { icon: '💼', accent: '#38bdf8', subtext: 'Summit', leftText: 'Annual', rightText: 'Summit' },
+  'creative-startup': { icon: '🚀', accent: '#f97316', subtext: 'Demo Day', leftText: 'NextGen', rightText: 'Launch' },
+  'global-connect': { icon: '🌐', accent: '#10b981', subtext: 'Global Forum', leftText: 'Global', rightText: 'Connect' },
+  'the-boardroom': { icon: '🏢', accent: '#f59e0b', subtext: 'Boardroom', leftText: 'Boardroom', rightText: 'Council' },
+  'visionary-keynote': { icon: '⚡', accent: '#38bdf8', subtext: 'Keynote', leftText: 'Visionary', rightText: 'Keynote' },
 };
+
+function getCategoryForInvitation(inv: Invitation): 'wedding' | 'birthday' | 'school' | 'corporate' {
+  const explicitCategory = ((inv as any).category || '').toLowerCase();
+  if (explicitCategory === 'school') return 'school';
+  if (explicitCategory === 'birthday') return 'birthday';
+  if (explicitCategory === 'meeting' || explicitCategory === 'corporate') return 'corporate';
+  if (explicitCategory === 'wedding') return 'wedding';
+
+  const tId = inv.template_id || '';
+  if (['academic-excellence', 'future-innovators', 'campus-memories', 'grand-gala', 'valedictorian-prestige'].includes(tId)) {
+    return 'school';
+  }
+  if (['pastel-paradise', 'boho-chic', 'vintage-milestones', 'lumina-celebration', 'golden-jubilee'].includes(tId)) {
+    return 'birthday';
+  }
+  if (['executive-summit', 'creative-startup', 'global-connect', 'the-boardroom', 'visionary-keynote'].includes(tId)) {
+    return 'corporate';
+  }
+  return 'wedding';
+}
+
+function getInvitationCardText(inv: Invitation) {
+  const cat = getCategoryForInvitation(inv);
+  switch (cat) {
+    case 'school':
+      return {
+        header: 'CONVOCATION',
+        isArabic: false,
+        title: inv.partner1_name
+          ? (inv.partner2_name ? `${inv.partner1_name} - ${inv.partner2_name}` : inv.partner1_name)
+          : 'Commencement Ceremony'
+      };
+    case 'corporate':
+      return {
+        header: 'EXECUTIVE SUMMIT',
+        isArabic: false,
+        title: inv.partner1_name
+          ? (inv.partner2_name ? `${inv.partner1_name} - ${inv.partner2_name}` : inv.partner1_name)
+          : 'Executive Conference'
+      };
+    case 'birthday':
+      return {
+        header: 'CELEBRATION',
+        isArabic: false,
+        title: inv.partner1_name
+          ? (inv.partner2_name ? `${inv.partner1_name} (${inv.partner2_name})` : `${inv.partner1_name}'s Birthday`)
+          : 'Birthday Celebration'
+      };
+    case 'wedding':
+    default:
+      return {
+        header: 'دعوة زفاف',
+        isArabic: true,
+        title: inv.partner1_name && inv.partner2_name
+          ? `${inv.partner1_name} & ${inv.partner2_name}`
+          : (inv.partner1_name || 'Wedding Invitation')
+      };
+  }
+}
 
 function DashboardCardThumbnail({ inv }: { inv: Invitation }) {
   const theme = TEMPLATE_THEMES[inv.template_id] || TEMPLATE_THEMES['emerald-noir'];
   const royalImg = royalImageMap[inv.template_id];
   const meta = classicMeta[inv.template_id] || { icon: '✦', accent: theme.accent || '#d4a853', subtext: 'Classic' };
   const isLight = theme.isLight;
+  const cat = getCategoryForInvitation(inv);
+  const cardText = getInvitationCardText(inv);
 
   // Case 1: Custom Hero Image provided by user
   if (inv.hero_image_url) {
@@ -108,9 +213,11 @@ function DashboardCardThumbnail({ inv }: { inv: Invitation }) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/20" />
         <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center z-10">
           <div className="bg-black/55 backdrop-blur-md rounded-xl p-3 border border-gold/30 shadow-xl max-w-[200px] w-full">
-            <span className="font-calligraphy text-amber-300 text-sm block">دعوة زفاف</span>
+            <span className={`${cardText.isArabic ? 'font-calligraphy text-amber-300 text-sm' : 'font-sans font-bold text-amber-300 text-xs tracking-widest uppercase'} block`}>
+              {cardText.header}
+            </span>
             <p className="font-display text-white text-sm font-semibold tracking-wide mt-0.5 truncate">
-              {inv.partner1_name && inv.partner2_name ? `${inv.partner1_name} & ${inv.partner2_name}` : "Wedding Invitation"}
+              {cardText.title}
             </p>
           </div>
         </div>
@@ -134,9 +241,11 @@ function DashboardCardThumbnail({ inv }: { inv: Invitation }) {
         {/* Glass overlay card */}
         <div className="relative z-10 w-full h-full p-4 flex flex-col items-center justify-center text-center">
           <div className="bg-black/60 backdrop-blur-md rounded-xl p-3 border border-gold/35 shadow-2xl max-w-[200px] w-full">
-            <span className="font-calligraphy text-amber-300 text-sm block">دعوة زفاف</span>
+            <span className={`${cardText.isArabic ? 'font-calligraphy text-amber-300 text-sm' : 'font-sans font-bold text-amber-300 text-xs tracking-widest uppercase'} block`}>
+              {cardText.header}
+            </span>
             <p className="font-display text-white text-sm font-semibold tracking-wide mt-0.5 truncate">
-              {inv.partner1_name && inv.partner2_name ? `${inv.partner1_name} & ${inv.partner2_name}` : "Wedding Invitation"}
+              {cardText.title}
             </p>
             <div className="w-8 h-px bg-primary/50 mx-auto my-1.5" />
             <div className="flex items-center justify-center gap-1">
@@ -177,7 +286,7 @@ function DashboardCardThumbnail({ inv }: { inv: Invitation }) {
           }}
         >
           {meta.leftText && (
-            <span className="absolute left-1 top-1/2 -translate-y-1/2 font-arabic text-[11px] text-white/35 rotate-[-90deg] origin-center block whitespace-nowrap">
+            <span className={`absolute left-1 top-1/2 -translate-y-1/2 ${meta.isArabicFont ? 'font-arabic text-[11px]' : 'font-sans font-bold text-[9px] tracking-widest uppercase'} text-white/35 rotate-[-90deg] origin-center block whitespace-nowrap`}>
               {meta.leftText}
             </span>
           )}
@@ -190,14 +299,14 @@ function DashboardCardThumbnail({ inv }: { inv: Invitation }) {
           }}
         >
           {meta.rightText && (
-            <span className="absolute right-1 top-1/2 -translate-y-1/2 font-arabic text-[11px] text-white/35 rotate-[90deg] origin-center block whitespace-nowrap">
+            <span className={`absolute right-1 top-1/2 -translate-y-1/2 ${meta.isArabicFont ? 'font-arabic text-[11px]' : 'font-sans font-bold text-[9px] tracking-widest uppercase'} text-white/35 rotate-[90deg] origin-center block whitespace-nowrap`}>
               {meta.rightText}
             </span>
           )}
         </div>
       </div>
 
-      {/* Top Header: Calligraphy Arch */}
+      {/* Top Header: Calligraphy / Event Arch */}
       <div className="relative z-10 text-center pt-0.5">
         <div className="flex items-center justify-center gap-1.5 mb-0.5 opacity-80">
           <div className="w-6 h-px" style={{ background: `linear-gradient(90deg, transparent, ${meta.accent})` }} />
@@ -207,17 +316,17 @@ function DashboardCardThumbnail({ inv }: { inv: Invitation }) {
           <div className="w-6 h-px" style={{ background: `linear-gradient(270deg, transparent, ${meta.accent})` }} />
         </div>
         <span 
-          className="font-calligraphy text-sm sm:text-base block tracking-wide"
+          className={`${cardText.isArabic ? 'font-calligraphy text-sm sm:text-base' : 'font-sans font-bold text-[11px] uppercase tracking-widest'} block`}
           style={{ 
             color: isLight ? '#475569' : '#ffffff',
             textShadow: isLight ? 'none' : `0 0 12px ${meta.accent}66`
           }}
         >
-          دعوة زفاف
+          {cardText.header}
         </span>
       </div>
 
-      {/* Center 3D Wax Seal / Door Knocker & Real Couple Names */}
+      {/* Center 3D Wax Seal / Door Knocker & Real Event Names */}
       <div className="relative z-20 flex flex-col items-center justify-center my-auto">
         <div className="text-center mb-0.5 max-w-[180px]">
           <p 
@@ -227,7 +336,7 @@ function DashboardCardThumbnail({ inv }: { inv: Invitation }) {
               textShadow: isLight ? 'none' : '0 2px 6px rgba(0,0,0,0.8)'
             }}
           >
-            {inv.partner1_name && inv.partner2_name ? `${inv.partner1_name} & ${inv.partner2_name}` : "Wedding Invitation"}
+            {cardText.title}
           </p>
         </div>
 
@@ -253,7 +362,7 @@ function DashboardCardThumbnail({ inv }: { inv: Invitation }) {
               className="text-[6px] uppercase tracking-[0.2em] font-semibold mt-0.5"
               style={{ color: isLight ? '#64748b' : `${meta.accent}ee` }}
             >
-              OPEN
+              {cat === 'school' ? 'ENTER' : cat === 'birthday' ? 'PARTY' : cat === 'corporate' ? 'ACCESS' : 'OPEN'}
             </span>
           </div>
 
@@ -310,6 +419,8 @@ export function DashboardPage({
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [qrInvUrl, setQrInvUrl] = useState<string | null>(null);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [scannerInv, setScannerInv] = useState<{ id: string; title: string }>({ id: "", title: "" });
 
   // Referral Code State
   const [myReferralCode, setMyReferralCode] = useState<{code: string; discount_percent: number; current_uses: number; max_uses: number | null} | null>(null);
@@ -342,6 +453,10 @@ export function DashboardPage({
   const [reviewLoading, setReviewLoading] = useState(false);
   const [reviewSubmittedMap, setReviewSubmittedMap] = useState<Record<string, boolean>>({});
 
+  // Safety Confirmation States
+  const [invitationToDelete, setInvitationToDelete] = useState<{ id: string; partnerNames: string } | null>(null);
+  const [wishToDelete, setWishToDelete] = useState<{ wishId: string; senderName: string } | null>(null);
+
   // Guest Links Drawer State
   const [guestLinksDrawerOpen, setGuestLinksDrawerOpen] = useState(false);
   const [guestLinksInvId, setGuestLinksInvId] = useState<string | null>(null);
@@ -354,6 +469,18 @@ export function DashboardPage({
   // Print Cards Drawer State
   const [printCardsDrawerOpen, setPrintCardsDrawerOpen] = useState(false);
   const [printCardsInvId, setPrintCardsInvId] = useState<string | null>(null);
+
+  // Photo Wall Drawer State
+  const [photoWallDrawerOpen, setPhotoWallDrawerOpen] = useState(false);
+  const [photoWallInv, setPhotoWallInv] = useState<Invitation | null>(null);
+
+  // Agency Portal Drawer State & Access Control
+  const [agencyDrawerOpen, setAgencyDrawerOpen] = useState(false);
+  const [agencyGateModalOpen, setAgencyGateModalOpen] = useState(false);
+  const [agencyAccess, setAgencyAccess] = useState<{ isAgency: boolean; status: string; companyName?: string }>({
+    isAgency: false,
+    status: 'none',
+  });
 
   // CSV Upload Ref
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -401,7 +528,29 @@ export function DashboardPage({
       }
     };
     fetchReferralCode();
+
+    // Check Agency / Planner status
+    const checkAgency = async () => {
+      try {
+        const res = await fetch('/api/agency/status');
+        if (res.ok) {
+          const data = await res.json();
+          setAgencyAccess(data);
+        }
+      } catch (err) {
+        console.error('Failed to load agency status', err);
+      }
+    };
+    checkAgency();
   }, []);
+
+  const handleAgencyClick = () => {
+    if (agencyAccess.isAgency || agencyAccess.status === 'pending') {
+      window.location.href = '/dashboard/agency';
+    } else {
+      setAgencyGateModalOpen(true);
+    }
+  };
 
   const handleOpenRsvps = async (invId: string) => {
     setRsvpInvId(invId);
@@ -639,8 +788,12 @@ export function DashboardPage({
   };
 
   const handleSendWhatsApp = (guestName: string, url: string) => {
-    const text = encodeURIComponent(`Asalam o Alaikum ${guestName}! We would be honored to have your presence at our wedding. Here is your personalized invitation: ${url}`);
-    window.open(`https://wa.me/?text=${text}`, '_blank');
+    const currentInv = invitations.find((i) => i.id === guestLinksInvId);
+    const eventTitle = currentInv ? `${currentInv.partner1_name} & ${currentInv.partner2_name}` : "our event";
+    const text = encodeURIComponent(
+      `Assalam-o-Alaikum ${guestName}! 🎉\n\nYou are warmly invited to celebrate ${eventTitle}.\n\nView your personalized invitation & digital pass here:\n${url}\n\nReply *1* to Accept (Attending) or *2* to Decline.`
+    );
+    window.open(`https://wa.me/?text=${text}`, '_blank', 'noopener,noreferrer');
   };
 
   const handleOpenWishes = async (invId: string) => {
@@ -662,9 +815,9 @@ export function DashboardPage({
     }
   };
 
-  const handleDeleteWish = async (wishId: string) => {
-    if (!wishesInvId) return;
-    if (!confirm("Are you sure you want to delete this wish?")) return;
+  const handleConfirmDeleteWish = async () => {
+    if (!wishesInvId || !wishToDelete) return;
+    const { wishId } = wishToDelete;
     try {
       const res = await fetch(`/api/invitations/${wishesInvId}/wishes?wishId=${wishId}`, {
         method: "DELETE",
@@ -683,7 +836,8 @@ export function DashboardPage({
             return inv;
           })
         );
-        toast.success("Blessing deleted successfully.");
+        toast.success("Blessing removed from guestbook.");
+        setWishToDelete(null);
       } else {
         toast.error("Failed to delete blessing.");
       }
@@ -696,14 +850,16 @@ export function DashboardPage({
     loadInvitations();
   }, [loadInvitations]);
 
-  const handleDelete = async (id: string, partnerNames: string) => {
-    if (!confirm(`Delete invitation for ${partnerNames}? This cannot be undone.`)) return;
+  const handleConfirmDeleteInvitation = async () => {
+    if (!invitationToDelete) return;
+    const { id, partnerNames } = invitationToDelete;
     setDeletingId(id);
     try {
       const res = await fetch(`/api/invitations/${id}`, { method: "DELETE" });
       if (res.ok) {
         setInvitations((prev) => prev.filter((inv) => inv.id !== id));
-        toast.success("Invitation deleted.");
+        toast.success(`Invitation for ${partnerNames} deleted.`);
+        setInvitationToDelete(null);
       } else {
         toast.error("Failed to delete invitation.");
       }
@@ -857,14 +1013,7 @@ export function DashboardPage({
                   <span className="hidden sm:inline font-medium">Home</span>
                 </button>
               )}
-              <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald text-primary-foreground">
-                  <Send className="h-4 w-4 fill-current" />
-                </div>
-                <span className="font-display text-lg font-bold">
-                  Smart<span className="text-primary">Invites</span>
-                </span>
-              </div>
+              <BrandLogo size="sm" href="/" />
             </div>
 
             {/* Right: user info + sign out */}
@@ -877,6 +1026,37 @@ export function DashboardPage({
                   {flowData.email || "My Dashboard"}
                 </span>
               </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleAgencyClick}
+                className={`gap-1.5 text-xs font-semibold h-8 px-2.5 shadow-sm transition-all ${
+                  agencyAccess.isAgency
+                    ? "text-amber-300 border-amber-500/50 bg-amber-500/15 hover:bg-amber-500/25"
+                    : agencyAccess.status === 'pending'
+                    ? "text-amber-400/80 border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/10"
+                    : "text-zinc-400 border-zinc-700/60 hover:text-amber-300 hover:border-amber-500/40 hover:bg-amber-500/10"
+                }`}
+                title={
+                  agencyAccess.isAgency
+                    ? "Agency & Event Planner Workspace (Active)"
+                    : agencyAccess.status === 'pending'
+                    ? "Agency Partner Application Under Review"
+                    : "Agency & Event Planner Workspace (Apply for Access)"
+                }
+              >
+                <Briefcase className="w-3.5 h-3.5 text-amber-400" />
+                <span className="hidden sm:inline">
+                  {agencyAccess.isAgency
+                    ? "Agency Pro"
+                    : agencyAccess.status === 'pending'
+                    ? "Agency (Review)"
+                    : "Agency Pro"}
+                </span>
+                {!agencyAccess.isAgency && agencyAccess.status !== 'pending' && (
+                  <Lock className="w-3 h-3 text-amber-400/60 hidden md:inline" />
+                )}
+              </Button>
               <Button
                 variant="outline"
                 size="sm"
@@ -904,7 +1084,7 @@ export function DashboardPage({
       {/* Breadcrumb */}
       <PageBreadcrumb
         crumbs={[
-          { label: "Home", onClick: onGoHome },
+          { label: "Home", href: "/", onClick: onGoHome },
           { label: "My Dashboard" },
         ]}
       />
@@ -936,9 +1116,9 @@ export function DashboardPage({
               <Button
                 onClick={onCreateNew}
                 size="lg"
-                className="bg-gradient-to-r from-gold via-amber-400 to-gold-light hover:brightness-110 text-foreground-dark font-bold gap-2.5 shrink-0 shadow-lg shadow-primary/20 hover:scale-105 transition-all duration-200"
+                className="bg-gradient-to-r from-gold via-amber-400 to-gold-light hover:brightness-110 text-slate-950 font-black gap-2.5 shrink-0 shadow-lg shadow-primary/20 hover:scale-105 transition-all duration-200"
               >
-                <Plus className="w-5 h-5 stroke-[2.5]" />
+                <Plus className="w-5 h-5 text-slate-950 stroke-[2.5]" />
                 Create New Invitation
               </Button>
             </div>
@@ -983,9 +1163,9 @@ export function DashboardPage({
                         navigator.clipboard.writeText(copyText);
                         toast.success("Discount code message copied to clipboard!");
                       }}
-                      className="bg-primary hover:bg-primary-light text-foreground-dark font-semibold gap-1.5 shadow-md"
+                      className="bg-primary hover:bg-primary-light text-slate-950 font-black gap-1.5 shadow-md"
                     >
-                      <Copy className="w-3.5 h-3.5" />
+                      <Copy className="w-3.5 h-3.5 text-slate-950 stroke-[2.5]" />
                       Copy Code
                     </Button>
                   </div>
@@ -1239,11 +1419,11 @@ export function DashboardPage({
                             <Badge
                               className={
                                 inv.plan === "royal"
-                                  ? "bg-primary/90 text-foreground-dark text-[10px] border-0 font-bold shadow-md"
+                                  ? "bg-primary text-slate-950 text-[10px] border-0 font-black shadow-md"
                                   : "bg-white/20 text-white text-[10px] border-0 backdrop-blur-md"
                               }
                             >
-                              {inv.plan === "royal" && <Crown className="w-2.5 h-2.5 mr-0.5" />}
+                              {inv.plan === "royal" && <Crown className="w-2.5 h-2.5 mr-0.5 text-slate-950 stroke-[2.5]" />}
                               {inv.plan}
                             </Badge>
                             {inv.plan !== "royal" && !passed && (
@@ -1332,130 +1512,271 @@ export function DashboardPage({
                           </div>
 
                           {/* Primary Action Buttons */}
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              onClick={() => window.open(`${window.location.origin}/inv/${inv.slug || inv.id}`, "_blank", "noopener,noreferrer")}
-                              className="flex-1 h-9 bg-emerald hover:bg-emerald-dark text-white font-semibold text-xs gap-1.5 shadow-md"
-                            >
-                              <ExternalLink className="w-3.5 h-3.5" />
-                              View Live
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              disabled={passed}
-                              onClick={() => onEditInvitation(inv.id)}
-                              className="flex-1 h-9 border-gold/40 text-primary hover:bg-primary/10 font-semibold text-xs gap-1.5"
-                            >
-                              {passed ? (
-                                <>
-                                  <Lock className="w-3.5 h-3.5" />
-                                  Locked
-                                </>
-                              ) : (
-                                inv.is_active ? "Edit Invitation" : "Setup"
-                              )}
-                            </Button>
+                          <div className="flex items-center gap-2">
+                            {inv.is_active ? (
+                              <>
+                                <Button
+                                  size="sm"
+                                  onClick={() => window.open(`${window.location.origin}/inv/${inv.slug || inv.id}`, "_blank", "noopener,noreferrer")}
+                                  className="flex-1 h-9 bg-emerald hover:bg-emerald-dark text-white font-semibold text-xs gap-1.5 shadow-md cursor-pointer"
+                                >
+                                  <ExternalLink className="w-3.5 h-3.5" />
+                                  View Live
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  onClick={() => {
+                                    const link = `${window.location.origin}/inv/${inv.slug || inv.id}`;
+                                    const text = encodeURIComponent(`You're invited! 🎉 View our wedding invitation: ${link}`);
+                                    window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");
+                                  }}
+                                  className="h-9 px-3 bg-[#25D366]/15 hover:bg-[#25D366]/25 border border-[#25D366]/30 text-[#25D366] font-semibold text-xs gap-1.5 cursor-pointer"
+                                  title="Share via WhatsApp"
+                                >
+                                  <WhatsAppIcon className="w-3.5 h-3.5 text-[#25D366]" />
+                                  <span>Share</span>
+                                </Button>
+                              </>
+                            ) : agencyAccess.isAgency ? (
+                              <>
+                                <Button
+                                  size="sm"
+                                  onClick={async () => {
+                                    try {
+                                      const res = await fetch(`/api/invitations/${inv.id}/review-token`);
+                                      const data = await res.json();
+                                      if (data.reviewUrl) {
+                                        window.open(data.reviewUrl, "_blank", "noopener,noreferrer");
+                                        return;
+                                      }
+                                    } catch {}
+                                    window.open(`${window.location.origin}/inv/${inv.slug || inv.id}`, "_blank", "noopener,noreferrer");
+                                  }}
+                                  className="flex-1 h-9 bg-amber-500 hover:bg-amber-400 text-black font-semibold text-xs gap-1.5 shadow-md cursor-pointer"
+                                  title="Open secure 7-view client review link"
+                                >
+                                  <ExternalLink className="w-3.5 h-3.5" />
+                                  Client Review
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={async () => {
+                                    try {
+                                      const res = await fetch(`/api/invitations/${inv.id}/review-token`);
+                                      const data = await res.json();
+                                      if (data.reviewUrl) {
+                                        navigator.clipboard.writeText(data.reviewUrl);
+                                        toast.success(`📋 Secure Client Review Link copied! (${data.viewsCount || 0}/${data.maxViews || 7} views used)`);
+                                        return;
+                                      }
+                                    } catch {}
+                                    navigator.clipboard.writeText(`${window.location.origin}/inv/${inv.slug || inv.id}`);
+                                    toast.success("📋 Link copied to clipboard!");
+                                  }}
+                                  className="h-9 px-3 border-amber-500/40 text-amber-400 hover:bg-amber-500/10 font-semibold text-xs gap-1.5 cursor-pointer"
+                                  title="Copy Secure Client Review Link"
+                                >
+                                  <Copy className="w-3.5 h-3.5" />
+                                  <span>Link</span>
+                                </Button>
+                              </>
+                            ) : (
+                              <>
+                                <Button
+                                  size="sm"
+                                  onClick={() => window.open(`${window.location.origin}/inv/${inv.slug || inv.id}`, "_blank", "noopener,noreferrer")}
+                                  className="flex-1 h-9 bg-primary hover:bg-primary-light text-slate-950 font-bold text-xs gap-1.5 shadow-md cursor-pointer"
+                                  title="Preview your draft invitation"
+                                >
+                                  <Eye className="w-3.5 h-3.5 text-slate-950" />
+                                  Preview Draft
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => {
+                                    const previewLink = `${window.location.origin}/inv/${inv.slug || inv.id}`;
+                                    navigator.clipboard.writeText(previewLink);
+                                    toast.success("📋 Draft preview link copied to clipboard!");
+                                  }}
+                                  className="h-9 px-3 border-gold/40 text-primary hover:bg-primary/10 font-semibold text-xs gap-1.5 cursor-pointer"
+                                  title="Copy Draft Preview Link"
+                                >
+                                  <Copy className="w-3.5 h-3.5" />
+                                  <span>Link</span>
+                                </Button>
+                              </>
+                            )}
+                            {inv.is_active && passed ? (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                disabled
+                                className="h-9 px-3 border-border/40 text-muted-foreground opacity-60 font-semibold text-xs gap-1.5 cursor-not-allowed"
+                                title="This event has concluded. Edits are locked to preserve event records."
+                              >
+                                <Lock className="w-3.5 h-3.5" />
+                                <span>Locked</span>
+                              </Button>
+                            ) : (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => onEditInvitation(inv.id)}
+                                className="h-9 px-3 border-gold/40 text-primary hover:bg-primary/10 font-semibold text-xs gap-1.5 cursor-pointer"
+                                title={inv.is_active ? "Edit live invitation details" : "Continue setup"}
+                              >
+                                <Edit className="w-3.5 h-3.5" />
+                                <span>{inv.is_active ? "Edit" : "Setup"}</span>
+                              </Button>
+                            )}
                           </div>
 
-                          {/* Secondary Toolbar (Guest Hub & Tools) */}
-                          <div className="flex flex-wrap items-center justify-between gap-1.5 pt-2 border-t border-border/40">
-                            {/* WhatsApp Share */}
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => {
-                                const link = `${window.location.origin}/inv/${inv.slug || inv.id}`;
-                                const text = encodeURIComponent(`You're invited! 🎉 View our wedding invitation: ${link}`);
-                                window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");
-                              }}
-                              className="h-8 px-2 text-foreground hover:bg-emerald/10 text-xs gap-1"
-                              title="Share via WhatsApp"
-                            >
-                              <WhatsAppIcon className="w-3.5 h-3.5 text-[#25D366]" />
-                              <span className="text-[10px]">WhatsApp</span>
-                            </Button>
-
-                            {/* Guest Links */}
-                            {inv.is_active && (
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => handleOpenGuestLinks(inv.id)}
-                                className="h-8 px-2 text-amber-500 hover:bg-amber-500/10 text-xs gap-1"
-                                title="Guest Links"
-                              >
-                                <Users className="w-3.5 h-3.5" />
-                                <span className="text-[10px]">Guest Links</span>
-                              </Button>
-                            )}
-
-                            {/* Print Cards */}
-                            {inv.is_active && (
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => {
-                                  setPrintCardsInvId(inv.id);
-                                  setPrintCardsDrawerOpen(true);
-                                }}
-                                className="h-8 px-2 text-indigo-400 hover:bg-indigo-400/10 text-xs gap-1"
-                                title="Print Cards"
-                              >
-                                <Download className="w-3.5 h-3.5" />
-                                <span className="text-[10px]">Print</span>
-                              </Button>
-                            )}
-
-                            {/* QR Code */}
-                            {inv.is_active && (
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => setQrInvUrl(`${window.location.origin}/inv/${inv.slug || inv.id}`)}
-                                className="h-8 px-2 text-indigo-400 hover:bg-indigo-400/10 text-xs"
-                                title="QR Code"
-                              >
-                                <QrCode className="w-3.5 h-3.5" />
-                              </Button>
-                            )}
-
-                            {/* Review Button */}
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => {
-                                if (reviewSubmittedMap[inv.id]) {
-                                  toast.info("You have already submitted a review for this invitation. Thank you!");
-                                  return;
-                                }
-                                setReviewInvId(inv.id);
-                                setReviewRating(0);
-                                setReviewMessage("");
-                                setReviewDrawerOpen(true);
-                              }}
-                              className="h-8 px-2 text-primary hover:bg-primary/10 text-xs"
-                              title="Review"
-                            >
-                              <Star className="w-3.5 h-3.5" />
-                            </Button>
-
-                            {/* Delete Button */}
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => handleDelete(inv.id, `${inv.partner1_name} & ${inv.partner2_name}`)}
-                              disabled={deletingId === inv.id}
-                              className="h-8 px-2 text-red-400 hover:bg-red-400/10 text-xs"
-                              title="Delete Invitation"
-                            >
-                              {deletingId === inv.id ? (
-                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                              ) : (
-                                <Trash2 className="w-3.5 h-3.5" />
+                          {/* Secondary Toolbar (Guest Links, Passes & Organized Tools Menu) */}
+                          <div className="flex items-center justify-between gap-2 pt-2.5 border-t border-border/40">
+                            <div className="flex items-center gap-1.5">
+                              {/* Guest Links Roster */}
+                              {inv.is_active && (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => handleOpenGuestLinks(inv.id)}
+                                  className="h-8 px-2.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 font-medium text-xs gap-1.5 rounded-xl border border-amber-500/20 cursor-pointer"
+                                  title="Manage Guest Links"
+                                >
+                                  <Users className="w-3.5 h-3.5" />
+                                  <span>Guest Links</span>
+                                </Button>
                               )}
-                            </Button>
+
+                              {/* Entrance Pass Scanner & Gatekeeper Link */}
+                              {inv.is_active && (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => {
+                                    setScannerInv({ id: inv.id, title: inv.title || `${inv.partner1_name} & ${inv.partner2_name}` });
+                                    setIsScannerOpen(true);
+                                  }}
+                                  className="h-8 px-2.5 bg-emerald/10 hover:bg-emerald/20 text-emerald font-medium text-xs gap-1.5 rounded-xl border border-emerald/20 cursor-pointer"
+                                  title="Scan Guest Passes & Gatekeeper Link"
+                                >
+                                  <Camera className="w-3.5 h-3.5" />
+                                  <span>Scanner</span>
+                                </Button>
+                              )}
+                            </div>
+
+                            {/* Event Tools & Services Dropdown */}
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-8 px-2.5 text-muted-foreground hover:text-foreground hover:bg-white/5 text-xs gap-1 rounded-xl border border-border/40 cursor-pointer"
+                                  title="More Event Tools"
+                                >
+                                  <MoreHorizontal className="w-4 h-4" />
+                                  <span className="text-[11px] font-medium hidden sm:inline">Tools</span>
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-56 p-1.5 bg-card/95 backdrop-blur-xl border border-border/80 shadow-2xl rounded-2xl">
+                                {inv.is_active && (
+                                  <>
+                                    <DropdownMenuItem
+                                      onClick={() => {
+                                        setScannerInv({ id: inv.id, title: inv.title || `${inv.partner1_name} & ${inv.partner2_name}` });
+                                        setIsScannerOpen(true);
+                                      }}
+                                      className="gap-2 text-xs py-2 rounded-xl cursor-pointer"
+                                    >
+                                      <Shield className="w-4 h-4 text-gold" />
+                                      <span>Gatekeeper Link & PIN</span>
+                                    </DropdownMenuItem>
+
+                                    <DropdownMenuItem
+                                      onClick={() => {
+                                        setPrintCardsInvId(inv.id);
+                                        setPrintCardsDrawerOpen(true);
+                                      }}
+                                      className="gap-2 text-xs py-2 rounded-xl cursor-pointer"
+                                    >
+                                      <Download className="w-4 h-4 text-indigo-400" />
+                                      <span>Print Cards (300 DPI)</span>
+                                    </DropdownMenuItem>
+
+                                    <DropdownMenuItem
+                                      onClick={() => setQrInvUrl(`${window.location.origin}/inv/${inv.slug || inv.id}`)}
+                                      className="gap-2 text-xs py-2 rounded-xl cursor-pointer"
+                                    >
+                                      <QrCode className="w-4 h-4 text-indigo-400" />
+                                      <span>Invitation QR Code</span>
+                                    </DropdownMenuItem>
+
+                                    <DropdownMenuItem
+                                      onClick={() => {
+                                        setAnalyticsInvId(inv.id);
+                                        setAnalyticsDrawerOpen(true);
+                                      }}
+                                      className="gap-2 text-xs py-2 rounded-xl cursor-pointer"
+                                    >
+                                      <Activity className="w-4 h-4 text-emerald" />
+                                      <span>Event Analytics</span>
+                                    </DropdownMenuItem>
+
+                                    <DropdownMenuItem
+                                      onClick={() => {
+                                        setPhotoWallInv(inv);
+                                        setPhotoWallDrawerOpen(true);
+                                      }}
+                                      className="gap-2 text-xs py-2 rounded-xl cursor-pointer"
+                                    >
+                                      <Camera className="w-4 h-4 text-amber-400" />
+                                      <span>Live Photo Wall</span>
+                                    </DropdownMenuItem>
+                                  </>
+                                )}
+
+                                {/* Agency White-Label - Only visible to verified agencies */}
+                                {agencyAccess.isAgency && (
+                                  <DropdownMenuItem
+                                    onClick={() => { window.location.href = '/dashboard/agency'; }}
+                                    className="gap-2 text-xs py-2 rounded-xl cursor-pointer"
+                                  >
+                                    <Briefcase className="w-4 h-4 text-amber-300" />
+                                    <span>Agency Portal &amp; Branding</span>
+                                  </DropdownMenuItem>
+                                )}
+
+                                <DropdownMenuItem
+                                  onClick={() => {
+                                    if (reviewSubmittedMap[inv.id]) {
+                                      toast.info("You have already submitted a review for this invitation. Thank you!");
+                                      return;
+                                    }
+                                    setReviewInvId(inv.id);
+                                    setReviewRating(0);
+                                    setReviewMessage("");
+                                    setReviewDrawerOpen(true);
+                                  }}
+                                  className="gap-2 text-xs py-2 rounded-xl cursor-pointer"
+                                >
+                                  <Star className="w-4 h-4 text-primary" />
+                                  <span>Rate &amp; Review</span>
+                                </DropdownMenuItem>
+
+                                <DropdownMenuSeparator className="my-1 bg-border/40" />
+
+                                <DropdownMenuItem
+                                  onClick={() => setInvitationToDelete({ id: inv.id, partnerNames: `${inv.partner1_name || 'Event'} & ${inv.partner2_name || 'Celebration'}` })}
+                                  className="gap-2 text-xs py-2 rounded-xl text-red-400 hover:text-red-300 hover:bg-red-500/10 cursor-pointer"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                  <span>Delete Invitation</span>
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
 
                         </CardContent>
@@ -1506,20 +1827,34 @@ export function DashboardPage({
               </div>
 
               {/* Stats Bar */}
-              <div className="grid grid-cols-2 gap-3 mb-6">
-                <div className="p-3 rounded-lg border border-emerald/15 bg-emerald/5 text-center">
-                  <span className="block text-2xl font-bold text-foreground">
-                    {rsvpList.filter((r) => r.status === "accept").length}
-                  </span>
-                  <span className="text-[10px] text-muted-foreground uppercase font-semibold">Attending</span>
-                </div>
-                <div className="p-3 rounded-lg border border-red-500/15 bg-red-500/5 text-center">
-                  <span className="block text-2xl font-bold text-red-400">
-                    {rsvpList.filter((r) => r.status === "decline").length}
-                  </span>
-                  <span className="text-[10px] text-muted-foreground uppercase font-semibold">Declined</span>
-                </div>
-              </div>
+              {(() => {
+                const accepted = rsvpList.filter((r) => r.status === "accept");
+                const declined = rsvpList.filter((r) => r.status === "decline");
+                const totalAdults = accepted.reduce((sum, r) => sum + (typeof r.adults_count === 'number' ? r.adults_count : 1), 0);
+                const totalChildren = accepted.reduce((sum, r) => sum + (typeof r.children_count === 'number' ? r.children_count : 0), 0);
+                const totalHeads = totalAdults + totalChildren;
+
+                return (
+                  <div className="grid grid-cols-4 gap-2 mb-6">
+                    <div className="p-2.5 rounded-lg border border-emerald/20 bg-emerald/5 text-center">
+                      <span className="block text-xl font-bold text-foreground">{totalHeads}</span>
+                      <span className="text-[9px] text-muted-foreground uppercase font-semibold">Total Heads</span>
+                    </div>
+                    <div className="p-2.5 rounded-lg border border-primary/20 bg-primary/5 text-center">
+                      <span className="block text-xl font-bold text-foreground">{totalAdults}</span>
+                      <span className="text-[9px] text-muted-foreground uppercase font-semibold">Adults</span>
+                    </div>
+                    <div className="p-2.5 rounded-lg border border-amber-500/20 bg-amber-500/5 text-center">
+                      <span className="block text-xl font-bold text-foreground">{totalChildren}</span>
+                      <span className="text-[9px] text-muted-foreground uppercase font-semibold">Children</span>
+                    </div>
+                    <div className="p-2.5 rounded-lg border border-red-500/15 bg-red-500/5 text-center">
+                      <span className="block text-xl font-bold text-red-400">{declined.length}</span>
+                      <span className="text-[9px] text-muted-foreground uppercase font-semibold">Declined</span>
+                    </div>
+                  </div>
+                );
+              })()}
 
               <div className="flex justify-start mb-4">
                 <a
@@ -1545,34 +1880,64 @@ export function DashboardPage({
                     <p className="text-sm">No RSVP responses received yet.</p>
                   </div>
                 ) : (
-                  rsvpList.map((rsvp) => (
-                    <div
-                      key={rsvp.id}
-                      className="p-3.5 rounded-xl border border-border/40 bg-muted/10 flex items-center justify-between gap-3"
-                    >
-                      <div>
-                        <p className="font-semibold text-sm text-foreground">{rsvp.guest_name}</p>
-                        {rsvp.guest_email && (
-                          <p className="text-xs text-muted-foreground">{rsvp.guest_email}</p>
-                        )}
-                        <p className="text-[9px] text-muted-foreground/60 mt-1">
-                          {new Date(rsvp.created_at).toLocaleDateString("en-PK", {
-                            day: "numeric",
-                            month: "short",
-                          })}
-                        </p>
-                      </div>
-                      <Badge
-                        className={
-                          rsvp.status === "accept"
-                            ? "bg-emerald/10 text-foreground hover:bg-emerald/20 border-emerald/20"
-                            : "bg-red-500/10 text-red-400 hover:bg-red-500/20 border-red-500/20"
-                        }
+                  rsvpList.map((rsvp) => {
+                    const isAccept = rsvp.status === 'accept';
+                    const adults = typeof rsvp.adults_count === 'number' ? rsvp.adults_count : (isAccept ? 1 : 0);
+                    const children = typeof rsvp.children_count === 'number' ? rsvp.children_count : 0;
+
+                    return (
+                      <div
+                        key={rsvp.id}
+                        className="p-3.5 rounded-xl border border-border/40 bg-muted/10 flex flex-col gap-2.5"
                       >
-                        {rsvp.status === "accept" ? "Attending" : "Declined"}
-                      </Badge>
-                    </div>
-                  ))
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <p className="font-semibold text-sm text-foreground">{rsvp.guest_name}</p>
+                            {rsvp.guest_email && (
+                              <p className="text-xs text-muted-foreground">{rsvp.guest_email}</p>
+                            )}
+                            <p className="text-[9px] text-muted-foreground/60 mt-1">
+                              {new Date(rsvp.created_at).toLocaleDateString("en-PK", {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                              })}
+                            </p>
+                          </div>
+                          <Badge
+                            className={
+                              isAccept
+                                ? "bg-emerald/10 text-foreground hover:bg-emerald/20 border-emerald/20"
+                                : "bg-red-500/10 text-red-400 hover:bg-red-500/20 border-red-500/20"
+                            }
+                          >
+                            {isAccept ? "Attending" : "Declined"}
+                          </Badge>
+                        </div>
+
+                        {/* Granular Breakdown Badges */}
+                        {isAccept && (
+                          <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-border/20 text-xs">
+                            <span className="px-2 py-0.5 rounded-md bg-secondary text-secondary-foreground text-[11px] font-medium inline-flex items-center gap-1">
+                              👥 {adults} Adult{adults > 1 ? 's' : ''}{children > 0 ? `, ${children} Child${children > 1 ? 'ren' : ''}` : ''}
+                            </span>
+
+                            {rsvp.dietary_notes && (
+                              <span className="px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-500 border border-amber-500/20 text-[11px] font-medium inline-flex items-center gap-1">
+                                🥗 {rsvp.dietary_notes}
+                              </span>
+                            )}
+
+                            {Array.isArray(rsvp.attending_events) && rsvp.attending_events.length > 0 && (
+                              <span className="px-2 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/20 text-[11px] font-medium inline-flex items-center gap-1">
+                                🎉 {rsvp.attending_events.join(', ')}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
                 )}
               </div>
             </m.div>
@@ -1940,8 +2305,8 @@ export function DashboardPage({
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => handleDeleteWish(wish.id)}
-                          className="h-8 w-8 rounded-full text-muted-foreground hover:text-red-400 hover:bg-red-400/10 opacity-0 group-hover:opacity-100 sm:transition-opacity duration-200"
+                          onClick={() => setWishToDelete({ wishId: wish.id, senderName: wish.sender_name })}
+                          className="h-8 w-8 rounded-full text-muted-foreground hover:text-red-400 hover:bg-red-400/10 opacity-80 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
                           aria-label="Delete wish"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -2047,14 +2412,154 @@ export function DashboardPage({
               <Button
                 onClick={handleSubmitReview}
                 disabled={reviewLoading || reviewRating === 0 || !reviewMessage.trim()}
-                className="w-full bg-primary hover:bg-primary-light text-foreground-dark font-semibold mt-2"
+                className="w-full bg-primary hover:bg-primary-light text-slate-950 font-black mt-2"
               >
-                {reviewLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Submit Review'}
+                {reviewLoading ? <Loader2 className="w-4 h-4 animate-spin text-slate-950" /> : 'Submit Review'}
               </Button>
             </m.div>
           </div>
         )}
       </AnimatePresence>
+      {/* Entrance Pass Scanner Modal */}
+      <QRScannerModal
+        isOpen={isScannerOpen}
+        onClose={() => setIsScannerOpen(false)}
+        invitationId={scannerInv.id}
+        invitationTitle={scannerInv.title}
+      />
+
+      {/* Agency Portal Drawer */}
+      <AgencyPortalDrawer
+        isOpen={agencyDrawerOpen}
+        onClose={() => setAgencyDrawerOpen(false)}
+        invitations={invitations}
+        onActivateWithCredit={async (invId) => {
+          const supabase = createClient();
+          const { error } = await supabase
+            .from('invitations')
+            .update({ is_active: true })
+            .eq('id', invId);
+          if (error) throw error;
+          setInvitations((prev) =>
+            prev.map((inv) => (inv.id === invId ? { ...inv, is_active: true } : inv))
+          );
+        }}
+      />
+
+      {/* Agency Access Gate Modal (For Non-Agency / Pending Users) */}
+      <AnimatePresence>
+        {agencyGateModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            <m.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="relative w-full max-w-lg rounded-3xl bg-gradient-to-b from-zinc-900 via-zinc-900 to-zinc-950 border border-amber-500/30 p-6 sm:p-8 shadow-2xl space-y-6"
+            >
+              <button
+                onClick={() => setAgencyGateModalOpen(false)}
+                className="absolute top-4 right-4 p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              {agencyAccess.status === 'pending' ? (
+                <div className="text-center space-y-4 py-2">
+                  <div className="w-14 h-14 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 mx-auto">
+                    <Clock className="w-7 h-7" />
+                  </div>
+                  <div className="space-y-1">
+                    <h3 className="font-display text-xl sm:text-2xl font-bold text-foreground">
+                      Application Under Review ⏳
+                    </h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                      Your application for <strong>Agency &amp; Event Planner Partner</strong> access has been received and is currently being reviewed by our partnerships team.
+                    </p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-zinc-800/60 border border-zinc-700/60 text-left text-xs text-zinc-300 space-y-2">
+                    <p className="flex items-center gap-2 font-medium text-amber-300">
+                      <Shield className="w-4 h-4" /> Turnaround: 24 to 48 Hours
+                    </p>
+                    <p className="text-zinc-400">
+                      Once verified, your account will immediately unlock wholesale credit packs, white-label footer customization, and multi-client folders.
+                    </p>
+                  </div>
+                  <Button
+                    onClick={() => setAgencyGateModalOpen(false)}
+                    className="w-full bg-zinc-800 hover:bg-zinc-700 text-white font-medium"
+                  >
+                    Got It
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+                      <Briefcase className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 text-[10px] font-bold uppercase tracking-wider">
+                        <Lock className="w-3 h-3" /> Exclusive Partner Portal
+                      </div>
+                      <h3 className="font-display text-xl font-bold text-foreground mt-0.5">
+                        Agency &amp; Planner Workspace
+                      </h3>
+                    </div>
+                  </div>
+
+                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                    This workspace is reserved exclusively for verified event planners, wedding agencies, and corporate coordinators.
+                  </p>
+
+                  <div className="space-y-2.5 pt-1">
+                    <div className="flex items-start gap-3 p-3 rounded-xl bg-zinc-800/40 border border-zinc-700/50 text-xs">
+                      <CreditCard className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                      <div>
+                        <strong className="text-foreground">Wholesale Bulk Credits:</strong>
+                        <p className="text-muted-foreground mt-0.5">Save up to 50% on invitations with 1-click publishing.</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 p-3 rounded-xl bg-zinc-800/40 border border-zinc-700/50 text-xs">
+                      <Palette className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                      <div>
+                        <strong className="text-foreground">100% White-Label Branding:</strong>
+                        <p className="text-muted-foreground mt-0.5">Replace Smart Invites with your own agency name, logo &amp; WhatsApp in footers.</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 p-3 rounded-xl bg-zinc-800/40 border border-zinc-700/50 text-xs">
+                      <FileText className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                      <div>
+                        <strong className="text-foreground">Client Invoicing &amp; Review Links:</strong>
+                        <p className="text-muted-foreground mt-0.5">Share watermarked preview links and generate professional PDF client quotes in PKR.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
+                    <Button
+                      onClick={() => {
+                        setAgencyGateModalOpen(false);
+                        window.location.href = '/agency';
+                      }}
+                      className="flex-1 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-zinc-950 font-bold text-sm h-10 shadow-lg shadow-amber-500/20"
+                    >
+                      Apply for Agency Access
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setAgencyGateModalOpen(false)}
+                      className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+                    >
+                      Close
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </m.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* Print Cards Drawer */}
       {printCardsInvId && (
         <PrintCardsDrawer
@@ -2075,6 +2580,122 @@ export function DashboardPage({
           }
         />
       )}
+
+      {/* Live Banquet Photo Wall Drawer */}
+      <PhotoWallDrawer
+        isOpen={photoWallDrawerOpen}
+        onOpenChange={setPhotoWallDrawerOpen}
+        invitation={photoWallInv}
+      />
+
+      {/* Delete Invitation Safety Confirmation Modal */}
+      <AnimatePresence>
+        {invitationToDelete && (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            <m.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="w-full max-w-md rounded-2xl bg-zinc-950 border border-red-500/30 p-6 shadow-2xl space-y-4"
+            >
+              <div className="flex items-center gap-3 text-red-400">
+                <div className="w-10 h-10 rounded-full bg-red-500/15 flex items-center justify-center shrink-0">
+                  <Trash2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">Delete Invitation</h3>
+                  <p className="text-xs text-zinc-400">This action cannot be undone</p>
+                </div>
+              </div>
+
+              <p className="text-xs text-zinc-300 leading-relaxed">
+                Are you sure you want to permanently delete the invitation for{" "}
+                <strong className="text-white">{invitationToDelete.partnerNames}</strong>? All associated RSVPs, guest passes, and blessings will be permanently removed.
+              </p>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setInvitationToDelete(null)}
+                  disabled={deletingId === invitationToDelete.id}
+                  className="border-zinc-800 text-zinc-300 hover:bg-zinc-900 text-xs"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={handleConfirmDeleteInvitation}
+                  disabled={deletingId === invitationToDelete.id}
+                  className="bg-red-500 hover:bg-red-600 text-white font-semibold text-xs gap-1.5"
+                >
+                  {deletingId === invitationToDelete.id ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Deleting...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Delete Invitation</span>
+                    </>
+                  )}
+                </Button>
+              </div>
+            </m.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Wish Safety Confirmation Modal */}
+      <AnimatePresence>
+        {wishToDelete && (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            <m.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="w-full max-w-sm rounded-2xl bg-zinc-950 border border-red-500/30 p-5 shadow-2xl space-y-3"
+            >
+              <div className="flex items-center gap-3 text-red-400">
+                <div className="w-9 h-9 rounded-full bg-red-500/15 flex items-center justify-center shrink-0">
+                  <Trash2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white">Delete Blessing</h3>
+                  <p className="text-[11px] text-zinc-400">Remove wish by {wishToDelete.senderName}</p>
+                </div>
+              </div>
+
+              <p className="text-xs text-zinc-300">
+                Are you sure you want to delete this wish from your celebration guestbook?
+              </p>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setWishToDelete(null)}
+                  className="border-zinc-800 text-zinc-300 hover:bg-zinc-900 text-xs h-8"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={handleConfirmDeleteWish}
+                  className="bg-red-500 hover:bg-red-600 text-white font-semibold text-xs h-8"
+                >
+                  Delete
+                </Button>
+              </div>
+            </m.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

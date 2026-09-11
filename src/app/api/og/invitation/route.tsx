@@ -15,6 +15,7 @@ export async function GET(request: NextRequest) {
     let venue = 'The Grand Palace';
     let date = 'Wedding Celebration';
     let heroImage: string | null = null;
+    let detectedCategory = 'wedding';
 
     if (id) {
       const cleanId = id.replace(/%20| /g, '-');
@@ -25,6 +26,8 @@ export async function GET(request: NextRequest) {
         ? supabase
             .from('invitations')
             .select(`
+              category,
+              template_id,
               partner1_name,
               partner2_name,
               venue,
@@ -35,6 +38,8 @@ export async function GET(request: NextRequest) {
         : supabase
             .from('invitations')
             .select(`
+              category,
+              template_id,
               partner1_name,
               partner2_name,
               venue,
@@ -50,10 +55,23 @@ export async function GET(request: NextRequest) {
         if (data.venue) venue = data.venue.trim();
         if (data.hero_image_url) heroImage = data.hero_image_url;
 
+        const explicit = ((data as any).category || '').toLowerCase();
+        if (explicit === 'school' || explicit === 'birthday' || explicit === 'meeting' || explicit === 'corporate') {
+          detectedCategory = explicit === 'meeting' ? 'corporate' : explicit;
+        } else if (data.template_id) {
+          if (['academic-excellence', 'future-innovators', 'campus-memories', 'grand-gala', 'valedictorian-prestige'].includes(data.template_id)) {
+            detectedCategory = 'school';
+          } else if (['pastel-paradise', 'boho-chic', 'vintage-milestones', 'lumina-celebration', 'golden-jubilee'].includes(data.template_id)) {
+            detectedCategory = 'birthday';
+          } else if (['executive-summit', 'creative-startup', 'global-connect', 'the-boardroom', 'visionary-keynote'].includes(data.template_id)) {
+            detectedCategory = 'corporate';
+          }
+        }
+
         const eventsList = (data.events as any[]) || [];
         if (eventsList.length > 0) {
           const sorted = [...eventsList].sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0));
-          const mainEvent = sorted.find(e => /baraat|wedding|nikkah|shaadi/i.test(e.name)) || sorted[0];
+          const mainEvent = sorted.find(e => /baraat|wedding|nikkah|shaadi|convocation|commencement|summit|keynote|birthday/i.test(e.name)) || sorted[0];
           if (mainEvent?.date) date = mainEvent.date;
         }
       }
@@ -141,7 +159,10 @@ export async function GET(request: NextRequest) {
                   fontWeight: 600,
                 }}
               >
-                Royal Wedding Celebration
+                {detectedCategory === 'school' ? 'Academic Convocation & Gala'
+                  : detectedCategory === 'corporate' ? 'Executive Leadership Summit'
+                  : detectedCategory === 'birthday' ? 'Birthday Celebration & Gala'
+                  : 'Royal Wedding Celebration'}
               </span>
               <div
                 style={{
@@ -161,7 +182,10 @@ export async function GET(request: NextRequest) {
                 textTransform: 'uppercase',
               }}
             >
-              The Union of Two Families
+              {detectedCategory === 'school' ? 'Conferral of Honors & Degrees'
+                : detectedCategory === 'corporate' ? 'Keynotes, Panels & Innovation'
+                : detectedCategory === 'birthday' ? 'A Milestone To Remember'
+                : 'The Union of Two Families'}
             </span>
           </div>
 
@@ -327,10 +351,10 @@ export async function GET(request: NextRequest) {
                   fontWeight: 'bold',
                 }}
               >
-                <span>SL</span>
+                <span>SI</span>
               </div>
               <span style={{ color: '#ffffff', fontSize: '18px', fontWeight: 'bold' }}>
-                Shaadi<span style={{ color: '#d4a853' }}>Link</span>
+                Smart<span style={{ color: '#d4a853' }}>Invites</span>
               </span>
             </div>
 

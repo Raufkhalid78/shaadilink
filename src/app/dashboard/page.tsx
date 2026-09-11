@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { DashboardPage } from "@/components/flow/dashboard-page";
-import { Loader2 } from "lucide-react";
+import { Loader2, Crown, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import type { FlowData } from "@/lib/flow-types";
 import { initialFlowData } from "@/lib/flow-types";
@@ -14,6 +15,7 @@ export default function DashboardRoutePage() {
   const router = useRouter();
   const { flowData, setFlowData, resetFlowData } = useFlowStore();
   const [ready, setReady] = useState(false);
+  const [isAgencyUser, setIsAgencyUser] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -28,7 +30,8 @@ export default function DashboardRoutePage() {
           return;
         }
 
-        if (!session?.user) {
+        let currentUser = session?.user;
+        if (!currentUser) {
           // Fallback to getUser() in case session cookies are refreshed
           const { data: { user } } = await supabase.auth.getUser();
           if (!user) {
@@ -36,23 +39,31 @@ export default function DashboardRoutePage() {
             router.replace("/login?next=/dashboard");
             return;
           }
-
-          setFlowData((prev) => ({
-            ...prev,
-            userId: user.id,
-            email: user.email ?? "",
-            fullName: user.user_metadata?.full_name ?? "",
-          }));
-          setReady(true);
-          return;
+          currentUser = user;
         }
-        
+
         setFlowData((prev) => ({
           ...prev,
-          userId: session.user.id,
-          email: session.user.email ?? "",
-          fullName: session.user.user_metadata?.full_name ?? "",
+          userId: currentUser!.id,
+          email: currentUser!.email ?? "",
+          fullName: currentUser!.user_metadata?.full_name ?? "",
         }));
+
+        // Check if user is an approved Agency Partner
+        try {
+          const agencyRes = await fetch("/api/agency/status").then((r) => r.json()).catch(() => null);
+          if (agencyRes?.isAgency && agencyRes?.status === "approved") {
+            setIsAgencyUser(true);
+            const searchParams = new URLSearchParams(window.location.search);
+            if (searchParams.get("view") !== "personal") {
+              router.replace("/dashboard/agency");
+              return;
+            }
+          }
+        } catch (e) {
+          console.error("Agency status check error:", e);
+        }
+
         setReady(true);
       } catch (err) {
         console.error("Dashboard checkAuth error:", err);
@@ -73,15 +84,43 @@ export default function DashboardRoutePage() {
   }
 
   return (
-    <DashboardPage
-      flowData={flowData}
-      onCreateNew={() => router.push("/templates")}
-      onViewInvitation={(id) => router.push(`/inv/${id}`)}
-      onEditInvitation={(id) => router.push(`/create?edit=${id}`)}
-      onSignOut={() => router.replace("/")}
-      onUpgradeInvitation={(id) => router.push(`/payment?upgrade=${id}`)}
-      onBuyMoreLinks={(id) => router.push(`/payment?buyMoreLinks=${id}`)}
-      onGoHome={() => router.push("/")}
-    />
+    <div className="flex flex-col min-h-screen">
+      {isAgencyUser && (
+        <div className="bg-gradient-to-r from-amber-500/15 via-gold/15 to-amber-500/15 border-b border-gold/30 px-4 py-2.5 flex items-center justify-between text-xs text-foreground shrink-0 shadow-sm">
+          <div className="flex items-center gap-2">
+            <Crown className="w-4 h-4 text-gold shrink-0" />
+            <span className="font-semibold text-gold">Agency Partner Account:</span>
+            <span className="text-muted-foreground hidden sm:inline">
+              You are currently viewing your personal retail invitations.
+            </span>
+          </div>
+          <Button
+            size="sm"
+            onClick={() => router.push("/dashboard/agency")}
+            className="bg-primary hover:bg-primary-light text-slate-950 text-xs font-bold gap-1 h-7 px-3"
+          >
+            Switch to Agency Portal <ArrowRight className="w-3.5 h-3.5 ml-0.5" />
+          </Button>
+        </div>
+      )}
+      <div className="flex-1">
+        <DashboardPage
+          flowData={flowData}
+          onCreateNew={() => {
+            resetFlowData();
+            if (typeof window !== "undefined") {
+              localStorage.removeItem("smartinvites_pending_flow_data");
+            }
+            router.push("/templates");
+          }}
+          onViewInvitation={(id) => router.push(`/inv/${id}`)}
+          onEditInvitation={(id) => router.push(`/create?edit=${id}`)}
+          onSignOut={() => router.replace("/")}
+          onUpgradeInvitation={(id) => router.push(`/payment?upgrade=${id}`)}
+          onBuyMoreLinks={(id) => router.push(`/payment?buyMoreLinks=${id}`)}
+          onGoHome={() => router.push("/")}
+        />
+      </div>
+    </div>
   );
 }

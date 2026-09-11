@@ -21,12 +21,15 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
+import { BrandLogo } from "@/components/brand-logo";
+import { useSiteSettings } from "@/hooks/use-site-settings";
 
 interface ContactPageProps {
   onBack: () => void;
 }
 
 export function ContactPage({ onBack }: ContactPageProps) {
+  const { whatsappUrl, displayPhone, email, address } = useSiteSettings();
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -81,14 +84,7 @@ export function ContactPage({ onBack }: ContactPageProps) {
               <span className="hidden sm:inline">Back</span>
             </Button>
 
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald text-primary-foreground">
-                <Heart className="h-4 w-4 fill-current" />
-              </div>
-              <span className="font-display text-lg font-bold">
-                Shaadi<span className="text-gold">Link</span>
-              </span>
-            </div>
+            <BrandLogo size="sm" href="/" />
 
             <div className="w-24" />
           </div>
@@ -98,7 +94,7 @@ export function ContactPage({ onBack }: ContactPageProps) {
       {/* Breadcrumb path */}
       <PageBreadcrumb
         crumbs={[
-          { label: "Home", onClick: onBack },
+          { label: "Home", href: "/", onClick: onBack },
           { label: "Contact Us" },
         ]}
       />
@@ -146,10 +142,10 @@ export function ContactPage({ onBack }: ContactPageProps) {
                       <div>
                         <p className="font-medium text-foreground text-sm">Email</p>
                         <a
-                          href={`mailto:${CONTACT_CONFIG.email}`}
+                          href={`mailto:${email}`}
                           className="text-gold hover:text-gold-light text-sm transition-colors"
                         >
-                          {CONTACT_CONFIG.email}
+                          {email}
                         </a>
                       </div>
                     </div>
@@ -160,7 +156,7 @@ export function ContactPage({ onBack }: ContactPageProps) {
                       </div>
                       <div>
                         <p className="font-medium text-foreground text-sm">Phone</p>
-                        <p className="text-muted-foreground text-sm">{CONTACT_CONFIG.phone}</p>
+                        <p className="text-muted-foreground text-sm">{displayPhone}</p>
                       </div>
                     </div>
 
@@ -171,7 +167,7 @@ export function ContactPage({ onBack }: ContactPageProps) {
                       <div>
                         <p className="font-medium text-foreground text-sm">WhatsApp</p>
                         <a
-                          href={CONTACT_CONFIG.whatsappUrl}
+                          href={whatsappUrl}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-[#25D366] hover:underline text-sm font-semibold transition-colors inline-flex items-center gap-1"
@@ -187,7 +183,7 @@ export function ContactPage({ onBack }: ContactPageProps) {
                       </div>
                       <div>
                         <p className="font-medium text-foreground text-sm">Location</p>
-                        <p className="text-muted-foreground text-sm">{CONTACT_CONFIG.address}</p>
+                        <p className="text-muted-foreground text-sm">{address}</p>
                       </div>
                     </div>
 

@@ -14,7 +14,7 @@ export async function GET(request: Request) {
     // 1. Fetch invitations with their events, limited to 50 per run
     const { data: invitations, error: invError } = await service
       .from('invitations')
-      .select('id, created_at, hero_image_url, slideshow_image_urls, events(date)')
+      .select('id, created_at, auto_delete_at, hero_image_url, slideshow_image_urls, events(date)')
       .limit(50)
 
     if (invError || !invitations) {
@@ -39,9 +39,10 @@ export async function GET(request: Request) {
       }
 
       const latestDate = new Date(latestDateStr)
+      const isAutoDeleteDue = inv.auto_delete_at && new Date(inv.auto_delete_at) <= now
 
-      // If the latest event date (or creation date) is older than 3 months
-      if (latestDate < threeMonthsAgo) {
+      // If scheduled auto_delete_at reached OR latest event date is older than 3 months
+      if (isAutoDeleteDue || latestDate < threeMonthsAgo) {
         console.log(`Deleting expired invitation ${inv.id} (latest date: ${latestDateStr})`)
         
         // 2. Extract image paths to delete from Supabase Storage

@@ -1,6 +1,7 @@
 import { getAffiliateData } from './actions';
 import { redirect } from 'next/navigation';
 import { AffiliateDashboardClient } from './affiliate-client';
+import { BrandLogo } from '@/components/brand-logo';
 
 export const metadata = {
   title: 'Affiliate Dashboard | Smart Invites',
@@ -53,14 +54,7 @@ export default async function AffiliateDashboardPage() {
                 <span className="hidden sm:inline font-medium">Back to Dashboard</span>
               </a>
               <div className="w-px h-4 bg-border hidden sm:block" />
-              <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald text-primary-foreground">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 fill-current"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
-                </div>
-                <span className="font-display text-lg font-bold">
-                  Shaadi<span className="text-gold">Link</span>
-                </span>
-              </div>
+              <BrandLogo size="sm" href="/" />
             </div>
             <div className="flex items-center gap-2">
               <div className="hidden sm:flex flex-col items-end">

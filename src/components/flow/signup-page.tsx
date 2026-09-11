@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import type { FlowData } from "@/lib/flow-types";
 import { createClient } from "@/lib/supabase/client";
-import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
+import { PageBreadcrumb, BreadcrumbCrumb } from "@/components/ui/page-breadcrumb";
 
 interface SignupPageProps {
   flowData: FlowData;
@@ -18,7 +18,7 @@ interface SignupPageProps {
   onBack: () => void;
   onContinue: () => void;
   onLogin: () => void;
-  crumbs: { label: string; onClick?: () => void }[];
+  crumbs: BreadcrumbCrumb[];
 }
 
 export function SignupPage({
@@ -41,10 +41,17 @@ export function SignupPage({
     try {
       localStorage.setItem("smartinvites_oauth_in_progress", "true");
       const supabase = createClient();
+      const urlNext = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('next') : null;
+      const hasDraft = typeof window !== 'undefined' && (
+        Boolean(localStorage.getItem("smartinvites_pending_flow_data")) ||
+        Boolean(flowData?.selectedTemplateId)
+      );
+      const nextPath = urlNext || (hasDraft ? "/create" : "/dashboard");
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/api/auth/callback?next=/dashboard`,
+          redirectTo: `${window.location.origin}/api/auth/callback?next=${encodeURIComponent(nextPath)}`,
         },
       });
       if (error) {
@@ -264,10 +271,10 @@ export function SignupPage({
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full h-12 bg-emerald hover:bg-emerald-dark text-primary-foreground border border-gold/30 font-semibold text-base mt-2 shadow-lg shadow-emerald/20 transition-all hover:scale-[1.01]"
+                className="w-full h-12 bg-emerald hover:bg-emerald-dark text-white font-bold border border-gold/30 text-base mt-2 shadow-lg shadow-emerald/20 transition-all hover:scale-[1.01]"
               >
                 {isLoading ? (
-                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Creating Account...</>
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin text-white" /> Creating Account...</>
                 ) : (
                   "Create Account"
                 )}
@@ -339,13 +346,13 @@ function StepDot({ done, current, label }: { done?: boolean; current?: boolean; 
       <div
         className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center ${
           done
-            ? "bg-primary text-foreground-dark"
+            ? "bg-primary text-slate-950 font-black"
             : current
-            ? "bg-emerald text-primary-foreground"
+            ? "bg-emerald text-white font-bold"
             : "bg-muted text-muted-foreground"
         }`}
       >
-        {done ? <Check className="w-3 h-3" /> : current ? "2" : ""}
+        {done ? <Check className="w-3 h-3 text-slate-950 stroke-[2.5]" /> : current ? "2" : ""}
       </div>
       <span className={`text-xs hidden sm:inline ${current ? "text-foreground font-semibold" : "text-muted-foreground"}`}>
         {label}

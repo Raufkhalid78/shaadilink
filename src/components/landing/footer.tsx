@@ -1,11 +1,14 @@
 "use client";
 
 import { m } from "framer-motion";
+import Link from "next/link";
 import { CONTACT_CONFIG } from "@/lib/config";
-import { Send, Heart, Instagram, Facebook, Linkedin, Mail, Globe, Sparkles } from "lucide-react";
+import { Send, Heart, Instagram, Facebook, Linkedin, Mail, Globe, Sparkles, Briefcase } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 import { NewsletterForm } from "./newsletter-form";
 import { WhatsAppIcon } from "@/components/icons/whatsapp-icon";
+import { BrandLogo } from "@/components/brand-logo";
+import { useSiteSettings } from "@/hooks/use-site-settings";
 
 interface FooterProps {
   onTemplatesClick?: () => void;
@@ -23,6 +26,7 @@ export function Footer({
   onAffiliateClick,
 }: FooterProps) {
   const { t, language } = useLanguage();
+  const { whatsappUrl } = useSiteSettings();
 
   const quickLinks = [
     { label: t('nav.features'), href: "#features", action: undefined },
@@ -93,14 +97,7 @@ export function Footer({
               className="sm:col-span-2 lg:col-span-2 text-left"
             >
               {/* Logo */}
-              <div className="flex items-center gap-2.5 mb-5 justify-start">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-lg shadow-primary/20">
-                  <Send className="h-5 w-5 fill-current" />
-                </div>
-                <span className="font-display text-2xl font-bold text-white">
-                  Smart<span className="gold-shimmer-strong">Invites</span>
-                </span>
-              </div>
+              <BrandLogo size="md" href="/" subtitle="Digital Event Invitations" className="mb-5" />
 
               <p className="text-white/50 text-sm leading-relaxed max-w-xs mb-6 text-left">
                 {language === 'en'
@@ -110,7 +107,7 @@ export function Footer({
 
               {/* WhatsApp CTA */}
               <a
-                href={CONTACT_CONFIG.whatsappUrl}
+                href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#25D366]/10 border border-[#25D366]/30 text-[#25D366] text-xs sm:text-sm font-semibold hover:bg-[#25D366]/20 transition-all duration-300 mb-6 group"
@@ -202,6 +199,15 @@ export function Footer({
                     {language === 'en' ? "Affiliate Program" : "ایفلیٹ پروگرام"}
                   </button>
                 </li>
+                <li>
+                  <Link
+                    href="/agency"
+                    className="text-sm text-amber-400/80 hover:text-amber-300 transition-colors duration-200 flex items-center gap-1.5 font-medium text-left"
+                  >
+                    <Briefcase className="w-3.5 h-3.5 text-amber-400" />
+                    {language === 'en' ? "Agency & Planners" : "ایجنسی اور ایونٹ پلانرز"}
+                  </Link>
+                </li>
               </ul>
             </m.div>
 
@@ -249,7 +255,7 @@ export function Footer({
           {/* Bottom bar */}
           <div className="border-t border-white/8 py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-xs text-white/60">
-              &copy; {new Date().getFullYear()} {language === 'en' ? "Smart Invites. All rights reserved." : "شادی لنک۔ جملہ حقوق محفوظ ہیں۔"}
+              &copy; {new Date().getFullYear()} {language === 'en' ? "Smart Invites. All rights reserved." : "اسمارٹ انوائٹس۔ جملہ حقوق محفوظ ہیں۔"}
             </p>
             <p className="text-xs text-white/60 flex items-center gap-1.5">
               {language === 'en' ? "Made with" : "محبت کے ساتھ بنایا گیا ہے"}{" "}

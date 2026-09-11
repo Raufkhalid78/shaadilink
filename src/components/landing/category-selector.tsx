@@ -1,9 +1,19 @@
 "use client";
 
 import { m } from 'framer-motion';
-import { Heart, Cake, GraduationCap, Briefcase } from 'lucide-react';
+import { Heart, Cake, GraduationCap, Briefcase, Crown } from 'lucide-react';
+import Link from 'next/link';
+import { PageBreadcrumb, BreadcrumbCrumb } from '@/components/ui/page-breadcrumb';
 
-export function CategorySelector({ onSelect }: { onSelect: (id: string) => void }) {
+export function CategorySelector({
+  onSelect,
+  crumbs,
+  isAgency = false,
+}: {
+  onSelect: (id: string) => void;
+  crumbs?: BreadcrumbCrumb[];
+  isAgency?: boolean;
+}) {
   const categories = [
     { id: 'wedding', icon: <Heart className="w-10 h-10 text-rose-400" />, title: 'Weddings & Marriages', desc: 'Elegant digital invitations for your special day.', gradient: 'from-rose-500/20 to-transparent' },
     { id: 'school', icon: <GraduationCap className="w-10 h-10 text-blue-400" />, title: 'School & College', desc: 'Professional invites for graduations and farewells.', gradient: 'from-blue-500/20 to-transparent' },
@@ -12,7 +22,33 @@ export function CategorySelector({ onSelect }: { onSelect: (id: string) => void 
   ];
 
   return (
-    <div className="min-h-screen bg-background pt-32 pb-16 px-4">
+    <div className="min-h-screen bg-background flex flex-col">
+      {isAgency && (
+        <div className="bg-gradient-to-r from-gold/15 via-gold/10 to-gold/15 border-b border-gold/30 px-4 py-2.5 text-center text-xs text-foreground flex items-center justify-between shadow-sm">
+          <div className="flex items-center gap-2 mx-auto sm:mx-0">
+            <Crown className="w-4 h-4 text-gold shrink-0" />
+            <span className="font-semibold text-gold">Agency Partner Mode:</span>
+            <span className="text-muted-foreground hidden sm:inline">
+              Select an event category for your client.
+            </span>
+          </div>
+          <Link
+            href="/dashboard/agency"
+            className="hidden sm:inline-flex items-center gap-1 text-xs font-bold text-gold hover:text-white underline ml-4"
+          >
+            ← Back to Agency Portal
+          </Link>
+        </div>
+      )}
+      <PageBreadcrumb
+        crumbs={
+          crumbs || [
+            { label: "Home", href: "/" },
+            { label: "Select Event Category" },
+          ]
+        }
+      />
+      <div className="flex-1 pt-20 pb-16 px-4">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-16">
           <m.h1 
@@ -55,5 +91,6 @@ export function CategorySelector({ onSelect }: { onSelect: (id: string) => void 
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 }

@@ -33,9 +33,9 @@ function SignupContent() {
       onContinue={() => router.push(nextUrl)}
       onLogin={() => router.push(`/login?next=${encodeURIComponent(nextUrl)}`)}
       crumbs={[
-        { label: "Home", onClick: () => router.push("/") },
-        ...(flowData.userId ? [{ label: "Dashboard", onClick: () => router.push("/dashboard") }] : []),
-        { label: "Templates", onClick: () => router.push("/templates") },
+        { label: "Home", href: "/" },
+        ...(flowData.userId ? [{ label: "Dashboard", href: "/dashboard" }] : []),
+        { label: "Templates", href: "/templates" },
         { label: "Create Account" },
       ]}
     />

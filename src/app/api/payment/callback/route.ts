@@ -62,7 +62,7 @@ async function handleCallback(request: NextRequest) {
       }
     } else if (!orderId) {
       return NextResponse.redirect(
-        `${siteUrl}/?step=payment&paymentError=${encodeURIComponent('Missing order ID in payment callback')}`,
+        `${siteUrl}/payment?paymentError=${encodeURIComponent('Missing order ID in payment callback')}`,
         { status: 303 }
       );
     }
@@ -83,14 +83,14 @@ async function handleCallback(request: NextRequest) {
     if (orderErr || !order) {
       console.error('Order not found in database:', isSignatureValid ? tracker : orderId, orderErr)
       return NextResponse.redirect(
-        `${siteUrl}/?step=payment&paymentError=${encodeURIComponent('Associated order record not found')}`,
+        `${siteUrl}/payment?paymentError=${encodeURIComponent('Associated order record not found')}`,
         { status: 303 }
       )
     }
 
     // If order was already paid (e.g. by webhook), just redirect to success page
     if (order.status === 'paid') {
-      return NextResponse.redirect(`${siteUrl}/?step=success&invitationId=${order.invitation_id}`, { status: 303 })
+      return NextResponse.redirect(`${siteUrl}/success?invitationId=${order.invitation_id}`, { status: 303 })
     }
 
     // If order is not paid yet, and we don't have a valid signature from the redirect URL,
@@ -99,7 +99,7 @@ async function handleCallback(request: NextRequest) {
       // If there was a signature but it was invalid, return error
       if (signatureError) {
         return NextResponse.redirect(
-          `${siteUrl}/?step=payment&paymentError=${encodeURIComponent(signatureError)}`,
+          `${siteUrl}/payment?paymentError=${encodeURIComponent(signatureError)}`,
           { status: 303 }
         );
       }
@@ -108,7 +108,7 @@ async function handleCallback(request: NextRequest) {
       // it means the webhook hasn't processed it yet. 
       // We can redirect the user to a pending state, or back to the payment page with a gentle message.
       return NextResponse.redirect(
-        `${siteUrl}/?step=payment&paymentError=${encodeURIComponent('Payment is processing. Please wait a moment and refresh.')}`,
+        `${siteUrl}/payment?paymentError=${encodeURIComponent('Payment is processing. Please wait a moment and refresh.')}`,
         { status: 303 }
       );
     }
@@ -118,11 +118,11 @@ async function handleCallback(request: NextRequest) {
     await fulfillOrderIfPending(order.id);
 
     // Successful checkout: redirect browser to Success step
-    return NextResponse.redirect(`${siteUrl}/?step=success&invitationId=${order.invitation_id}`, { status: 303 })
+    return NextResponse.redirect(`${siteUrl}/success?invitationId=${order.invitation_id}`, { status: 303 })
   } catch (error) {
     console.error('Safepay payment callback exception:', error)
     return NextResponse.redirect(
-      `${siteUrl}/?step=payment&paymentError=${encodeURIComponent('An internal server error occurred processing payment')}`,
+      `${siteUrl}/payment?paymentError=${encodeURIComponent('An internal server error occurred processing payment')}`,
       { status: 303 }
     )
   }

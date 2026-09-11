@@ -149,6 +149,8 @@ export default function Home() {
         
         <Features />
         
+        <TemplateShowcase onViewAllClick={() => router.push("/templates")} />
+
         <HowItWorks />
         {/* <Comparison /> */}
         {/* <Testimonials /> */}
@@ -172,7 +174,7 @@ export default function Home() {
               <p className="mt-3 text-[11px] leading-relaxed text-center text-muted-foreground/80">
                 {language === 'en'
                   ? 'Smart Invites uses Google Sign-In solely to authenticate your identity and secure access to your event invitation drafts and RSVP details. We retrieve your name and email address to maintain account sync. None of this data is shared with third parties or used for any other purpose.'
-                  : 'شادی لنک گوگل سائن ان کا استعمال صرف آپ کی شناخت کی تصدیق اور آپ کے دعوت ناموں اور RSVP کی تفصیلات تک محفوظ رسائی کے لیے کرتا ہے۔ ہم آپ کا نام اور ای میل ایڈریس حاصل کرتے ہیں تاکہ اکاؤنٹ سنک کو برقرار رکھا جا سکے۔ یہ ڈیٹا کسی تیسرے فریق کے ساتھ شیئر نہیں کیا جاتا۔'}
+                  : 'اسمارٹ انوائٹس گوگل سائن ان کا استعمال صرف آپ کی شناخت کی تصدیق اور آپ کے دعوت ناموں اور RSVP کی تفصیلات تک محفوظ رسائی کے لیے کرتا ہے۔ ہم آپ کا نام اور ای میل ایڈریس حاصل کرتے ہیں تاکہ اکاؤنٹ سنک کو برقرار رکھا جا سکے۔ یہ ڈیٹا کسی تیسرے فریق کے ساتھ شیئر نہیں کیا جاتا۔'}
               </p>
             </details>
           </div>

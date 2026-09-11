@@ -18,8 +18,10 @@ export function getEmailWrapper(title: string, preheader: string, content: strin
           <!-- Header -->
           <tr>
             <td align="center" style="background-color: #022c22; padding: 35px 20px; border-bottom: 2px solid #d4af37;">
-              <h1 style="margin: 0; color: #d4af37; font-size: 32px; font-weight: 800; letter-spacing: 2px;">SHAADILINK</h1>
-              <p style="margin: 8px 0 0 0; color: #a7f3d0; font-size: 12px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase;">Crafting Digital Memories</p>
+              <a href="https://www.smartinvites.com.pk" style="text-decoration: none;">
+                <h1 style="margin: 0; color: #d4af37; font-size: 30px; font-weight: 800; letter-spacing: 2px;">SMART INVITES</h1>
+              </a>
+              <p style="margin: 8px 0 0 0; color: #a7f3d0; font-size: 11px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase;">Luxury Digital Invitations</p>
             </td>
           </tr>
           <!-- Body -->

@@ -59,7 +59,7 @@ function OrderCompleteContent() {
   useEffect(() => {
     if (status === "paid") {
       const t = setTimeout(() => {
-        router.push(`/?step=success${invitationId ? `&invitationId=${invitationId}` : ""}`);
+        router.push(`/success${invitationId ? `?invitationId=${invitationId}` : ""}`);
       }, 1200);
       return () => clearTimeout(t);
     }

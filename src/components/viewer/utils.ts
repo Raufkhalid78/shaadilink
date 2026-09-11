@@ -290,6 +290,9 @@ export interface InvitationViewerProps {
   flowData?: FlowData;
   guestName?: string | null;
   guestSlug?: string | null;
+  isReviewMode?: boolean;
+  viewsCount?: number;
+  maxViews?: number;
 }
 
 /* ─── Corner Ornament SVG (Zareqia-style) ─── */

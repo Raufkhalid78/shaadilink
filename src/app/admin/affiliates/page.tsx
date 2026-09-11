@@ -1,9 +1,10 @@
 import { createServiceClient } from '@/lib/supabase/server';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, DollarSign } from 'lucide-react';
+import { Users, DollarSign, Briefcase } from 'lucide-react';
 import { AffiliateManager } from '@/components/admin/affiliate-manager';
 import { PayoutManager } from '@/components/admin/payout-manager';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AgencyManager } from '@/components/admin/agency-manager';
+import { Tabs, TabsContent, ScrollableTabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,10 +12,12 @@ export default async function AdminAffiliates() {
   const supabase = createServiceClient();
   const [
     { data: affiliates },
-    { data: commissions }
+    { data: commissions },
+    { data: agencyApps }
   ] = await Promise.all([
     supabase.from('affiliate_applications').select('*').order('created_at', { ascending: false }),
-    supabase.from('affiliate_commissions').select('*').order('created_at', { ascending: false })
+    supabase.from('affiliate_commissions').select('*').order('created_at', { ascending: false }),
+    supabase.from('agency_applications').select('*').order('created_at', { ascending: false }).then(res => res, () => ({ data: [] }))
   ]);
 
   return (
@@ -25,10 +28,11 @@ export default async function AdminAffiliates() {
       </div>
 
       <Tabs defaultValue="applications" className="w-full">
-        <TabsList className="mb-4">
-          <TabsTrigger value="applications">Applications</TabsTrigger>
-          <TabsTrigger value="payouts">Commissions & Payouts</TabsTrigger>
-        </TabsList>
+        <ScrollableTabsList variant="gold" className="mb-4">
+          <TabsTrigger value="applications">Affiliate Applications</TabsTrigger>
+          <TabsTrigger value="agency">Agency &amp; Planners ({(agencyApps || []).length})</TabsTrigger>
+          <TabsTrigger value="payouts">Commissions &amp; Payouts</TabsTrigger>
+        </ScrollableTabsList>
         
         <TabsContent value="applications">
           <Card className="border-border/50 bg-card/30">
@@ -37,6 +41,19 @@ export default async function AdminAffiliates() {
             </CardHeader>
             <CardContent>
               <AffiliateManager affiliates={affiliates || []} />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="agency">
+          <Card className="border-border/50 bg-card/30">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Briefcase className="w-5 h-5 text-amber-400" /> Agency &amp; Event Planner Applications
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <AgencyManager applications={agencyApps || []} />
             </CardContent>
           </Card>
         </TabsContent>

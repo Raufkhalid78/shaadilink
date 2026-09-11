@@ -30,23 +30,58 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
     return `rgba(${theme.accentRgb},0.55)`
   }, [theme.accentRgb, theme.isLight, theme.textPrimary])
 
-  // ─── Content Fields ───
-  const partner1 = flowData?.partner1Name?.trim() || 'Ahmed'
-  const partner2 = flowData?.partner2Name?.trim() || 'Fatima'
-  const venueName = flowData?.venue?.trim() || 'The Grand Pearl Hall'
-  const rawVenueAddress = flowData?.venueAddress?.trim() || 'Main Boulevard, Gulberg, Lahore'
+  // ─── Content Fields & Category Context ───
+  const rawCat = (flowData?.category || '').toLowerCase().trim();
+  const category = rawCat === 'school' ? 'school' :
+    rawCat === 'birthday' ? 'birthday' :
+    rawCat === 'meeting' || rawCat === 'corporate' ? 'corporate' :
+    templateId && ['academic-excellence', 'future-innovators', 'campus-memories', 'grand-gala', 'valedictorian-prestige'].includes(templateId) ? 'school' :
+    templateId && ['pastel-paradise', 'boho-chic', 'vintage-milestones', 'lumina-celebration', 'golden-jubilee'].includes(templateId) ? 'birthday' :
+    templateId && ['executive-summit', 'creative-startup', 'global-connect', 'the-boardroom', 'visionary-keynote'].includes(templateId) ? 'corporate' : 'wedding';
+
+  const defaultPartner1 = category === 'school' ? 'Oxford Collegiate Academy' :
+    category === 'corporate' ? 'Global Tech Summit' :
+    category === 'birthday' ? 'Zara' : 'Ahmed';
+
+  const defaultPartner2 = category === 'school' ? 'Commencement 2026' :
+    category === 'corporate' ? 'Executive Keynote' :
+    category === 'birthday' ? '21st Celebration' : 'Fatima';
+
+  const partner1 = flowData?.partner1Name?.trim() || defaultPartner1;
+  const partner2 = flowData?.partner2Name?.trim() || defaultPartner2;
+  const venueName = flowData?.venue?.trim() || (category === 'school' ? 'The Great Memorial Hall' : category === 'corporate' ? 'Grand Convention Center' : 'The Grand Pearl Hall');
+  const rawVenueAddress = flowData?.venueAddress?.trim() || 'Main Boulevard, Gulberg, Lahore';
   const [venueAddress, googleMapsUrl] = rawVenueAddress.includes('|||')
     ? rawVenueAddress.split('|||')
-    : [rawVenueAddress, '']
-  const [mapQuery, setMapQuery] = useState(getMapEmbedQuery(googleMapsUrl, venueAddress, venueName))
-  const isDemo = !flowData?.invitationId && !flowData?.partner1Name
-  const welcomeMsg = flowData?.welcomeMessage?.trim() || "With hearts full of love and joy, we warmly invite you to share in the celebration of our union. Your presence would mean the world to us as we begin this beautiful journey together."
-  const dressCodeWomen = flowData?.dressCodeWomen?.trim() || (isDemo ? "Yellow / Green traditional" : "")
-  const dressCodeMen = flowData?.dressCodeMen?.trim() || (isDemo ? "Gold / Maroon formal" : "")
-  const accommodation = flowData?.accommodation?.trim() || (isDemo ? "Rooms blocked at Leela Palace & Pearl Continental. Mention 'Ahmed & Fatima' for discounts." : "")
-  const transportation = flowData?.transportation?.trim() || (isDemo ? "Shuttle service will run from Pearl Continental to the venue every 30 minutes starting at 6:30 PM." : "")
-  const gifts = flowData?.gifts?.trim() || (isDemo ? "Your prayers are our greatest gift. For Shagun, you may transfer to Meezan Bank, Title: Ahmed Khan, Account Number: 028102384, IBAN: PK45MEZN00028102384, Raast ID: 03001234567, EasyPaisa: 03123456789" : "")
-  const youtubeVideoId = flowData?.youtubeVideoId?.trim() || (isDemo ? "dQw4w9WgXcQ" : "")
+    : [rawVenueAddress, ''];
+  const [mapQuery, setMapQuery] = useState(getMapEmbedQuery(googleMapsUrl, venueAddress, venueName));
+  const isDemo = !flowData?.invitationId && !flowData?.partner1Name;
+
+  const defaultWelcomeMsg = category === 'school'
+    ? "We warmly invite faculty, distinguished guests, alumni, and families to commemorate academic excellence and degree conferral."
+    : category === 'corporate'
+    ? "You are cordially invited to join industry leaders, visionaries, and executives for keynote addresses and collaborative summits."
+    : category === 'birthday'
+    ? "Join us for an unforgettable evening of music, laughter, and celebration as we mark this special milestone!"
+    : "With hearts full of love and joy, we warmly invite you to share in the celebration of our union. Your presence would mean the world to us as we begin this beautiful journey together.";
+
+  const welcomeMsg = flowData?.welcomeMessage?.trim() || defaultWelcomeMsg;
+
+  const dressCodeWomen = flowData?.dressCodeWomen?.trim() || (isDemo ? (category === 'school' ? 'Academic regalia / formal' : category === 'corporate' ? 'Business professional' : category === 'birthday' ? 'Chic cocktail' : 'Yellow / Green traditional') : '');
+  const dressCodeMen = flowData?.dressCodeMen?.trim() || (isDemo ? (category === 'school' ? 'Academic gown / dark suit' : category === 'corporate' ? 'Executive formal' : category === 'birthday' ? 'Smart evening attire' : 'Gold / Maroon formal') : '');
+
+  const defaultAccommodation = category === 'school'
+    ? "Campus guest suites and partner hotel rooms reserved under 'Convocation 2026'."
+    : category === 'corporate'
+    ? "Partner hotel suites reserved at Serena Hotel & Pearl Continental. Corporate rate code: 'SUMMIT2026'."
+    : category === 'birthday'
+    ? "Out-of-town guests may book partner suites at Grand Luxury Hotel under 'Birthday VIP'."
+    : "Rooms blocked at Leela Palace & Pearl Continental. Mention 'Ahmed & Fatima' for discounts.";
+
+  const accommodation = flowData?.accommodation?.trim() || (isDemo ? defaultAccommodation : '');
+  const transportation = flowData?.transportation?.trim() || (isDemo ? "Shuttle service will run from Pearl Continental to the venue every 30 minutes starting at 6:30 PM." : "");
+  const gifts = flowData?.gifts?.trim() || (isDemo && category === 'wedding' ? "Your prayers are our greatest gift. For Shagun, you may transfer to Meezan Bank, Title: Ahmed Khan, Account Number: 028102384, IBAN: PK45MEZN00028102384, Raast ID: 03001234567, EasyPaisa: 03123456789" : "");
+  const youtubeVideoId = flowData?.youtubeVideoId?.trim() || (isDemo ? "dQw4w9WgXcQ" : "");
 
 
   useEffect(() => {
@@ -82,7 +117,22 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
           description: e.venue ? `At ${e.venue}` : `Join us for the ${e.name} celebration.`,
         }))
     } else {
-      evs = [
+      evs = category === 'school' ? [
+        { name: 'Academic Procession', time: '04:30 PM', date: 'June 18, 2027', description: 'Faculty, deans, and graduating candidates assemble in traditional regalia.' },
+        { name: 'Commencement Ceremony', time: '05:30 PM', date: 'June 18, 2027', description: 'Welcome address, keynote speech, and conferral of degrees.' },
+        { name: 'Valedictorian Address', time: '06:45 PM', date: 'June 18, 2027', description: 'Distinguished student address and academic honors presentation.' },
+        { name: 'Alumni Dinner & Gala', time: '08:00 PM', date: 'June 18, 2027', description: 'Celebratory banquet with faculty, families, and graduates.' },
+      ] : category === 'corporate' ? [
+        { name: 'Delegate Registration', time: '08:30 AM', date: 'November 15, 2027', description: 'Registration, badge collection, and networking breakfast.' },
+        { name: 'Opening Keynote Address', time: '09:30 AM', date: 'November 15, 2027', description: 'Visionary leadership and future market insights.' },
+        { name: 'Executive Panel Session', time: '11:15 AM', date: 'November 15, 2027', description: 'C-suite dialogue on innovation, capital, and technology.' },
+        { name: 'Networking Luncheon', time: '01:00 PM', date: 'November 15, 2027', description: 'Curated executive networking at the Skyline Terrace.' },
+      ] : category === 'birthday' ? [
+        { name: 'Red Carpet & Mocktails', time: '07:00 PM', date: 'March 25, 2027', description: 'Arrive in style, signature mocktails, and photo booth moments.' },
+        { name: 'Cake Cutting Ceremony', time: '08:30 PM', date: 'March 25, 2027', description: 'The grand celebration moment under fireworks and confetti.' },
+        { name: 'Celebration Dinner Feast', time: '09:00 PM', date: 'March 25, 2027', description: 'Lavish gourmet buffet and live culinary stations.' },
+        { name: 'DJ & Dancefloor Open', time: '10:00 PM', date: 'March 25, 2027', description: 'Celebrate and dance until midnight with the live DJ.' },
+      ] : [
         { name: 'Qawali Night', time: '5:00 PM', date: 'March 11, 2027', description: 'A mystical evening of sufi music, devotion, and celebration.' },
         { name: 'Dholki', time: '8:00 PM', date: 'March 12, 2027', description: 'An intimate evening of traditional folk songs, dhol beats, and family bonding.' },
         { name: 'Mayoon', time: '6:00 PM', date: 'March 13, 2027', description: 'The traditional ubtan ceremony marking the bride\'s formal preparation.' },
@@ -99,13 +149,13 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
       );
     }
     return evs;
-  }, [flowData?.events, flowData?.guestAllowedEvents, guestName])
+  }, [flowData?.events, flowData?.guestAllowedEvents, guestName, category])
 
   const firstEvent = useMemo(() => {
-    if (!dynamicEvents.length) return { date: 'March 15, 2027', time: '7:00 PM', name: 'Wedding' }
-    const mainNames = ['baraat', 'nikkah', 'wedding', 'shaadi', 'ruksati']
+    if (!dynamicEvents.length) return { date: 'March 15, 2027', time: '7:00 PM', name: category === 'school' ? 'Convocation' : category === 'corporate' ? 'Summit' : category === 'birthday' ? 'Celebration' : 'Wedding' }
+    const mainNames = ['baraat', 'nikkah', 'wedding', 'shaadi', 'ruksati', 'commencement', 'keynote', 'cake']
     return dynamicEvents.find(e => mainNames.some(n => e.name.toLowerCase().includes(n))) || dynamicEvents[0]
-  }, [dynamicEvents])
+  }, [dynamicEvents, category])
 
   // ─── UI State ───
   const [doorsOpened, setDoorsOpened] = useState(false)
@@ -116,6 +166,11 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
   const [rsvpName, setRsvpName] = useState('')
   const [rsvpEmail, setRsvpEmail] = useState('')
   const [rsvpStatus, setRsvpStatus] = useState<'accept' | 'decline' | null>(null)
+  const [adultsCount, setAdultsCount] = useState(1)
+  const [childrenCount, setChildrenCount] = useState(0)
+  const [dietaryNotes, setDietaryNotes] = useState('')
+  const [selectedDietaryChip, setSelectedDietaryChip] = useState('none')
+  const [attendingEvents, setAttendingEvents] = useState<string[]>([])
   const [wishName, setWishName] = useState('')
   const [wishMessage, setWishMessage] = useState('')
   const [musicPlaying, setMusicPlaying] = useState(false)
@@ -134,12 +189,14 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
   const wishesRef = useRef<Array<{ name: string; message: string; translatedName?: string; translatedMessage?: string }>>([])
 
   const [wishes, setWishes] = useState<Array<{ name: string; message: string; translatedName?: string; translatedMessage?: string }>>(() => {
-    if (flowData?.invitationId) return []
-    return [
-      { name: 'Ayesha Khan', message: 'May Allah bless your union with endless love and happiness! 🤲' },
-      { name: 'Omar Farooq', message: 'Wishing you a lifetime of joy and togetherness! 💒' },
-      { name: 'Zainab Malik', message: 'MashaAllah! May your journey be filled with blessings! ✨' },
-    ]
+    if (isDemo) {
+      return [
+        { name: 'Ayesha Khan', message: 'May Allah bless your union with endless love and happiness! 🤲' },
+        { name: 'Omar Farooq', message: 'Wishing you a lifetime of joy and togetherness! 💒' },
+        { name: 'Zainab Malik', message: 'MashaAllah! May your journey be filled with blessings! ✨' },
+      ]
+    }
+    return []
   })
   wishesRef.current = wishes
 
@@ -178,11 +235,11 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
     if (typeof window === 'undefined') return
     const musicTrack = flowData?.backgroundMusic || (isDemo ? 'shehnai' : null)
     if (!musicTrack || musicTrack === 'no-music') { if (audioRef.current) { audioRef.current.pause(); audioRef.current = null }; return }
-    const trackSrc = `/music/${musicTrack}.mp3`
-    const absoluteSrc = window.location.origin + trackSrc
+    const trackSrc = musicTrack.startsWith('http') || musicTrack.startsWith('/') ? musicTrack : `/music/${musicTrack}.mp3`
+    const absoluteSrc = trackSrc.startsWith('http') ? trackSrc : (window.location.origin + trackSrc)
     if (!audioRef.current || audioRef.current.src !== absoluteSrc) {
       if (audioRef.current) audioRef.current.pause()
-      const audio = new Audio(trackSrc); audio.loop = true; audio.preload = 'auto'; audioRef.current = audio
+      const audio = new Audio(trackSrc); audio.loop = true; audio.preload = 'none'; audioRef.current = audio
     }
     return () => { if (audioRef.current) { audioRef.current.pause(); audioRef.current = null } }
   }, [flowData?.backgroundMusic, isDemo])
@@ -218,6 +275,31 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
     }
   }, [doorsOpened, musicPlaying])
 
+  // Phase 2: Passive engagement metrics tracking
+  const doorMetricSent = useRef(false)
+  useEffect(() => {
+    if (doorsOpened && !doorMetricSent.current && flowData?.invitationId) {
+      doorMetricSent.current = true
+      fetch(`/api/invitations/${flowData.invitationId}/metrics`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event: 'door_opened' }),
+      }).catch(() => {})
+    }
+  }, [doorsOpened, flowData?.invitationId])
+
+  const musicMetricSent = useRef(false)
+  useEffect(() => {
+    if (musicPlaying && !musicMetricSent.current && flowData?.invitationId) {
+      musicMetricSent.current = true
+      fetch(`/api/invitations/${flowData.invitationId}/metrics`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event: 'music_played' }),
+      }).catch(() => {})
+    }
+  }, [musicPlaying, flowData?.invitationId])
+
   useEffect(() => {
     if (!flowData?.invitationId) return
     fetch(`/api/invitations/${flowData.invitationId}/wishes`).then(res => {
@@ -241,7 +323,7 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
     joyfullyAccept: 'خوشی سے قبول', respectfullyDecline: 'باادب معذرت',
     joyfullyAccepted: 'خوشی سے قبول کر لیا!', thankYou: 'شکریہ!',
     blessingsWishes: 'دعائیں اور آرزوئیں', writeBlessing: 'اپنی دعا یا آرزو لکھیں...',
-    yourNameSender: 'آپ کا نام', madeWithLove: 'شادی لنک کی طرف سے محبت سے بنایا گیا',
+    yourNameSender: 'آپ کا نام', madeWithLove: 'اسمارٹ انوائٹس کی طرف سے محبت سے بنایا گیا',
     scroll: 'سکرول', tapToOpen: 'کھولنے کے لیے ٹچ کریں',
     dressCode: 'ڈریس کوڈ', ladies: 'خواتین', gentlemen: 'حضرات', recommendedColors: 'تجویز کردہ رنگ',
     travelAccommodations: 'سفر اور رہائش', hotelBlocks: 'ہوٹل بلاکس', transportationInfo: 'ٹرانسپورٹ کی معلومات',
@@ -331,19 +413,44 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
     setTimeout(() => setHeroVisible(true), 2400 * delayFactor)
   }, [doorsOpened, theme.id, flowData?.backgroundMusic, isDemo])
 
-  const handleRSVP = useCallback(async (status: 'accept' | 'decline') => {
-    if (!rsvpName.trim()) { toast.error('Please enter your name'); return }
+  useEffect(() => {
+    if (dynamicEvents.length > 0) {
+      setAttendingEvents(prev => prev.length === 0 ? dynamicEvents.map(e => e.name) : prev)
+    }
+  }, [dynamicEvents])
+
+  const handleRSVP = useCallback(async (status: 'accept' | 'decline'): Promise<boolean> => {
+    if (!rsvpName.trim()) { toast.error('Please enter your name'); return false }
     if (flowData?.invitationId) {
       try {
-        const response = await fetch(`/api/invitations/${flowData.invitationId}/rsvp`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ guestName: rsvpName.trim(), guestEmail: rsvpEmail.trim() || undefined, status }) })
-        if (!response.ok) { const errData = await response.json(); toast.error(errData.error || 'Failed to submit RSVP.'); return }
+        const computedDietary = selectedDietaryChip !== 'none'
+          ? (dietaryNotes.trim() ? `${selectedDietaryChip}: ${dietaryNotes.trim()}` : selectedDietaryChip)
+          : dietaryNotes.trim()
+
+        const payload = {
+          guestName: rsvpName.trim(),
+          guestEmail: rsvpEmail.trim() || undefined,
+          status,
+          adultsCount: status === 'accept' ? adultsCount : 0,
+          childrenCount: status === 'accept' ? childrenCount : 0,
+          dietaryNotes: status === 'accept' ? computedDietary : '',
+          attendingEvents: status === 'accept' ? attendingEvents : [],
+        }
+
+        const response = await fetch(`/api/invitations/${flowData.invitationId}/rsvp`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+        if (!response.ok) { const errData = await response.json(); toast.error(errData.error || 'Failed to submit RSVP.'); return false }
         if (typeof window !== 'undefined') localStorage.setItem(`smartinvites_rsvp_${flowData.invitationId}`, status)
-      } catch { toast.error('Network error. Please try again.'); return }
+      } catch { toast.error('Network error. Please try again.'); return false }
     }
     setRsvpStatus(status); setRsvpSubmitted(true)
     if (status === 'accept') { toast.success(`Joyfully accepted! We can't wait to see you, ${rsvpName}! 🎉`); setShowConfetti(true); setRsvpHearts([1, 2, 3, 4, 5]); setTimeout(() => setRsvpHearts([]), 3000); setTimeout(() => setShowConfetti(false), 4000) }
     else toast.success(`Thank you for letting us know, ${rsvpName}. You'll be missed! 💌`)
-  }, [rsvpName, rsvpEmail, flowData?.invitationId])
+    return true
+  }, [rsvpName, rsvpEmail, adultsCount, childrenCount, dietaryNotes, selectedDietaryChip, attendingEvents, flowData?.invitationId])
 
   const handleSendWish = useCallback(async () => {
     if (!wishName.trim()) { toast.error('Please enter your name'); return }
@@ -415,8 +522,11 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
     // Events
     dynamicEvents, firstEvent, scratchDateInfo, scratchTimeFormatted,
     // UI State
-    doorsOpened, scratchRevealed, rsvpSubmitted, showFireworks, doorOverlayVisible,
-    rsvpName, setRsvpName, rsvpEmail, setRsvpEmail, rsvpStatus,
+    doorsOpened, scratchRevealed, rsvpSubmitted, setRsvpSubmitted, showFireworks, doorOverlayVisible,
+    rsvpName, setRsvpName, rsvpEmail, setRsvpEmail, rsvpStatus, setRsvpStatus,
+    adultsCount, setAdultsCount, childrenCount, setChildrenCount,
+    dietaryNotes, setDietaryNotes, selectedDietaryChip, setSelectedDietaryChip,
+    attendingEvents, setAttendingEvents,
     wishName, setWishName, wishMessage, setWishMessage,
     musicPlaying, setMusicPlaying, showConfetti, rsvpHearts, heroVisible,
     copiedField, showGoldDust, faqOpen, setFaqOpen,

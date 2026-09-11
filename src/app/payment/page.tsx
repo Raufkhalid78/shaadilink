@@ -82,10 +82,10 @@ export default function PaymentRoute() {
       onBack={() => router.push("/create")}
       onContinue={() => router.push("/success")}
       crumbs={[
-        { label: "Home", onClick: () => router.push("/") },
-        ...(flowData.userId ? [{ label: "Dashboard", onClick: () => router.push("/dashboard") }] : []),
-        { label: "Templates", onClick: () => router.push("/templates") },
-        { label: "Details", onClick: () => router.push("/create") },
+        { label: "Home", href: "/" },
+        ...(flowData.userId ? [{ label: "Dashboard", href: "/dashboard" }] : []),
+        { label: "Templates", href: "/templates" },
+        { label: "Details", href: "/create" },
         { label: "Payment" },
       ]}
     />

@@ -8,13 +8,14 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import type { FlowData } from "@/lib/flow-types";
-import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
+import { PageBreadcrumb, BreadcrumbCrumb } from "@/components/ui/page-breadcrumb";
+import { BrandLogo } from "@/components/brand-logo";
 
 interface LoginPageProps {
   onBack: () => void;
   onLogin: (userId: string, email: string, fullName?: string) => void;
   onSignup: () => void;
-  crumbs: { label: string; onClick?: () => void }[];
+  crumbs: BreadcrumbCrumb[];
 }
 
 export function LoginPage({ onBack, onLogin, onSignup, crumbs }: LoginPageProps) {
@@ -31,10 +32,14 @@ export function LoginPage({ onBack, onLogin, onSignup, crumbs }: LoginPageProps)
     try {
       localStorage.setItem("smartinvites_oauth_in_progress", "true");
       const supabase = createClient();
+      const urlNext = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('next') : null;
+      const hasDraft = typeof window !== 'undefined' && Boolean(localStorage.getItem("smartinvites_pending_flow_data"));
+      const nextPath = urlNext || (hasDraft ? "/create" : "/dashboard");
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/api/auth/callback?next=/dashboard`,
+          redirectTo: `${window.location.origin}/api/auth/callback?next=${encodeURIComponent(nextPath)}`,
         },
       });
       if (error) {
@@ -134,14 +139,7 @@ export function LoginPage({ onBack, onLogin, onSignup, crumbs }: LoginPageProps)
             </Button>
 
             {/* Logo */}
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald text-primary-foreground">
-                <Send className="h-4 w-4 fill-current" />
-              </div>
-              <span className="font-display text-lg font-bold">
-                Smart<span className="text-primary">Invites</span>
-              </span>
-            </div>
+            <BrandLogo size="sm" href="/" />
 
             <div className="w-16" />
           </div>
@@ -251,10 +249,10 @@ export function LoginPage({ onBack, onLogin, onSignup, crumbs }: LoginPageProps)
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full h-12 bg-emerald hover:bg-emerald-dark text-primary-foreground border border-gold/30 font-semibold text-base mt-2 shadow-lg shadow-emerald/20 transition-all hover:scale-[1.01]"
+                className="w-full h-12 bg-emerald hover:bg-emerald-dark text-white font-bold border border-gold/30 text-base mt-2 shadow-lg shadow-emerald/20 transition-all hover:scale-[1.01]"
               >
                 {isLoading ? (
-                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Logging in...</>
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin text-white" /> Logging in...</>
                 ) : (
                   "Login"
                 )}

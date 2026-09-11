@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { m, AnimatePresence } from "framer-motion";
-import { Send, ChevronDown, LayoutDashboard, LogOut, Plus } from "lucide-react";
+import Link from "next/link";
+import { MailOpen, ChevronDown, LayoutDashboard, LogOut, Plus, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -18,6 +19,7 @@ import { useLanguage } from "@/components/language-provider";
 import { Globe } from "lucide-react";
 import { LanguageToggle } from "./language-toggle";
 import { MobileNav, NavLink } from "./mobile-nav";
+import { BrandLogo } from "@/components/brand-logo";
 
 interface NavbarProps {
   onTemplatesClick?: () => void;
@@ -107,15 +109,8 @@ export function Navbar({
       )}
     >
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Logo */}
-        <a href="#" className="flex items-center gap-2 group">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-shadow duration-300">
-            <Send className="h-5 w-5 fill-current" />
-          </div>
-          <span className="font-display text-xl font-bold tracking-tight text-white">
-            Smart<span className="gold-shimmer-strong">Invites</span>
-          </span>
-        </a>
+        {/* Luxury Brand Logo */}
+        <BrandLogo size="md" href="/" subtitle="Digital Event Invitations" />
 
         {/* Desktop Nav Links */}
         <div className="hidden lg:flex items-center gap-1">
@@ -206,6 +201,12 @@ export function Navbar({
                 <DropdownMenuItem onClick={onGetStarted} className="hover:bg-white/10 cursor-pointer gap-2">
                   <Plus className="w-4 h-4 text-gold" />
                   <span>Create Invitation</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="hover:bg-white/10 cursor-pointer gap-2">
+                  <Link href="/dashboard/agency" className="flex items-center gap-2 w-full text-amber-300">
+                    <Briefcase className="w-4 h-4 text-amber-400" />
+                    <span>Agency Portal</span>
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-white/10" />
                 <DropdownMenuItem onClick={onSignOut} className="hover:bg-red-500/20 text-red-400 focus:text-red-400 cursor-pointer gap-2">

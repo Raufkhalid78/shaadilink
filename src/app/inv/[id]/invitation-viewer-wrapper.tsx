@@ -8,12 +8,23 @@ interface Props {
   flowData: FlowData;
   guestName?: string | null;
   guestSlug?: string | null;
+  isReviewMode?: boolean;
+  viewsCount?: number;
+  maxViews?: number;
 }
 
-export default function InvitationViewerWrapper({ templateId, flowData, guestName, guestSlug }: Props) {
+export default function InvitationViewerWrapper({ templateId, flowData, guestName, guestSlug, isReviewMode, viewsCount, maxViews }: Props) {
   return (
     <div className="min-h-screen">
-      <InvitationViewer templateId={templateId} flowData={flowData} guestName={guestName} guestSlug={guestSlug} />
+      <InvitationViewer
+        templateId={templateId}
+        flowData={flowData}
+        guestName={guestName}
+        guestSlug={guestSlug}
+        isReviewMode={isReviewMode}
+        viewsCount={viewsCount}
+        maxViews={maxViews}
+      />
     </div>
   );
 }

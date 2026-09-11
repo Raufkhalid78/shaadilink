@@ -1,0 +1,25 @@
+{
+  "name": "Smart Invites — Premium Digital Invitations",
+  "short_name": "Smart Invites",
+  "description": "Create and experience cinematic digital invitations for weddings, birthdays, graduations, and corporate summits.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0b0f14",
+  "theme_color": "#121820",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo-180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

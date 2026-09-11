@@ -1,23 +1,30 @@
 import { redirect } from 'next/navigation';
 import { requireAdmin } from '@/lib/auth-helpers';
 import Link from 'next/link';
-import { LayoutDashboard, MessageSquare, ShoppingBag, Users, LogOut, Mailbox, Settings, Ticket } from 'lucide-react';
+import { LayoutDashboard, MessageSquare, ShoppingBag, Users, LogOut, Mailbox, Settings, Ticket, Briefcase } from 'lucide-react';
+import { AdminMobileHeader } from '@/components/admin/admin-mobile-header';
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   try {
     await requireAdmin();
-  } catch {
-    redirect('/dashboard');
+  } catch (err: any) {
+    if (err?.status === 401) {
+      redirect('/login?redirect=/admin');
+    }
+    redirect('/dashboard?error=admin_access_required');
   }
 
   return (
     <div className="min-h-screen bg-background flex flex-col md:flex-row">
-      {/* Sidebar */}
-      <aside className="w-full md:w-64 border-b md:border-b-0 md:border-r border-border/50 bg-card/30 flex flex-col">
+      {/* Mobile Top Navigation & Quick Switcher */}
+      <AdminMobileHeader />
+
+      {/* Desktop Sidebar */}
+      <aside className="hidden md:flex md:w-64 md:border-r border-border/50 bg-card/30 flex-col shrink-0">
         <div className="p-6 border-b border-border/50">
           <Link href="/" className="flex items-center gap-2">
             <span className="font-display font-bold text-xl tracking-tight text-gold">
-              Shaadi<span className="text-foreground">Link</span>
+              Smart <span className="text-foreground">Invites</span>
             </span>
           </Link>
           <div className="mt-2 text-[10px] font-mono text-muted-foreground uppercase tracking-wider bg-gold/10 text-gold px-2 py-0.5 rounded-full inline-block">
@@ -55,6 +62,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </Link>
           <Link href="/admin/affiliates" className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:bg-gold/10 hover:text-gold transition-colors">
             <Users className="w-4 h-4" /> Affiliates
+          </Link>
+          <Link href="/admin/agency" className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:bg-gold/10 hover:text-gold transition-colors">
+            <Briefcase className="w-4 h-4 text-gold" /> Agencies &amp; Credits
           </Link>
           <div className="pt-4 pb-1">
             <div className="px-3 text-xs font-semibold text-muted-foreground/50 uppercase tracking-wider">System</div>

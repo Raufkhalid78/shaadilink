@@ -45,6 +45,17 @@ export const invitationInputSchema = z.object({
   showNikahRegistration: z.boolean().optional().default(false),
   guestLinksQuota: z.number().int().min(0).max(5000).optional().default(10),
   slug: z.string().trim().max(100).optional().nullable(),
+  title: z.string().trim().max(200).optional().default(''),
+  category: z.string().trim().max(50).optional().default('wedding'),
+  hideDigitalShagun: z.boolean().optional().default(false),
+  customMusicUrl: z.string().trim().max(2000).optional().nullable(),
+  customMusicName: z.string().trim().max(200).optional().nullable(),
+  voiceNoteUrl: z.string().trim().max(2000).optional().nullable(),
+  voiceNoteTitle: z.string().trim().max(200).optional().nullable(),
+  voiceNoteSender: z.string().trim().max(200).optional().nullable(),
+  agencyName: z.string().trim().max(200).optional().nullable(),
+  agencyPhone: z.string().trim().max(50).optional().nullable(),
+  whiteLabelFooter: z.string().trim().max(200).optional().nullable(),
   events: z.array(eventItemSchema).max(15).optional().default([]),
 })
 
@@ -52,7 +63,11 @@ export const rsvpSchema = z.object({
   guestName: z.string().trim().min(1, 'Name is required').max(100, 'Name is too long'),
   guestEmail: z.string().trim().email('Invalid email address').max(200).optional().or(z.literal('')).nullable(),
   status: z.enum(['accept', 'decline']),
-  attendingCount: z.number().int().min(1).max(20).optional().default(1),
+  attendingCount: z.number().int().min(0).max(50).optional().default(1),
+  adultsCount: z.number().int().min(0).max(50).optional().default(1),
+  childrenCount: z.number().int().min(0).max(50).optional().default(0),
+  dietaryNotes: z.string().trim().max(500).optional().default(''),
+  attendingEvents: z.array(z.string().trim().max(100)).max(25).optional().default([]),
 })
 
 export const wishesSchema = z.object({

@@ -1,42 +1,55 @@
-<svg width="512" height="512" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
-    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#E8C766"/>
-      <stop offset="100%" stop-color="#C79A2E"/>
+    <!-- Background Gradient: Obsidian to Emerald -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#064e3b" /> <!-- emerald-900 -->
+      <stop offset="100%" stop-color="#020617" /> <!-- slate-950 -->
     </linearGradient>
-    <linearGradient id="emeraldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#2A9370"/>
-      <stop offset="100%" stop-color="#155A42"/>
+
+    <!-- Gold Gradients for Paper -->
+    <linearGradient id="goldLight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fdf0c3" />
+      <stop offset="100%" stop-color="#e2aa3f" />
     </linearGradient>
+
+    <linearGradient id="goldMedium" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d4af37" />
+      <stop offset="100%" stop-color="#aa7c11" />
+    </linearGradient>
+
+    <linearGradient id="goldDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#b8860b" />
+      <stop offset="100%" stop-color="#8a6100" />
+    </linearGradient>
+    
+    <!-- Shadow for depth -->
+    <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="-8" dy="12" stdDeviation="12" flood-opacity="0.5" flood-color="#000000" />
+    </filter>
   </defs>
 
-  <!-- outer badge rings -->
-  <circle cx="100" cy="100" r="94" fill="none" stroke="url(#goldGrad)" stroke-width="2.5"/>
-  <circle cx="100" cy="100" r="86" fill="none" stroke="url(#goldGrad)" stroke-width="1" opacity="0.55"/>
+  <!-- Squircle Background -->
+  <rect width="512" height="512" rx="120" ry="120" fill="url(#bgGrad)" />
 
-  <!-- four seal accents -->
-  <g fill="#D4AF37">
-    <path d="M100,4 l3.2,7.2 -3.2,3 -3.2,-3 Z"/>
-    <path d="M100,196 l3.2,-7.2 -3.2,-3 -3.2,3 Z"/>
-    <path d="M4,100 l7.2,3.2 3,-3.2 -3,-3.2 Z"/>
-    <path d="M196,100 l-7.2,3.2 -3,-3.2 3,-3.2 Z"/>
+  <!-- Digital Flight Trails / Tech Lines -->
+  <!-- Arc trails -->
+  <path d="M 80 420 Q 180 480 320 380" fill="none" stroke="url(#goldDark)" stroke-width="8" stroke-dasharray="16 16" opacity="0.6" stroke-linecap="round"/>
+  <path d="M 40 340 Q 120 400 240 320" fill="none" stroke="#10b981" stroke-width="6" stroke-dasharray="12 12" opacity="0.7" stroke-linecap="round"/>
+  
+  <!-- Straight dash trail -->
+  <path d="M 60 260 L 140 220" fill="none" stroke="url(#goldMedium)" stroke-width="6" stroke-dasharray="12 12" opacity="0.8" stroke-linecap="round"/>
+
+  <!-- Origami Airplane -->
+  <g filter="url(#dropShadow)">
+    
+    <!-- Left Wing (Top Surface, brightly lit) -->
+    <polygon points="440,72 72,220 240,280" fill="url(#goldLight)" />
+    
+    <!-- Right Wing (Inner Surface, slightly shaded) -->
+    <polygon points="440,72 240,280 360,440" fill="url(#goldMedium)" />
+    
+    <!-- Keel / Underbelly (Darkest shadow) -->
+    <polygon points="440,72 240,280 180,380" fill="url(#goldDark)" />
+
   </g>
-
-  <!-- interlocked hearts: emerald (left) -->
-  <g transform="translate(77,110) rotate(-16) scale(0.66)">
-    <path d="M50,90 C18,66 4,44 4,24 C4,6 20,-2 36,7 C43,11 47,17 50,24 C53,17 57,11 64,7 C80,-2 96,6 96,24 C96,44 82,66 50,90 Z"
-          transform="translate(-50,-44)"
-          fill="url(#emeraldGrad)" stroke="#0f1a16" stroke-width="3.5" stroke-linejoin="round"/>
-  </g>
-
-  <!-- interlocked hearts: gold (right) -->
-  <g transform="translate(123,110) rotate(16) scale(0.66)">
-    <path d="M50,90 C18,66 4,44 4,24 C4,6 20,-2 36,7 C43,11 47,17 50,24 C53,17 57,11 64,7 C80,-2 96,6 96,24 C96,44 82,66 50,90 Z"
-          transform="translate(-50,-44)"
-          fill="url(#goldGrad)" stroke="#0f1a16" stroke-width="3.5" stroke-linejoin="round"/>
-  </g>
-
-  <!-- center jewel where the hearts meet -->
-  <circle cx="100" cy="76" r="6.5" fill="url(#emeraldGrad)" stroke="url(#goldGrad)" stroke-width="1.8"/>
-  <circle cx="100" cy="76" r="2.2" fill="#F0EAE0" opacity="0.85"/>
 </svg>

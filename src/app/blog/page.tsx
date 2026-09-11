@@ -2,6 +2,7 @@ import { getAllPosts } from "@/lib/markdown";
 import Link from "next/link";
 import { ArrowLeft, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
 
 import type { Metadata } from "next";
 
@@ -63,19 +64,25 @@ export default function BlogListingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background pt-24 pb-12 px-6">
+    <div className="min-h-screen bg-background flex flex-col">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaJson) }}
       />
-      <div className="max-w-4xl mx-auto space-y-8">
+      <PageBreadcrumb
+        crumbs={[
+          { label: "Home", href: "/" },
+          { label: "Blog" },
+        ]}
+      />
+      <div className="flex-1 pt-12 pb-12 px-6">
         <div className="space-y-4">
-          <Link href="/">
-            <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-foreground">
+          <Button variant="ghost" size="sm" asChild className="gap-2 text-muted-foreground hover:text-foreground">
+            <Link href="/">
               <ArrowLeft className="w-4 h-4" />
               Back to Home
-            </Button>
-          </Link>
+            </Link>
+          </Button>
           <h1 className="text-4xl md:text-5xl font-display text-gold">The Smart Invites Blog</h1>
           <p className="text-muted-foreground text-lg max-w-2xl">
             Tips, trends, and inspiration for your perfect digital wedding invitation.

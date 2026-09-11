@@ -1,4 +1,5 @@
 import { createServiceClient } from '@/lib/supabase/server';
+import { sendOrderConfirmationEmail } from '@/lib/resend';
 
 export async function fulfillOrderIfPending(orderId: string): Promise<boolean> {
   const service = createServiceClient();
@@ -52,6 +53,30 @@ export async function fulfillOrderIfPending(orderId: string): Promise<boolean> {
   }
   if (order.user_id) {
     await service.from('profiles').update({ plan: order.plan }).eq('id', order.user_id);
+
+    // Send order confirmation receipt email
+    try {
+      const { data: profile } = await service.from('profiles').select('email').eq('id', order.user_id).single();
+      if (profile?.email) {
+        let invLink = 'https://www.smartinvites.com.pk/dashboard';
+        if (order.invitation_id) {
+          const { data: inv } = await service.from('invitations').select('slug').eq('id', order.invitation_id).single();
+          if (inv?.slug) {
+            invLink = `https://www.smartinvites.com.pk/inv/${inv.slug}`;
+          }
+        }
+        await sendOrderConfirmationEmail({
+          toEmail: profile.email,
+          orderId: order.id,
+          plan: order.plan,
+          amount: Number(order.amount),
+          currency: order.currency || 'PKR',
+          invitationUrl: invLink,
+        });
+      }
+    } catch (emailErr) {
+      console.warn('Order confirmation email note:', emailErr);
+    }
   }
 
   // Atomically increment promo usage and credit affiliate commission

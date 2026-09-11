@@ -37,7 +37,7 @@ export async function updateAffiliateStatus(id: string, status: 'approved' | 're
         to: [application.email],
         replyTo: 'info@smartinvites.com.pk',
         subject: 'Welcome to the Smart Invites Partner Program! 🎉',
-        text: `Welcome to the Smart Invites Partner Program!\n\nHi ${application.name},\n\nGreat news! Your application to the Smart Invites Partner Program has been approved.\n\nYou can now log in to your dashboard to get your unique referral links and track earnings: https://www.smartinvites.com.pk/affiliate/dashboard\n\nBest regards,\nThe Smart Invites Team`,
+        text: `Welcome to the Smart Invites Partner Program!\n\nHi ${application.name},\n\nGreat news! Your application to the Smart Invites Partner Program has been approved.\n\nYou can now log in to your dashboard to get your unique referral links and track earnings: https://www.smartinvites.com.pk/dashboard/affiliate\n\nBest regards,\nThe Smart Invites Team`,
         html: getEmailWrapper(
           'Application Approved!',
           'Great news! Your affiliate application has been approved.',
@@ -49,7 +49,7 @@ export async function updateAffiliateStatus(id: string, status: 'approved' | 're
             
             <br/>
             <center>
-              <a href="https://smartinvites.com.pk/affiliate/dashboard" style="background-color: #d4af37; color: #111827; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Go to Dashboard</a>
+              <a href="https://smartinvites.com.pk/dashboard/affiliate" style="background-color: #d4af37; color: #111827; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Go to Dashboard</a>
             </center>
             
             <br/>
@@ -133,3 +133,71 @@ export async function markCommissionPaid(id: string) {
   revalidatePath('/admin/affiliates');
   return { success: true };
 }
+
+export async function updateAgencyStatus(id: string, status: 'approved' | 'rejected') {
+  try {
+    await requireAdmin();
+  } catch (err: any) {
+    return { error: err.message || 'Unauthorized' };
+  }
+
+  const supabase = createServiceClient();
+  const { data: application } = await supabase
+    .from('agency_applications')
+    .select('email, contact_name, company_name, user_id')
+    .eq('id', id)
+    .single();
+
+  const { error } = await supabase
+    .from('agency_applications')
+    .update({ status })
+    .eq('id', id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  // If approved, grant agency profile info
+  if (status === 'approved' && application) {
+    try {
+      if (application.user_id) {
+        await supabase
+          .from('profiles')
+          .update({ agency_name: application.company_name })
+          .eq('id', application.user_id);
+      } else if (application.email) {
+        await supabase
+          .from('profiles')
+          .update({ agency_name: application.company_name })
+          .eq('email', application.email.toLowerCase());
+      }
+    } catch (e) {
+      console.error('Failed to update profile agency_name:', e);
+    }
+  }
+
+  revalidatePath('/admin/affiliates');
+  return { success: true };
+}
+
+export async function deleteAgencyApplication(id: string) {
+  try {
+    await requireAdmin();
+  } catch (err: any) {
+    return { error: err.message || 'Unauthorized' };
+  }
+
+  const supabase = createServiceClient();
+  const { error } = await supabase
+    .from('agency_applications')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath('/admin/affiliates');
+  return { success: true };
+}
+

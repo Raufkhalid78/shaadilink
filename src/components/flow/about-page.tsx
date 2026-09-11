@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
+import { BrandLogo } from "@/components/brand-logo";
 
 interface AboutPageProps {
   onBack: () => void;
@@ -74,14 +75,7 @@ export function AboutPage({ onBack }: AboutPageProps) {
               <span className="hidden sm:inline">Back</span>
             </Button>
 
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald text-primary-foreground">
-                <Heart className="h-4 w-4 fill-current" />
-              </div>
-              <span className="font-display text-lg font-bold">
-                Shaadi<span className="text-gold">Link</span>
-              </span>
-            </div>
+            <BrandLogo size="sm" href="/" />
 
             <div className="w-16" />
           </div>
@@ -91,7 +85,7 @@ export function AboutPage({ onBack }: AboutPageProps) {
       {/* Breadcrumb path */}
       <PageBreadcrumb
         crumbs={[
-          { label: "Home", onClick: onBack },
+          { label: "Home", href: "/", onClick: onBack },
           { label: "About Smart Invites" },
         ]}
       />

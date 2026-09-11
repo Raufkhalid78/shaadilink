@@ -26,9 +26,22 @@ export async function POST(
       return NextResponse.json({ error: errorMsg }, { status: 400 })
     }
 
-    const { guestName, guestEmail, status } = parseResult.data
+    const {
+      guestName,
+      guestEmail,
+      status,
+      adultsCount = 1,
+      childrenCount = 0,
+      dietaryNotes = '',
+      attendingEvents = [],
+    } = parseResult.data
     const cleanEmail = guestEmail ? guestEmail.trim().toLowerCase() : null
     const cleanName = guestName.trim()
+
+    const normalizedAdults = status === 'decline' ? 0 : Math.max(0, adultsCount)
+    const normalizedChildren = status === 'decline' ? 0 : Math.max(0, childrenCount)
+    const cleanDietaryNotes = status === 'decline' ? '' : dietaryNotes.trim()
+    const normalizedEvents = status === 'decline' ? [] : attendingEvents
 
     const supabase = createServiceClient()
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
@@ -67,36 +80,84 @@ export async function POST(
       return NextResponse.json({ error: 'You have already submitted an RSVP for this invitation.' }, { status: 409 })
     }
 
-    const { data, error } = await supabase
+    // Try inserting with new granular columns first
+    const granularInsert = await supabase
       .from('rsvps')
       .insert({
         invitation_id: invitationId,
         guest_name: cleanName,
         guest_email: cleanEmail,
         status,
+        adults_count: normalizedAdults,
+        children_count: normalizedChildren,
+        dietary_notes: cleanDietaryNotes,
+        attending_events: normalizedEvents,
       })
       .select()
       .maybeSingle()
 
-    if (error) {
-      if (error.code === '23505') { // Unique violation
+    let savedRsvp = granularInsert.data
+    let insertError = granularInsert.error
+
+    // If new columns are missing in DB before migration is run, fallback gracefully
+    if (insertError) {
+      const isMissingCol =
+        insertError.code === '42703' || // Postgres undefined column
+        insertError.message?.includes('adults_count') ||
+        insertError.message?.includes('dietary_notes') ||
+        insertError.message?.includes('attending_events')
+
+      if (isMissingCol) {
+        let fallbackName = cleanName
+        if (status === 'accept' && (normalizedAdults > 1 || normalizedChildren > 0 || cleanDietaryNotes)) {
+          const parts: string[] = []
+          if (normalizedAdults > 0) parts.push(`${normalizedAdults} Adult${normalizedAdults > 1 ? 's' : ''}`)
+          if (normalizedChildren > 0) parts.push(`${normalizedChildren} Child${normalizedChildren > 1 ? 'ren' : ''}`)
+          const headcountStr = parts.join(', ')
+          const dietStr = cleanDietaryNotes ? ` [${cleanDietaryNotes}]` : ''
+          fallbackName = `${cleanName} (${headcountStr})${dietStr}`
+        }
+
+        const fallbackInsert = await supabase
+          .from('rsvps')
+          .insert({
+            invitation_id: invitationId,
+            guest_name: fallbackName,
+            guest_email: cleanEmail,
+            status,
+          })
+          .select()
+          .maybeSingle()
+
+        savedRsvp = fallbackInsert.data
+        insertError = fallbackInsert.error
+      }
+    }
+
+    if (insertError) {
+      if (insertError.code === '23505') { // Unique violation
         return NextResponse.json({ error: 'You have already submitted an RSVP for this invitation.' }, { status: 409 })
       }
-      console.error('RSVP insert error:', error)
+      console.error('RSVP insert error:', insertError)
       return NextResponse.json({ error: 'Unable to save RSVP. Please try again.' }, { status: 500 })
     }
 
-    // Send Notification Email if email exists
+    // Send Notification Email if host email exists
     try {
       const hostEmail = (inv.profiles as any)?.email;
       if (hostEmail) {
-        await sendRsvpNotification(hostEmail, cleanName, status)
+        await sendRsvpNotification(hostEmail, cleanName, status, {
+          adultsCount: normalizedAdults,
+          childrenCount: normalizedChildren,
+          dietaryNotes: cleanDietaryNotes,
+          attendingEvents: normalizedEvents,
+        })
       }
     } catch (e) {
       console.error('Failed to send RSVP notification:', e)
     }
 
-    return NextResponse.json({ rsvp: data }, { status: 201 })
+    return NextResponse.json({ rsvp: savedRsvp }, { status: 201 })
   } catch (error) {
     console.error('POST /rsvp error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

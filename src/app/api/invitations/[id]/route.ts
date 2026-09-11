@@ -61,12 +61,26 @@ export async function PUT(
     // Verify ownership
     const { data: existing } = await supabase
       .from('invitations')
-      .select('user_id, partner1_name, partner2_name')
+      .select('user_id, partner1_name, partner2_name, is_active, events(*)')
       .eq('id', id)
       .single()
 
     if (!existing || existing.user_id !== user.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    // Concluded Event Locking Rule: If invitation is LIVE and all events have concluded, edits are locked
+    if (existing.is_active && Array.isArray(existing.events) && existing.events.length > 0) {
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      const isConcluded = existing.events.every((ev: { date: string }) => {
+        if (!ev.date) return false
+        const evDate = new Date(ev.date)
+        return evDate < today
+      })
+      if (isConcluded) {
+        return NextResponse.json({ error: 'This event has concluded. Edits are locked to preserve event records.' }, { status: 403 })
+      }
     }
 
     const updateData: Record<string, unknown> = {}
@@ -92,8 +106,22 @@ export async function PUT(
       isSegregated: 'is_segregated',
       venueDetailsSegregated: 'venue_details_segregated',
       showNikahRegistration: 'show_nikah_registration',
+      title: 'title',
+      category: 'category',
+      hideDigitalShagun: 'hide_digital_shagun',
+      customMusicUrl: 'custom_music_url',
+      customMusicName: 'custom_music_name',
+      voiceNoteUrl: 'voice_note_url',
+      voiceNoteTitle: 'voice_note_title',
+      voiceNoteSender: 'voice_note_sender',
+      agencyName: 'agency_name',
+      agencyPhone: 'agency_phone',
+      whiteLabelFooter: 'white_label_footer',
+      clientApprovalStatus: 'client_approval_status',
+      clientApprovalNotes: 'client_approval_notes',
+      clientApprovedAt: 'client_approved_at',
     }
-for (const [jsKey, dbKey] of Object.entries(fieldMap)) {
+    for (const [jsKey, dbKey] of Object.entries(fieldMap)) {
       if (body[jsKey] !== undefined) {
         if (jsKey === 'slug') {
           let updatedSlug = (body[jsKey] as string)?.trim()
@@ -123,12 +151,32 @@ for (const [jsKey, dbKey] of Object.entries(fieldMap)) {
       return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 })
     }
 
-    const { data: updated, error } = await supabase
+    let { data: updated, error } = await supabase
       .from('invitations')
       .update(updateData)
       .eq('id', id)
       .select()
       .single()
+
+    if (error && error.code === '42703') {
+      // Graceful fallback if new schema columns are not yet applied in DB
+      const fallbackData = { ...updateData }
+      delete fallbackData.voice_note_url
+      delete fallbackData.voice_note_title
+      delete fallbackData.voice_note_sender
+      delete fallbackData.agency_phone
+      delete fallbackData.client_approval_status
+      delete fallbackData.client_approval_notes
+      delete fallbackData.client_approved_at
+      const retry = await supabase
+        .from('invitations')
+        .update(fallbackData)
+        .eq('id', id)
+        .select()
+        .single()
+      updated = retry.data
+      error = retry.error
+    }
 
     if (error) {
       if (error.code === '23505') {
@@ -138,16 +186,35 @@ for (const [jsKey, dbKey] of Object.entries(fieldMap)) {
       return NextResponse.json({ error: 'Failed to update invitation. Please try again.' }, { status: 500 })
     }
 
-    // Update events if provided
+    // Update events if provided (dates are locked on live invitations)
     if (body.events) {
       const service = createServiceClient()
+      const isLive = Boolean(existing.is_active)
+      const existingDatesMap: Record<number, string> = {}
+
+      if (isLive) {
+        const { data: currentEvents } = await service
+          .from('events')
+          .select('order_index, date')
+          .eq('invitation_id', id)
+          .order('order_index', { ascending: true })
+
+        if (currentEvents) {
+          for (const ev of currentEvents) {
+            if (ev.order_index !== null && ev.order_index !== undefined && ev.date) {
+              existingDatesMap[ev.order_index] = ev.date
+            }
+          }
+        }
+      }
+
       await service.from('events').delete().eq('invitation_id', id)
       const eventRows = body.events
         .filter((e: { name: string }) => e.name)
         .map((e: { id?: string; name: string; date: string; time: string; venue?: string }, idx: number) => ({
           invitation_id: id,
           name: e.name,
-          date: e.date || '',
+          date: isLive && existingDatesMap[idx] ? existingDatesMap[idx] : (e.date || ''),
           time: e.time || '',
           venue: e.venue || '',
           order_index: idx,

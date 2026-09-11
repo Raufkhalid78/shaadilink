@@ -1,0 +1,19 @@
+{
+  "bankName": "Askari bank",
+  "accountTitle": "RAUF KHALID",
+  "accountNumber": "00700320241011",
+  "iban": "PK35ASCM0000700320241011",
+  "branchCode": "",
+  "raastId": "",
+  "easyPaisaAccount": "",
+  "jazzCashAccount": "",
+  "whatsappSupport": "447517879333",
+  "instructionsEnglish": "Transfer the exact order amount via your mobile banking app (IBFT) or Raast ID. Upload the payment receipt/screenshot and enter your transaction reference below.",
+  "instructionsUrdu": "براہ کرم اوپر دیے گئے بینک اکاؤنٹ یا راست آئی ڈی پر رقم منتقل کریں اور نیچے رسید/اسکرین شاٹ اپ لوڈ کریں۔",
+  "siteName": "Smart Invites",
+  "contactEmail": "support@smartinvites.com.pk",
+  "contactPhone": "+447517879333",
+  "officeAddress": "Jhelum, Pakistan",
+  "classicPrice": 3499,
+  "royalPrice": 5799
+}

@@ -5,6 +5,8 @@ import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import { m, AnimatePresence, useInView } from 'framer-motion'
 import { Button } from '@/components/ui/button'
+import { DigitalGuestPassModal } from '@/components/viewer/digital-guest-pass-modal'
+import { WhatsAppIcon } from '@/components/icons/whatsapp-icon'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent } from '@/components/ui/card'
@@ -23,6 +25,7 @@ import {
   Music,
   Music2,
   User,
+  Ticket,
   MessageCircle,
   Loader2,
   Copy,
@@ -39,6 +42,9 @@ import {
 import type { FlowData } from '@/lib/flow-types'
 
 import { TemplateTheme, TEMPLATE_THEMES, DEFAULT_THEME } from './themes';
+import { VoiceGreetingPlayer } from './features/voice-greeting-player';
+import { CrowdPhotoWallSection } from './features/crowd-photo-wall-section';
+import { GuestSnapsModal } from './features/guest-snaps-modal';
 
 import { InvitationViewerProps, hexToRgb, getTheme, extractColors, parseGiftDetails, getCalendarDates, getGoogleCalendarLink, generateICSContent, getOutlookWebLink, formatScratchDate, formatScratchTime } from './utils';
 
@@ -80,6 +86,20 @@ const RoyalImperialViewer = dynamic(() => import('./royal-viewers/royal-imperial
 const RoyalEleganceViewer = dynamic(() => import('./royal-viewers/royal-elegance-viewer'), { ssr: false })
 const GeometricGoldViewer = dynamic(() => import('./royal-viewers/geometric-gold-viewer'), { ssr: false })
 const DarkVelvetViewer = dynamic(() => import('./royal-viewers/dark-velvet-viewer'), { ssr: false })
+const LuminaCelebrationViewer = dynamic(() => import('./royal-viewers/lumina-celebration-viewer'))
+const GoldenJubileeViewer = dynamic(() => import('./royal-viewers/golden-jubilee-viewer'))
+const GrandGalaViewer = dynamic(() => import('./royal-viewers/grand-gala-viewer'))
+const ValedictorianViewer = dynamic(() => import('./royal-viewers/valedictorian-viewer'))
+const TheBoardroomViewer = dynamic(() => import('./royal-viewers/the-boardroom-viewer'))
+const VisionaryKeynoteViewer = dynamic(() => import('./royal-viewers/visionary-keynote-viewer'))
+
+// Non-Wedding Dedicated Category Layouts
+const BirthdayViewerLayout = dynamic(() => import('./layouts/birthday-viewer-layout').then(m => m.BirthdayViewerLayout))
+const SchoolViewerLayout = dynamic(() => import('./layouts/school-viewer-layout').then(m => m.SchoolViewerLayout))
+const CorporateViewerLayout = dynamic(() => import('./layouts/corporate-viewer-layout').then(m => m.CorporateViewerLayout))
+
+import { getCategoryForTemplate } from '@/lib/category-utils';
+export { getCategoryForTemplate };
 
 /* ─── Royal Template Router ─── */
 const ROYAL_TEMPLATE_MAP: Record<string, React.ComponentType<{ templateId?: string; flowData?: FlowData; guestName?: string | null; guestSlug?: string | null }>> = {
@@ -87,10 +107,16 @@ const ROYAL_TEMPLATE_MAP: Record<string, React.ComponentType<{ templateId?: stri
   'royal-elegance': RoyalEleganceViewer,
   'geometric-gold': GeometricGoldViewer,
   'dark-velvet': DarkVelvetViewer,
+  'lumina-celebration': LuminaCelebrationViewer,
+  'golden-jubilee': GoldenJubileeViewer,
+  'grand-gala': GrandGalaViewer,
+  'valedictorian-prestige': ValedictorianViewer,
+  'the-boardroom': TheBoardroomViewer,
+  'visionary-keynote': VisionaryKeynoteViewer,
 }
 
 /* ─── Main Invitation Viewer ─── */
-function ClassicViewer({ templateId, flowData, guestName, guestSlug }: InvitationViewerProps) {
+function ClassicViewer({ templateId, flowData, guestName, guestSlug, isReviewMode }: InvitationViewerProps) {
 
   const theme = useMemo(() => getTheme(templateId), [templateId])
 
@@ -116,11 +142,17 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
     return `rgba(${theme.accentRgb},0.55)`
   }, [theme.accentRgb, theme.isLight])
 
-  // Use flowData for dynamic content, fall back to demo defaults
-  const partner1 = flowData?.partner1Name?.trim() || 'Ahmed'
-  const partner2 = flowData?.partner2Name?.trim() || 'Fatima'
-  const venueName = flowData?.venue?.trim() || 'The Grand Pearl Hall'
-  const rawVenueAddress = flowData?.venueAddress?.trim() || 'Main Boulevard, Gulberg, Lahore'
+  const category = getCategoryForTemplate(templateId, flowData?.category)
+  const isSchool = category === 'school'
+  const isBirthday = category === 'birthday'
+  const isCorporate = category === 'corporate'
+  const isWedding = category === 'wedding'
+
+  // Use flowData for dynamic content, fall back to category-aware demo defaults
+  const partner1 = flowData?.partner1Name?.trim() || (isSchool ? 'Oxford Collegiate Academy' : isBirthday ? 'Zara Khan' : isCorporate ? 'Apex Global Tech' : 'Ahmed')
+  const partner2 = flowData?.partner2Name?.trim() || (isSchool ? 'Class of 2027 Commencement' : isBirthday ? 'Turns 21!' : isCorporate ? 'Global Leadership Summit' : 'Fatima')
+  const venueName = flowData?.venue?.trim() || (isSchool ? 'The Great Memorial Convocation Hall' : isBirthday ? 'The Neon Sky Lounge' : isCorporate ? 'The Grand Financial Center' : 'The Grand Pearl Hall')
+  const rawVenueAddress = flowData?.venueAddress?.trim() || (isSchool ? 'Heritage Quadrangle, University Road' : isBirthday ? 'Main Boulevard, Gulberg III, Lahore' : isCorporate ? 'Level 42, Executive Tower, Financial District' : 'Main Boulevard, Gulberg, Lahore')
   const [venueAddress, googleMapsUrl] = rawVenueAddress.includes('|||')
     ? rawVenueAddress.split('|||')
     : [rawVenueAddress, '']
@@ -151,7 +183,14 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
 
     return () => { active = false; };
   }, [googleMapsUrl, venueAddress, venueName]);
-  const welcomeMsg = flowData?.welcomeMessage?.trim() || "With hearts full of love and joy, we warmly invite you to share in the celebration of our union. Your presence would mean the world to us as we begin this beautiful journey together."
+  const defaultWelcomeMsg = isSchool
+    ? "We warmly invite faculty, distinguished guests, alumni, and families to commemorate academic excellence and degree conferral."
+    : isCorporate
+    ? "You are cordially invited to join industry leaders, visionaries, and executives for keynote addresses and collaborative summits."
+    : isBirthday
+    ? "Get ready to dance, laugh, and celebrate an unforgettable milestone birthday! Your presence is the best gift."
+    : "With hearts full of love and joy, we warmly invite you to share in the celebration of our union. Your presence would mean the world to us as we begin this beautiful journey together."
+  const welcomeMsg = flowData?.welcomeMessage?.trim() || defaultWelcomeMsg
 
   const [language, setLanguage] = useState<'en' | 'ur'>('en')
   const [translations, setTranslations] = useState<Record<string, string>>({})
@@ -160,6 +199,21 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
   const isDemo = !flowData?.invitationId && !flowData?.partner1Name
 
   const [guestNameFromUrl, setGuestNameFromUrl] = useState('')
+  const [isPassModalOpen, setIsPassModalOpen] = useState(false)
+  const [agencyBrand, setAgencyBrand] = useState<{ agencyName: string; websiteUrl?: string; instagramHandle?: string } | null>(null)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const saved = localStorage.getItem('smartinvites_agency_profile');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.whiteLabelEnabled && parsed.agencyName) {
+          setAgencyBrand(parsed);
+        }
+      }
+    } catch {}
+  }, [])
 
   // Track page view and handle guest URL param
   useEffect(() => {
@@ -176,11 +230,11 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
     }
   }, [flowData?.invitationId, isDemo]);
 
-  const dressCodeWomen = flowData?.dressCodeWomen?.trim() || (isDemo ? "Yellow / Green traditional" : "")
-  const dressCodeMen = flowData?.dressCodeMen?.trim() || (isDemo ? "Gold / Maroon formal" : "")
-  const accommodation = flowData?.accommodation?.trim() || (isDemo ? "Rooms blocked at Leela Palace & Pearl Continental. Mention 'Ahmed & Fatima' for discounts." : "")
-  const transportation = flowData?.transportation?.trim() || (isDemo ? "Shuttle service will run from Pearl Continental to the venue every 30 minutes starting at 6:30 PM." : "")
-  const gifts = flowData?.gifts?.trim() || (isDemo ? "Your prayers are our greatest gift. For Shagun, you may transfer to Meezan Bank, Title: Ahmed Khan, Account Number: 028102384, IBAN: PK45MEZN00028102384, Raast ID: 03001234567, EasyPaisa: 03123456789" : "")
+  const dressCodeWomen = flowData?.dressCodeWomen?.trim() || (isDemo ? (isSchool ? "Academic regalia / formal" : isCorporate ? "Business professional" : isBirthday ? "Chic cocktail" : "Yellow / Green traditional") : "")
+  const dressCodeMen = flowData?.dressCodeMen?.trim() || (isDemo ? (isSchool ? "Academic gown / dark suit" : isCorporate ? "Executive formal" : isBirthday ? "Smart evening attire" : "Gold / Maroon formal") : "")
+  const accommodation = flowData?.accommodation?.trim() || (isDemo ? (isSchool ? "Campus guest suites and partner hotel rooms reserved under 'Convocation 2027'." : isCorporate ? "Partner hotel suites reserved at Serena Hotel & Pearl Continental. Corporate rate code: 'SUMMIT2027'." : isBirthday ? "Rooms booked at city boutique hotel. Mention 'Zara21' for group rates." : "Rooms blocked at Leela Palace & Pearl Continental. Mention 'Ahmed & Fatima' for discounts.") : "")
+  const transportation = flowData?.transportation?.trim() || (isDemo ? (isSchool ? "Campus shuttle service available from main parking and metro terminal every 15 minutes." : isCorporate ? "Private executive chauffeur and shuttle service between airport and conference center." : isBirthday ? "Valet parking provided at the entrance of the venue." : "Shuttle service will run from Pearl Continental to the venue every 30 minutes starting at 6:30 PM.") : "")
+  const gifts = flowData?.gifts?.trim() || (isDemo ? (isSchool ? "Contributions to the Student Excellence & Scholarship Fund are warmly welcomed." : isCorporate ? "" : isBirthday ? "Your love and presence are all that is requested." : "Your prayers are our greatest gift. For Shagun, you may transfer to Meezan Bank, Title: Ahmed Khan, Account Number: 028102384, IBAN: PK45MEZN00028102384, Raast ID: 03001234567, EasyPaisa: 03123456789") : "")
   const youtubeVideoId = flowData?.youtubeVideoId?.trim() || (isDemo ? "dQw4w9WgXcQ" : "")
 
   const dynamicEvents = useMemo(() => {
@@ -204,7 +258,22 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
         }))
     } else {
       // Default demo events
-      evs = [
+      evs = isSchool ? [
+        { name: 'Academic Procession', time: '04:30 PM', date: 'June 18, 2027', description: 'Faculty, deans, and graduating candidates assemble in traditional regalia.' },
+        { name: 'Commencement Address', time: '05:30 PM', date: 'June 18, 2027', description: 'Welcome address by the Chancellor and Dean of Academic Affairs.' },
+        { name: 'Conferral of Degrees', time: '06:30 PM', date: 'June 18, 2027', description: 'Presentation of diplomas and academic honors.' },
+        { name: 'Alumni Dinner & Gala', time: '08:00 PM', date: 'June 18, 2027', description: 'Celebratory banquet with faculty, families, and graduates.' },
+      ] : isBirthday ? [
+        { name: 'Red Carpet & Mocktails', time: '07:00 PM', date: 'March 25, 2027', description: 'Arrive in style, grab signature mocktails, and photo booth moments.' },
+        { name: 'Cake Cutting Ceremony', time: '08:30 PM', date: 'March 25, 2027', description: 'The grand celebration moment with confetti and fireworks.' },
+        { name: 'Celebration Dinner Feast', time: '09:00 PM', date: 'March 25, 2027', description: 'Lavish gourmet buffet and live culinary stations.' },
+        { name: 'DJ & Dance Party', time: '10:00 PM', date: 'March 25, 2027', description: 'Dance the night away with the hottest tracks and live DJ set.' },
+      ] : isCorporate ? [
+        { name: 'Delegate Registration', time: '08:30 AM', date: 'November 15, 2027', description: 'Badge collection, networking, and morning coffee.' },
+        { name: 'Keynote Address', time: '09:30 AM', date: 'November 15, 2027', description: 'Opening remarks and visionary leadership keynote.' },
+        { name: 'Executive Panel Session', time: '11:15 AM', date: 'November 15, 2027', description: 'Industry leaders discuss next-decade technology and capital.' },
+        { name: 'Networking Luncheon', time: '01:00 PM', date: 'November 15, 2027', description: 'Curated networking luncheon at the Skyline Terrace.' },
+      ] : [
         { name: 'Mehndi', time: '6:00 PM', date: 'March 14, 2027', description: 'A night of colors, henna, and celebration with traditional music and dance.' },
         { name: 'Baraat', time: '7:00 PM', date: 'March 15, 2027', description: 'The grand wedding procession — dhol beats, dancing, and joyful arrival.' },
         { name: 'Nikkah', time: '7:30 PM', date: 'March 15, 2027', description: 'The sacred Islamic marriage ceremony — the signing of the Nikkah Nama.' },
@@ -219,18 +288,18 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
       );
     }
     return evs;
-  }, [flowData?.events, flowData?.guestAllowedEvents, guestName])
+  }, [flowData?.events, flowData?.guestAllowedEvents, guestName, isSchool, isBirthday, isCorporate])
 
   const firstEvent = useMemo(() => {
     if (!dynamicEvents.length) {
-      return { date: 'March 15, 2027', time: '7:00 PM', name: 'Wedding' }
+      return { date: 'March 15, 2027', time: '7:00 PM', name: isSchool ? 'Convocation' : isCorporate ? 'Summit' : isBirthday ? 'Celebration' : 'Wedding' }
     }
-    const mainNames = ['baraat', 'nikkah', 'wedding', 'shaadi', 'ruksati']
+    const mainNames = ['baraat', 'nikkah', 'wedding', 'shaadi', 'ruksati', 'commencement', 'keynote', 'cake']
     const found = dynamicEvents.find(e => 
       mainNames.some(name => e.name.toLowerCase().includes(name))
     )
     return found || dynamicEvents[0]
-  }, [dynamicEvents])
+  }, [dynamicEvents, isSchool, isCorporate, isBirthday])
 
   const scratchDateInfo = useMemo(() => {
     return formatScratchDate(firstEvent.date, language)
@@ -248,6 +317,17 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
   const [rsvpName, setRsvpName] = useState('')
   const [rsvpEmail, setRsvpEmail] = useState('')
   const [rsvpStatus, setRsvpStatus] = useState<'accept' | 'decline' | null>(null)
+  const [adultsCount, setAdultsCount] = useState(1)
+  const [childrenCount, setChildrenCount] = useState(0)
+  const [dietaryNotes, setDietaryNotes] = useState('')
+  const [selectedDietaryChip, setSelectedDietaryChip] = useState('none')
+  const [attendingEvents, setAttendingEvents] = useState<string[]>([])
+
+  useEffect(() => {
+    if (dynamicEvents.length > 0) {
+      setAttendingEvents(prev => prev.length === 0 ? dynamicEvents.map(e => e.name) : prev)
+    }
+  }, [dynamicEvents])
   
   useEffect(() => {
     if (guestName) {
@@ -336,6 +416,18 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
     }
   }, [doorsOpened, musicPlaying])
 
+  // Audio ducking: pause background sitar when host voice note is played
+  useEffect(() => {
+    const handleVoiceStart = () => {
+      if (audioRef.current && !audioRef.current.paused) {
+        audioRef.current.pause();
+        setMusicPlaying(false);
+      }
+    };
+    window.addEventListener('shaadi_voice_started', handleVoiceStart);
+    return () => window.removeEventListener('shaadi_voice_started', handleVoiceStart);
+  }, []);
+
 
   const [showConfetti, setShowConfetti] = useState(false)
   const [rsvpHearts, setRsvpHearts] = useState<number[]>([])
@@ -354,12 +446,14 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
   const [wishes, setWishes] = useState<
     Array<{ name: string; message: string; translatedName?: string; translatedMessage?: string }>
   >(() => {
-    if (flowData?.invitationId) return []
-    return [
-      { name: 'Ayesha Khan', message: 'May Allah bless your union with endless love and happiness! 🤲' },
-      { name: 'Omar Farooq', message: 'Wishing you a lifetime of joy and togetherness! 💒' },
-      { name: 'Zainab Malik', message: 'MashaAllah! May your journey be filled with blessings! ✨' },
-    ]
+    if (isDemo) {
+      return [
+        { name: 'Ayesha Khan', message: 'May Allah bless your union with endless love and happiness! 🤲' },
+        { name: 'Omar Farooq', message: 'Wishing you a lifetime of joy and togetherness! 💒' },
+        { name: 'Zainab Malik', message: 'MashaAllah! May your journey be filled with blessings! ✨' },
+      ]
+    }
+    return []
   })
   // Keep a ref to the current wishes so the translation callback can read them without re-creating
   const wishesRef = useRef(wishes)
@@ -392,9 +486,24 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
 
   const handleRSVP = useCallback(async (status: 'accept' | 'decline') => {
     if (!rsvpName.trim()) { toast.error('Please enter your name'); return }
+
+    if (isReviewMode) {
+      setRsvpStatus(status);
+      setRsvpSubmitted(true);
+      toast.success('✨ Preview Mode: RSVP test simulated! (Live guest RSVPs will record after publishing).');
+      if (status === 'accept') {
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 4000);
+      }
+      return;
+    }
     
     if (flowData?.invitationId) {
       try {
+        const computedDietary = selectedDietaryChip !== 'none'
+          ? (dietaryNotes.trim() ? `${selectedDietaryChip}: ${dietaryNotes.trim()}` : selectedDietaryChip)
+          : dietaryNotes.trim()
+
         const response = await fetch(`/api/invitations/${flowData.invitationId}/rsvp`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -402,6 +511,10 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
             guestName: rsvpName.trim(),
             guestEmail: rsvpEmail.trim() || undefined,
             status,
+            adultsCount: status === 'accept' ? adultsCount : 0,
+            childrenCount: status === 'accept' ? childrenCount : 0,
+            dietaryNotes: status === 'accept' ? computedDietary : '',
+            attendingEvents: status === 'accept' ? attendingEvents : [],
           }),
         })
         if (!response.ok) {
@@ -432,7 +545,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
     } else {
       toast.success(`Thank you for letting us know, ${rsvpName}. You'll be missed! 💌`)
     }
-  }, [rsvpName, rsvpEmail, flowData?.invitationId])
+  }, [rsvpName, rsvpEmail, adultsCount, childrenCount, dietaryNotes, selectedDietaryChip, attendingEvents, isReviewMode, flowData?.invitationId])
 
   const handleSendWish = useCallback(async () => {
     if (!wishName.trim()) { toast.error('Please enter your name'); return }
@@ -502,7 +615,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
     requestHonour: 'آپ کی موجودگی کی عزت کی درخواست ہے',
     scratchReveal: 'دعوت نامہ دیکھنے کے لیے',
     ourMoments: 'ہماری یادگاریں',
-    'Our Story': '????? ?????',
+    'Our Story': 'ہماری کہانی',
     countingDown: 'ہمیشہ کی طرف گنتی',
     days: 'دن',
     hours: 'گھنٹے',
@@ -527,7 +640,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
     blessingsWishes: 'دعائیں اور آرزوئیں',
     writeBlessing: 'اپنی دعا یا آرزو لکھیں...',
     yourNameSender: 'آپ کا نام (تاکہ وہ جان سکیں کہ کس نے بھیجا)',
-    madeWithLove: 'شادی لنک کی طرف سے محبت سے بنایا گیا',
+    madeWithLove: 'اسمارٹ انوائٹس کی طرف سے محبت سے بنایا گیا',
     scroll: 'سکرول',
     tapToOpen: 'کھولنے کے لیے ٹچ کریں',
     mehndiDesc: 'رنگوں، مہندی اور روایتی موسیقی و رقص کی شام',
@@ -831,8 +944,8 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
       {/* Note: no Framer opacity animation on this wrapper — it would create a new stacking context and flatten 3D transforms */}
       {doorOverlayVisible && !theme.openingVideoUrl && (
         <div
-          className="fixed inset-0 z-50"
-          style={{ perspective: ['classic-doors', 'archway', 'lantern'].includes(theme.doorStyle.type) ? '1200px' : undefined }}
+          className="fixed inset-0 z-50 pointer-events-none"
+          style={{ perspective: ['classic-doors', 'archway', 'lantern', 'dome'].includes(theme.doorStyle.type) ? '1200px' : undefined }}
         >
           <DoorOverlay theme={theme} doorsOpened={doorsOpened} onOpen={handleDoorOpen} />
         </div>
@@ -845,15 +958,15 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
       {/* Gold Dust Splash (Royal exclusive) */}
       <GoldDustSplash show={showGoldDust} colors={theme.fireworkColors} />
 
-      {/* Music toggle */}
-      <div className="fixed top-4 right-4 z-[200] flex items-center gap-2">
+      {/* Floating Controls Capsule (Language, Share, Music) */}
+      <div className="fixed top-[max(1rem,env(safe-area-inset-top))] right-[max(1rem,env(safe-area-inset-right))] z-[200] flex items-center gap-1.5 p-1 rounded-full bg-black/40 backdrop-blur-md border border-white/10 shadow-xl">
         <button
           onClick={() => {
             const newLang = language === 'en' ? 'ur' : 'en'
             setLanguage(newLang)
           }}
-          className="w-10 h-10 rounded-full border backdrop-blur-sm flex items-center justify-center transition-all duration-300 text-xs font-bold relative"
-          style={{ backgroundColor: theme.bgPrimary + 'cc', borderColor: theme.borderSubtle, color: getOpacityStyle('text', 0.7) }}
+          className="w-9 h-9 rounded-full border backdrop-blur-sm flex items-center justify-center transition-all duration-300 text-xs font-bold relative hover:scale-105 active:scale-95"
+          style={{ backgroundColor: theme.bgPrimary + 'cc', borderColor: theme.borderSubtle, color: getOpacityStyle('text', 0.8) }}
           aria-label="Toggle language"
           disabled={isTranslating}
         >
@@ -866,7 +979,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
         {/* Floating Share Button */}
         <button
           onClick={handleShare}
-          className="w-10 h-10 rounded-full border backdrop-blur-sm flex items-center justify-center transition-all duration-300 relative hover:scale-105 active:scale-95"
+          className="w-9 h-9 rounded-full border backdrop-blur-sm flex items-center justify-center transition-all duration-300 relative hover:scale-105 active:scale-95"
           style={{ backgroundColor: theme.bgPrimary + 'cc', borderColor: theme.borderSubtle }}
           aria-label="Share Invitation"
           title="Share Invitation"
@@ -876,8 +989,8 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
         <MusicToggle isPlaying={musicPlaying} onToggle={() => setMusicPlaying(!musicPlaying)} theme={theme} />
       </div>
 
-      {/* ─── Bismillah Banner (shown only if enabled) ─── */}
-      {flowData?.showBismillah !== false && (
+      {/* ─── Bismillah Banner (shown only for wedding if enabled) ─── */}
+      {(flowData?.showBismillah ?? isWedding) && isWedding && (
         <m.div
           initial={{ borderColor: 'rgba(0,0,0,0)' }}
           animate={doorsOpened ? { borderColor: getOpacityStyle('border', 0.15) } : { borderColor: 'rgba(0,0,0,0)' }}
@@ -1115,6 +1228,22 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
               <p className={`${theme.fontCalligraphy} text-xl md:text-2xl leading-relaxed italic whitespace-pre-wrap break-words my-8`} style={{ color: theme.accentLight, textShadow: `0 0 15px ${getOpacityStyle('text', 0.2)}` }}>
                 {translatedWelcomeMsg}
               </p>
+
+              {/* Personal Host Voice Greeting Memo */}
+              {flowData?.voiceNoteUrl && (
+                <VoiceGreetingPlayer
+                  voiceNoteUrl={flowData.voiceNoteUrl}
+                  voiceNoteTitle={flowData.voiceNoteTitle}
+                  voiceNoteSender={flowData.voiceNoteSender}
+                  onPlayStart={() => {
+                    if (audioRef.current && !audioRef.current.paused) {
+                      audioRef.current.pause();
+                      setMusicPlaying(false);
+                    }
+                  }}
+                />
+              )}
+
               <WaveDivider accentColor={theme.accent} />
             </div>
           </section>
@@ -1240,6 +1369,19 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
             </div>
           </section>
         </RevealSection>
+
+        {/* ─── Crowd Photo Wall (Live Guest Snaps) ─── */}
+        {flowData?.invitationId && (
+          <RevealSection>
+            <CrowdPhotoWallSection
+              invitationId={flowData.invitationId}
+              slug={flowData.slug}
+              guestName={translatedGuestName || rsvpName || guestName}
+              guestSeats={flowData.guestSeats}
+              accentColor={theme.accent}
+            />
+          </RevealSection>
+        )}
 
           {/* 🎥 Video Section (Royal Plan / Video Feature) 🎥 */}
           {youtubeVideoId && (flowData?.selectedPlan === 'royal' || theme.id.includes('royal') || theme.id === 'geometric-gold' || theme.id === 'dark-velvet') && (
@@ -1773,22 +1915,33 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
 
               {/* Guest seat count badge */}
               {guestNameFromUrl && flowData?.guestSeats != null && (
-                <m.div
-                  initial={{ opacity: 0, y: 8 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-full border"
-                  style={{ borderColor: getOpacityStyle('border', 0.25), backgroundColor: getOpacityStyle('bg', 0.07) }}
-                >
-                  <User className="w-4 h-4" style={{ color: theme.accent }} />
-                  <span className={`${theme.fontDisplay} text-sm font-medium`} style={{ color: theme.accentLight }}>
-                    {flowData.guestSeats === 0
-                      ? (language === 'ur' ? `${translatedGuestName} — پوری فیملی مدعو` : `${translatedGuestName} — Whole Family Invited`)
-                      : flowData.guestSeats === 1
-                      ? `${translatedGuestName} — 1 Person Invited`
-                      : `${translatedGuestName} — ${flowData.guestSeats} ${flowData.guestSeats === 1 ? 'Person' : 'Persons'} Invited`}
-                  </span>
-                </m.div>
+                <div className="flex flex-col items-center gap-2">
+                  <m.div
+                    initial={{ opacity: 0, y: 8 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-full border"
+                    style={{ borderColor: getOpacityStyle('border', 0.25), backgroundColor: getOpacityStyle('bg', 0.07) }}
+                  >
+                    <User className="w-4 h-4" style={{ color: theme.accent }} />
+                    <span className={`${theme.fontDisplay} text-sm font-medium`} style={{ color: theme.accentLight }}>
+                      {flowData.guestSeats === 0
+                        ? (language === 'ur' ? `${translatedGuestName} — پوری فیملی مدعو` : `${translatedGuestName} — Whole Family Invited`)
+                        : flowData.guestSeats === 1
+                        ? `${translatedGuestName} — 1 Person Invited`
+                        : `${translatedGuestName} — ${flowData.guestSeats} ${flowData.guestSeats === 1 ? 'Person' : 'Persons'} Invited`}
+                    </span>
+                  </m.div>
+                  <button
+                    type="button"
+                    onClick={() => setIsPassModalOpen(true)}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer"
+                    style={{ borderColor: `${theme.accent}50`, backgroundColor: `${theme.accent}15`, color: theme.accent }}
+                  >
+                    <Ticket className="w-3.5 h-3.5" />
+                    <span>{language === 'ur' ? 'ڈیجیٹل انٹری پاس دیکھیں' : 'View Digital Entry Pass'}</span>
+                  </button>
+                </div>
               )}
 
               <div className="relative w-full">
@@ -1828,7 +1981,157 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
                           style={{ backgroundColor: theme.bgSecondary, borderColor: theme.borderSubtle, color: theme.textPrimary }}
                         />
                       </div>
-                      <div className="flex gap-3 pt-2">
+
+                      {/* Headcount Steppers: Adults & Children */}
+                      <div className="space-y-2 pt-1">
+                        <div className="flex items-center justify-between">
+                          <label className={`text-xs font-semibold uppercase tracking-wider ${theme.fontDisplay}`} style={{ color: getOpacityStyle('text', 0.8) }}>
+                            {language === 'ur' ? 'حاضرین کی تعداد (Headcount)' : 'Guests Attending (Headcount)'}
+                          </label>
+                          <span className="text-[11px] font-medium" style={{ color: theme.accent }}>
+                            {adultsCount + childrenCount} {language === 'ur' ? 'کل افراد' : (adultsCount + childrenCount === 1 ? 'Guest Total' : 'Guests Total')}
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          {/* Adults */}
+                          <div className="p-3 rounded-lg border flex flex-col gap-1.5" style={{ backgroundColor: theme.bgSecondary, borderColor: theme.borderSubtle }}>
+                            <span className="text-[11px] font-medium" style={{ color: getOpacityStyle('text', 0.7) }}>
+                              {language === 'ur' ? 'بڑے افراد (12+ سال)' : 'Adults (12+ yrs)'}
+                            </span>
+                            <div className="flex items-center justify-between mt-1">
+                              <button
+                                type="button"
+                                onClick={() => setAdultsCount(prev => Math.max(1, prev - 1))}
+                                className="w-8 h-8 rounded-md border flex items-center justify-center font-bold text-base transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                                style={{ borderColor: theme.borderSubtle, backgroundColor: theme.bgPrimary, color: theme.textPrimary }}
+                              >
+                                -
+                              </button>
+                              <span className="font-bold text-base" style={{ color: theme.textPrimary }}>{adultsCount}</span>
+                              <button
+                                type="button"
+                                onClick={() => setAdultsCount(prev => Math.min(20, prev + 1))}
+                                className="w-8 h-8 rounded-md border flex items-center justify-center font-bold text-base transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                                style={{ borderColor: theme.borderSubtle, backgroundColor: theme.bgPrimary, color: theme.textPrimary }}
+                              >
+                                +
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Children */}
+                          <div className="p-3 rounded-lg border flex flex-col gap-1.5" style={{ backgroundColor: theme.bgSecondary, borderColor: theme.borderSubtle }}>
+                            <span className="text-[11px] font-medium" style={{ color: getOpacityStyle('text', 0.7) }}>
+                              {language === 'ur' ? 'بچے (<12 سال)' : 'Children (<12 yrs)'}
+                            </span>
+                            <div className="flex items-center justify-between mt-1">
+                              <button
+                                type="button"
+                                onClick={() => setChildrenCount(prev => Math.max(0, prev - 1))}
+                                className="w-8 h-8 rounded-md border flex items-center justify-center font-bold text-base transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                                style={{ borderColor: theme.borderSubtle, backgroundColor: theme.bgPrimary, color: theme.textPrimary }}
+                              >
+                                -
+                              </button>
+                              <span className="font-bold text-base" style={{ color: theme.textPrimary }}>{childrenCount}</span>
+                              <button
+                                type="button"
+                                onClick={() => setChildrenCount(prev => Math.min(20, prev + 1))}
+                                className="w-8 h-8 rounded-md border flex items-center justify-center font-bold text-base transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                                style={{ borderColor: theme.borderSubtle, backgroundColor: theme.bgPrimary, color: theme.textPrimary }}
+                              >
+                                +
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Multi-Ceremony Selection (if > 1 ceremony) */}
+                      {dynamicEvents.length > 1 && (
+                        <div className="space-y-2 pt-1">
+                          <label className={`text-xs font-semibold uppercase tracking-wider ${theme.fontDisplay}`} style={{ color: getOpacityStyle('text', 0.8) }}>
+                            {language === 'ur' ? 'کون سی تقریبات میں تشریف لائیں گے؟' : 'Ceremonies Attending'}
+                          </label>
+                          <div className="flex flex-wrap gap-2">
+                            {dynamicEvents.map((ev) => {
+                              const isChecked = attendingEvents.includes(ev.name);
+                              return (
+                                <button
+                                  key={ev.name}
+                                  type="button"
+                                  onClick={() => {
+                                    setAttendingEvents(prev => 
+                                      prev.includes(ev.name) 
+                                        ? (prev.length > 1 ? prev.filter(n => n !== ev.name) : prev) 
+                                        : [...prev, ev.name]
+                                    )
+                                  }}
+                                  className="px-3 py-1.5 rounded-lg text-xs font-medium border flex items-center gap-1.5 transition-all cursor-pointer"
+                                  style={{
+                                    backgroundColor: isChecked ? theme.accent + '22' : theme.bgSecondary,
+                                    borderColor: isChecked ? theme.accent : theme.borderSubtle,
+                                    color: isChecked ? theme.accent : getOpacityStyle('text', 0.7),
+                                  }}
+                                >
+                                  <span
+                                    className={`w-3.5 h-3.5 rounded flex items-center justify-center text-[10px] ${isChecked ? 'text-white' : 'border'}`}
+                                    style={{ backgroundColor: isChecked ? theme.accent : 'transparent', borderColor: theme.borderSubtle }}
+                                  >
+                                    {isChecked ? '✓' : ''}
+                                  </span>
+                                  {ev.name}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Dietary Preferences & Notes */}
+                      <div className="space-y-2 pt-1">
+                        <div className="flex items-center justify-between">
+                          <label className={`text-xs font-semibold uppercase tracking-wider ${theme.fontDisplay}`} style={{ color: getOpacityStyle('text', 0.8) }}>
+                            {language === 'ur' ? 'غذائی ترجیحات یا الرجی' : 'Dietary Preferences & Allergies'}
+                          </label>
+                          <span className="text-[10px]" style={{ color: getOpacityStyle('text', 0.4) }}>{t('optional', '(optional)')}</span>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {[
+                            { id: 'none', label: language === 'ur' ? 'معمول' : 'Standard / None' },
+                            { id: 'Diabetic / Sugar-free', label: language === 'ur' ? 'شوگر فری' : 'Diabetic / Sugar-Free' },
+                            { id: 'Vegetarian', label: language === 'ur' ? 'سبزی خور' : 'Vegetarian' },
+                            { id: 'Nut Allergy', label: language === 'ur' ? 'نٹ الرجی' : 'Nut Allergy' },
+                            { id: 'Kids Meal', label: language === 'ur' ? 'بچوں کا کھانا' : 'Kids Meal' },
+                          ].map((chip) => {
+                            const isSelected = selectedDietaryChip === chip.id;
+                            return (
+                              <button
+                                key={chip.id}
+                                type="button"
+                                onClick={() => setSelectedDietaryChip(chip.id)}
+                                className="px-2.5 py-1 rounded-full text-[11px] font-medium border transition-all cursor-pointer"
+                                style={{
+                                  backgroundColor: isSelected ? theme.accent : theme.bgSecondary,
+                                  borderColor: isSelected ? theme.accent : theme.borderSubtle,
+                                  color: isSelected ? '#fff' : getOpacityStyle('text', 0.7),
+                                }}
+                              >
+                                {chip.label}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        <Input
+                          value={dietaryNotes}
+                          onChange={(e) => setDietaryNotes(e.target.value)}
+                          placeholder={language === 'ur' ? 'کوئی خاص خوراکی ہدایت، الرجی یا نشست کی ضرورت...' : 'e.g., severe peanut allergy, wheelchair accessible seating'}
+                          className="border text-xs transition-all duration-300 mt-1 h-9"
+                          style={{ backgroundColor: theme.bgSecondary, borderColor: theme.borderSubtle, color: theme.textPrimary }}
+                        />
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row gap-3 pt-2">
                         <Button 
                           onClick={() => handleRSVP('accept')} 
                           className={`flex-1 text-white border rounded-lg h-11 ${theme.fontDisplay} green-glow transition-all duration-300 hover:scale-[1.02]`}
@@ -1846,6 +2149,41 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
                           <X className="w-4 h-4 mr-1.5" />
                           {t('respectfullyDecline', 'Respectfully Decline')}
                         </Button>
+                      </div>
+
+                      {/* Direct WhatsApp RSVP Action with Granular Details */}
+                      <div className="pt-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const hostPhone = (flowData?.contactPhone || '').replace(/[^0-9]/g, '');
+                            const guest = translatedGuestName || rsvpName || 'Guest';
+                            const eventTitle = `${flowData?.partner1Name || ''} & ${flowData?.partner2Name || ''}`;
+
+                            const parts: string[] = [];
+                            if (adultsCount > 0) parts.push(`${adultsCount} Adult${adultsCount > 1 ? 's' : ''}`);
+                            if (childrenCount > 0) parts.push(`${childrenCount} Child${childrenCount > 1 ? 'ren' : ''}`);
+                            const headcountStr = parts.join(', ') || '1 Guest';
+                            const eventsStr = attendingEvents.length > 0 ? attendingEvents.join(', ') : 'All events';
+                            const computedDietary = selectedDietaryChip !== 'none'
+                              ? (dietaryNotes.trim() ? `${selectedDietaryChip} (${dietaryNotes.trim()})` : selectedDietaryChip)
+                              : dietaryNotes.trim();
+                            const dietStr = computedDietary ? ` | Dietary: ${computedDietary}` : '';
+
+                            const msg = encodeURIComponent(
+                              language === 'ur'
+                                ? `السلام علیکم! مجھے ${eventTitle} کا دعوت نامہ موصول ہوا۔ برائے مہربانی (${guest}) کو حاضر (قبول RSVP) درج فرمائیں۔\nتعداد: ${headcountStr}۔\nتقاریب: ${eventsStr}${computedDietary ? `\nغذائی ہدایت: ${computedDietary}` : ''}۔\nشرکت کی خوشی ہوگی! 🎉`
+                                : `Assalam-o-Alaikum! I received the invitation for ${eventTitle}.\n\nPlease mark me (${guest}) as ATTENDING.\nParty Size: ${headcountStr}\nAttending: ${eventsStr}${dietStr}\n\nLooking forward to celebrating together! 🎉`
+                            );
+                            const waUrl = hostPhone ? `https://wa.me/${hostPhone}?text=${msg}` : `https://wa.me/?text=${msg}`;
+                            window.open(waUrl, '_blank', 'noopener,noreferrer');
+                          }}
+                          className="w-full h-10 rounded-lg flex items-center justify-center gap-2 text-xs font-semibold border transition-all hover:bg-emerald/10 cursor-pointer"
+                          style={{ borderColor: 'rgba(37, 211, 102, 0.4)', color: '#25D366' }}
+                        >
+                          <WhatsAppIcon className="w-4 h-4 text-[#25D366]" />
+                          <span>{language === 'ur' ? 'واٹس ایپ پر تعداد کے ساتھ تصدیق کریں' : 'Confirm Breakdown via WhatsApp'}</span>
+                        </button>
                       </div>
                       <p className="text-[10px] text-center mt-3" style={{ color: getOpacityStyle('text', 0.4) }}>
                         Your response is shared only with the host. See our <a href="/privacy" className="underline" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
@@ -1873,6 +2211,19 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
                         ? `We can't wait to celebrate with you, ${rsvpName}! 🎉`
                         : `We'll miss you, ${rsvpName}. You'll be in our hearts! 💌`}
                     </p>
+                    {rsvpStatus === 'accept' && (
+                      <div className="mt-4">
+                        <button
+                          type="button"
+                          onClick={() => setIsPassModalOpen(true)}
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold border transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer"
+                          style={{ borderColor: `${theme.accent}60`, backgroundColor: `${theme.accent}20`, color: theme.accent }}
+                        >
+                          <Ticket className="w-4 h-4" />
+                          <span>{language === 'ur' ? 'اپنا ڈیجیٹل انٹری پاس دیکھیں' : 'View Digital Entry Pass'}</span>
+                        </button>
+                      </div>
+                    )}
                   </m.div>
                 )}
               </div>
@@ -1960,19 +2311,58 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug }: Invitatio
             <Heart className="w-3 h-3" style={{ color: getOpacityStyle('text', 0.3) }} />
             <div className="w-8 h-px" style={{ backgroundColor: getOpacityStyle('bg', 0.2) }} />
           </div>
-          <p className="text-xs tracking-wider" style={{ color: getOpacityStyle('text', 0.4) }}>
-            {t('madeWithLove', 'Made with love by Smart Invites').split(/(Smart Invites|شادی لنک)/i).map((part, i) => 
-              part.toLowerCase() === 'smartinvites' || part === 'شادی لنک' ? (
-                <a key={i} href="https://www.smartinvites.com.pk/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline' }}>
-                  {part}
+          {agencyBrand ? (
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-black/40 border border-white/10 text-xs tracking-wide">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <span>
+                Curated with elegance by{' '}
+                <a
+                  href={agencyBrand.websiteUrl || (agencyBrand.instagramHandle ? `https://instagram.com/${agencyBrand.instagramHandle.replace('@', '')}` : '#')}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold underline text-amber-400 hover:text-amber-300"
+                >
+                  {agencyBrand.agencyName}
                 </a>
-              ) : (
-                <span key={i}>{part}</span>
-              )
-            )}
-          </p>
+              </span>
+            </div>
+          ) : (
+            <p className="text-xs tracking-wider" style={{ color: getOpacityStyle('text', 0.5) }}>
+              {t('madeWithLove', 'Made with love by Smart Invites').split(/(Smart Invites|اسمارٹ انوائٹس|سمارٹ انوائٹس)/i).map((part, i) => {
+                const isBrand = /smart\s*invites|اسمارٹ\s*انوائٹس|سمارٹ\s*انوائٹس/i.test(part.trim());
+                return isBrand ? (
+                  <a
+                    key={i}
+                    href="/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold underline underline-offset-4 hover:opacity-80 transition-opacity cursor-pointer inline-block"
+                    style={{ color: theme.accent }}
+                  >
+                    {part}
+                  </a>
+                ) : (
+                  <span key={i}>{part}</span>
+                );
+              })}
+            </p>
+          )}
         </div>
       </m.div>
+
+            <DigitalGuestPassModal
+        isOpen={isPassModalOpen}
+        onClose={() => setIsPassModalOpen(false)}
+        guestName={translatedGuestName || rsvpName || 'Honored Guest'}
+        guestSlug={guestSlug || undefined}
+        seats={flowData?.guestSeats ?? 1}
+        allowedEvents={flowData?.guestAllowedEvents || undefined}
+        invitationTitle={`${flowData?.partner1Name || ''} & ${flowData?.partner2Name || ''}`}
+        invitationUrl={typeof window !== 'undefined' ? window.location.href.split('?')[0] : ''}
+        eventDate={flowData?.events?.[0]?.date}
+        venue={flowData?.venue}
+        category={flowData?.category || 'wedding'}
+      />
 
       {/* ═══ Inline SVG ClipPaths ─── */}
     </div>
@@ -1998,10 +2388,13 @@ import { CountdownTimer, AddToCalendarDropdown, getCountdownTarget } from './fea
 import { PhotoGallery } from './features/photo-gallery';
 import { drawHeartPath, getHeartSvgPath } from './ui/shapes';
 import { RevealSection, getMapEmbedQuery } from './ui/reveal-section';
+import { ClientReviewBanner } from './client-review-banner';
+import { DraftWatermark } from './draft-watermark';
 
 export default function InvitationViewer(props: InvitationViewerProps) {
   const isDemo = !props.flowData?.invitationId && !props.flowData?.partner1Name
   const [showDemoBanner, setShowDemoBanner] = useState(isDemo)
+  const [isSnapModalOpen, setIsSnapModalOpen] = useState(false)
 
   useEffect(() => {
     if (isDemo) {
@@ -2009,17 +2402,49 @@ export default function InvitationViewer(props: InvitationViewerProps) {
       return () => clearTimeout(timer)
     }
   }, [isDemo])
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('snap') === 'true') {
+        setIsSnapModalOpen(true)
+      }
+    }
+  }, [])
   
   const renderViewer = () => {
     const RoyalViewer = props.templateId ? ROYAL_TEMPLATE_MAP[props.templateId] : null
     if (RoyalViewer) {
       return <RoyalViewer {...props} />
     }
+
+    const category = getCategoryForTemplate(props.templateId, props.flowData?.category)
+    if (category === 'birthday') {
+      return <BirthdayViewerLayout {...props} />
+    }
+    if (category === 'school') {
+      return <SchoolViewerLayout {...props} />
+    }
+    if (category === 'corporate') {
+      return <CorporateViewerLayout {...props} />
+    }
+
     return <ClassicViewer {...props} />
   }
 
   return (
     <>
+      {props.isReviewMode && (
+        <>
+          <ClientReviewBanner
+            flowData={props.flowData}
+            templateId={props.templateId}
+            viewsCount={props.viewsCount}
+            maxViews={props.maxViews}
+          />
+          <DraftWatermark />
+        </>
+      )}
       <AnimatePresence>
         {showDemoBanner && (
           <m.div 
@@ -2034,6 +2459,16 @@ export default function InvitationViewer(props: InvitationViewerProps) {
         )}
       </AnimatePresence>
       {renderViewer()}
+      {props.flowData?.invitationId && (
+        <GuestSnapsModal
+          isOpen={isSnapModalOpen}
+          onClose={() => setIsSnapModalOpen(false)}
+          invitationId={props.flowData.invitationId}
+          slug={props.flowData.slug}
+          defaultGuestName={props.guestName}
+          defaultTable={props.flowData.guestSeats}
+        />
+      )}
     </>
   )
 }

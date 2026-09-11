@@ -17,6 +17,7 @@ import {
 import { toast } from 'sonner'
 import { PrintableCard, CardTemplateTheme } from '@/components/templates/card-templates'
 import type { FlowData } from '@/lib/flow-types'
+import { getCategoryForTemplate } from '@/lib/category-utils'
 
 interface PrintCardsDrawerProps {
   isOpen: boolean
@@ -26,7 +27,17 @@ interface PrintCardsDrawerProps {
 }
 
 export function PrintCardsDrawer({ isOpen, onOpenChange, flowData, plan }: PrintCardsDrawerProps) {
-  const [selectedTheme, setSelectedTheme] = useState<CardTemplateTheme>('classic-gold')
+  const derivedCat = flowData.category || getCategoryForTemplate(flowData.selectedTemplateId);
+  const defaultCategoryTheme = (
+    derivedCat === 'birthday'
+      ? 'birthday-milestone'
+      : derivedCat === 'school'
+      ? 'school-convocation'
+      : (derivedCat === 'meeting' || derivedCat === 'corporate')
+      ? 'corporate-summit'
+      : 'classic-gold'
+  ) as CardTemplateTheme;
+  const [selectedTheme, setSelectedTheme] = useState<CardTemplateTheme>(defaultCategoryTheme);
   const [isExportingImage, setIsExportingImage] = useState(false)
   const [isExportingPDF, setIsExportingPDF] = useState(false)
 
@@ -55,7 +66,7 @@ export function PrintCardsDrawer({ isOpen, onOpenChange, flowData, plan }: Print
     if (!node) return null
     
     return await html2canvas(node, {
-      scale: 2, // High resolution
+      scale: 3.5, // 300 DPI Ultra-High Resolution
       useCORS: true,
       logging: false,
       backgroundColor: null,
@@ -231,6 +242,27 @@ export function PrintCardsDrawer({ isOpen, onOpenChange, flowData, plan }: Print
                     >
                       <span>Luxurious Botanical</span>
                       {plan !== 'royal' && <Crown className="w-4 h-4 text-gold" />}
+                    </Button>
+                    <Button 
+                      variant={selectedTheme === 'birthday-milestone' ? 'default' : 'outline'}
+                      onClick={() => setSelectedTheme('birthday-milestone')}
+                      className="justify-start"
+                    >
+                      🎉 Birthday Milestone
+                    </Button>
+                    <Button 
+                      variant={selectedTheme === 'school-convocation' ? 'default' : 'outline'}
+                      onClick={() => setSelectedTheme('school-convocation')}
+                      className="justify-start"
+                    >
+                      🎓 Academic Convocation
+                    </Button>
+                    <Button 
+                      variant={selectedTheme === 'corporate-summit' ? 'default' : 'outline'}
+                      onClick={() => setSelectedTheme('corporate-summit')}
+                      className="justify-start"
+                    >
+                      💼 Corporate Leadership Summit
                     </Button>
                   </div>
                 </CardContent>

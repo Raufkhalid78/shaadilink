@@ -116,7 +116,11 @@ export async function POST(request: NextRequest) {
       uploadedUrls.push(publicUrl)
     }
 
-    return NextResponse.json({ urls: uploadedUrls }, { status: 201 })
+    return NextResponse.json({
+      success: true,
+      urls: uploadedUrls,
+      url: uploadedUrls[0] || null,
+    }, { status: 201 })
   } catch (error: any) {
     console.error('POST /api/upload error:', error)
     return NextResponse.json({ error: 'Internal server error while processing upload' }, { status: 500 })

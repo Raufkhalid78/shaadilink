@@ -1,5 +1,6 @@
+'use client';
 
-'use client'
+import { AdaptiveVideoStreamer } from '../adaptive-video-streamer';
 
 import { DoorFrame, LightLeak } from './door-frame';
 import { DoorPanelLayout, DoorSurface, DoorPanelContent } from './door-panels';
@@ -25,9 +26,19 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
   const ds = theme.doorStyle
   const a = theme.accentRgb
 
+  const [overlayGone, setOverlayGone] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   const [isPressed, setIsPressed] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    if (doorsOpened) {
+      const timer = setTimeout(() => setOverlayGone(true), 2800)
+      return () => clearTimeout(timer)
+    } else {
+      setOverlayGone(false)
+    }
+  }, [doorsOpened])
 
   // Pre-generate star positions deterministically
   const stars = [
@@ -544,16 +555,25 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
             >
               {ds.centerIcon || '✦'}
             </span>
-            <span 
-              className={`text-[7px] md:text-[9px] tracking-[0.28em] font-bold uppercase mt-0.5 select-none ${theme.fontDisplay}`} 
-              style={{ 
-                color: accent,
-                opacity: 0.85,
-                textShadow: '0 1px 3px rgba(0,0,0,0.6)'
-              }}
-            >
-              OPEN
-            </span>
+            {(() => {
+              const themeName = (theme.name || theme.id || '').toLowerCase();
+              const isSchool = themeName.includes('school') || themeName.includes('academic') || themeName.includes('convocation') || themeName.includes('commencement') || themeName.includes('gala') || themeName.includes('innovator') || themeName.includes('campus');
+              const isCorp = themeName.includes('summit') || themeName.includes('boardroom') || themeName.includes('keynote') || themeName.includes('corporate') || themeName.includes('connect') || themeName.includes('startup');
+              const isBday = themeName.includes('celebration') || themeName.includes('birthday') || themeName.includes('jubilee') || themeName.includes('paradise') || themeName.includes('chic') || themeName.includes('milestone');
+              const sealText = (ds as any).sealText || (isSchool ? 'ENTER' : isCorp ? 'ACCESS' : isBday ? 'PARTY' : 'OPEN');
+              return (
+                <span 
+                  className={`text-[7px] md:text-[9px] tracking-[0.28em] font-bold uppercase mt-0.5 select-none ${theme.fontDisplay}`} 
+                  style={{ 
+                    color: accent,
+                    opacity: 0.85,
+                    textShadow: '0 1px 3px rgba(0,0,0,0.6)'
+                  }}
+                >
+                  {sealText}
+                </span>
+              );
+            })()}
           </div>
           {/* Melty wax outer ripple shadow ring - only render on the left side to prevent double animation */}
           {side === 'left' && (
@@ -572,54 +592,36 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
 
   const shouldRenderHingesAndHandle = ['classic-doors', 'archway', 'dome'].includes(ds.type);
 
+  if (overlayGone) return null;
+
   if (theme.openingVideoUrl) {
     return (
-      <div 
-        className="fixed inset-0 z-[100] bg-black cursor-pointer flex items-center justify-center overflow-hidden transition-opacity duration-1000 "
-        onClick={() => {
-          if (doorsOpened) return;
-          setIsPressed(true);
-          const video = document.getElementById('opening-video') as HTMLVideoElement;
-          if (video) {
-            const p = video.play();
-            if (p !== undefined) {
-              p.catch(() => {});
-            }
-          }
-        }}
-      >
-        <video 
-          id="opening-video"
-          src={`${theme.openingVideoUrl}#t=0.001`}
-          poster={theme.openingVideoPosterUrl}
-          className="w-full h-full object-cover" 
-          playsInline 
-          muted 
-          preload="auto"
-          onEnded={() => onOpen(true)}
-        />
-        <AnimatePresence>
-          {!isPressed && !doorsOpened && (
-            <m.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0, transition: { duration: 0.5 } }}
-              className="absolute inset-0 flex items-center justify-center pointer-events-none"
-            >
-              <div className="px-6 py-3 rounded-full bg-black/40 backdrop-blur-md border border-white/20 text-white/90 text-sm uppercase tracking-widest animate-pulse">
-                Tap anywhere to open
-              </div>
-            </m.div>
-          )}
-        </AnimatePresence>
-      </div>
-    )
+      <AdaptiveVideoStreamer
+        videoUrl={theme.openingVideoUrl}
+        posterUrl={theme.openingVideoPosterUrl}
+        doorsOpened={doorsOpened}
+        onOpen={onOpen}
+        accent={theme.accent}
+      />
+    );
   }
 
   return (
-    <>
+    <div
+      className="fixed inset-0 z-50 overflow-hidden pointer-events-none select-none"
+      style={{
+        perspective: ['classic-doors', 'archway', 'lantern', 'dome'].includes(ds.type) ? '1200px' : undefined,
+      }}
+    >
       {/* ─── ENHANCED CINEMATIC BACKGROUND ─── */}
-      <div className="absolute inset-0" style={{ backgroundColor: theme.bgSecondary }}>
+      <div 
+        className="absolute inset-0 pointer-events-none transition-opacity duration-1000"
+        style={{ 
+          backgroundColor: theme.bgSecondary,
+          opacity: doorsOpened ? 0 : 1,
+          transitionDelay: doorsOpened ? '400ms' : '0ms',
+        }}
+      >
         {/* Deep radial sky glow */}
         <div className="absolute inset-0" style={{
           background: `radial-gradient(ellipse at 50% 40%, rgba(${a},0.18) 0%, rgba(${a},0.06) 30%, transparent 65%)`
@@ -649,16 +651,19 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
             <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse at center, rgba(${a},0.12) 0%, rgba(${a},0.04) 40%, transparent 70%)` }} />
           </div>
         )}
-        {doorsOpened && (
-          <m.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.2 }} className="absolute inset-0" style={{ background: `radial-gradient(ellipse at center, rgba(${a},0.22) 0%, rgba(${a},0.08) 40%, transparent 70%)` }} />
-        )}
       </div>
 
       {/* Light leak effect - between doors */}
       <LightLeak accentRgb={theme.accentRgb} doorsOpened={doorsOpened} />
 
-      {/* Door Frame - visible behind the doors */}
-      <div className={doorsOpened ? 'door-frame-shadow' : ''} style={doorsOpened ? { transition: 'opacity 2s ease-out' } : {}}>
+      {/* Door Frame - visible behind the doors, dissolves smoothly on open */}
+      <div 
+        className={`pointer-events-none transition-opacity duration-700 ${doorsOpened ? 'door-frame-shadow' : ''}`}
+        style={{ 
+          opacity: doorsOpened ? 0 : 1,
+          transitionDelay: doorsOpened ? '1000ms' : '0ms',
+        }}
+      >
         <DoorFrame theme={theme} />
       </div>
 
@@ -666,17 +671,17 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
       <m.div
         className={`absolute top-0 left-0 w-1/2 h-full ${!doorsOpened ? idleClass : ''}`}
         style={{ transformOrigin: 'left center', transformStyle: 'preserve-3d', willChange: 'transform' }}
-        initial={{ rotateY: 0, x: 0, rotateZ: 0, scaleX: 1, y: 0 }}
+        initial={{ rotateY: 0, x: 0, rotateZ: 0, scaleX: 1, y: 0, opacity: 1 }}
         animate={
           doorsOpened
-            ? ds.type === 'curtains' ? { x: '-100%' }
+            ? ds.type === 'curtains' ? { x: '-100%', opacity: [1, 1, 0.7, 0] }
             : ds.type === 'petals' || ds.type === 'lotus' ? { rotateZ: -45, opacity: 0 }
-            : ds.type === 'scroll' ? { scaleX: 0 }
-            : ds.type === 'split-screen' || ds.type === 'geometric' ? { x: '-100%' }
-            : ds.type === 'dome' ? { rotateY: -100 }
+            : ds.type === 'scroll' ? { scaleX: 0, opacity: [1, 1, 0.5, 0] }
+            : ds.type === 'split-screen' || ds.type === 'geometric' ? { x: '-100%', opacity: [1, 1, 0.7, 0] }
+            : ds.type === 'dome' ? { rotateY: -100, opacity: [1, 1, 0.8, 0] }
             : ds.type === 'lantern' ? { y: '-100%', opacity: 0 }
-            : { rotateY: -110 }
-            : {}
+            : { rotateY: -110, opacity: [1, 1, 0.8, 0] }
+            : { opacity: 1 }
         }
         transition={{ duration: 2.6, ease: [0.25, 1, 0.5, 1] }}
       >
@@ -722,17 +727,17 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
       <m.div
         className={`absolute top-0 right-0 w-1/2 h-full ${!doorsOpened ? idleClass : ''}`}
         style={{ transformOrigin: 'right center', transformStyle: 'preserve-3d', willChange: 'transform' }}
-        initial={{ rotateY: 0, x: 0, rotateZ: 0, scaleX: 1, y: 0 }}
+        initial={{ rotateY: 0, x: 0, rotateZ: 0, scaleX: 1, y: 0, opacity: 1 }}
         animate={
           doorsOpened
-            ? ds.type === 'curtains' ? { x: '100%' }
+            ? ds.type === 'curtains' ? { x: '100%', opacity: [1, 1, 0.7, 0] }
             : ds.type === 'petals' || ds.type === 'lotus' ? { rotateZ: 45, opacity: 0 }
-            : ds.type === 'scroll' ? { scaleX: 0 }
-            : ds.type === 'split-screen' || ds.type === 'geometric' ? { x: '100%' }
-            : ds.type === 'dome' ? { rotateY: 100 }
+            : ds.type === 'scroll' ? { scaleX: 0, opacity: [1, 1, 0.5, 0] }
+            : ds.type === 'split-screen' || ds.type === 'geometric' ? { x: '100%', opacity: [1, 1, 0.7, 0] }
+            : ds.type === 'dome' ? { rotateY: 100, opacity: [1, 1, 0.8, 0] }
             : ds.type === 'lantern' ? { y: '100%', opacity: 0 }
-            : { rotateY: 110 }
-            : {}
+            : { rotateY: 110, opacity: [1, 1, 0.8, 0] }
+            : { opacity: 1 }
         }
         transition={{ duration: 2.6, ease: [0.25, 1, 0.5, 1] }}
       >
@@ -774,36 +779,39 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
         {renderEdgeFace('right')}
       </m.div>
 
-      {/* Center tap-to-open button (invisible click target) */}
+      {/* Tap anywhere on doors to open with pulse hint */}
       {!doorsOpened && (
-        <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none">
-          <button
-            onClick={() => onOpen()}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => {
-              setIsHovered(false)
-              setIsPressed(false)
-            }}
-            onMouseDown={() => setIsPressed(true)}
-            onMouseUp={() => setIsPressed(false)}
-            onTouchStart={() => setIsPressed(true)}
-            onTouchEnd={() => {
-              setIsPressed(false)
-              setIsHovered(false)
-            }}
-            className="w-28 h-28 md:w-36 md:h-36 cursor-pointer rounded-full focus:outline-none select-none pointer-events-auto bg-transparent border-none"
-            aria-label="Open invitation"
-          />
+        <div
+          onClick={() => onOpen()}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => {
+            setIsHovered(false)
+            setIsPressed(false)
+          }}
+          className="absolute inset-0 cursor-pointer z-40 pointer-events-auto flex flex-col items-center justify-center"
+          aria-label="Open invitation"
+        >
+          {/* Pulsating prompt below wax seal */}
+          <div
+            className="absolute top-[calc(50%+4.8rem)] md:top-[calc(50%+5.8rem)] flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/60 backdrop-blur-md border shadow-lg text-[10px] md:text-xs tracking-widest uppercase font-sans font-semibold animate-pulse select-none"
+            style={{ borderColor: `${theme.accent}50`, color: theme.accent }}
+          >
+            <Sparkles className="w-3 h-3" />
+            <span>Tap anywhere to open</span>
+          </div>
         </div>
       )}
 
       {/* Accessibility / Direct Details Bypass */}
       {!doorsOpened && (
-        <div className="absolute bottom-10 left-0 right-0 flex justify-center z-[100]">
+        <div className="absolute bottom-8 left-0 right-0 flex justify-center z-[100] pointer-events-none">
           <button
-            onClick={() => onOpen(true)}
-            className="px-4 py-2 rounded-full border bg-black/40 backdrop-blur-sm text-white/80 hover:text-white hover:bg-black/60 transition-all text-xs tracking-wider flex items-center gap-2"
-            style={{ borderColor: theme.getOpacityStyle('border', 0.2) }}
+            onClick={(e) => {
+              e.stopPropagation()
+              onOpen(true)
+            }}
+            className="px-4 py-2 rounded-full border bg-black/60 backdrop-blur-md text-white/80 hover:text-white hover:bg-black/80 transition-all text-xs tracking-wider flex items-center gap-2 pointer-events-auto cursor-pointer shadow-lg"
+            style={{ borderColor: theme.getOpacityStyle('border', 0.25) }}
           >
             Skip Animation
           </button>
@@ -812,6 +820,6 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
 
       {/* Particle Canvas Emitter */}
       <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none z-50" />
-    </>
+    </div>
   )
 }

@@ -82,9 +82,9 @@ export function Hero() {
             transition={{ delay: 0.3 }}
             className="flex flex-col sm:flex-row gap-4 pt-4"
           >
-            <Button size="lg" className="h-14 px-8 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg rounded-full shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all gap-2" onClick={() => router.push('/dashboard')}>
+            <Button size="lg" className="h-14 px-8 bg-primary hover:bg-primary/90 text-slate-950 font-black text-lg rounded-full shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all gap-2" onClick={() => router.push('/create')}>
               {language === 'en' ? "Create Event Free" : "مفت دعوت نامہ بنائیں"}
-              <ArrowRight className="w-5 h-5" />
+              <ArrowRight className="w-5 h-5 text-slate-950 stroke-[2.5]" />
             </Button>
             <Button size="lg" variant="outline" className="h-14 px-8 border-primary/20 text-foreground hover:bg-primary/5 rounded-full font-medium text-lg gap-2" onClick={() => router.push('/templates')}>
               <Play className="w-5 h-5 fill-current opacity-70" />
@@ -96,11 +96,13 @@ export function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}
-            className="pt-8 flex items-center gap-4 text-sm text-white/40"
+            className="pt-8 flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-white/50"
           >
-            <span className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-green-500" /> No credit card required</span>
+            <span className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-emerald-400" /> {language === 'en' ? "No credit card required" : "کریڈٹ کارڈ کی ضرورت نہیں"}</span>
             <span className="w-1 h-1 rounded-full bg-white/20" />
-            <span>Cancel anytime</span>
+            <span>{language === 'en' ? "Pay once • Keep forever" : "ایک بار ادائیگی • تاحیات رسائی"}</span>
+            <span className="w-1 h-1 rounded-full bg-white/20" />
+            <span className="text-gold/90">{language === 'en' ? "Instant WhatsApp Delivery" : "فوری واٹس ایپ شیئرنگ"}</span>
           </m.div>
         </div>
 

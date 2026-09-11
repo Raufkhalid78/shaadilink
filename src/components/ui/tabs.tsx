@@ -4,6 +4,7 @@ import * as React from "react"
 import * as TabsPrimitive from "@radix-ui/react-tabs"
 
 import { cn } from "@/lib/utils"
+import { ScrollableMenu } from "@/components/ui/scrollable-menu"
 
 function Tabs({
   className,
@@ -63,4 +64,28 @@ function TabsContent({
   )
 }
 
-export { Tabs, TabsList, TabsTrigger, TabsContent }
+function ScrollableTabsList({
+  className,
+  variant = "default",
+  children,
+  ...props
+}: React.ComponentProps<typeof TabsPrimitive.List> & {
+  variant?: "amber" | "gold" | "emerald" | "default";
+}) {
+  return (
+    <ScrollableMenu variant={variant} className="w-full">
+      <TabsPrimitive.List
+        data-slot="tabs-list"
+        className={cn(
+          "bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-[3px]",
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </TabsPrimitive.List>
+    </ScrollableMenu>
+  );
+}
+
+export { Tabs, TabsList, TabsTrigger, TabsContent, ScrollableTabsList }

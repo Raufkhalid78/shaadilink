@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { m } from "framer-motion";
-import { Check, Crown, Sparkles, ArrowRight, Lock, Star } from "lucide-react";
+import { Check, Crown, Sparkles, ArrowRight, Lock, Star, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/components/language-provider";
@@ -30,6 +31,7 @@ const cardVariants = {
 };
 
 export function Pricing({ onSelectPlan }: PricingProps) {
+  const router = useRouter();
   const { t, language } = useLanguage();
   const [hovered, setHovered] = useState<"classic" | "royal" | null>(null);
 
@@ -66,11 +68,15 @@ export function Pricing({ onSelectPlan }: PricingProps) {
       features: [
         language === 'en' ? "Everything in Classic, Plus:" : "کلاسک کی تمام خصوصیات، اور ساتھ:",
         t("pricing.feat.templates.royal"),
+        language === 'en' ? "Personal Voice Greeting & Audio Memo" : "ذاتی آڈیو پیغام اور وائس نوٹ",
+        language === 'en' ? "Custom MP3 Song Uploads" : "پسندیدہ ایم پی تھری گانے اپ لوڈ",
         t("pricing.feat.doors"),
         t("pricing.feat.scratch"),
         t("pricing.feat.guestlinks"),
         t("pricing.feat.shagun"),
-        language === 'en' ? "Dress Code Swatches" : "ڈریس کوڈ معلومات",
+        language === 'en' ? "VIP Passes with QR Gate Scanner" : "وی آئی پی پاس اور کیو آر اسکینر",
+        language === 'en' ? "AI Invitation Copywriter (Urdu & English)" : "اے آئی دعوت نامہ معاون",
+        language === 'en' ? "Dress Code Swatches & Timeline" : "ڈریس کوڈ اور شیڈول ٹائم لائن",
         language === 'en' ? "Travel & Accommodation Info" : "سفر اور رہائش کی تفصیلات",
       ],
       cta: language === 'en' ? "Unlock Royal Experience" : "شاہی تجربہ حاصل کریں",
@@ -166,18 +172,18 @@ export function Pricing({ onSelectPlan }: PricingProps) {
                   <Badge
                     className={`rounded-lg font-bold px-3 py-1 text-xs flex items-center gap-1.5 ${
                       plan.highlighted
-                        ? "bg-primary text-background shadow-lg shadow-primary/30"
-                        : "bg-primary/80 text-primary-foreground border border-primary/40"
+                        ? "bg-primary text-slate-950 font-black shadow-lg shadow-primary/30"
+                        : "bg-primary/80 text-slate-950 font-black border border-primary/40"
                     }`}
                   >
-                    {plan.highlighted && <Crown className="h-3 w-3" />}
+                    {plan.highlighted && <Crown className="h-3 w-3 text-slate-950 stroke-[2.5]" />}
                     {plan.badgeText}
                   </Badge>
                 </div>
 
                 <div className="p-7 sm:p-9 flex flex-col flex-grow text-left">
                   {/* Plan name */}
-                  <h3 className="font-sans tracking-tight text-2xl font-bold text-foreground mb-1 text-left">
+                  <h3 className="font-sans tracking-tight text-2xl font-bold text-foreground mb-1 text-left pr-28">
                     {plan.name}
                   </h3>
                   <p className="text-sm text-muted-foreground text-left">{plan.description}</p>
@@ -201,9 +207,15 @@ export function Pricing({ onSelectPlan }: PricingProps) {
                   </div>
 
                   {plan.savings && (
-                    <div className="mt-2 self-start inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-semibold">
-                      <Star className="w-3 h-3 fill-primary" />
-                      {plan.savings}
+                    <div className="mt-2.5 self-start inline-flex flex-wrap items-center gap-2">
+                      <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald/15 border border-emerald/30 text-emerald-400 text-xs font-semibold">
+                        <Sparkles className="w-3 h-3 text-emerald-400" />
+                        {language === 'en' ? "Save 70% vs Paper Cards" : "کاغذی کارڈز پر 70% بچت"}
+                      </div>
+                      <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-semibold">
+                        <Star className="w-3 h-3 fill-primary" />
+                        {plan.savings}
+                      </div>
                     </div>
                   )}
 
@@ -235,18 +247,34 @@ export function Pricing({ onSelectPlan }: PricingProps) {
                   {/* CTA */}
                   <div className="mt-auto pt-6 text-center">
                     <Button
-                      onClick={() => onSelectPlan?.(plan.id)}
+                      onClick={() => {
+                        if (onSelectPlan) {
+                          onSelectPlan(plan.id);
+                        } else {
+                          router.push(`/templates?plan=${plan.id}`);
+                        }
+                      }}
                       size="lg"
-                      className={`w-full font-bold text-base h-13 rounded-xl transition-all duration-300 ${
+                      className={`w-full font-bold text-base h-13 rounded-xl transition-all duration-300 min-h-[44px] touch-manipulation ${
                         plan.highlighted
-                          ? "bg-primary hover:bg-primary-light text-background pulse-glow border-none shadow-lg shadow-primary/25"
-                          : "bg-card border border-primary/60 text-primary hover:bg-primary hover:text-primary-foreground hover:border-primary shadow-sm"
+                          ? "bg-primary hover:bg-primary-light text-slate-950 font-black pulse-glow border-none shadow-lg shadow-primary/25"
+                          : "bg-card border border-primary/60 text-primary hover:bg-primary hover:text-slate-950 hover:font-black hover:border-primary shadow-sm"
                       }`}
                     >
-                      {plan.highlighted && <Crown className="w-4 h-4 mr-2" />}
+                      {plan.highlighted && <Crown className="w-4 h-4 mr-2 text-slate-950 stroke-[2.5]" />}
                       {plan.cta}
                     </Button>
                     <p className="text-xs text-muted-foreground mt-2 text-center">{t("pricing.guarantee")}</p>
+                    <a
+                      href={plan.id === "royal" ? "/demo/royal-imperial" : "/demo/pastel-paradise"}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-3 inline-flex items-center justify-center gap-1.5 w-full text-xs font-medium text-muted-foreground hover:text-primary transition-colors py-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary rounded-md"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                      {language === 'en' ? "Preview Live Demo" : "لائیو ڈیمو دیکھیں"}
+                      <ArrowRight className="w-3 h-3" />
+                    </a>
                   </div>
                 </div>
               </m.div>

@@ -151,8 +151,23 @@ export default function GeometricGoldViewer({ templateId, flowData, guestName, g
               playsInline
               preload="auto"
               onEnded={handleDoorVideoEnd}
+              onError={handleDoorVideoEnd}
             />
           </m.div>
+                    {/* Skip entrance button */}
+          <div className="absolute top-4 right-4 z-30">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDoorVideoEnd();
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md border border-white/20 text-xs text-white/80 hover:text-white transition-all active:scale-95"
+            >
+              <span>Skip</span>
+            </button>
+          </div>
+
           {/* Tap hint */}
           <AnimatePresence>
             {!envelopeStarted && (
@@ -179,8 +194,8 @@ export default function GeometricGoldViewer({ templateId, flowData, guestName, g
       {/* Door Overlay — only for non-video templates */}
       {s.doorOverlayVisible && !isVideoEnvelope && (
         <div
-          className="fixed inset-0 z-50"
-          style={{ perspective: ['classic-doors', 'archway', 'lantern'].includes(theme.doorStyle.type) ? '1200px' : undefined }}
+          className="fixed inset-0 z-50 pointer-events-none"
+          style={{ perspective: ['classic-doors', 'archway', 'lantern', 'dome'].includes(theme.doorStyle.type) ? '1200px' : undefined }}
         >
           <DoorOverlay theme={theme} doorsOpened={s.doorsOpened} onOpen={s.handleDoorOpen} />
         </div>
@@ -601,16 +616,24 @@ export default function GeometricGoldViewer({ templateId, flowData, guestName, g
         {/* ─── FOOTER ─── */}
         <div className="py-10 text-center border-t" style={{ borderColor: getOpacityStyle('border', 0.1) }}>
           <div className="flex items-center justify-center gap-3 mb-3"><div className="w-8 h-px" style={{ backgroundColor: theme.accent + '40' }} /><div className="w-2 h-2 rotate-45" style={{ backgroundColor: theme.accent + '60' }} /><div className="w-8 h-px" style={{ backgroundColor: theme.accent + '40' }} /></div>
-          <p className="text-xs tracking-widest font-mono uppercase" style={{ color: getOpacityStyle('text', 0.4) }}>
-            {s.t('madeWithLove', 'Made with love by Smart Invites').split(/(Smart Invites|شادی لنک)/i).map((part, i) => 
-              part.toLowerCase() === 'smartinvites' || part === 'شادی لنک' ? (
-                <a key={i} href="https://www.smartinvites.com.pk/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline' }}>
+          <p className="text-xs tracking-widest font-mono uppercase" style={{ color: getOpacityStyle('text', 0.5) }}>
+            {s.t('madeWithLove', 'Made with love by Smart Invites').split(/(Smart Invites|اسمارٹ انوائٹس|سمارٹ انوائٹس)/i).map((part, i) => {
+              const isBrand = /smart\s*invites|اسمارٹ\s*انوائٹس|سمارٹ\s*انوائٹس/i.test(part.trim());
+              return isBrand ? (
+                <a
+                  key={i}
+                  href="/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold underline underline-offset-4 hover:opacity-80 transition-opacity cursor-pointer inline-block"
+                  style={{ color: theme.accent }}
+                >
                   {part}
                 </a>
               ) : (
                 <span key={i}>{part}</span>
-              )
-            )}
+              );
+            })}
           </p>
         </div>
       </m.div>

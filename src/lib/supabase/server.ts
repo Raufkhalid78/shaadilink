@@ -28,10 +28,6 @@ export async function createClient() {
   )
 }
 
-/** Service-role client — bypasses RLS. Only use in trusted server-side code. */
-export function createServiceClient() {
-  return createSupabaseClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
-}
+// Re-export standalone service-role client
+export { createServiceClient } from './service';
+

@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { m } from "framer-motion";
 import {
   ArrowLeft, ArrowRight, Check, CreditCard, Shield, Lock, Crown, Sparkles, Loader2,
-  Tag, Percent, CheckCircle2, Globe, Heart, MapPin, Gift
+  Tag, Percent, CheckCircle2, Globe, Heart, MapPin, Gift, Building2, Copy,
+  Upload, Clock, FileText, ExternalLink, Image as ImageIcon, MessageCircle, Zap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,23 +15,95 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import type { FlowData } from "@/lib/flow-types";
 import { planDetails } from "@/lib/flow-types";
-import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
+import { PageBreadcrumb, BreadcrumbCrumb } from "@/components/ui/page-breadcrumb";
+import { OFFICIAL_BANK_DETAILS } from "@/lib/bank-details";
 
 interface PaymentPageProps {
   flowData: FlowData;
   onUpdateData: (updates: Partial<FlowData>) => void;
   onBack: () => void;
   onContinue: () => void;
-  crumbs: { label: string; onClick?: () => void }[];
+  crumbs: BreadcrumbCrumb[];
 }
 
 export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs }: PaymentPageProps) {
+  // Payment method: 'safepay' | 'manual_bank' | 'agency_credit'
+  const [paymentMethod, setPaymentMethod] = useState<"safepay" | "manual_bank" | "agency_credit">("safepay");
   const [processing, setProcessing] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [promoCodeInput, setPromoCodeInput] = useState("");
   const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
   const [discountPercent, setDiscountPercent] = useState<number>(0);
 
+  // Agency Wholesale status
+  const [agencyData, setAgencyData] = useState<{
+    isAgency: boolean;
+    creditsBalance: number;
+    companyName?: string;
+  } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/agency/status")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.isAgency && data?.status === "approved") {
+          const balance = Number(data.creditsBalance || 0);
+          setAgencyData({
+            isAgency: true,
+            creditsBalance: balance,
+            companyName: data.companyName,
+          });
+          if (balance > 0) {
+            setPaymentMethod("agency_credit");
+          }
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  // Dynamic Bank Details from Admin Settings
+  const [bankDetails, setBankDetails] = useState(OFFICIAL_BANK_DETAILS);
+
+  useEffect(() => {
+    fetch("/api/settings/bank-details")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && !data.error && (data.bankName || data.bankDetails?.bankName)) {
+          const details = data.bankDetails || data;
+          setBankDetails((prev) => ({
+            ...prev,
+            bankName: details.bankName || details.bank_name || prev.bankName,
+            accountTitle: details.accountTitle || details.account_title || prev.accountTitle,
+            accountNumber: details.accountNumber || details.account_number || prev.accountNumber,
+            iban: details.iban || prev.iban,
+            branchCode: (details.branchCode ?? details.branch_code ?? '')?.trim(),
+            raastId: (details.raastId ?? details.raast_id ?? '')?.trim(),
+            easyPaisaAccount: (details.easyPaisaAccount ?? details.easypaisa_account ?? '')?.trim(),
+            jazzCashAccount: (details.jazzCashAccount ?? details.jazzcash_account ?? '')?.trim(),
+            whatsappSupport: details.whatsappSupport || details.whatsapp_support || prev.whatsappSupport,
+            instructionsEnglish: details.instructionsEnglish || details.instructions_english || prev.instructionsEnglish,
+            instructionsUrdu: details.instructionsUrdu || details.instructions_urdu || prev.instructionsUrdu,
+          }));
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  // Manual Bank Transfer state
+  const [receiptUrl, setReceiptUrl] = useState<string | null>(null);
+  const [uploadingReceipt, setUploadingReceipt] = useState(false);
+  const [transactionRef, setTransactionRef] = useState("");
+  const [senderDetails, setSenderDetails] = useState("");
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [isSubmittedSuccess, setIsSubmittedSuccess] = useState(false);
+  const [submittedOrderData, setSubmittedOrderData] = useState<{
+    orderId: string;
+    amount: number;
+    transactionRef: string;
+    receiptUrl?: string;
+  } | null>(null);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const searchParams = useSearchParams();
   const paymentError = searchParams.get("paymentError");
 
@@ -79,6 +152,7 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
     }
   };
 
+  // 1. Safepay Online Checkout
   const handleInitiatePayment = async () => {
     setProcessing(true);
     try {
@@ -107,6 +181,126 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
     } catch (err: any) {
       toast.error(err.message || "An unexpected error occurred during checkout");
       setProcessing(false);
+    }
+  };
+
+  // 1b. Agency Wholesale Credit 1-Click Activation
+  const handlePayWithAgencyCredit = async () => {
+    if (!flowData.invitationId) {
+      toast.error("Invitation record not found. Please save invitation details first.");
+      return;
+    }
+    if (!agencyData || agencyData.creditsBalance < 1) {
+      toast.error("Insufficient wholesale credits! Please top up your wallet in the Agency Portal.");
+      return;
+    }
+    setProcessing(true);
+    try {
+      const { activateInvitationWithAgencyCredit } = await import("@/app/dashboard/agency/actions");
+      const res = await activateInvitationWithAgencyCredit(flowData.invitationId);
+      if (res.error) {
+        toast.error(res.error);
+        setProcessing(false);
+        return;
+      }
+      toast.success("✨ Client event activated and published! 1 Wholesale Credit deducted.");
+      onUpdateData({ paymentDone: true });
+      window.location.href = `/dashboard/agency?creditsDeducted=1`;
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to activate with agency credit");
+      setProcessing(false);
+    }
+  };
+
+  // 2. Receipt Screenshot Upload
+  const handleReceiptFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Receipt screenshot must be smaller than 10MB");
+      return;
+    }
+
+    setUploadingReceipt(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json().catch(() => ({ error: "Failed to parse upload response" }));
+      const uploadedUrl = data.url || (Array.isArray(data.urls) && data.urls.length > 0 ? data.urls[0] : null);
+
+      if (res.ok && uploadedUrl) {
+        setReceiptUrl(uploadedUrl);
+        toast.success("Receipt screenshot uploaded!");
+      } else {
+        toast.error(data.error || "Failed to upload receipt screenshot.");
+      }
+    } catch (err) {
+      console.error("Receipt upload error:", err);
+      toast.error("Network error uploading receipt");
+    } finally {
+      setUploadingReceipt(false);
+    }
+  };
+
+  // 3. Manual Bank Order Submit
+  const handleSubmitManualBank = async () => {
+    if (!receiptUrl) {
+      toast.error("Please upload your payment receipt screenshot.");
+      return;
+    }
+    if (!transactionRef.trim() || transactionRef.trim().length < 3) {
+      toast.error("Please enter your bank transaction reference (STAN / Transaction ID).");
+      return;
+    }
+    if (!acceptedTerms) {
+      toast.error("Please agree to the Terms of Service.");
+      return;
+    }
+
+    setProcessing(true);
+    try {
+      const res = await fetch("/api/payment/manual-bank", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          invitationId: flowData.invitationId,
+          plan: flowData.selectedPlan || "classic",
+          guestLinksQuota: flowData.guestLinksQuota || 0,
+          promoCode: appliedPromo,
+          receiptUrl,
+          transactionRef: transactionRef.trim(),
+          senderDetails: senderDetails.trim() || undefined,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setSubmittedOrderData(data);
+        setIsSubmittedSuccess(true);
+        toast.success("Payment submitted for verification!");
+      } else {
+        toast.error(data.error || "Failed to submit bank transfer order.");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Network error submitting order");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleCopy = (text: string, fieldKey: string) => {
+    if (typeof navigator !== "undefined") {
+      navigator.clipboard.writeText(text);
+      setCopiedField(fieldKey);
+      toast.success("Copied to clipboard!");
+      setTimeout(() => setCopiedField(null), 2000);
     }
   };
 
@@ -154,19 +348,19 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
           {/* Section Header */}
           <div className="text-center space-y-2">
             <Badge className="bg-primary/15 text-primary border-gold/30 px-3 py-1 text-xs font-semibold">
-              <Lock className="w-3 h-3 mr-1.5" /> 256-Bit SSL Encrypted Safepay Checkout
+              <Lock className="w-3 h-3 mr-1.5" /> Secure Checkout • Cards, IBFT &amp; Raast
             </Badge>
             <h1 className="font-display text-3xl sm:text-4xl font-extrabold text-foreground">
               Complete Your Order &amp; Publish Link
             </h1>
             <p className="text-muted-foreground text-sm max-w-lg mx-auto">
-              Your personalized digital invitation will be activated immediately upon checkout.
+              Choose your preferred payment method below to activate your personalized digital invitation.
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             
-            {/* Left Column: Safepay Payment Hub & Form */}
+            {/* Left Column: Payment Hub & Form */}
             <div className="lg:col-span-7 space-y-6 order-2 lg:order-1">
               
               {paymentError && (
@@ -175,141 +369,616 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                 </div>
               )}
 
-              {/* Safepay Payment Container */}
-              <div className="p-6 sm:p-8 rounded-3xl border border-gold/30 bg-card/70 shadow-2xl backdrop-blur-xl space-y-6">
-                
-                <div className="flex items-center justify-between border-b border-border/50 pb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-2xl bg-primary/15 border border-gold/30 flex items-center justify-center text-primary shrink-0">
-                      <Shield className="w-5 h-5" />
+              {/* POST-SUBMISSION SUCCESS VIEW (Manual Bank) */}
+              {isSubmittedSuccess && submittedOrderData ? (
+                <div className="p-6 sm:p-8 rounded-3xl border border-gold/40 bg-card/90 shadow-2xl backdrop-blur-xl space-y-6 text-center">
+                  <div className="w-16 h-16 rounded-3xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mx-auto">
+                    <Clock className="w-8 h-8 animate-pulse" />
+                  </div>
+
+                  <div className="space-y-1">
+                    <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 text-xs px-3 py-1 font-semibold">
+                      ⏳ Verification Under Review
+                    </Badge>
+                    <h2 className="font-display text-2xl font-bold text-foreground pt-2">
+                      Payment Slip Submitted!
+                    </h2>
+                    <p className="text-xs text-muted-foreground max-w-md mx-auto">
+                      Thank you! Your payment receipt has been received and our team is verifying your transaction.
+                    </p>
+                  </div>
+
+                  {/* Order Details summary box */}
+                  <div className="p-4 rounded-2xl bg-background/80 border border-border/50 text-left space-y-2 text-xs">
+                    <div className="flex justify-between py-1 border-b border-border/40">
+                      <span className="text-muted-foreground">Order Reference:</span>
+                      <span className="font-mono font-bold text-foreground">#{submittedOrderData.orderId.slice(0, 13)}</span>
                     </div>
-                    <div>
-                      <h2 className="font-display text-lg font-bold text-foreground">Safepay Payment Gateway</h2>
-                      <p className="text-xs text-muted-foreground">Official encrypted checkout for Pakistan &amp; International cards</p>
+                    <div className="flex justify-between py-1 border-b border-border/40">
+                      <span className="text-muted-foreground">Amount:</span>
+                      <span className="font-bold text-emerald">Rs. {submittedOrderData.amount.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between py-1 border-b border-border/40">
+                      <span className="text-muted-foreground">Transaction Ref / STAN:</span>
+                      <span className="font-mono font-semibold text-foreground">{submittedOrderData.transactionRef}</span>
+                    </div>
+                    <div className="flex justify-between py-1">
+                      <span className="text-muted-foreground">Status:</span>
+                      <span className="text-amber-400 font-semibold flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+                        Pending Review (15-30 mins)
+                      </span>
                     </div>
                   </div>
-                  <Badge className="bg-emerald/20 text-foreground border-primary/30 text-[10px] font-bold">Safepay Verified</Badge>
-                </div>
 
-                {/* Supported Payment Methods Showcase */}
-                <div className="space-y-3">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Supported Payment Methods</p>
+                  {/* Actions */}
+                  <div className="space-y-3 pt-2">
+                    <Button
+                      onClick={() => {
+                        const platformName = bankDetails.siteName || "Support";
+                        const msg = `Hi ${platformName}! I have submitted a bank transfer of Rs. ${submittedOrderData.amount.toLocaleString()} for Order #${submittedOrderData.orderId.slice(0, 13)} (Ref: ${submittedOrderData.transactionRef}). Please verify and activate my invitation.`;
+                        window.open(`https://api.whatsapp.com/send?phone=${bankDetails.whatsappSupport}&text=${encodeURIComponent(msg)}`, "_blank");
+                      }}
+                      className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-sm h-12 rounded-xl gap-2 shadow-lg"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      <span>Notify Support on WhatsApp for Express Approval</span>
+                    </Button>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {/* Method 1: Cards */}
-                    <div className="p-4 rounded-2xl bg-background/80 border border-gold/30 flex items-center gap-3 shadow-sm">
-                      <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                        <CreditCard className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <p className="text-xs font-bold text-foreground">Credit &amp; Debit Cards</p>
-                        <p className="text-[10px] text-muted-foreground">Visa, Mastercard, PayPak, UnionPay</p>
-                      </div>
-                    </div>
-
-                    {/* Method 2: Google Pay */}
-                    <div className="p-4 rounded-2xl bg-background/80 border border-gold/30 flex items-center gap-3 shadow-sm">
-                      <div className="w-9 h-9 rounded-xl bg-emerald/10 flex items-center justify-center text-foreground shrink-0">
-                        <Globe className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <p className="text-xs font-bold text-foreground">Google Pay &amp; Digital Wallets</p>
-                        <p className="text-[10px] text-muted-foreground">1-Tap Express Checkout</p>
-                      </div>
-                    </div>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        window.location.href = "/dashboard";
+                      }}
+                      className="w-full border-gold/40 text-foreground hover:bg-gold/10 text-xs h-11 rounded-xl"
+                    >
+                      <span>Go to Dashboard</span>
+                      <ArrowRight className="w-4 h-4 ml-1.5" />
+                    </Button>
                   </div>
                 </div>
-
-                {/* Promo Code Input */}
-                {!flowData.paymentDone && (
-                  <div className="space-y-2 pt-2 border-t border-border/40">
-                    <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                      <Tag className="w-3.5 h-3.5 text-primary" /> Promo Code
+              ) : (
+                /* MAIN PAYMENT CONTAINER */
+                <div className="p-6 sm:p-8 rounded-3xl border border-gold/30 bg-card/70 shadow-2xl backdrop-blur-xl space-y-6">
+                  
+                  {/* Payment Method Selector Tabs */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block">
+                      Select Payment Option
                     </label>
-                    <div className="flex gap-2">
-                      <Input
-                        type="text"
-                        placeholder="Enter Promo Code (e.g. SHAADI10)"
-                        value={promoCodeInput}
-                        onChange={(e) => setPromoCodeInput(e.target.value.toUpperCase())}
-                        disabled={!!appliedPromo}
-                        className="bg-background/80 font-mono text-sm"
-                      />
-                      {appliedPromo ? (
-                        <Button
-                          variant="ghost"
-                          onClick={() => {
-                            setAppliedPromo(null);
-                            setPromoCodeInput("");
-                            setDiscountPercent(0);
-                            toast.info("Promo code removed.");
-                          }}
-                          className="text-red-400 hover:text-red-300 hover:bg-red-500/10 shrink-0"
-                        >
-                          Remove
-                        </Button>
-                      ) : (
-                        <Button
+
+                    <div className={`grid grid-cols-1 ${agencyData?.isAgency ? "sm:grid-cols-3" : "sm:grid-cols-2"} gap-3`}>
+                      {/* Option 0: Agency Wholesale Credit (if agency) */}
+                      {agencyData?.isAgency && (
+                        <button
                           type="button"
-                          variant="outline"
-                          onClick={handleApplyPromo}
-                          className="border-gold/50 text-primary hover:bg-primary/10 font-bold shrink-0"
+                          onClick={() => setPaymentMethod("agency_credit")}
+                          className={`p-3.5 rounded-2xl border text-left transition-all flex flex-col justify-between gap-2 cursor-pointer ${
+                            paymentMethod === "agency_credit"
+                              ? "border-gold bg-gold/15 shadow-md ring-1 ring-gold"
+                              : "border-border/60 bg-background/50 hover:bg-background/80"
+                          }`}
                         >
-                          Apply
-                        </Button>
+                          <div className="flex items-center justify-between">
+                            <div className="w-8 h-8 rounded-xl bg-gold/20 flex items-center justify-center text-gold">
+                              <Crown className="w-4 h-4" />
+                            </div>
+                            <Badge className="bg-gold/20 text-gold border-gold/40 text-[9px] px-1.5 py-0 font-bold">
+                              1 Credit
+                            </Badge>
+                          </div>
+                          <div>
+                            <p className="text-xs font-bold text-foreground">Wholesale Wallet</p>
+                            <p className="text-[10px] text-muted-foreground">
+                              {agencyData.creditsBalance} Credits Available
+                            </p>
+                          </div>
+                        </button>
+                      )}
+
+                      {/* Option 1: Safepay Cards */}
+                      <button
+                        type="button"
+                        onClick={() => setPaymentMethod("safepay")}
+                        className={`p-3.5 rounded-2xl border text-left transition-all flex flex-col justify-between gap-2 cursor-pointer ${
+                          paymentMethod === "safepay"
+                            ? "border-primary bg-primary/10 shadow-md ring-1 ring-primary"
+                            : "border-border/60 bg-background/50 hover:bg-background/80"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="w-8 h-8 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
+                            <CreditCard className="w-4 h-4" />
+                          </div>
+                          {paymentMethod === "safepay" && (
+                            <span className="w-2.5 h-2.5 rounded-full bg-primary" />
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-foreground">Cards &amp; Google Pay</p>
+                          <p className="text-[10px] text-muted-foreground">Instant activation via Safepay</p>
+                        </div>
+                      </button>
+
+                      {/* Option 2: Direct Bank Transfer */}
+                      <button
+                        type="button"
+                        onClick={() => setPaymentMethod("manual_bank")}
+                        className={`p-3.5 rounded-2xl border text-left transition-all flex flex-col justify-between gap-2 cursor-pointer ${
+                          paymentMethod === "manual_bank"
+                            ? "border-gold bg-gold/10 shadow-md ring-1 ring-gold"
+                            : "border-border/60 bg-background/50 hover:bg-background/80"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="w-8 h-8 rounded-xl bg-gold/20 flex items-center justify-center text-gold">
+                            <Building2 className="w-4 h-4" />
+                          </div>
+                          <Badge className="bg-emerald/20 text-emerald border-emerald/30 text-[9px] px-1.5 py-0">
+                            0% Fee
+                          </Badge>
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-foreground">
+                            {bankDetails.raastId ? "Bank Transfer & Raast" : "Direct Bank Transfer"}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground">
+                            {bankDetails.raastId
+                              ? `${bankDetails.bankName || "Pakistani Banks"}, Raast ID (IBFT)`
+                              : `${bankDetails.bankName || "All Pakistani Banks"} (IBFT / IBAN)`}
+                          </p>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* ======================================================= */}
+                  {/* VIEW 0: AGENCY WHOLESALE CREDIT */}
+                  {/* ======================================================= */}
+                  {paymentMethod === "agency_credit" && agencyData && (
+                    <div className="space-y-4">
+                      <div className="p-4 rounded-2xl bg-gradient-to-br from-gold/15 via-gold/5 to-background border border-gold/40 space-y-3 shadow-inner">
+                        <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-xl bg-gold/20 text-gold flex items-center justify-center font-bold">
+                              <Crown className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <p className="text-xs font-bold text-foreground">
+                                {agencyData.companyName || "Agency Partner Account"}
+                              </p>
+                              <p className="text-[10px] text-muted-foreground">
+                                Wholesale Event Activation Privileges
+                              </p>
+                            </div>
+                          </div>
+                          <Badge className="bg-gold/20 text-gold border-gold/40 text-[10px] font-bold">
+                            Wholesale Active
+                          </Badge>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div className="p-2.5 rounded-xl bg-background/80 border border-border/40">
+                            <span className="text-[10px] uppercase font-semibold text-muted-foreground block">
+                              Available Balance
+                            </span>
+                            <span className="font-bold text-foreground text-sm flex items-center gap-1 mt-0.5">
+                              <Zap className="w-3.5 h-3.5 text-gold fill-gold" />
+                              {agencyData.creditsBalance} Credits
+                            </span>
+                          </div>
+                          <div className="p-2.5 rounded-xl bg-background/80 border border-border/40">
+                            <span className="text-[10px] uppercase font-semibold text-muted-foreground block">
+                              Cost for This Event
+                            </span>
+                            <span className="font-bold text-emerald text-sm flex items-center gap-1 mt-0.5">
+                              1 Credit
+                            </span>
+                          </div>
+                        </div>
+
+                        <p className="text-[11px] text-muted-foreground leading-relaxed">
+                          Publishing will deduct 1 credit from your agency wholesale balance. Your client&apos;s invitation will include your custom white-label branding, unlimited RSVP guest passes, and 7-view review tokens.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ======================================================= */}
+                  {/* VIEW A: SAFEPAY ONLINE CHECKOUT */}
+                  {/* ======================================================= */}
+                  {paymentMethod === "safepay" && (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between border-b border-border/50 pb-3">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-xl bg-primary/15 flex items-center justify-center text-primary shrink-0">
+                            <Shield className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <h2 className="font-display text-sm font-bold text-foreground">Safepay Payment Gateway</h2>
+                            <p className="text-[11px] text-muted-foreground">Encrypted checkout for Pakistani &amp; International cards</p>
+                          </div>
+                        </div>
+                        <Badge className="bg-emerald/20 text-foreground border-primary/30 text-[10px] font-bold">Safepay Verified</Badge>
+                      </div>
+
+                      {/* Supported Cards Badge Grid */}
+                      <div className="grid grid-cols-2 gap-2.5">
+                        <div className="p-3 rounded-xl bg-background/80 border border-gold/30 flex items-center gap-2.5 shadow-sm">
+                          <CreditCard className="w-4 h-4 text-primary shrink-0" />
+                          <div>
+                            <p className="text-xs font-bold text-foreground">Credit &amp; Debit Cards</p>
+                            <p className="text-[10px] text-muted-foreground">Visa, Mastercard, PayPak</p>
+                          </div>
+                        </div>
+                        <div className="p-3 rounded-xl bg-background/80 border border-gold/30 flex items-center gap-2.5 shadow-sm">
+                          <Globe className="w-4 h-4 text-foreground shrink-0" />
+                          <div>
+                            <p className="text-xs font-bold text-foreground">Google Pay &amp; Wallets</p>
+                            <p className="text-[10px] text-muted-foreground">1-Tap Checkout</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ======================================================= */}
+                  {/* VIEW B: DIRECT BANK TRANSFER (IBFT & RAAST) */}
+                  {/* ======================================================= */}
+                  {paymentMethod === "manual_bank" && (
+                    <div className="space-y-4">
+                      {/* Official Bank Account Card */}
+                      <div className="p-4 rounded-2xl bg-background/90 border border-gold/40 space-y-3 shadow-inner">
+                        <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
+                          <div className="flex items-center gap-2">
+                            <div className="w-7 h-7 rounded-lg bg-gold/20 text-gold flex items-center justify-center font-bold text-xs">
+                              🏦
+                            </div>
+                            <div>
+                              <p className="text-xs font-bold text-foreground">{bankDetails.bankName}</p>
+                              <p className="text-[10px] text-muted-foreground">Title: {bankDetails.accountTitle}</p>
+                            </div>
+                          </div>
+                          <Badge variant="outline" className="text-[10px] border-gold/40 text-gold">Official Account</Badge>
+                        </div>
+
+                        {/* Copyable Credentials */}
+                        <div className="space-y-2">
+                          {/* Account Number */}
+                          <div className="flex items-center justify-between p-2 rounded-xl bg-card border border-border/40 text-xs">
+                            <div>
+                              <span className="text-[10px] uppercase font-semibold text-muted-foreground block">Account Number</span>
+                              <span className="font-mono font-bold text-foreground text-xs">{bankDetails.accountNumber}</span>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleCopy(bankDetails.accountNumber, "accountNumber")}
+                              className="h-7 px-2 text-[11px] gap-1 hover:text-gold"
+                            >
+                              {copiedField === "accountNumber" ? <Check className="w-3.5 h-3.5 text-emerald" /> : <Copy className="w-3.5 h-3.5" />}
+                              <span>{copiedField === "accountNumber" ? "Copied" : "Copy"}</span>
+                            </Button>
+                          </div>
+
+                          {/* IBAN */}
+                          <div className="flex items-center justify-between p-2 rounded-xl bg-card border border-border/40 text-xs">
+                            <div>
+                              <span className="text-[10px] uppercase font-semibold text-muted-foreground block">IBAN (All Pakistani Banks)</span>
+                              <span className="font-mono font-bold text-foreground text-xs break-all">{bankDetails.iban}</span>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleCopy(bankDetails.iban, "iban")}
+                              className="h-7 px-2 text-[11px] gap-1 hover:text-gold shrink-0 ml-2"
+                            >
+                              {copiedField === "iban" ? <Check className="w-3.5 h-3.5 text-emerald" /> : <Copy className="w-3.5 h-3.5" />}
+                              <span>{copiedField === "iban" ? "Copied" : "Copy"}</span>
+                            </Button>
+                          </div>
+
+                          {/* Raast ID */}
+                          {Boolean(bankDetails.raastId?.trim()) && (
+                            <div className="flex items-center justify-between p-2 rounded-xl bg-card border border-border/40 text-xs">
+                              <div>
+                                <span className="text-[10px] uppercase font-semibold text-muted-foreground block">Raast ID (0 Fee Instant)</span>
+                                <span className="font-mono font-bold text-foreground text-xs">{bankDetails.raastId}</span>
+                              </div>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleCopy(bankDetails.raastId, "raastId")}
+                                className="h-7 px-2 text-[11px] gap-1 hover:text-gold"
+                              >
+                                {copiedField === "raastId" ? <Check className="w-3.5 h-3.5 text-emerald" /> : <Copy className="w-3.5 h-3.5" />}
+                                <span>{copiedField === "raastId" ? "Copied" : "Copy"}</span>
+                              </Button>
+                            </div>
+                          )}
+
+                          {/* EasyPaisa / JazzCash if configured */}
+                          {Boolean(bankDetails.easyPaisaAccount?.trim()) && (
+                            <div className="flex items-center justify-between p-2 rounded-xl bg-card border border-border/40 text-xs">
+                              <div>
+                                <span className="text-[10px] uppercase font-semibold text-emerald-400 block">EasyPaisa Account</span>
+                                <span className="font-mono font-bold text-foreground text-xs">{bankDetails.easyPaisaAccount}</span>
+                              </div>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleCopy(bankDetails.easyPaisaAccount!, "easyPaisa")}
+                                className="h-7 px-2 text-[11px] gap-1 hover:text-emerald-400"
+                              >
+                                {copiedField === "easyPaisa" ? <Check className="w-3.5 h-3.5 text-emerald" /> : <Copy className="w-3.5 h-3.5" />}
+                                <span>{copiedField === "easyPaisa" ? "Copied" : "Copy"}</span>
+                              </Button>
+                            </div>
+                          )}
+
+                          {Boolean(bankDetails.jazzCashAccount?.trim()) && (
+                            <div className="flex items-center justify-between p-2 rounded-xl bg-card border border-border/40 text-xs">
+                              <div>
+                                <span className="text-[10px] uppercase font-semibold text-amber-400 block">JazzCash Account</span>
+                                <span className="font-mono font-bold text-foreground text-xs">{bankDetails.jazzCashAccount}</span>
+                              </div>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleCopy(bankDetails.jazzCashAccount!, "jazzCash")}
+                                className="h-7 px-2 text-[11px] gap-1 hover:text-amber-400"
+                              >
+                                {copiedField === "jazzCash" ? <Check className="w-3.5 h-3.5 text-emerald" /> : <Copy className="w-3.5 h-3.5" />}
+                                <span>{copiedField === "jazzCash" ? "Copied" : "Copy"}</span>
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+
+                        {bankDetails.instructionsUrdu && (
+                          <p className="text-[11px] text-muted-foreground/90 leading-relaxed italic border-t border-border/30 pt-2 font-urdu text-right" dir="rtl">
+                            {bankDetails.instructionsUrdu}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Receipt Upload & Transfer Details Section */}
+                      <div className="space-y-3 pt-1">
+                        <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block">
+                          Upload Payment Receipt &amp; Reference
+                        </label>
+
+                        {/* Hidden file input */}
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp,image/heic"
+                          onChange={handleReceiptFileChange}
+                          className="hidden"
+                        />
+
+                        {/* Receipt upload box */}
+                        {!receiptUrl ? (
+                          <div
+                            onClick={() => fileInputRef.current?.click()}
+                            className={`p-5 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center text-center cursor-pointer ${
+                              uploadingReceipt
+                                ? "border-gold/60 bg-gold/5"
+                                : "border-border/70 hover:border-gold/60 bg-background/50 hover:bg-background/80"
+                            }`}
+                          >
+                            {uploadingReceipt ? (
+                              <div className="space-y-2">
+                                <Loader2 className="w-8 h-8 text-gold animate-spin mx-auto" />
+                                <p className="text-xs font-semibold text-foreground">Uploading screenshot...</p>
+                              </div>
+                            ) : (
+                              <div className="space-y-1.5">
+                                <div className="w-10 h-10 rounded-2xl bg-gold/15 border border-gold/30 flex items-center justify-center text-gold mx-auto">
+                                  <Upload className="w-5 h-5" />
+                                </div>
+                                <p className="text-xs font-semibold text-foreground">
+                                  Tap to Upload Bank Screenshot / Receipt
+                                </p>
+                                <p className="text-[10px] text-muted-foreground">
+                                  PNG, JPG, WebP up to 10MB
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="p-3 rounded-2xl bg-background/90 border border-emerald/40 flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <img
+                                src={receiptUrl}
+                                alt="Uploaded receipt"
+                                className="w-12 h-12 rounded-xl object-cover border border-border shrink-0"
+                              />
+                              <div className="min-w-0">
+                                <span className="text-xs font-semibold text-foreground flex items-center gap-1 text-emerald">
+                                  <CheckCircle2 className="w-3.5 h-3.5" /> Receipt Attached
+                                </span>
+                                <a
+                                  href={receiptUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-[10px] text-muted-foreground hover:text-gold truncate block"
+                                >
+                                  View Full Slip
+                                </a>
+                              </div>
+                            </div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => fileInputRef.current?.click()}
+                              className="text-xs text-muted-foreground hover:text-foreground h-8"
+                            >
+                              Change
+                            </Button>
+                          </div>
+                        )}
+
+                        {/* Transaction Ref / STAN Input */}
+                        <div className="space-y-1">
+                          <label className="text-xs font-medium text-foreground">
+                            Transaction Reference / STAN Number *
+                          </label>
+                          <Input
+                            type="text"
+                            placeholder="e.g. 48291048 or Bank UTR Ref"
+                            value={transactionRef}
+                            onChange={(e) => setTransactionRef(e.target.value)}
+                            className="bg-background/80 font-mono text-xs h-10"
+                          />
+                        </div>
+
+                        {/* Sender Account Details */}
+                        <div className="space-y-1">
+                          <label className="text-xs font-medium text-foreground">
+                            Sender Bank &amp; Account Title (Optional)
+                          </label>
+                          <Input
+                            type="text"
+                            placeholder="e.g. Sent from HBL - Tariq Mehmood"
+                            value={senderDetails}
+                            onChange={(e) => setSenderDetails(e.target.value)}
+                            className="bg-background/80 text-xs h-10"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Promo Code Input (Shared across methods) */}
+                  {!flowData.paymentDone && (
+                    <div className="space-y-2 pt-2 border-t border-border/40">
+                      <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                        <Tag className="w-3.5 h-3.5 text-primary" /> Promo Code
+                      </label>
+                      <div className="flex gap-2">
+                        <Input
+                          type="text"
+                          placeholder="Enter Promo Code (e.g. SMART10)"
+                          value={promoCodeInput}
+                          onChange={(e) => setPromoCodeInput(e.target.value.toUpperCase())}
+                          disabled={!!appliedPromo}
+                          className="bg-background/80 font-mono text-sm"
+                        />
+                        {appliedPromo ? (
+                          <Button
+                            variant="ghost"
+                            onClick={() => {
+                              setAppliedPromo(null);
+                              setPromoCodeInput("");
+                              setDiscountPercent(0);
+                              toast.info("Promo code removed.");
+                            }}
+                            className="text-red-400 hover:text-red-300 hover:bg-red-500/10 shrink-0"
+                          >
+                            Remove
+                          </Button>
+                        ) : (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handleApplyPromo}
+                            className="border-gold/50 text-primary hover:bg-primary/10 font-bold shrink-0"
+                          >
+                            Apply
+                          </Button>
+                        )}
+                      </div>
+                      {appliedPromo && (
+                        <p className="text-xs text-foreground font-semibold flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5" /> Promo code '{appliedPromo}' applied! {discountPercent}% discount active.
+                        </p>
                       )}
                     </div>
-                    {appliedPromo && (
-                      <p className="text-xs text-foreground font-semibold flex items-center gap-1">
-                        <CheckCircle2 className="w-3.5 h-3.5" /> Promo code '{appliedPromo}' applied! {discountPercent}% discount active.
-                      </p>
-                    )}
-                  </div>
-                )}
-
-                {/* Terms Checkbox */}
-                <div className="flex items-start gap-3 pt-2 border-t border-border/40">
-                  <Checkbox
-                    id="terms-checkbox"
-                    checked={acceptedTerms}
-                    onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
-                    className="mt-0.5 border-gold data-[state=checked]:bg-primary data-[state=checked]:text-foreground-dark shrink-0"
-                  />
-                  <label htmlFor="terms-checkbox" className="text-xs text-muted-foreground leading-relaxed cursor-pointer">
-                    I agree to the <a href="/terms" target="_blank" className="text-primary underline hover:text-primary-light">Terms of Service</a> and acknowledge that all purchases are subject to the <a href="/refund" target="_blank" className="text-primary underline hover:text-primary-light">Refund Policy</a>.
-                  </label>
-                </div>
-
-                {/* Main Action Button */}
-                <Button
-                  onClick={handleInitiatePayment}
-                  disabled={processing || finalTotal <= 0 || !acceptedTerms}
-                  size="lg"
-                  className="w-full bg-primary hover:bg-primary-light text-foreground-dark font-extrabold text-base gap-2 shadow-2xl h-14"
-                >
-                  {processing ? (
-                    <><Loader2 className="w-5 h-5 animate-spin" /> Redirecting to Safepay Checkout...</>
-                  ) : finalTotal <= 0 ? (
-                    "No Changes to Pay"
-                  ) : (
-                    <>
-                      <Lock className="w-4 h-4" />
-                      <span>{flowData.paymentDone && addedQuota > 0 ? "Top Up Links Securely" : `Proceed to Safepay (Rs. ${finalTotal.toLocaleString("en-PK")})`}</span>
-                      <ArrowRight className="w-5 h-5 ml-1" />
-                    </>
                   )}
-                </Button>
 
-                {/* Return button */}
-                <Button
-                  variant="ghost"
-                  onClick={onBack}
-                  disabled={processing}
-                  className="w-full text-muted-foreground hover:text-foreground text-xs"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5 mr-1" /> Review &amp; Edit Details
-                </Button>
-              </div>
+                  {/* Terms Checkbox */}
+                  <div className="flex items-start gap-3 pt-2 border-t border-border/40">
+                    <Checkbox
+                      id="terms-checkbox"
+                      checked={acceptedTerms}
+                      onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
+                      className="mt-0.5 border-gold data-[state=checked]:bg-primary data-[state=checked]:text-slate-950 shrink-0"
+                    />
+                    <label htmlFor="terms-checkbox" className="text-xs text-muted-foreground leading-relaxed cursor-pointer">
+                      I agree to the <a href="/terms" target="_blank" className="text-primary underline hover:text-primary-light">Terms of Service</a> and acknowledge that all purchases are subject to the <a href="/refund" target="_blank" className="text-primary underline hover:text-primary-light">Refund Policy</a>.
+                    </label>
+                  </div>
+
+                  {/* Main Action Buttons */}
+                  {paymentMethod === "agency_credit" ? (
+                    <Button
+                      onClick={handlePayWithAgencyCredit}
+                      disabled={processing || (agencyData?.creditsBalance || 0) < 1 || !acceptedTerms}
+                      size="lg"
+                      className="w-full bg-primary hover:bg-primary-light text-slate-950 font-black text-base gap-2 shadow-2xl h-14 cursor-pointer"
+                    >
+                      {processing ? (
+                        <><Loader2 className="w-5 h-5 animate-spin text-slate-950" /> Activating Client Event with 1 Credit...</>
+                      ) : (agencyData?.creditsBalance || 0) < 1 ? (
+                        "Insufficient Agency Credits (Top-up in Portal)"
+                      ) : (
+                        <>
+                          <Crown className="w-5 h-5 text-slate-950 stroke-[2.5]" />
+                          <span>Publish Client Event with 1 Wholesale Credit</span>
+                          <ArrowRight className="w-5 h-5 ml-1 text-slate-950 stroke-[2.5]" />
+                        </>
+                      )}
+                    </Button>
+                  ) : paymentMethod === "safepay" ? (
+                    <Button
+                      onClick={handleInitiatePayment}
+                      disabled={processing || finalTotal <= 0 || !acceptedTerms}
+                      size="lg"
+                      className="w-full bg-primary hover:bg-primary-light text-slate-950 font-black text-base gap-2 shadow-2xl h-14 cursor-pointer"
+                    >
+                      {processing ? (
+                        <><Loader2 className="w-5 h-5 animate-spin text-slate-950" /> Redirecting to Safepay Checkout...</>
+                      ) : finalTotal <= 0 ? (
+                        "No Changes to Pay"
+                      ) : (
+                        <>
+                          <Lock className="w-4 h-4 text-slate-950 stroke-[2.5]" />
+                          <span>{flowData.paymentDone && addedQuota > 0 ? "Top Up Links Securely" : `Proceed to Safepay (Rs. ${finalTotal.toLocaleString("en-PK")})`}</span>
+                          <ArrowRight className="w-5 h-5 ml-1 text-slate-950 stroke-[2.5]" />
+                        </>
+                      )}
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={handleSubmitManualBank}
+                      disabled={processing || finalTotal <= 0 || !acceptedTerms || !receiptUrl || !transactionRef.trim()}
+                      size="lg"
+                      className="w-full bg-gold hover:bg-gold/90 text-black font-extrabold text-base gap-2 shadow-2xl h-14 cursor-pointer"
+                    >
+                      {processing ? (
+                        <><Loader2 className="w-5 h-5 animate-spin" /> Submitting Bank Slip...</>
+                      ) : (
+                        <>
+                          <Check className="w-5 h-5" />
+                          <span>Submit Bank Transfer for Verification (Rs. {finalTotal.toLocaleString("en-PK")})</span>
+                        </>
+                      )}
+                    </Button>
+                  )}
+
+                  {/* Return button */}
+                  <Button
+                    variant="ghost"
+                    onClick={onBack}
+                    disabled={processing}
+                    className="w-full text-muted-foreground hover:text-foreground text-xs"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5 mr-1" /> Review &amp; Edit Details
+                  </Button>
+                </div>
+              )}
 
               {/* 3 Key Trust Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -321,12 +990,12 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                 <div className="p-4 rounded-2xl bg-card/50 border border-border/50 text-center space-y-1">
                   <Sparkles className="w-5 h-5 text-foreground mx-auto" />
                   <p className="text-xs font-bold text-foreground">Instant Activation</p>
-                  <p className="text-[10px] text-muted-foreground">Link active immediately</p>
+                  <p className="text-[10px] text-muted-foreground">Immediate verification</p>
                 </div>
                 <div className="p-4 rounded-2xl bg-card/50 border border-border/50 text-center space-y-1">
                   <Shield className="w-5 h-5 text-primary mx-auto" />
                   <p className="text-xs font-bold text-foreground">100% Guarantee</p>
-                  <p className="text-[10px] text-muted-foreground">Secure encrypted transaction</p>
+                  <p className="text-[10px] text-muted-foreground">Secure transaction</p>
                 </div>
               </div>
 
@@ -348,98 +1017,87 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
                   </Badge>
                 </div>
 
-                {/* Compact Preview Thumbnail Card */}
-                <div className="p-4 rounded-2xl bg-muted/40 border border-border/50 space-y-2 text-center">
-                  <p className="text-[9px] uppercase tracking-widest text-primary font-bold">The Wedding of</p>
-                  <h4 className="font-display text-xl font-bold text-foreground">
-                    {flowData.partner1Name || "Partner 1"} <span className="text-primary italic">&amp;</span> {flowData.partner2Name || "Partner 2"}
-                  </h4>
-                  <div className="flex items-center justify-center gap-3 text-[10px] text-muted-foreground pt-1">
-                    <span className="flex items-center gap-1"><Heart className="w-3 h-3 text-primary" /> {templateName}</span>
-                    <span className="flex items-center gap-1"><MapPin className="w-3 h-3 text-primary" /> {flowData.venue || "Venue"}</span>
+                <div className="space-y-3">
+                  <div>
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">Template</span>
+                    <p className="text-sm font-semibold text-foreground">{templateName}</p>
                   </div>
-                </div>
-
-                {/* Plan Included Features */}
-                <div className="space-y-2 text-xs pt-1">
-                  <p className="font-semibold text-muted-foreground uppercase text-[10px] tracking-wider">Plan Highlights Included:</p>
-                  {plan.features.slice(0, 6).map((f) => (
-                    <div key={f} className="flex items-center gap-2 text-muted-foreground">
-                      <Check className="w-3.5 h-3.5 text-foreground shrink-0" />
-                      <span>{f}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Extra Guest Links Addon Selector */}
-                <div className="pt-3 border-t border-border/40 space-y-2">
-                  <div className="flex items-center justify-between">
+                  {flowData.partner1Name && flowData.partner2Name && (
                     <div>
-                      <p className="text-xs font-bold text-foreground">Extra Guest Links Addon</p>
-                      <p className="text-[10px] text-muted-foreground">+Rs. 1,000 per 50 extra links</p>
-                    </div>
-                    <div className="flex items-center gap-2 bg-background p-1.5 rounded-xl border border-border">
-                      <button
-                        type="button"
-                        disabled={addedQuota <= 0}
-                        onClick={() => {
-                          const current = flowData.guestLinksQuota || (flowData.originalGuestLinksQuota || 0);
-                          const baseQuota = flowData.originalGuestLinksQuota || 0;
-                          onUpdateData({ guestLinksQuota: Math.max(baseQuota, current - 50) });
-                        }}
-                        className="w-6 h-6 rounded-lg flex items-center justify-center bg-muted text-foreground disabled:opacity-40 hover:bg-muted/80 text-xs font-bold"
-                      >
-                        -
-                      </button>
-                      <span className="text-xs font-bold px-1 text-center min-w-[28px]">
-                        {addedQuota > 0 ? `+${addedQuota}` : "0"}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const current = flowData.guestLinksQuota || (flowData.originalGuestLinksQuota || 0);
-                          onUpdateData({ guestLinksQuota: current + 50 });
-                        }}
-                        className="w-6 h-6 rounded-lg flex items-center justify-center bg-primary text-foreground-dark hover:bg-primary-light text-xs font-bold"
-                      >
-                        +
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Itemized Price Receipt */}
-                <div className="pt-3 border-t border-border/50 space-y-2 text-xs">
-                  <div className="flex justify-between text-muted-foreground">
-                    <span>Base Plan ({plan.name})</span>
-                    <span>Rs. {basePrice.toLocaleString("en-PK")}</span>
-                  </div>
-
-                  {addedQuota > 0 && (
-                    <div className="flex justify-between text-muted-foreground">
-                      <span>Extra Links ({addedQuota} links)</span>
-                      <span>+ Rs. {addOnPrice.toLocaleString("en-PK")}</span>
+                      <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">Couple</span>
+                      <p className="text-sm font-semibold text-foreground">{flowData.partner1Name} &amp; {flowData.partner2Name}</p>
                     </div>
                   )}
-
-                  {appliedPromo && discountAmount > 0 && (
-                    <div className="flex justify-between text-foreground font-semibold">
-                      <span>Promo Discount ({discountPercent}%)</span>
-                      <span>- Rs. {discountAmount.toLocaleString("en-PK")}</span>
+                  {flowData.events && flowData.events.length > 0 && (
+                    <div>
+                      <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">Events ({flowData.events.length})</span>
+                      <p className="text-xs text-muted-foreground truncate">{flowData.events.map(e => e.name).join(", ")}</p>
                     </div>
                   )}
-
-                  <div className="pt-3 border-t border-border/60 flex items-baseline justify-between">
-                    <span className="font-bold text-sm text-foreground">Total Payable</span>
-                    <div className="text-right">
-                      <span className="text-xs text-muted-foreground">PKR </span>
-                      <span className="font-display text-2xl font-extrabold text-primary">
-                        Rs. {finalTotal.toLocaleString("en-PK")}
-                      </span>
-                    </div>
-                  </div>
                 </div>
 
+                {/* Plan Highlights */}
+                <div className="border-t border-border/40 pt-3 space-y-2">
+                  <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">Includes</span>
+                  <ul className="space-y-1 text-xs text-muted-foreground">
+                    {plan.features.slice(0, 4).map((f, i) => (
+                      <li key={i} className="flex items-center gap-1.5">
+                        <Check className="w-3.5 h-3.5 text-primary shrink-0" />
+                        <span>{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* Order Pricing Breakdown Card */}
+              <div className="p-6 rounded-3xl bg-card/70 border border-gold/30 shadow-2xl backdrop-blur-xl space-y-4">
+                <h3 className="font-display text-base font-bold text-foreground">Order Breakdown</h3>
+                
+                <div className="space-y-2 text-xs">
+                  {paymentMethod === "agency_credit" ? (
+                    <>
+                      <div className="flex justify-between text-muted-foreground">
+                        <span>Wholesale Activation ({plan.name})</span>
+                        <span className="font-bold text-gold">1 Credit</span>
+                      </div>
+                      <div className="flex justify-between text-muted-foreground">
+                        <span>Prepaid Wholesale Balance</span>
+                        <span className="font-semibold text-foreground">{agencyData?.creditsBalance || 0} Credits</span>
+                      </div>
+                      <div className="border-t border-border/50 pt-3 flex justify-between text-sm font-bold text-foreground">
+                        <span>Total Payable Today</span>
+                        <span className="text-emerald font-display text-base">Rs. 0 (1 Credit)</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex justify-between text-muted-foreground">
+                        <span>{plan.name} Base Package</span>
+                        <span>Rs. {basePrice.toLocaleString("en-PK")}</span>
+                      </div>
+
+                      {addedQuota > 0 && (
+                        <div className="flex justify-between text-muted-foreground">
+                          <span>{addedQuota} Additional Guest Links</span>
+                          <span>Rs. {addOnPrice.toLocaleString("en-PK")}</span>
+                        </div>
+                      )}
+
+                      {discountAmount > 0 && (
+                        <div className="flex justify-between text-emerald font-semibold">
+                          <span>Promo Discount ({discountPercent}%)</span>
+                          <span>- Rs. {discountAmount.toLocaleString("en-PK")}</span>
+                        </div>
+                      )}
+
+                      <div className="border-t border-border/50 pt-3 flex justify-between text-sm font-bold text-foreground">
+                        <span>Total Payable</span>
+                        <span className="text-primary font-display text-base">Rs. {finalTotal.toLocaleString("en-PK")}</span>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
 
             </div>
@@ -451,18 +1109,21 @@ export function PaymentPage({ flowData, onUpdateData, onBack, onContinue, crumbs
   );
 }
 
-/* ---------- Helper Components ---------- */
 function StepDot({ done, current, label, stepNumber }: { done?: boolean; current?: boolean; label: string; stepNumber: number }) {
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-2">
       <div
-        className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center ${
-          done ? "bg-primary text-foreground-dark" : current ? "bg-emerald text-primary-foreground" : "bg-muted text-muted-foreground"
+        className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+          done
+            ? "bg-primary text-slate-950 font-black"
+            : current
+            ? "bg-primary/20 text-primary border border-gold/50 shadow-sm"
+            : "bg-muted text-muted-foreground"
         }`}
       >
-        {done ? <Check className="w-3 h-3" /> : current ? String(stepNumber) : ""}
+        {done ? <Check className="w-4 h-4 text-slate-950 stroke-[2.5]" /> : stepNumber}
       </div>
-      <span className={`text-xs hidden sm:inline ${current ? "text-foreground font-semibold" : "text-muted-foreground"}`}>
+      <span className={`text-xs font-medium hidden md:inline ${current ? "text-foreground font-semibold" : "text-muted-foreground"}`}>
         {label}
       </span>
     </div>
@@ -470,5 +1131,5 @@ function StepDot({ done, current, label, stepNumber }: { done?: boolean; current
 }
 
 function StepLine({ active }: { active?: boolean }) {
-  return <div className={`w-4 sm:w-6 h-px ${active ? "bg-primary/30" : "bg-border"}`} />;
+  return <div className={`w-6 sm:w-10 h-0.5 ${active ? "bg-primary/50" : "bg-border"}`} />;
 }

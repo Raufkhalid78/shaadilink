@@ -32,9 +32,32 @@ export async function requireUser(): Promise<User> {
  */
 export async function requireAdmin(): Promise<User> {
   const user = await requireUser()
+  const userEmail = (user.email || '').toLowerCase().trim()
+  const envAdminEmail = (process.env.ADMIN_EMAIL || process.env.NEXT_PUBLIC_ADMIN_EMAIL || '').toLowerCase().trim()
+
+  // 1. Instant check against configured env admin email
+  if (envAdminEmail && userEmail === envAdminEmail) {
+    return user
+  }
 
   try {
     const service = createServiceClient()
+
+    // 2. Check site_settings for admin email configured in Admin Dashboard
+    const { data: siteSettings } = await service
+      .from('site_settings')
+      .select('admin_email')
+      .limit(1)
+      .single()
+
+    const dbAdminEmail = (siteSettings?.admin_email || '').toLowerCase().trim()
+    if (dbAdminEmail && userEmail === dbAdminEmail) {
+      // Ensure profile has is_admin set to true
+      await service.from('profiles').update({ is_admin: true, plan: 'admin' }).eq('id', user.id)
+      return user
+    }
+
+    // 3. Check profiles table for is_admin flag or admin plan
     const { data: profile } = await service
       .from('profiles')
       .select('plan, is_admin')

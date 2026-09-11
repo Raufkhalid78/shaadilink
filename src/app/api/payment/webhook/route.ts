@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import crypto from 'crypto'
 import { fulfillOrderIfPending } from '@/lib/fulfillment'
+import { fulfillAgencyCreditOrder } from '@/app/dashboard/agency/actions'
 
 export async function POST(request: NextRequest) {
   try {
@@ -57,14 +58,39 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing tracker" }, { status: 400 })
     }
 
-    // Find the order by tracker token (added via our migration)
-    const { data: order, error: orderErr } = await service
+    // Find the order by tracker token (in retail orders or agency wholesale credit orders)
+    const { data: order } = await service
       .from('orders')
       .select('*')
       .eq('tracker', trackerToken)
-      .single()
+      .maybeSingle()
 
-    if (orderErr || !order) {
+    if (!order) {
+      // Check if this tracker belongs to an agency wholesale credit order
+      const { data: creditOrder } = await service
+        .from('agency_credit_orders')
+        .select('*')
+        .eq('safepay_tracker', trackerToken)
+        .maybeSingle()
+
+      if (creditOrder) {
+        if (creditOrder.status === 'completed' || creditOrder.status === 'approved') {
+          return NextResponse.json({ received: true, status: 'already_paid' })
+        }
+
+        if (failedEvents.includes(eventName)) {
+          await service
+            .from('agency_credit_orders')
+            .update({ status: 'rejected', updated_at: new Date().toISOString() })
+            .eq('id', creditOrder.id)
+          return NextResponse.json({ received: true, status: 'failed' })
+        }
+
+        await fulfillAgencyCreditOrder(creditOrder.id)
+        console.log('Safepay webhook successfully credited agency wallet for order:', creditOrder.id)
+        return NextResponse.json({ received: true, success: true, type: 'agency_credits' })
+      }
+
       console.error("Order not found for webhook tracker:", trackerToken)
       return NextResponse.json({ error: "Order not found" }, { status: 404 })
     }

@@ -57,11 +57,11 @@ export function CountdownTimer({
   ]
 
   return (
-    <div className="flex gap-3 sm:gap-4 items-center justify-center">
+    <div className="flex gap-1.5 sm:gap-4 items-center justify-center">
       {units.map((unit, idx) => (
         <React.Fragment key={unit.label}>
           <div className="flex flex-col items-center">
-            <div className="rounded-lg backdrop-blur-sm w-16 sm:w-20 h-16 sm:h-20 flex items-center justify-center countdown-pulse relative overflow-hidden" style={{ border: `1px solid ${theme.getOpacityStyle('border', 0.25)}`, backgroundColor: theme.getOpacityStyle('border', 0.08) }}>
+            <div className="rounded-lg backdrop-blur-sm w-14 sm:w-20 h-14 sm:h-20 flex items-center justify-center countdown-pulse relative overflow-hidden" style={{ border: `1px solid ${theme.getOpacityStyle('border', 0.25)}`, backgroundColor: theme.getOpacityStyle('border', 0.08) }}>
               <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, ${theme.getOpacityStyle('text', 0.05)}, transparent)` }} />
               <AnimatePresence mode="popLayout">
                 <m.span
@@ -70,7 +70,7 @@ export function CountdownTimer({
                   animate={{ y: 0, opacity: 1, rotateX: 0 }}
                   exit={{ y: 15, opacity: 0, rotateX: 90 }}
                   transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-                  className={`${theme.fontDisplay} text-2xl sm:text-3xl font-bold relative z-10`}
+                  className={`${theme.fontDisplay} text-xl sm:text-3xl font-bold relative z-10`}
                   style={{ color: theme.accent }}
                 >
                   {String(unit.value).padStart(2, '0')}
@@ -80,7 +80,7 @@ export function CountdownTimer({
             <span className="text-[10px] sm:text-xs uppercase tracking-widest mt-2" style={{ color: theme.accent }}>{unit.label}</span>
           </div>
           {idx < units.length - 1 && (
-            <div className="text-2xl font-light pb-6" style={{ color: theme.getOpacityStyle('text', 0.3) }}>:</div>
+            <div className="text-xl sm:text-2xl font-light pb-4 sm:pb-6" style={{ color: theme.getOpacityStyle('text', 0.3) }}>:</div>
           )}
         </React.Fragment>
       ))}

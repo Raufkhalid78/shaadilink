@@ -3,6 +3,7 @@ import { Playfair_Display, Amiri, Inter, Cinzel_Decorative, Great_Vibes } from "
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { AIChatFABWrapper } from "@/components/ai-chat-fab-wrapper";
+import { PWARegister } from "@/components/pwa-register";
 import { LanguageProvider } from "@/components/language-provider";
 import { CookieBanner } from "@/components/cookie-banner";
 import { FramerMotionProvider } from "@/components/framer-provider";
@@ -47,10 +48,15 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
+  viewportFit: "cover",
 };
 
+const siteBaseUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (process.env.NODE_ENV === "development" ? "http://localhost:3000" : "https://smartinvites.com.pk");
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://smartinvites.com.pk"),
+  metadataBase: new URL(siteBaseUrl),
   applicationName: "Smart Invites",
   title: "Smart Invites — Premium Digital Invitations for Every Event",
   description:
@@ -69,9 +75,9 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     url: "https://www.smartinvites.com.pk/",
-    title: "Smart Invites — Premium Digital Wedding Invitations",
+    title: "Smart Invites — Premium Digital Invitations for Every Event",
     description:
-      "Cinematic digital wedding invitations with 3D animations, scratch card reveals, live countdowns, and RSVP. Made for Pakistani weddings.",
+      "Cinematic digital invitations for Weddings, Birthdays, School Events, and Meetings with 3D door reveals, live countdowns, music, and instant guest RSVPs.",
     type: "website",
     locale: "en_PK",
     siteName: "Smart Invites",
@@ -80,19 +86,20 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Smart Invites - Premium Digital Wedding Invitations",
+        alt: "Smart Invites - Premium Digital Invitations",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Smart Invites — Premium Digital Wedding Invitations",
-    description: "Cinematic digital invitations for Pakistani weddings. Starting Rs. 3,499.",
+    title: "Smart Invites — Premium Digital Invitations for Every Event",
+    description: "Cinematic digital invitations with 3D door reveals, music, and instant RSVP. Starting Rs. 3,499.",
   },
   robots: {
     index: true,
     follow: true,
   },
+  manifest: "/manifest.json",
   icons: {
     icon: "/logo.svg",
     apple: "/logo-180.png",
@@ -210,6 +217,7 @@ export default function RootLayout({
             <AIChatFABWrapper />
             {children}
           </FramerMotionProvider>
+          <PWARegister />
           <CookieBanner />
           <Toaster 
             position="bottom-center"

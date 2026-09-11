@@ -38,9 +38,9 @@ export default function SuccessRoute() {
         router.push("/dashboard");
       }}
       crumbs={[
-        { label: "Home", onClick: () => router.push("/") },
-        ...(flowData.userId ? [{ label: "Dashboard", onClick: () => router.push("/dashboard") }] : []),
-        { label: "Templates", onClick: () => router.push("/templates") },
+        { label: "Home", href: "/" },
+        ...(flowData.userId ? [{ label: "Dashboard", href: "/dashboard" }] : []),
+        { label: "Templates", href: "/templates" },
         { label: "Success" },
       ]}
     />

@@ -19,6 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
+import { BrandLogo } from "@/components/brand-logo";
 
 interface AffiliatePageProps {
   onBack: () => void;
@@ -88,14 +89,7 @@ export function AffiliatePage({ onBack }: AffiliatePageProps) {
               <span className="hidden sm:inline">Back</span>
             </Button>
 
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald text-primary-foreground">
-                <Heart className="h-4 w-4 fill-current" />
-              </div>
-              <span className="font-display text-lg font-bold">
-                Shaadi<span className="text-gold">Link</span>
-              </span>
-            </div>
+            <BrandLogo size="sm" href="/" />
 
             <div className="w-16" />
           </div>
@@ -105,7 +99,7 @@ export function AffiliatePage({ onBack }: AffiliatePageProps) {
       {/* Breadcrumb path */}
       <PageBreadcrumb
         crumbs={[
-          { label: "Home", onClick: onBack },
+          { label: "Home", href: "/", onClick: onBack },
           { label: "Affiliate Programme" },
         ]}
       />

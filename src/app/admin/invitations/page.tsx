@@ -71,7 +71,7 @@ export default async function AdminInvitationsPage(props: { searchParams: Promis
               <p className="text-xs text-muted-foreground/60">Created: {new Date(inv.created_at).toLocaleDateString()}</p>
             </div>
 
-            {inv.is_active && (
+            {inv.is_active ? (
               <a 
                 href={`/inv/${inv.slug || inv.id}`} 
                 target="_blank" 
@@ -79,6 +79,15 @@ export default async function AdminInvitationsPage(props: { searchParams: Promis
                 className="flex items-center gap-1 text-sm text-gold hover:text-gold-light transition-colors"
               >
                 <ExternalLink className="w-4 h-4" /> View Live
+              </a>
+            ) : (
+              <a 
+                href={`/inv/${inv.slug || inv.id}?review=true`} 
+                target="_blank" 
+                rel="noreferrer"
+                className="flex items-center gap-1 text-sm text-amber-400 hover:text-amber-300 transition-colors"
+              >
+                <ExternalLink className="w-4 h-4" /> Preview Draft
               </a>
             )}
           </div>

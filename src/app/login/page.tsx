@@ -34,8 +34,8 @@ function LoginContent() {
       }}
       onSignup={() => router.push(`/signup?next=${encodeURIComponent(nextUrl)}`)}
       crumbs={[
-        { label: "Home", onClick: () => router.push("/") },
-        ...(flowData.userId ? [{ label: "Dashboard", onClick: () => router.push("/dashboard") }] : []),
+        { label: "Home", href: "/" },
+        ...(flowData.userId ? [{ label: "Dashboard", href: "/dashboard" }] : []),
         { label: "Login" },
       ]}
     />

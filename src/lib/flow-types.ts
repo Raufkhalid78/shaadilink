@@ -65,7 +65,67 @@ export interface FlowData {
   // Multi-step builder progress persistence
   currentStep?: number;
   lastSavedStep?: number;
+  // Custom Music for Royal Tier
+  customMusicUrl?: string;
+  customMusicName?: string;
+  // Personal Host Voice Greeting (Audio Memo)
+  voiceNoteUrl?: string;
+  voiceNoteTitle?: string;
+  voiceNoteSender?: string;
+  // Agency / White-label branding & Client Review
+  agencyName?: string;
+  agencyPhone?: string;
+  whiteLabelFooter?: string;
+  clientApprovalStatus?: "pending" | "approved" | "changes_requested";
+  clientApprovalNotes?: string;
+  clientApprovedAt?: string;
 }
+
+export function getDefaultEventsForCategory(category?: string | null): { name: string; date: string; time: string }[] {
+  const cat = (category || "").toLowerCase();
+  if (cat === "birthday") {
+    return [
+      { name: "Arrival & Welcome Drinks", date: "", time: "7:00 PM" },
+      { name: "Cake Cutting Ceremony", date: "", time: "8:30 PM" },
+      { name: "Dinner & Celebration", date: "", time: "9:00 PM" },
+      { name: "Music & Afterparty", date: "", time: "10:00 PM" },
+    ];
+  }
+  if (cat === "school") {
+    return [
+      { name: "Guest Registration & Seating", date: "", time: "5:00 PM" },
+      { name: "Opening Ceremony & Speeches", date: "", time: "6:00 PM" },
+      { name: "Awards & Diplomas Presentation", date: "", time: "7:00 PM" },
+      { name: "Dinner & Celebration Gala", date: "", time: "8:30 PM" },
+    ];
+  }
+  if (cat === "meeting" || cat === "corporate") {
+    return [
+      { name: "Registration & Welcome Coffee", date: "", time: "9:00 AM" },
+      { name: "Keynote Address", date: "", time: "10:00 AM" },
+      { name: "Panel Discussion & Q&A", date: "", time: "11:30 AM" },
+      { name: "Networking Lunch & Closing", date: "", time: "1:00 PM" },
+    ];
+  }
+  return [
+    { name: "Qawali Night", date: "", time: "" },
+    { name: "Dholki", date: "", time: "" },
+    { name: "Mayoon", date: "", time: "" },
+    { name: "Mehndi", date: "", time: "" },
+    { name: "Baraat", date: "", time: "" },
+    { name: "Baraat & Nikkah", date: "", time: "" },
+    { name: "Walima", date: "", time: "" },
+  ];
+}
+
+export function getDefaultMusicForCategory(category?: string | null): string {
+  const cat = (category || "").toLowerCase();
+  if (cat === "birthday") return "party-vibes";
+  if (cat === "school") return "anthem-celebration";
+  if (cat === "meeting" || cat === "corporate") return "corporate-ambient";
+  return "soft-sitar";
+}
+
 
 export const initialFlowData: FlowData = {
   selectedPlan: null,

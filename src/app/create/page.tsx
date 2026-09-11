@@ -5,22 +5,54 @@ import { useRouter } from "next/navigation";
 import { DetailsPage } from "@/components/flow/details-page";
 import { useFlowStore } from "@/lib/store";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function CreateRoute() {
   const router = useRouter();
   const { flowData, setFlowData } = useFlowStore();
   const [mounted, setMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAgency, setIsAgency] = useState(false);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const editId = searchParams.get("edit");
+    const isAgencyParam = searchParams.get("agency") === "true";
+
+    if (isAgencyParam) {
+      setIsAgency(true);
+    } else {
+      fetch("/api/agency/status")
+        .then((r) => r.json())
+        .then((data) => {
+          if (data?.isAgency && data?.status === "approved") {
+            setIsAgency(true);
+          }
+        })
+        .catch(() => {});
+    }
 
     if (editId) {
       fetch(`/api/invitations/${editId}`)
         .then((r) => r.json())
         .then(({ invitation }) => {
           if (invitation) {
+            // Concluded Event Locking Rule: If invitation is LIVE and all events have passed, lock edits completely
+            const rawEvents = (invitation.events as { name: string; date: string; time: string; venue?: string; order_index: number }[]) || [];
+            const isPassed = Boolean(invitation.is_active) && rawEvents.length > 0 && rawEvents.every((e) => {
+              if (!e.date) return false;
+              const evDate = new Date(e.date);
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
+              return evDate < today;
+            });
+
+            if (isPassed) {
+              toast.error("This event has concluded. Edits are locked to preserve event records.");
+              router.push(isAgencyParam ? "/dashboard/agency" : "/dashboard");
+              return;
+            }
+
             const p1 = invitation.partner1_name ?? "";
             const p2 = invitation.partner2_name ?? "";
             const venue = invitation.venue ?? "";
@@ -51,14 +83,15 @@ export default function CreateRoute() {
               backgroundMusic: invitation.background_music ?? "shaadi-classic",
               guestLinksQuota: invitation.guest_links_quota ?? 10,
               originalGuestLinksQuota: invitation.guest_links_quota ?? 0,
-              events: ((invitation.events as { name: string; date: string; time: string; venue?: string; order_index: number }[]) || [])
+              events: rawEvents
                 .sort((a, b) => a.order_index - b.order_index)
                 .map((e) => ({ name: e.name, date: e.date, time: e.time, venue: e.venue })),
               selectedPlan: invitation.plan,
+              category: (invitation as any).category || undefined,
               paymentDone: invitation.is_active ?? false,
               slug: invitation.slug ?? "",
-              showBismillah: invitation.show_bismillah ?? true,
-              showQuranVerse: invitation.show_quran_verse ?? true,
+              showBismillah: invitation.show_bismillah ?? (!['birthday', 'school', 'meeting', 'corporate'].includes(((invitation as any).category || '').toLowerCase())),
+              showQuranVerse: invitation.show_quran_verse ?? (!['birthday', 'school', 'meeting', 'corporate'].includes(((invitation as any).category || '').toLowerCase())),
               customVerseText: invitation.custom_verse_text ?? "",
               customVerseSource: invitation.custom_verse_source ?? "",
               primaryHostFamily: invitation.host_bride_family ?? "",
@@ -69,6 +102,17 @@ export default function CreateRoute() {
               venueDetailsSegregated: invitation.venue_details_segregated ?? "",
               showNikahRegistration: invitation.show_nikah_registration ?? false,
               youtubeVideoId: invitation.youtube_video_id ?? "",
+              customMusicUrl: invitation.custom_music_url ?? "",
+              customMusicName: invitation.custom_music_name ?? "",
+              voiceNoteUrl: invitation.voice_note_url ?? "",
+              voiceNoteTitle: invitation.voice_note_title ?? "",
+              voiceNoteSender: invitation.voice_note_sender ?? "",
+              agencyName: invitation.agency_name ?? "",
+              agencyPhone: invitation.agency_phone ?? "",
+              whiteLabelFooter: invitation.white_label_footer ?? "",
+              clientApprovalStatus: invitation.client_approval_status || "pending",
+              clientApprovalNotes: invitation.client_approval_notes ?? "",
+              clientApprovedAt: invitation.client_approved_at ?? "",
               currentStep: resumeStep,
               lastSavedStep: resumeStep,
             });
@@ -80,10 +124,40 @@ export default function CreateRoute() {
           setIsLoading(false);
         });
     } else {
+      // If user came to create an invitation without picking a template, send them to select template first
+      if (!flowData.selectedTemplateId) {
+        router.replace(isAgencyParam ? "/templates?agency=true" : "/templates");
+        return;
+      }
+
+      // Starting a new invitation — ensure no old draft ID/payment state leaks and always start from page 1
+      setFlowData((prev) => {
+        const hasStaleId = Boolean(prev.invitationId || prev.paymentDone);
+        if (hasStaleId) {
+          return {
+            invitationId: undefined,
+            paymentDone: false,
+            partner1Name: "",
+            partner2Name: "",
+            venue: "",
+            venueAddress: "",
+            slug: "",
+            welcomeMessage: "",
+            heroImage: "",
+            slideshowImages: [],
+            currentStep: 1,
+            lastSavedStep: 1,
+          };
+        }
+        return {
+          currentStep: 1,
+          lastSavedStep: 1,
+        };
+      });
       setMounted(true);
       setIsLoading(false);
     }
-  }, [setFlowData]);
+  }, [flowData.selectedTemplateId, router, setFlowData]);
 
   if (!mounted || isLoading) {
     return (
@@ -97,14 +171,27 @@ export default function CreateRoute() {
     <DetailsPage
       flowData={flowData}
       onUpdateData={(updates) => setFlowData(updates)}
-      onBack={() => router.push("/templates")}
-      onContinue={() => router.push("/payment")}
-      onRequireLogin={() => router.push("/login")}
+      onBack={() => {
+        if (flowData.paymentDone) {
+          router.push(isAgency ? "/dashboard/agency" : "/dashboard");
+        } else {
+          router.push(isAgency ? "/templates?agency=true" : "/templates");
+        }
+      }}
+      onContinue={() => {
+        if (flowData.paymentDone && flowData.invitationId) {
+          toast.success("Changes saved successfully to your live invitation!");
+          router.push(isAgency ? "/dashboard/agency" : "/dashboard");
+        } else {
+          router.push(isAgency ? "/payment?agency=true" : "/payment");
+        }
+      }}
+      onRequireLogin={() => router.push(isAgency ? "/login?next=/create?agency=true" : "/login")}
       crumbs={[
-        { label: "Home", onClick: () => router.push("/") },
-        ...(flowData.userId ? [{ label: "Dashboard", onClick: () => router.push("/dashboard") }] : []),
-        { label: "Templates", onClick: () => router.push("/templates") },
-        { label: "Details" },
+        { label: "Home", href: "/" },
+        ...(flowData.userId ? [{ label: isAgency ? "Agency Dashboard" : "Dashboard", href: isAgency ? "/dashboard/agency" : "/dashboard" }] : []),
+        ...(flowData.paymentDone ? [] : [{ label: "Templates", href: isAgency ? "/templates?agency=true" : "/templates" }]),
+        { label: flowData.paymentDone ? "Edit Invitation" : "Details" },
       ]}
     />
   );

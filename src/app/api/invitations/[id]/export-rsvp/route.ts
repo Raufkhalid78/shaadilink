@@ -20,14 +20,25 @@ export async function GET(
     }
     const { data: rsvps, error } = await service
       .from('rsvps')
-      .select('guest_name, guest_email, status, created_at')
+      .select('*')
       .eq('invitation_id', id)
       .order('created_at', { ascending: true })
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-    const header = 'Guest Name,Guest Email,Status,Date Submitted'
-    const rows = (rsvps || []).map(r =>
-      `"${(r.guest_name||'').replace(/"/g,'""')}","${(r.guest_email||'').replace(/"/g,'""')}","${r.status}","${new Date(r.created_at).toLocaleString('en-PK')}"`
-    )
+
+    const header = 'Guest Name,Guest Email,Status,Adults,Children,Total Attendees,Dietary Notes,Attending Ceremonies,Date Submitted'
+    const rows = (rsvps || []).map(r => {
+      const isAccept = r.status === 'accept'
+      const adults = typeof r.adults_count === 'number' ? r.adults_count : (isAccept ? 1 : 0)
+      const children = typeof r.children_count === 'number' ? r.children_count : 0
+      const totalAttendees = isAccept ? (adults + children) : 0
+      const dietary = (r.dietary_notes || '').replace(/"/g, '""')
+      const ceremonies = (Array.isArray(r.attending_events) ? r.attending_events.join('; ') : '').replace(/"/g, '""')
+      const guestName = (r.guest_name || '').replace(/"/g, '""')
+      const guestEmail = (r.guest_email || '').replace(/"/g, '""')
+      const dateStr = r.created_at ? new Date(r.created_at).toLocaleString('en-PK') : ''
+
+      return `"${guestName}","${guestEmail}","${r.status}",${adults},${children},${totalAttendees},"${dietary}","${ceremonies}","${dateStr}"`
+    })
     const csv = [header, ...rows].join('\n')
     const filename = `rsvp-${id.slice(0,8)}.csv`
     return new NextResponse(csv, {

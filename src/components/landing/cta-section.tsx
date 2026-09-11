@@ -19,13 +19,14 @@ export function CTASection({ onGetStarted }: CTASectionProps) {
   ];
 
   return (
-    <section className="py-20 sm:py-28 relative overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-background via-primary to-background" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/20" />
+    <section className="py-20 sm:py-28 relative overflow-hidden bg-background">
+      {/* Background: Deep luxury emerald & obsidian with subtle radial gold ambience */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-emerald-dark/70 to-background" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_40%,rgba(212,175,55,0.14),transparent_70%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/40 pointer-events-none" />
 
-      {/* Islamic geometric pattern overlay */}
-      <div className="absolute inset-0 overflow-hidden opacity-[0.04]">
+      {/* Geometric pattern overlay */}
+      <div className="absolute inset-0 overflow-hidden opacity-[0.03] pointer-events-none">
         <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <pattern
@@ -52,25 +53,25 @@ export function CTASection({ onGetStarted }: CTASectionProps) {
               />
             </pattern>
           </defs>
-          <rect width="100%" height="100%" fill="url(#cta-pattern)" className="text-primary" />
+          <rect width="100%" height="100%" fill="url(#cta-pattern)" className="text-gold" />
         </svg>
       </div>
 
-      {/* Gradient orbs (static for high scroll performance) */}
+      {/* Ambient gold glow orbs */}
       <div
-        className="absolute w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-primary/10 blur-3xl pointer-events-none transform-gpu"
+        className="absolute w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-gold/10 blur-3xl pointer-events-none transform-gpu"
         style={{ top: "10%", left: "10%" }}
       />
       <div
-        className="absolute w-48 h-48 sm:w-72 sm:h-72 rounded-full bg-primary/10 blur-3xl pointer-events-none transform-gpu"
+        className="absolute w-48 h-48 sm:w-72 sm:h-72 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none transform-gpu"
         style={{ bottom: "10%", right: "15%" }}
       />
 
-      {/* Decorative primary corner accents */}
-      <div className="absolute top-0 left-0 w-12 h-12 sm:w-20 sm:h-20 border-l-2 border-t-2 border-primary/20" />
-      <div className="absolute top-0 right-0 w-12 h-12 sm:w-20 sm:h-20 border-r-2 border-t-2 border-primary/20" />
-      <div className="absolute bottom-0 left-0 w-12 h-12 sm:w-20 sm:h-20 border-l-2 border-b-2 border-primary/20" />
-      <div className="absolute bottom-0 right-0 w-12 h-12 sm:w-20 sm:h-20 border-r-2 border-b-2 border-primary/20" />
+      {/* Decorative gold corner accents */}
+      <div className="absolute top-0 left-0 w-12 h-12 sm:w-20 sm:h-20 border-l-2 border-t-2 border-gold/20" />
+      <div className="absolute top-0 right-0 w-12 h-12 sm:w-20 sm:h-20 border-r-2 border-t-2 border-gold/20" />
+      <div className="absolute bottom-0 left-0 w-12 h-12 sm:w-20 sm:h-20 border-l-2 border-b-2 border-gold/20" />
+      <div className="absolute bottom-0 right-0 w-12 h-12 sm:w-20 sm:h-20 border-r-2 border-b-2 border-gold/20" />
 
       <div className="relative z-10 mx-auto max-w-3xl px-4 sm:px-6 text-center">
         <m.div
@@ -81,9 +82,9 @@ export function CTASection({ onGetStarted }: CTASectionProps) {
         >
           {/* Decorative divider */}
           <div className="flex items-center justify-center gap-4 mb-6">
-            <div className="h-px w-12 sm:w-16 bg-gradient-to-r from-transparent to-primary/50" />
-            <Sparkles className="h-5 w-5 text-primary" />
-            <div className="h-px w-12 sm:w-16 bg-gradient-to-l from-transparent to-primary/50" />
+            <div className="h-px w-12 sm:w-16 bg-gradient-to-r from-transparent to-gold/50" />
+            <Sparkles className="h-5 w-5 text-gold" />
+            <div className="h-px w-12 sm:w-16 bg-gradient-to-l from-transparent to-gold/50" />
           </div>
 
           {/* Premium badge */}
@@ -92,27 +93,27 @@ export function CTASection({ onGetStarted }: CTASectionProps) {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 mb-6"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gold/30 bg-black/40 backdrop-blur-md mb-6 shadow-lg shadow-black/20"
           >
             <div className="flex items-center gap-0.5">
-              <Sparkles className="w-4 h-4 text-primary" />
+              <Sparkles className="w-4 h-4 text-gold" />
             </div>
-            <span className="text-sm text-primary font-semibold">
+            <span className="text-sm text-gold font-semibold">
               {language === 'en' ? 'Premium Quality' : 'اعلی معیار'}
             </span>
-            <span className="text-xs text-white/60">
+            <span className="text-xs text-white/80">
               {language === 'en' ? 'Handcrafted digital designs' : 'نفاست سے تیار کردہ ڈیزائنز'}
             </span>
           </m.div>
 
-          <h2 className="font-sans tracking-tight text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight">
+          <h2 className="font-sans tracking-tight text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight drop-shadow-md">
             {language === 'en' ? 'Ready to Create Your ' : 'کیا آپ اپنا '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-orange-300 to-rose-300 animate-gradient-x">
+            <span className="gold-shimmer-strong">
               {language === 'en' ? 'Perfect Invitation?' : 'شاندار کارڈ بنانے کے لیے تیار ہیں؟'}
             </span>
           </h2>
 
-          <p className="mt-6 text-base sm:text-lg text-white/70 max-w-xl mx-auto leading-relaxed text-center">
+          <p className="mt-6 text-base sm:text-lg text-white/90 max-w-xl mx-auto leading-relaxed text-center font-medium drop-shadow-sm">
             {t("cta.subtitle")}
           </p>
 
@@ -122,18 +123,18 @@ export function CTASection({ onGetStarted }: CTASectionProps) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.3 }}
-            className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6"
+            className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4"
           >
             {benefits.map((benefit) => (
-              <div key={benefit} className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-primary shrink-0" />
-                <span className="text-sm text-white/60">{benefit}</span>
+              <div key={benefit} className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-sm">
+                <Check className="w-4 h-4 text-gold shrink-0" />
+                <span className="text-xs sm:text-sm font-medium text-white/90">{benefit}</span>
               </div>
             ))}
           </m.div>
 
           <m.div
-            className="mt-8 flex flex-col items-center justify-center gap-4"
+            className="mt-10 flex flex-col items-center justify-center gap-4"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -151,16 +152,16 @@ export function CTASection({ onGetStarted }: CTASectionProps) {
               <Button
                 size="lg"
                 onClick={onGetStarted}
-                className="bg-primary hover:bg-primary-light text-background font-bold text-base px-8 h-12 pulse-glow border-none gap-2"
+                className="bg-gradient-to-r from-[#d4a853] via-[#f3d078] to-[#b88e38] hover:brightness-110 text-slate-950 font-bold text-base px-8 h-12 shadow-xl shadow-gold/25 border-none gap-2"
               >
-                <Heart className="w-4 h-4 fill-current" />
+                <Sparkles className="w-4 h-4 text-slate-950" />
                 {language === 'en' ? 'Start Creating Your Invitation' : 'دعوت نامہ بنانا شروع کریں'}
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </m.div>
           </m.div>
 
-          <p className="mt-6 text-sm text-white/60">
+          <p className="mt-6 text-sm text-white/80 font-medium">
             {language === 'en' ? 'Starting from Rs. 3,499 • One-time payment' : 'صرف 3,499 روپے سے شروع • یک وقتی ادائیگی'}
           </p>
         </m.div>
