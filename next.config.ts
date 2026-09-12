@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   compress: true,
-  output: "standalone",
+  output: process.env.NEXT_OUTPUT_STANDALONE === "true" ? "standalone" : undefined,
   async headers() {
     return [
       {
@@ -115,11 +115,17 @@ const nextConfig: NextConfig = {
 import { withSentryConfig } from "@sentry/nextjs";
 
 export default withSentryConfig(nextConfig, {
-  org: "smartinvites",
-  project: "javascript-nextjs",
+  org: process.env.SENTRY_ORG || "smartinvites",
+  project: process.env.SENTRY_PROJECT || "javascript-nextjs",
 
-  // Only print logs for uploading source maps in CI
-  silent: !process.env.CI,
+  // Disable sourcemaps upload if no auth token is provided (avoids build errors in CI)
+  sourcemaps: {
+    disable: !process.env.SENTRY_AUTH_TOKEN,
+  },
+
+  // Suppress verbose logs and telemetry during build
+  silent: true,
+  telemetry: false,
 
   // Route browser requests to Sentry through a Next.js rewrite
   tunnelRoute: "/monitoring",
