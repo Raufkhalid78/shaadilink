@@ -412,7 +412,7 @@ export function QRScannerModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md w-full bg-neutral-950/95 backdrop-blur-2xl border border-amber-500/25 shadow-2xl p-6 text-foreground rounded-3xl overflow-hidden max-h-[90vh]">
+      <DialogContent className="sm:max-w-lg w-full max-w-[95vw] bg-neutral-950/95 backdrop-blur-2xl border border-amber-500/25 shadow-2xl p-4 sm:p-6 text-foreground rounded-3xl overflow-y-auto max-h-[90vh]">
         <DialogHeader className="text-center space-y-1.5 pb-2">
           <div className="mx-auto w-11 h-11 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-1 shadow-inner">
             <Camera className="w-5 h-5" />
@@ -424,27 +424,27 @@ export function QRScannerModal({
             <span className="text-xs text-neutral-400 truncate max-w-[220px]">
               {invitationTitle}
             </span>
-            <Badge className="bg-amber-500/10 text-amber-300 border-amber-500/30 text-[10px] px-2 py-0.5 rounded-full font-medium">
+            <Badge className="bg-amber-500/10 text-amber-300 border-amber-500/30 text-[10px] px-2 py-0.5 rounded-full font-medium shrink-0">
               {categoryBadgeLabel}
             </Badge>
           </div>
         </DialogHeader>
 
         {/* Segmented Tab Switcher */}
-        <div className="grid grid-cols-2 p-1 rounded-2xl bg-neutral-900 border border-white/10 text-xs font-semibold">
+        <div className="grid grid-cols-2 p-1 rounded-2xl bg-neutral-900 border border-white/10 text-xs font-semibold gap-1">
           <button
             type="button"
             onClick={() => {
               setModalTab("scanner");
             }}
-            className={`py-2 rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer ${
+            className={`py-2 px-2.5 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer min-w-0 ${
               modalTab === "scanner"
                 ? "bg-neutral-800 text-white shadow-md border border-white/15 font-bold"
                 : "text-neutral-400 hover:text-white"
             }`}
           >
-            <Camera className="w-3.5 h-3.5" />
-            <span>Host Scanner</span>
+            <Camera className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">Host Scanner</span>
           </button>
 
           <button
@@ -453,15 +453,15 @@ export function QRScannerModal({
               stopCamera();
               setModalTab("delegation");
             }}
-            className={`py-2 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+            className={`py-2 px-2.5 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer min-w-0 ${
               modalTab === "delegation"
                 ? "bg-amber-500/20 text-amber-300 shadow-md border border-amber-500/40 font-bold"
                 : "text-neutral-400 hover:text-white"
             }`}
           >
-            <Share2 className="w-3.5 h-3.5 text-amber-400" />
-            <span>Gatekeeper Link & PIN</span>
-            <span className="bg-amber-500/30 text-amber-300 text-[9px] px-1.5 py-0.5 rounded-full font-mono ml-0.5">
+            <Share2 className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <span className="truncate">Gatekeeper Link &amp; PIN</span>
+            <span className="bg-amber-500/30 text-amber-300 text-[9px] px-1.5 py-0.5 rounded-full font-mono shrink-0 hidden xs:inline">
               Staff
             </span>
           </button>
@@ -678,53 +678,53 @@ export function QRScannerModal({
             </div>
 
             {/* Access Toggle Switch */}
-            <div className="flex items-center justify-between p-3.5 rounded-2xl bg-neutral-900/80 border border-white/10">
-              <div className="space-y-0.5">
+            <div className="flex items-center justify-between gap-3 p-3.5 rounded-2xl bg-neutral-900/80 border border-white/10 min-w-0">
+              <div className="space-y-0.5 min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <Power className="w-3.5 h-3.5 text-amber-400" />
-                  <span className="text-xs font-semibold text-white">Gatekeeper Link Access</span>
+                  <Power className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                  <span className="text-xs font-semibold text-white truncate">Gatekeeper Link Access</span>
                 </div>
-                <p className="text-[10px] text-neutral-400">
+                <p className="text-[10px] text-neutral-400 leading-snug">
                   {isDelegationActive ? "Entrance link is active and verifying guest passes" : "Access disabled — staff link is locked"}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={handleToggleAccess}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
+                className={`shrink-0 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
                   isDelegationActive
                     ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm"
                     : "bg-white/5 text-neutral-400 border border-white/10 hover:bg-white/10"
                 }`}
               >
-                <span className={`w-2 h-2 rounded-full ${isDelegationActive ? "bg-emerald-400 animate-pulse" : "bg-neutral-500"}`} />
+                <span className={`w-2 h-2 rounded-full shrink-0 ${isDelegationActive ? "bg-emerald-400 animate-pulse" : "bg-neutral-500"}`} />
                 <span>{isDelegationActive ? "Active" : "Disabled"}</span>
               </button>
             </div>
 
             {/* 4-Digit Gatekeeper PIN Card */}
-            <div className="p-4 rounded-2xl bg-neutral-900/80 border border-white/10 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400 flex items-center gap-1.5">
-                  <KeyRound className="w-3.5 h-3.5 text-amber-400" />
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-neutral-900/80 border border-white/10 space-y-3 min-w-0">
+              <div className="flex items-center justify-between gap-2 min-w-0">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400 flex items-center gap-1.5 truncate">
+                  <KeyRound className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                   Gatekeeper 4-Digit PIN
                 </span>
                 <button
                   type="button"
                   onClick={() => setIsEditingPin((e) => !e)}
-                  className="text-xs text-amber-400 hover:text-amber-300 font-medium hover:underline transition-colors cursor-pointer"
+                  className="text-xs text-amber-400 hover:text-amber-300 font-medium hover:underline transition-colors cursor-pointer shrink-0"
                 >
                   {isEditingPin ? "Cancel" : "Change PIN"}
                 </button>
               </div>
 
               {!isEditingPin ? (
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex gap-2">
+                <div className="flex items-center justify-between gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
+                  <div className="flex gap-1.5 sm:gap-2 shrink-0">
                     {gatekeeperPin.split("").map((digit, i) => (
                       <div
                         key={i}
-                        className="w-11 h-12 rounded-xl bg-neutral-950 border border-amber-500/40 flex items-center justify-center font-mono text-xl font-bold text-amber-300 shadow-inner"
+                        className="w-10 h-11 sm:w-11 sm:h-12 rounded-xl bg-neutral-950 border border-amber-500/40 flex items-center justify-center font-mono text-lg sm:text-xl font-bold text-amber-300 shadow-inner shrink-0"
                       >
                         {digit}
                       </div>
@@ -735,20 +735,20 @@ export function QRScannerModal({
                     size="sm"
                     variant="outline"
                     onClick={handleRandomPin}
-                    className="h-10 px-3 text-xs border-white/15 hover:border-amber-500/40 hover:bg-white/5 text-neutral-200 rounded-xl cursor-pointer"
+                    className="h-10 px-2.5 sm:px-3 text-xs border-white/15 hover:border-amber-500/40 hover:bg-white/5 text-neutral-200 rounded-xl cursor-pointer shrink-0"
                     title="Generate new random PIN"
                   >
-                    <RefreshCw className="w-3.5 h-3.5 mr-1.5 text-amber-400" />
+                    <RefreshCw className="w-3.5 h-3.5 mr-1.5 text-amber-400 shrink-0" />
                     Regenerate
                   </Button>
                 </div>
               ) : (
-                <div className="flex gap-2">
+                <div className="flex gap-2 min-w-0">
                   <Input
                     value={customPin}
                     onChange={(e) => setCustomPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
                     placeholder="Enter 4 digits"
-                    className="h-10 text-sm font-mono tracking-widest text-center bg-white/5 border-white/10 text-white rounded-xl"
+                    className="h-10 text-sm font-mono tracking-widest text-center bg-white/5 border-white/10 text-white rounded-xl min-w-0 flex-1"
                     maxLength={6}
                     autoFocus
                   />
@@ -756,7 +756,7 @@ export function QRScannerModal({
                     size="sm"
                     onClick={() => handleUpdatePin(customPin)}
                     disabled={customPin.length < 4}
-                    className="h-10 px-4 bg-amber-500 hover:bg-amber-600 text-neutral-950 text-xs font-bold rounded-xl"
+                    className="h-10 px-4 bg-amber-500 hover:bg-amber-600 text-neutral-950 text-xs font-bold rounded-xl shrink-0"
                   >
                     Save
                   </Button>
@@ -765,21 +765,21 @@ export function QRScannerModal({
             </div>
 
             {/* Link Sharing Actions */}
-            <div className="space-y-2.5">
+            <div className="space-y-2.5 min-w-0">
               <label className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400 block">
                 Share Scanner with Staff
               </label>
 
               {/* URL Preview */}
-              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-neutral-950 border border-white/10 text-xs text-neutral-300">
-                <span className="truncate flex-1 font-mono text-xs text-neutral-400 select-all">
+              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-neutral-950 border border-white/10 text-xs text-neutral-300 min-w-0">
+                <span className="truncate min-w-0 flex-1 font-mono text-[11px] sm:text-xs text-neutral-400 select-all">
                   {gatekeeperBaseUrl}
                 </span>
                 <a
                   href={gatekeeperUrlWithPin}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-1 rounded-lg text-neutral-400 hover:text-amber-300 transition-colors"
+                  className="p-1 rounded-lg text-neutral-400 hover:text-amber-300 transition-colors shrink-0"
                   title="Open Scanner in New Window"
                 >
                   <ExternalLink className="w-4 h-4" />
@@ -787,25 +787,25 @@ export function QRScannerModal({
               </div>
 
               {/* Action Buttons */}
-              <div className="grid grid-cols-2 gap-2.5">
+              <div className="grid grid-cols-2 gap-2 sm:gap-2.5">
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={() => handleCopy(gatekeeperBaseUrl, "link")}
-                  className="h-9 text-xs rounded-xl border-white/15 hover:bg-white/5 text-neutral-200 gap-1.5 cursor-pointer"
+                  className="h-9 text-xs rounded-xl border-white/15 hover:bg-white/5 text-neutral-200 gap-1.5 cursor-pointer min-w-0 px-2"
                 >
-                  {copiedType === "link" ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{copiedType === "link" ? "Copied!" : "Copy Link Only"}</span>
+                  {copiedType === "link" ? <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> : <Copy className="w-3.5 h-3.5 shrink-0" />}
+                  <span className="truncate">{copiedType === "link" ? "Copied!" : "Copy Link Only"}</span>
                 </Button>
 
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={() => handleCopy(gatekeeperUrlWithPin, "linkWithPin")}
-                  className="h-9 text-xs rounded-xl border-amber-500/40 text-amber-300 hover:bg-amber-500/10 gap-1.5 cursor-pointer"
+                  className="h-9 text-xs rounded-xl border-amber-500/40 text-amber-300 hover:bg-amber-500/10 gap-1.5 cursor-pointer min-w-0 px-2"
                 >
-                  {copiedType === "linkWithPin" ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <KeyRound className="w-3.5 h-3.5" />}
-                  <span>{copiedType === "linkWithPin" ? "Copied!" : "Copy with PIN"}</span>
+                  {copiedType === "linkWithPin" ? <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> : <KeyRound className="w-3.5 h-3.5 shrink-0" />}
+                  <span className="truncate">{copiedType === "linkWithPin" ? "Copied!" : "Copy with PIN"}</span>
                 </Button>
               </div>
 
@@ -813,8 +813,8 @@ export function QRScannerModal({
                 onClick={handleShareWhatsApp}
                 className="w-full h-11 rounded-2xl bg-[#25D366] hover:bg-[#20bd5a] text-neutral-950 font-bold text-xs gap-2 shadow-lg mt-1 cursor-pointer"
               >
-                <WhatsAppIcon className="w-4 h-4" />
-                <span>Share with Event Staff / Ushers on WhatsApp</span>
+                <WhatsAppIcon className="w-4 h-4 shrink-0" />
+                <span className="truncate sm:whitespace-normal">Share with Event Staff / Ushers on WhatsApp</span>
               </Button>
             </div>
           </div>

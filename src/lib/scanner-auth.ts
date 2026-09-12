@@ -26,13 +26,12 @@ export function verifyScannerAccess(
   userId?: string | null,
   providedPin?: string | null
 ): { authorized: boolean; isOwner: boolean; error?: string } {
-  // 1. Host / Owner Session Access
-  if (userId && inv.user_id === userId) {
-    return { authorized: true, isOwner: true };
-  }
-
-  // 2. Check if Gatekeeper Scanner is active
+  // 1. Check if Gatekeeper Scanner is active
   if (inv.scanner_active === false) {
+    // If owner session in dashboard camera mode without a PIN, allow host to view
+    if (userId && inv.user_id === userId && !providedPin) {
+      return { authorized: true, isOwner: true };
+    }
     return {
       authorized: false,
       isOwner: false,
@@ -40,25 +39,30 @@ export function verifyScannerAccess(
     };
   }
 
-  // 3. Compare PIN
-  if (!providedPin || typeof providedPin !== 'string') {
+  const expectedPin = resolveInvitationPin(inv);
+  const cleanProvided = providedPin ? String(providedPin).trim() : null;
+
+  // 2. If a PIN was provided (e.g. on the Gatekeeper PIN challenge screen), IT MUST MATCH the expected PIN!
+  // We do NOT bypass PIN check even if the logged-in user is the owner testing the gatekeeper URL.
+  if (cleanProvided) {
+    if (cleanProvided === expectedPin) {
+      return { authorized: true, isOwner: !!(userId && inv.user_id === userId) };
+    }
     return {
       authorized: false,
       isOwner: false,
-      error: 'Gatekeeper PIN required.'
+      error: 'Incorrect Gatekeeper PIN. Please verify with the event host.'
     };
   }
 
-  const expectedPin = resolveInvitationPin(inv);
-  const cleanProvided = providedPin.trim();
-
-  if (cleanProvided === expectedPin) {
-    return { authorized: true, isOwner: false };
+  // 3. If NO PIN was provided, allow access ONLY for authenticated host session (e.g. Host Scanner tab in dashboard)
+  if (userId && inv.user_id === userId) {
+    return { authorized: true, isOwner: true };
   }
 
   return {
     authorized: false,
     isOwner: false,
-    error: 'Incorrect Gatekeeper PIN. Please verify with the event host.'
+    error: 'Gatekeeper PIN required.'
   };
 }

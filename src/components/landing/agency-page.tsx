@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { m } from "framer-motion";
 import Link from "next/link";
 import {
@@ -51,6 +51,30 @@ export function AgencyPage({ onBack }: AgencyPageProps) {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isReapplying, setIsReapplying] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("reapply") === "true") {
+        setIsReapplying(true);
+      }
+
+      // Pre-fill user details if logged in
+      import("@/lib/supabase/client").then(({ createClient }) => {
+        const supabase = createClient();
+        supabase.auth.getUser().then(({ data: { user } }) => {
+          if (user) {
+            setFormData((prev) => ({
+              ...prev,
+              email: prev.email || user.email || "",
+              contactName: prev.contactName || user.user_metadata?.full_name || "",
+            }));
+          }
+        });
+      });
+    }
+  }, []);
 
   const validate = () => {
     const errs: Record<string, string> = {};
@@ -83,7 +107,7 @@ export function AgencyPage({ onBack }: AgencyPageProps) {
       }
 
       setSubmitted(true);
-      toast.success("Application submitted successfully!");
+      toast.success(data.message || (isReapplying ? "Updated application submitted successfully!" : "Application submitted successfully!"));
     } catch {
       toast.error("Network error. Please check your connection and try again.");
     } finally {
@@ -405,11 +429,13 @@ export function AgencyPage({ onBack }: AgencyPageProps) {
                   <div className="w-16 h-16 rounded-full bg-emerald/20 border border-emerald/40 flex items-center justify-center text-emerald mx-auto">
                     <CheckCircle2 className="w-8 h-8" />
                   </div>
-                  <h3 className="font-display text-2xl font-bold text-foreground">Application Received!</h3>
+                  <h3 className="font-display text-2xl font-bold text-foreground">
+                    {isReapplying ? "Updated Application Received!" : "Application Received!"}
+                  </h3>
                   <p className="text-muted-foreground text-sm max-w-md mx-auto leading-relaxed">
-                    Thank you for applying to the Smart Invites Agency &amp; Event Planner Partner Program!
-                    Our partnership team is reviewing your application. We will contact you via WhatsApp and email
-                    within <strong>24 to 48 hours</strong> to activate your wholesale access.
+                    {isReapplying
+                      ? "Thank you for providing your updated agency details! Your re-application is under priority review. We will contact you via WhatsApp and email within 24 hours."
+                      : "Thank you for applying to the Smart Invites Agency & Event Planner Partner Program! Our partnership team is reviewing your application. We will contact you via WhatsApp and email within 24 to 48 hours to activate your wholesale access."}
                   </p>
                   <div className="pt-4 flex justify-center gap-3">
                     <Button asChild className="bg-amber-500 hover:bg-amber-600 text-zinc-950 font-semibold">
@@ -421,14 +447,25 @@ export function AgencyPage({ onBack }: AgencyPageProps) {
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="text-center space-y-2">
                     <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 text-xs font-semibold">
-                      <Shield className="w-3.5 h-3.5" /> Fast 24-Hour Approval
+                      <Shield className="w-3.5 h-3.5" /> {isReapplying ? "Expedited Re-Verification" : "Fast 24-Hour Approval"}
                     </div>
                     <h2 className="font-display text-2xl sm:text-3xl font-bold text-foreground">
-                      Apply for Agency &amp; Planner Access
+                      {isReapplying ? "Update & Re-Apply for Agency Access" : "Apply for Agency & Planner Access"}
                     </h2>
-                    <p className="text-muted-foreground text-xs sm:text-sm">
-                      Please tell us about your agency or event planning business to unlock wholesale access.
+                    <p className="text-muted-foreground text-xs sm:text-sm max-w-md mx-auto">
+                      {isReapplying
+                        ? "Please update your agency or event planning details below. Your application will be prioritized for expedited review."
+                        : "Please tell us about your agency or event planning business to unlock wholesale access."}
                     </p>
+
+                    {isReapplying && (
+                      <div className="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs flex items-center gap-2.5 text-left max-w-lg mx-auto mt-3">
+                        <Sparkles className="w-5 h-5 shrink-0 text-amber-400" />
+                        <span>
+                          <strong>Application Update Mode:</strong> Submitting this form will automatically update your profile and notify the verification team for swift approval.
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -554,7 +591,7 @@ export function AgencyPage({ onBack }: AgencyPageProps) {
                       </span>
                     ) : (
                       <span className="flex items-center gap-2">
-                        <Send className="w-4 h-4" /> Submit Agency Partner Application
+                        <Send className="w-4 h-4" /> {isReapplying ? "Submit Updated Agency Application" : "Submit Agency Partner Application"}
                       </span>
                     )}
                   </Button>

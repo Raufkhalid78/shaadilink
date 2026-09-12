@@ -812,7 +812,7 @@ export function DoorOverlay({ theme, doorsOpened, onOpen, language = 'en' }: { t
 
       {/* Accessibility / Direct Details Bypass */}
       {!doorsOpened && (
-        <div className="absolute bottom-8 left-0 right-0 flex justify-center z-[100] pointer-events-none">
+        <div className="absolute bottom-[max(2rem,env(safe-area-inset-bottom))] left-0 right-0 flex justify-center z-[100] pointer-events-none">
           <button
             onClick={(e) => {
               e.stopPropagation()

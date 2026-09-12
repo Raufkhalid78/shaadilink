@@ -63,51 +63,104 @@ export async function POST(request: NextRequest) {
 
     const service = createServiceClient();
 
-    // 1. Try inserting into agency_applications table
-    const { error: agencyError } = await service.from('agency_applications').insert({
-      user_id: user?.id || null,
-      company_name: cleanCompany,
-      contact_name: cleanContact,
-      email: cleanEmail,
-      phone: cleanPhone,
-      city: cleanCity,
-      website_or_social: cleanWeb,
-      monthly_events: cleanEvents,
-      notes: cleanNotes,
-      status: 'pending',
-    });
+    // 1. Check for existing agency application
+    const { data: existingApp } = await service
+      .from('agency_applications')
+      .select('id, status, company_name')
+      .or(user?.id ? `user_id.eq.${user.id},email.eq.${cleanEmail}` : `email.eq.${cleanEmail}`)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
-    // Fallback if table does not exist: also record in affiliate_applications
-    if (agencyError) {
-      console.warn('agency_applications table insert failed, falling back to affiliate_applications:', agencyError.message);
-      await service.from('affiliate_applications').insert({
+    let isReapplication = false;
+
+    if (existingApp) {
+      if (existingApp.status === 'approved') {
+        return NextResponse.json(
+          { error: 'Your agency application is already approved! You can access the Agency Portal directly from your dashboard.' },
+          { status: 400 }
+        );
+      }
+
+      if (existingApp.status === 'pending') {
+        return NextResponse.json(
+          { error: 'You already have an agency application under review. Our team will review it within 24 hours. Contact admin on WhatsApp if urgent.' },
+          { status: 400 }
+        );
+      }
+
+      // If status is 'rejected' or update requested, update the application back to pending
+      isReapplication = true;
+      const { error: updateError } = await service
+        .from('agency_applications')
+        .update({
+          user_id: user?.id || null,
+          company_name: cleanCompany,
+          contact_name: cleanContact,
+          email: cleanEmail,
+          phone: cleanPhone,
+          city: cleanCity,
+          website_or_social: cleanWeb,
+          monthly_events: cleanEvents,
+          notes: cleanNotes ? `[UPDATED APPLICATION]\n${cleanNotes}` : '[UPDATED APPLICATION]',
+          status: 'pending',
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', existingApp.id);
+
+      if (updateError) {
+        console.error('Failed to update agency re-application:', updateError);
+        return NextResponse.json({ error: 'Failed to update application. Please try again.' }, { status: 500 });
+      }
+    } else {
+      // Clean new insert
+      const { error: agencyError } = await service.from('agency_applications').insert({
         user_id: user?.id || null,
-        name: `${cleanCompany} (${cleanContact})`,
+        company_name: cleanCompany,
+        contact_name: cleanContact,
         email: cleanEmail,
-        social_id: cleanWeb || cleanPhone,
-        promotion_plan: `[AGENCY APPLICATION]\nCompany: ${cleanCompany}\nContact: ${cleanContact}\nPhone: ${cleanPhone}\nCity: ${cleanCity || 'N/A'}\nMonthly Events: ${cleanEvents || 'N/A'}\nNotes: ${cleanNotes || 'None'}`,
+        phone: cleanPhone,
+        city: cleanCity,
+        website_or_social: cleanWeb,
+        monthly_events: cleanEvents,
+        notes: cleanNotes,
         status: 'pending',
       });
+
+      // Fallback if table does not exist: also record in affiliate_applications
+      if (agencyError) {
+        console.warn('agency_applications table insert failed, falling back to affiliate_applications:', agencyError.message);
+        await service.from('affiliate_applications').insert({
+          user_id: user?.id || null,
+          name: `${cleanCompany} (${cleanContact})`,
+          email: cleanEmail,
+          social_id: cleanWeb || cleanPhone,
+          promotion_plan: `[AGENCY APPLICATION]\nCompany: ${cleanCompany}\nContact: ${cleanContact}\nPhone: ${cleanPhone}\nCity: ${cleanCity || 'N/A'}\nMonthly Events: ${cleanEvents || 'N/A'}\nNotes: ${cleanNotes || 'None'}`,
+          status: 'pending',
+        });
+      }
     }
 
     // 2. Dispatch emails via Resend in background
     Promise.allSettled([
       sendAgencyApplicationAdminAlert({
-        companyName: cleanCompany,
+        companyName: isReapplication ? `${cleanCompany} [RE-APPLICATION]` : cleanCompany,
         contactName: cleanContact,
         email: cleanEmail,
         phone: cleanPhone,
         city: cleanCity || undefined,
         websiteOrSocial: cleanWeb || undefined,
         monthlyEvents: cleanEvents || undefined,
-        notes: cleanNotes || undefined,
+        notes: isReapplication ? `[RE-APPLICATION WITH UPDATED DETAILS]\n${cleanNotes || 'None'}` : cleanNotes || undefined,
       }),
       sendAgencyApplicationConfirmation(cleanEmail, cleanContact, cleanCompany),
     ]).catch((err) => console.error('Failed to dispatch agency application emails:', err));
 
     return NextResponse.json({
       success: true,
-      message: 'Your Agency & Planner application has been submitted successfully!',
+      message: isReapplication
+        ? 'Your updated Agency & Planner application has been re-submitted for expedited review!'
+        : 'Your Agency & Planner application has been submitted successfully!',
     });
   } catch (err: any) {
     console.error('Agency application route error:', err);

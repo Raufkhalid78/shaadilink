@@ -1,14 +1,15 @@
 'use client'
 
-import React, { useMemo } from 'react'
+import React, { useState, useMemo, useCallback } from 'react'
 import { Cinzel_Decorative, Great_Vibes } from 'next/font/google'
 import { m, AnimatePresence } from 'framer-motion'
-import { MapPin, Calendar, Clock, ChevronDown, Heart, Send, Check, X, User, Hotel, Car, Gift, Copy, Loader2, Share2, FastForward } from 'lucide-react'
+import { MapPin, Calendar, Clock, ChevronDown, Heart, Send, Check, X, User, Hotel, Car, Gift, Copy, Loader2, Share2, FastForward, Ticket } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent } from '@/components/ui/card'
 import { useInvitationState } from '../use-invitation-state'
+import { DigitalGuestPassModal } from '../digital-guest-pass-modal'
 import dynamic from 'next/dynamic'
 const DoorOverlay = dynamic(() => import('../door/door-overlay').then(m => m.DoorOverlay), { ssr: false })
 const FireworksDisplay = dynamic(() => import('../effects/fireworks').then(m => m.FireworksDisplay), { ssr: false })
@@ -33,6 +34,7 @@ interface RoyalViewerProps {
   flowData?: FlowData
   guestName?: string | null
   guestSlug?: string | null
+  isReviewMode?: boolean
 }
 
 /* ─── Star Field (memoized, CSS keyframes only) ─── */
@@ -156,7 +158,7 @@ function CrystalCard({ children, accent, bg }: { children: React.ReactNode; acce
   )
 }
 
-export default function DarkVelvetViewer({ templateId, flowData, guestName, guestSlug }: RoyalViewerProps) {
+export default function DarkVelvetViewer({ templateId, flowData, guestName, guestSlug, isReviewMode }: RoyalViewerProps) {
   const s = useInvitationState(templateId || 'dark-velvet', flowData, guestName, guestSlug)
   const { theme, getOpacityStyle } = s
 
@@ -164,12 +166,13 @@ export default function DarkVelvetViewer({ templateId, flowData, guestName, gues
   const [envelopeStarted, setEnvelopeStarted] = React.useState(false)
   const [videoTime, setVideoTime] = React.useState(0)
   const [doorVideoEnding, setDoorVideoEnding] = React.useState(false)
+  const [doorDismissed, setDoorDismissed] = React.useState(false)
   const isVideoEnvelope = !!theme.openingVideoUrl
 
   const handleScreenTap = () => {
     if (isVideoEnvelope && !envelopeStarted) {
       setEnvelopeStarted(true)
-      // Synchronously play background song on direct user tap
+      // Synchronously play background song on direct user tap if not user-muted
       s.playMusic()
       const v = document.getElementById('hero-door-video') as HTMLVideoElement
       if (v) {
@@ -183,14 +186,21 @@ export default function DarkVelvetViewer({ templateId, flowData, guestName, gues
     }
   }
 
-  const handleDoorVideoEnd = () => {
-    // Crossfade: door video at z-20 dissolves directly into hero media at z-0
+  const handleDoorVideoEnd = useCallback(() => {
+    if (doorVideoEnding) return
     setDoorVideoEnding(true)
+    const v = document.getElementById('hero-door-video') as HTMLVideoElement
+    if (v) {
+      v.pause()
+    }
     s.handleDoorOpen(true)
-  }
+    setTimeout(() => {
+      setDoorDismissed(true)
+    }, 1300)
+  }, [doorVideoEnding, s])
 
   // Timing: Bismillah at 2s for 3s (ends at 5s), names appear at 5.5s and stay continuously
-  const showBismillahOverlay = isVideoEnvelope && envelopeStarted && !s.doorsOpened && videoTime >= 2.0 && videoTime < 5.0 && flowData?.showBismillah !== false
+  const showBismillahOverlay = isVideoEnvelope && envelopeStarted && !doorVideoEnding && !s.doorsOpened && videoTime >= 2.0 && videoTime < 5.0 && flowData?.showBismillah !== false
   const showNamesOverlay = isVideoEnvelope && envelopeStarted && videoTime >= 5.5
   const parsedGifts = useMemo(() => s.gifts ? s.parseGiftDetails(s.gifts) : null, [s.gifts])
 
@@ -198,17 +208,18 @@ export default function DarkVelvetViewer({ templateId, flowData, guestName, gues
   const brideParents = flowData?.primaryHostFamily?.trim() || (s.isDemo ? 'Mr. & Mrs. Aslam Khan' : '')
   const groomCity = flowData?.secondaryHostCity?.trim() || (s.isDemo ? 'Lahore' : '')
   const brideCity = flowData?.primaryHostCity?.trim() || (s.isDemo ? 'Islamabad' : '')
+  const [isPassModalOpen, setIsPassModalOpen] = useState(false)
 
   return (
     <div
       className={`relative min-h-screen overflow-x-hidden ${cinzelDec.variable} ${greatVibes.variable}`}
       dir={s.language === 'ur' ? 'rtl' : 'ltr'}
-      style={{ backgroundColor: (isVideoEnvelope && !s.doorsOpened) ? 'transparent' : theme.bgPrimary, color: theme.textPrimary }}
+      style={{ backgroundColor: theme.bgPrimary, color: theme.textPrimary }}
       onClick={handleScreenTap}
     >
-      {/* ─── VIDEO DOOR (only before doors open) ─── */}
-      {isVideoEnvelope && !s.doorsOpened && (
-        <div className="fixed inset-0 z-20 pointer-events-auto">
+      {/* ─── VIDEO DOOR (only before doors open / during crossfade) ─── */}
+      {isVideoEnvelope && !doorDismissed && (
+        <div className={`fixed inset-0 z-20 ${doorVideoEnding ? 'pointer-events-none' : 'pointer-events-auto'}`}>
           {/* Door video fades out when ending — revealing the hero section directly */}
           <m.div
             className="absolute inset-0 bg-black"
@@ -222,7 +233,7 @@ export default function DarkVelvetViewer({ templateId, flowData, guestName, gues
               className="w-full h-full object-cover"
               muted
               playsInline
-              preload="metadata"
+              preload="auto"
               onEnded={handleDoorVideoEnd}
               onError={handleDoorVideoEnd}
             />
@@ -230,7 +241,7 @@ export default function DarkVelvetViewer({ templateId, flowData, guestName, gues
 
           {/* Tap hint */}
           <AnimatePresence>
-            {!envelopeStarted && (
+            {!envelopeStarted && !doorVideoEnding && (
               <m.div
                 key="tap-hint"
                 initial={{ opacity: 0 }}
@@ -247,20 +258,24 @@ export default function DarkVelvetViewer({ templateId, flowData, guestName, gues
           </AnimatePresence>
 
           {/* Universal Skip to Invitation button (always accessible before doors open) */}
-          <div className="absolute bottom-7 left-0 right-0 z-40 flex justify-center pointer-events-none">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                s.playMusic();
-                handleDoorVideoEnd();
-              }}
-              className="pointer-events-auto flex items-center gap-2 px-5 py-2.5 rounded-full bg-black/70 hover:bg-black/90 backdrop-blur-md border border-white/25 text-xs font-semibold tracking-wider text-white/90 hover:text-white shadow-2xl transition-all active:scale-95 cursor-pointer"
-            >
-              <span>{s.language === 'ur' ? 'دعوت نامہ دیکھیں' : 'Skip to Invitation'}</span>
-              <FastForward className="w-3.5 h-3.5 text-amber-400" />
-            </button>
-          </div>
+          {!doorVideoEnding && (
+            <div className="absolute bottom-7 left-0 right-0 z-40 flex justify-center pointer-events-none">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (!s.userMuted) {
+                    s.playMusic();
+                  }
+                  handleDoorVideoEnd();
+                }}
+                className="pointer-events-auto flex items-center gap-2 px-5 py-2.5 rounded-full bg-black/70 hover:bg-black/90 backdrop-blur-md border border-white/25 text-xs font-semibold tracking-wider text-white/90 hover:text-white shadow-2xl transition-all active:scale-95 cursor-pointer"
+              >
+                <span>{s.language === 'ur' ? 'دعوت نامہ دیکھیں' : 'Skip to Invitation'}</span>
+                <FastForward className="w-3.5 h-3.5 text-amber-400" />
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -282,7 +297,7 @@ export default function DarkVelvetViewer({ templateId, flowData, guestName, gues
       <GoldDustSplash show={s.showGoldDust} colors={theme.fireworkColors} />
 
       {/* Controls */}
-      <div className="fixed top-4 right-4 z-[200] flex items-center gap-2">
+      <div className={`fixed ${isReviewMode ? 'top-[calc(max(1rem,env(safe-area-inset-top))+6.25rem)] sm:top-[calc(max(1rem,env(safe-area-inset-top))+3.5rem)]' : 'top-[max(1rem,env(safe-area-inset-top))]'} right-[max(1rem,env(safe-area-inset-right))] z-[200] flex items-center gap-2 viewer-floating-controls transition-all duration-300`}>
         <button onClick={() => s.setLanguage(s.language === 'en' ? 'ur' : 'en')} className="w-10 h-10 rounded-full border backdrop-blur-sm flex items-center justify-center text-xs font-bold" style={{ backgroundColor: theme.bgPrimary + 'cc', borderColor: theme.borderSubtle, color: getOpacityStyle('text', 0.7) }} disabled={s.isTranslating}>
           {s.isTranslating ? <Loader2 className="w-4 h-4 animate-spin" /> : (s.language === 'en' ? 'اردو' : 'EN')}
         </button>
@@ -708,6 +723,34 @@ export default function DarkVelvetViewer({ templateId, flowData, guestName, gues
               <StarDivider accent={theme.accent} />
               <div className="relative w-full">
                 {s.rsvpHearts.map((h, hIdx) => (<div key={`heart-${h}-${hIdx}`} className="absolute heart-float pointer-events-none" style={{ left: `${20 + ((h * 13) % 61)}%`, top: '40%', animationDelay: `${h * 0.15}s` }}><Heart className="w-5 h-5" style={{ color: theme.accent, fill: getOpacityStyle('text', 0.4) }} /></div>))}
+                {(guestName || s.guestNameFromUrl) && flowData?.guestSeats != null && (
+                  <div className="flex flex-col items-center gap-2 mb-4">
+                    <m.div
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-full border"
+                      style={{ borderColor: getOpacityStyle('border', 0.25), backgroundColor: getOpacityStyle('bg', 0.07) }}
+                    >
+                      <User className="w-4 h-4" style={{ color: theme.accent }} />
+                      <span className="text-sm font-medium" style={{ color: theme.accent }}>
+                        {flowData.guestSeats === 0
+                          ? (s.language === 'ur' ? `${s.translatedGuestName} — پوری فیملی مدعو` : `${s.translatedGuestName} — Whole Family Invited`)
+                          : flowData.guestSeats === 1
+                          ? `${s.translatedGuestName} — 1 Person Invited`
+                          : `${s.translatedGuestName} — ${flowData.guestSeats} Persons Invited`}
+                      </span>
+                    </m.div>
+                    <button
+                      type="button"
+                      onClick={() => setIsPassModalOpen(true)}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer"
+                      style={{ borderColor: `${theme.accent}50`, backgroundColor: `${theme.accent}15`, color: theme.accent }}
+                    >
+                      <Ticket className="w-3.5 h-3.5" />
+                      <span>{s.language === 'ur' ? 'ڈیجیٹل انٹری پاس دیکھیں' : 'View Digital Entry Pass'}</span>
+                    </button>
+                  </div>
+                )}
                 {!s.rsvpSubmitted ? (
                   <CrystalCard accent={theme.accent} bg={theme.bgSecondary}>
                     <p className="text-center text-xs tracking-widest uppercase mb-4 font-[var(--font-great-vibes)] text-lg" style={{ color: theme.accent, textShadow: `0 0 15px ${theme.accent}66` }}>— Your Response —</p>
@@ -726,6 +769,19 @@ export default function DarkVelvetViewer({ templateId, flowData, guestName, gues
                     <div className="w-16 h-16 rounded-full border flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: getOpacityStyle('border', 0.2), borderColor: getOpacityStyle('border', 0.4), boxShadow: `0 0 20px ${theme.accent}40` }}>{s.rsvpStatus === 'accept' ? <Check className="w-8 h-8" style={{ color: theme.accent }} /> : <Heart className="w-8 h-8" style={{ color: theme.accent }} />}</div>
                     <h3 className="text-xl mb-2 font-[var(--font-great-vibes)] text-3xl" style={{ color: theme.accent, textShadow: `0 0 15px ${theme.accent}66` }}>{s.rsvpStatus === 'accept' ? s.t('joyfullyAccepted', 'See You Under the Stars!') : s.t('thankYou', 'Thank You!')}</h3>
                     <p className="text-sm" style={{ color: getOpacityStyle('text', 0.6) }}>{s.rsvpStatus === 'accept' ? `We can't wait to celebrate with you, ${s.rsvpName}! ✨` : `We'll miss you, ${s.rsvpName}. You'll be in our hearts! 💜`}</p>
+                    {s.rsvpStatus === 'accept' && (
+                      <div className="mt-4">
+                        <button
+                          type="button"
+                          onClick={() => setIsPassModalOpen(true)}
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold border transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer"
+                          style={{ borderColor: `${theme.accent}60`, backgroundColor: `${theme.accent}20`, color: theme.accent }}
+                        >
+                          <Ticket className="w-4 h-4" />
+                          <span>{s.language === 'ur' ? 'اپنا ڈیجیٹل انٹری پاس دیکھیں' : 'View Digital Entry Pass'}</span>
+                        </button>
+                      </div>
+                    )}
                   </m.div>
                 )}
               </div>
@@ -761,6 +817,19 @@ export default function DarkVelvetViewer({ templateId, flowData, guestName, gues
         </div>
       </m.div>
 
+      <DigitalGuestPassModal
+        isOpen={isPassModalOpen}
+        onClose={() => setIsPassModalOpen(false)}
+        guestName={s.translatedGuestName || s.rsvpName || 'Honored Guest'}
+        guestSlug={guestSlug || undefined}
+        seats={flowData?.guestSeats ?? 1}
+        allowedEvents={flowData?.guestAllowedEvents || undefined}
+        invitationTitle={`${flowData?.partner1Name || ''} & ${flowData?.partner2Name || ''}`}
+        invitationUrl={typeof window !== 'undefined' ? window.location.href.split('?')[0] : ''}
+        eventDate={flowData?.events?.[0]?.date}
+        venue={flowData?.venue}
+        category={flowData?.category || 'wedding'}
+      />
     </div>
   )
 }

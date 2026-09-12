@@ -222,7 +222,7 @@ export function CrowdPhotoWallSection({
           >
             <button
               onClick={() => setSelectedPhoto(null)}
-              className="absolute top-6 right-6 p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+              className="absolute top-[max(1.5rem,env(safe-area-inset-top))] right-[max(1.5rem,env(safe-area-inset-right))] p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
             >
               <X className="w-6 h-6" />
             </button>

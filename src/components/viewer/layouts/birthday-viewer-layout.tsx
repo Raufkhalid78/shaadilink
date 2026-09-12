@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect } from 'react'
 import { m, AnimatePresence } from 'framer-motion'
 import {
   Cake, Calendar, Clock, MapPin, Sparkles, Heart, Gift, Music,
-  Check, X, Send, User, PartyPopper, Car, Hotel, Copy, ExternalLink, Disc
+  Check, X, Send, User, PartyPopper, Car, Hotel, Copy, ExternalLink, Disc, Ticket
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -18,6 +18,7 @@ import { CountdownTimer, AddToCalendarDropdown } from '../features/countdown-tim
 import { MusicToggle } from '../ui/music-toggle'
 import { VoiceGreetingPlayer } from '../features/voice-greeting-player'
 import { CrowdPhotoWallSection } from '../features/crowd-photo-wall-section'
+import { DigitalGuestPassModal } from '../digital-guest-pass-modal'
 
 const DoorOverlay = dynamic(() => import('../door/door-overlay').then(m => m.DoorOverlay), { ssr: false })
 const FireworksDisplay = dynamic(() => import('../effects/fireworks').then(m => m.FireworksDisplay), { ssr: false })
@@ -30,9 +31,10 @@ export interface LayoutViewerProps {
   guestName?: string | null
   guestSlug?: string | null
   customTheme?: TemplateTheme
+  isReviewMode?: boolean
 }
 
-export function BirthdayViewerLayout({ templateId, flowData: propFlowData, guestName, guestSlug, customTheme }: LayoutViewerProps) {
+export function BirthdayViewerLayout({ templateId, flowData: propFlowData, guestName, guestSlug, customTheme, isReviewMode }: LayoutViewerProps) {
   const s = useInvitationState(templateId, propFlowData, guestName, guestSlug)
   const theme = customTheme || s.theme
   const flowData = s.flowData
@@ -40,6 +42,7 @@ export function BirthdayViewerLayout({ templateId, flowData: propFlowData, guest
   const [songRequest, setSongRequest] = useState('')
   const [attendingCount, setAttendingCount] = useState('1')
   const [partyRsvpDone, setPartyRsvpDone] = useState(false)
+  const [isPassModalOpen, setIsPassModalOpen] = useState(false)
   const [partyThemeRevealed, setPartyThemeRevealed] = useState(false)
 
   const [wishName, setWishName] = useState('')
@@ -157,7 +160,7 @@ export function BirthdayViewerLayout({ templateId, flowData: propFlowData, guest
       )}
 
       {/* Floating Audio Controls */}
-      <div className="fixed top-5 right-5 z-40">
+      <div className={`fixed ${isReviewMode ? 'top-[calc(max(1rem,env(safe-area-inset-top))+6.25rem)] sm:top-[calc(max(1rem,env(safe-area-inset-top))+3.5rem)]' : 'top-[max(1rem,env(safe-area-inset-top))]'} right-[max(1rem,env(safe-area-inset-right))] z-[200] viewer-floating-controls transition-all duration-300`}>
         <MusicToggle
           isPlaying={s.musicPlaying}
           onToggle={() => s.setMusicPlaying(!s.musicPlaying)}
@@ -511,14 +514,22 @@ export function BirthdayViewerLayout({ templateId, flowData: propFlowData, guest
                     🎵 DJ Request Logged: &ldquo;{songRequest}&rdquo;
                   </p>
                 )}
-                <div className="pt-2">
+                <div className="space-y-2 pt-2">
+                  <Button
+                    onClick={() => setIsPassModalOpen(true)}
+                    size="sm"
+                    className="w-full h-10 font-bold text-xs gap-1.5 shadow-md"
+                    style={{ backgroundColor: theme.accent, color: '#fff' }}
+                  >
+                    <Ticket className="w-3.5 h-3.5" /> View VIP Guest Pass
+                  </Button>
                   <button
                     type="button"
                     onClick={() => {
                       setPartyRsvpDone(false)
                       s.setRsvpSubmitted(false)
                     }}
-                    className="text-[11px] underline text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                    className="text-[11px] underline text-muted-foreground hover:text-foreground transition-colors cursor-pointer block mx-auto pt-1"
                   >
                     Edit RSVP or Change Name
                   </button>
@@ -603,6 +614,20 @@ export function BirthdayViewerLayout({ templateId, flowData: propFlowData, guest
           </a>
         </p>
       </footer>
+
+      <DigitalGuestPassModal
+        isOpen={isPassModalOpen}
+        onClose={() => setIsPassModalOpen(false)}
+        guestName={s.translatedGuestName || s.rsvpName || 'VIP Guest'}
+        guestSlug={guestSlug || undefined}
+        seats={Number(attendingCount) || (flowData?.guestSeats ?? 1)}
+        allowedEvents={flowData?.guestAllowedEvents || undefined}
+        invitationTitle={`${flowData?.partner1Name || ''} & ${flowData?.partner2Name || ''}`}
+        invitationUrl={typeof window !== 'undefined' ? window.location.href.split('?')[0] : ''}
+        eventDate={flowData?.events?.[0]?.date}
+        venue={flowData?.venue}
+        category={flowData?.category || 'birthday'}
+      />
     </div>
   )
 }

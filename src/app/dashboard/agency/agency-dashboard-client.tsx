@@ -38,6 +38,7 @@ import {
   FileSpreadsheet,
   Edit,
   SlidersHorizontal,
+  MessageSquare,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -47,6 +48,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Tabs, TabsContent, ScrollableTabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import jsPDF from 'jspdf';
+import { QRScannerModal } from '@/components/dashboard/qr-scanner-modal';
 import {
   AgencyPortalData,
   WholesaleCreditPack,
@@ -61,6 +63,7 @@ import {
   activateInvitationWithAgencyCredit,
   instantDeleteAgencyAccount,
   requestAgencyAccountDeletion,
+  deleteAgencyClientInvitation,
 } from './actions';
 import { OFFICIAL_BANK_DETAILS } from '@/lib/bank-details';
 
@@ -91,7 +94,7 @@ export function AgencyDashboardClient({ initialData }: Props) {
 
   // Client Events Search & Filter State
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterStatus, setFilterStatus] = useState<'all' | 'live' | 'draft'>('all');
+  const [filterStatus, setFilterStatus] = useState<'all' | 'live' | 'draft' | 'approved' | 'changes'>('all');
 
   // Agency Profile State
   const [profileForm, setProfileForm] = useState({
@@ -131,6 +134,16 @@ export function AgencyDashboardClient({ initialData }: Props) {
   // Credit Activation State
   const [activatingId, setActivatingId] = useState<string | null>(null);
   const [loadingReviewId, setLoadingReviewId] = useState<string | null>(null);
+
+  // Single Invitation Deletion State
+  const [invitationToDelete, setInvitationToDelete] = useState<AgencyInvitationSummary | null>(null);
+  const [isDeletingInvitation, setIsDeletingInvitation] = useState(false);
+
+  // Client Revision Feedback Modal State
+  const [feedbackModalNotes, setFeedbackModalNotes] = useState<{ eventTitle: string; notes: string; invId: string } | null>(null);
+
+  // Entrance Pass Scanner Modal State
+  const [scannerInv, setScannerInv] = useState<{ id: string; title: string } | null>(null);
 
   // Deletion State
   const [isInstantDeleteOpen, setIsInstantDeleteOpen] = useState(false);
@@ -512,6 +525,31 @@ export function AgencyDashboardClient({ initialData }: Props) {
     }
   };
 
+  // Permanently Delete Single Client Invitation
+  const handleConfirmDeleteInvitation = async () => {
+    if (!invitationToDelete) return;
+    setIsDeletingInvitation(true);
+    try {
+      const res = await deleteAgencyClientInvitation(invitationToDelete.id);
+      if ('error' in res && res.error) {
+        toast.error(res.error);
+      } else {
+        setData((prev) => ({
+          ...prev,
+          invitations: prev.invitations.filter((i) => i.id !== invitationToDelete.id),
+        }));
+        toast.success(
+          `Invitation for ${invitationToDelete.partner1_name || 'Client'} & ${invitationToDelete.partner2_name || 'Partner'} permanently deleted.`
+        );
+        setInvitationToDelete(null);
+      }
+    } catch {
+      toast.error('Network error deleting invitation');
+    } finally {
+      setIsDeletingInvitation(false);
+    }
+  };
+
   // Generate Branded PDF Invoice
   const handleGeneratePDFInvoice = () => {
     try {
@@ -656,13 +694,17 @@ export function AgencyDashboardClient({ initialData }: Props) {
     const matchesStatus =
       filterStatus === 'all' ||
       (filterStatus === 'live' && inv.is_active) ||
-      (filterStatus === 'draft' && !inv.is_active);
+      (filterStatus === 'draft' && !inv.is_active) ||
+      (filterStatus === 'approved' && inv.client_approval_status === 'approved') ||
+      (filterStatus === 'changes' && inv.client_approval_status === 'changes_requested');
 
     return matchesSearch && matchesStatus;
   });
 
   const liveCount = data.invitations.filter((i) => i.is_active).length;
   const draftCount = data.invitations.filter((i) => !i.is_active).length;
+  const approvedCount = data.invitations.filter((i) => i.client_approval_status === 'approved').length;
+  const changesCount = data.invitations.filter((i) => i.client_approval_status === 'changes_requested').length;
 
   return (
     <div className="space-y-8">
@@ -827,8 +869,90 @@ export function AgencyDashboardClient({ initialData }: Props) {
               >
                 Drafts ({draftCount})
               </Button>
+              {approvedCount > 0 && (
+                <Button
+                  size="sm"
+                  variant={filterStatus === 'approved' ? 'default' : 'outline'}
+                  onClick={() => setFilterStatus('approved')}
+                  className={`text-xs h-9 ${
+                    filterStatus === 'approved'
+                      ? 'bg-emerald-600 text-white font-bold'
+                      : 'text-emerald-400 border-emerald-500/40 hover:bg-emerald-500/10'
+                  }`}
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-emerald-400" />
+                  Approved ({approvedCount})
+                </Button>
+              )}
+              {changesCount > 0 && (
+                <Button
+                  size="sm"
+                  variant={filterStatus === 'changes' ? 'default' : 'outline'}
+                  onClick={() => setFilterStatus('changes')}
+                  className={`text-xs h-9 ${
+                    filterStatus === 'changes'
+                      ? 'bg-amber-500 text-black font-bold'
+                      : 'text-amber-400 border-amber-500/40 hover:bg-amber-500/10'
+                  }`}
+                >
+                  <MessageSquare className="w-3.5 h-3.5 mr-1 text-amber-400" />
+                  Revisions ({changesCount})
+                </Button>
+              )}
             </div>
           </div>
+
+          {/* Actionable Revisions Alert Banner */}
+          {changesCount > 0 && filterStatus !== 'changes' && (
+            <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0">
+                  <MessageSquare className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-amber-300">
+                    {changesCount} Client Revision Request{changesCount === 1 ? '' : 's'} Pending
+                  </h4>
+                  <p className="text-[11px] text-zinc-400">
+                    Your clients have reviewed their drafts and submitted feedback. Click &ldquo;View Notes&rdquo; on the cards below to review and apply their edits.
+                  </p>
+                </div>
+              </div>
+              <Button
+                size="sm"
+                onClick={() => setFilterStatus('changes')}
+                className="bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs h-8 px-3 shrink-0"
+              >
+                View {changesCount} Revisions
+              </Button>
+            </div>
+          )}
+
+          {/* Actionable Approved Alert Banner */}
+          {approvedCount > 0 && filterStatus !== 'approved' && (
+            <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0">
+                  <CheckCircle2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-emerald-300">
+                    {approvedCount} Client Approved Draft{approvedCount === 1 ? '' : 's'}
+                  </h4>
+                  <p className="text-[11px] text-zinc-400">
+                    Clients have approved their invitation drafts! They are ready to publish live with 1 wholesale credit.
+                  </p>
+                </div>
+              </div>
+              <Button
+                size="sm"
+                onClick={() => setFilterStatus('approved')}
+                className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs h-8 px-3 shrink-0"
+              >
+                View Approved Drafts
+              </Button>
+            </div>
+          )}
 
           {/* Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -840,20 +964,57 @@ export function AgencyDashboardClient({ initialData }: Props) {
                 >
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between gap-2">
-                      <Badge
-                        variant="outline"
-                        className={
-                          inv.is_active
-                            ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30 text-[10px] font-bold'
-                            : 'bg-amber-500/10 text-amber-500 border-amber-500/30 text-[10px] font-bold'
-                        }
-                      >
-                        {inv.is_active ? 'Live & Published' : 'Draft / Unpaid'}
-                      </Badge>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <Badge
+                          variant="outline"
+                          className={
+                            inv.is_active
+                              ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30 text-[10px] font-bold'
+                              : 'bg-amber-500/10 text-amber-500 border-amber-500/30 text-[10px] font-bold'
+                          }
+                        >
+                          {inv.is_active ? 'Live & Published' : 'Draft / Unpaid'}
+                        </Badge>
 
-                      <Badge variant="secondary" className="text-[10px] uppercase font-bold">
-                        {inv.template_id?.split('-')[0] || 'Royal'}
-                      </Badge>
+                        <Badge variant="secondary" className="text-[10px] uppercase font-bold">
+                          {inv.template_id?.split('-')[0] || 'Royal'}
+                        </Badge>
+
+                        {/* Client Approval Status Badges */}
+                        {inv.client_approval_status === 'approved' && (
+                          <Badge className="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold gap-1">
+                            <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                            Client Approved
+                          </Badge>
+                        )}
+                        {inv.client_approval_status === 'changes_requested' && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setFeedbackModalNotes({
+                                eventTitle: `${inv.partner1_name} & ${inv.partner2_name}`,
+                                notes: inv.client_approval_notes || '',
+                                invId: inv.id,
+                              })
+                            }
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30 hover:bg-amber-500/25 transition-colors cursor-pointer"
+                            title="Click to view client notes"
+                          >
+                            <AlertCircle className="w-3 h-3 text-amber-400" />
+                            Revisions Requested
+                          </button>
+                        )}
+                      </div>
+
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setInvitationToDelete(inv)}
+                        className="h-7 w-7 p-0 text-muted-foreground hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors shrink-0"
+                        title="Permanently Delete Invitation"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
                     </div>
 
                     <CardTitle className="text-base font-bold text-foreground pt-2 line-clamp-1">
@@ -879,6 +1040,44 @@ export function AgencyDashboardClient({ initialData }: Props) {
                         </span>
                       </div>
                     </div>
+
+                    {/* Client Approval / Feedback Callouts */}
+                    {inv.client_approval_status === 'changes_requested' && (
+                      <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300 space-y-1">
+                        <div className="flex items-center justify-between font-semibold">
+                          <span className="flex items-center gap-1">
+                            <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                            Client Requested Changes:
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setFeedbackModalNotes({
+                                eventTitle: `${inv.partner1_name} & ${inv.partner2_name}`,
+                                notes: inv.client_approval_notes || '',
+                                invId: inv.id,
+                              })
+                            }
+                            className="text-[10px] underline hover:text-amber-200"
+                          >
+                            Read Notes
+                          </button>
+                        </div>
+                        <p className="text-[11px] text-amber-200/80 line-clamp-2 italic">
+                          &ldquo;{inv.client_approval_notes || 'Please review our changes.'}&rdquo;
+                        </p>
+                      </div>
+                    )}
+
+                    {inv.client_approval_status === 'approved' && !inv.is_active && (
+                      <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-300 flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <span className="font-semibold text-[11px]">Draft Approved by Client!</span>
+                          <p className="text-[10px] text-emerald-200/70">Activate with 1 Wholesale Credit below to go live.</p>
+                        </div>
+                      </div>
+                    )}
 
                     <div className="space-y-2 pt-1">
                       {/* If Draft, show 1-click credit activation */}
@@ -912,16 +1111,20 @@ export function AgencyDashboardClient({ initialData }: Props) {
                               <ExternalLink className="w-3.5 h-3.5" /> View Live
                             </Button>
                           </Link>
-                          <Link href={`/scan?invitationId=${inv.id}`} target="_blank">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="w-full text-xs gap-1 border-border hover:border-gold/40"
-                              title="Open QR scanner for this event"
-                            >
-                              <QrCode className="w-3.5 h-3.5 text-gold" /> QR Scanner
-                            </Button>
-                          </Link>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() =>
+                              setScannerInv({
+                                id: inv.id,
+                                title: `${inv.partner1_name} & ${inv.partner2_name}`,
+                              })
+                            }
+                            className="w-full text-xs gap-1 border-border hover:border-gold/40 text-foreground cursor-pointer"
+                            title="Open Entrance Pass Scanner for this event"
+                          >
+                            <QrCode className="w-3.5 h-3.5 text-gold" /> QR Scanner
+                          </Button>
                         </div>
                       )}
 
@@ -961,6 +1164,16 @@ export function AgencyDashboardClient({ initialData }: Props) {
                             <Edit className="w-3 h-3" /> Edit
                           </Button>
                         </Link>
+
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setInvitationToDelete(inv)}
+                          className="h-9 px-2.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 border-red-500/30 transition-colors"
+                          title="Permanently Delete Invitation"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
                       </div>
                     </div>
                   </CardContent>
@@ -1867,6 +2080,145 @@ export function AgencyDashboardClient({ initialData }: Props) {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Permanently Delete Client Invitation Modal */}
+      {invitationToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="relative w-full max-w-md rounded-3xl bg-zinc-950 border border-red-500/30 p-6 sm:p-7 shadow-2xl space-y-4">
+            <button
+              type="button"
+              onClick={() => setInvitationToDelete(null)}
+              disabled={isDeletingInvitation}
+              className="absolute top-4 right-4 p-1.5 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-red-500/15 border border-red-500/30 flex items-center justify-center text-red-400 shrink-0">
+                <Trash2 className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-foreground">
+                  Permanently Delete Invitation?
+                </h3>
+                <p className="text-xs text-red-400 font-medium">
+                  This action cannot be undone.
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs text-zinc-300 leading-relaxed">
+              Are you sure you want to permanently delete the client invitation for{' '}
+              <strong className="text-white">
+                {invitationToDelete.partner1_name || 'Client'} &amp; {invitationToDelete.partner2_name || 'Partner'}
+              </strong>
+              ? All associated RSVP responses, custom guest passes, photo wall pictures, and client review links will be permanently removed.
+            </p>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setInvitationToDelete(null)}
+                disabled={isDeletingInvitation}
+                className="border-zinc-800 text-zinc-300 hover:bg-zinc-900 text-xs"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleConfirmDeleteInvitation}
+                disabled={isDeletingInvitation}
+                className="bg-red-600 hover:bg-red-500 text-white font-semibold text-xs gap-1.5 shadow-md shadow-red-900/40"
+              >
+                {isDeletingInvitation ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Permanently Delete</span>
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Client Feedback / Revision Notes Modal */}
+      {feedbackModalNotes && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="relative w-full max-w-lg rounded-3xl bg-zinc-950 border border-amber-500/30 p-6 sm:p-7 shadow-2xl space-y-4">
+            <button
+              type="button"
+              onClick={() => setFeedbackModalNotes(null)}
+              className="absolute top-4 right-4 p-1.5 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+                <AlertCircle className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-foreground">
+                  Client Revision Notes
+                </h3>
+                <p className="text-xs text-amber-400 font-medium">
+                  {feedbackModalNotes.eventTitle}
+                </p>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/20 text-xs sm:text-sm whitespace-pre-wrap leading-relaxed text-zinc-200 max-h-72 overflow-y-auto font-sans">
+              {feedbackModalNotes.notes || 'No specific text written by the client.'}
+            </div>
+
+            <p className="text-[11px] text-zinc-400">
+              💡 You received this feedback because your client requested changes via their Review Link. Open the editor to apply their changes and re-share the draft.
+            </p>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setFeedbackModalNotes(null)}
+                className="border-zinc-800 text-zinc-300 hover:bg-zinc-900 text-xs"
+              >
+                Dismiss
+              </Button>
+              <Link href={`/dashboard?edit=${feedbackModalNotes.invId}`} onClick={() => setFeedbackModalNotes(null)}>
+                <Button
+                  type="button"
+                  size="sm"
+                  className="bg-amber-600 hover:bg-amber-500 text-white font-semibold text-xs gap-1.5 shadow-md"
+                >
+                  <Edit className="w-3.5 h-3.5" />
+                  <span>Open Invitation Editor</span>
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Entrance Pass Scanner Modal for Agency Events */}
+      {scannerInv && (
+        <QRScannerModal
+          isOpen={!!scannerInv}
+          onClose={() => setScannerInv(null)}
+          invitationId={scannerInv.id}
+          invitationTitle={scannerInv.title}
+        />
       )}
     </div>
   );

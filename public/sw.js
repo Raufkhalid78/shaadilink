@@ -21,6 +21,15 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
+  if (self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1') {
+    event.waitUntil(
+      self.registration.unregister().then(() => {
+        return caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k))));
+      })
+    );
+    return;
+  }
+
   event.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
@@ -34,6 +43,16 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
+
+  // Never intercept in localhost/development or Turbopack HMR chunks
+  if (
+    url.hostname === 'localhost' ||
+    url.hostname === '127.0.0.1' ||
+    url.pathname.includes('/_next/webpack-hmr') ||
+    url.pathname.includes('/_next/turbopack')
+  ) {
+    return;
+  }
 
   // Only handle GET requests and http/https schemes
   if (request.method !== 'GET' || !url.protocol.startsWith('http')) {

@@ -7,20 +7,34 @@ export function PWARegister() {
   const [isOffline, setIsOffline] = useState(false);
 
   useEffect(() => {
-    // Register Service Worker in browser
+    // Service Worker handling
     if (typeof window !== "undefined" && "serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker
-          .register("/sw.js")
-          .then((reg) => {
-            if (process.env.NODE_ENV === "development") {
-              console.log("PWA Service Worker registered:", reg.scope);
-            }
-          })
-          .catch((err) => {
-            console.warn("Service worker registration error:", err);
+      const isDev =
+        process.env.NODE_ENV === "development" ||
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1";
+
+      if (isDev) {
+        // Automatically unregister service workers and purge caches in dev to avoid Turbopack chunk collisions
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          for (const reg of registrations) {
+            reg.unregister();
+          }
+        });
+        if ("caches" in window) {
+          caches.keys().then((keys) => {
+            keys.forEach((k) => caches.delete(k));
           });
-      });
+        }
+      } else {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("/sw.js")
+            .catch((err) => {
+              console.warn("Service worker registration error:", err);
+            });
+        });
+      }
     }
 
     // Monitor Online/Offline connectivity

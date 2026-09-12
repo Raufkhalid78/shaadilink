@@ -1,4 +1,4 @@
-import { cache } from "react";
+import { getCachedPublicInvitation, getCachedGuestLink } from "@/lib/invitation-cache";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
@@ -8,30 +8,12 @@ import { Lock, ShieldAlert } from "lucide-react";
 import InvitationViewerWrapper from "./invitation-viewer-wrapper";
 import { getCategoryForTemplate } from "@/lib/category-utils";
 import { verifyAndConsumeReviewView } from "@/lib/review-token";
+import { TEMPLATE_THEMES } from "@/components/viewer/themes";
 
 interface Props {
   params: Promise<{ id: string }>;
   searchParams: Promise<{ guest?: string; events?: string; seats?: string; review?: string; token?: string }>;
 }
-
-const getCachedPublicInvitation = cache(async (cleanId: string, isUuid: boolean) => {
-  const supabase = await createClient();
-  const query = supabase
-    .from("invitations")
-    .select(`
-      *,
-      events (
-        id, name, date, time, venue, order_index
-      )
-    `);
-
-  const { data } = await (isUuid
-    ? query.eq("id", cleanId)
-    : query.eq("slug", cleanId)
-  ).single();
-
-  return data;
-});
 
 export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { id } = await params;
@@ -249,20 +231,16 @@ export default async function InvitationPage({ params, searchParams }: Props) {
     }
   }
 
+  if (invitation && !isReviewMode && (review === "true" || review === "1" || !!token)) {
+    isReviewMode = true;
+  }
+
   let rawGuestName = null;
   let guestAllowedEvents = null;
   let guestSeats = null;
 
   if (guest && invitation?.id) {
-    const service = createServiceClient();
-    const { data: guestLinks } = await service
-      .from("guest_links")
-      .select("guest_name, allowed_events, seats")
-      .eq("invitation_id", invitation.id)
-      .eq("guest_slug", guest)
-      .limit(1);
-
-    const guestLink = guestLinks?.[0] ?? null;
+    const guestLink = await getCachedGuestLink(invitation.id, guest);
 
     if (guestLink) {
       rawGuestName = guestLink.guest_name;
@@ -328,15 +306,25 @@ export default async function InvitationPage({ params, searchParams }: Props) {
     agencyPhone: (invitation as { agency_phone?: string }).agency_phone ?? "",
   };
 
+  const theme = invitation.template_id ? TEMPLATE_THEMES[invitation.template_id] : null;
+
   return (
-    <InvitationViewerWrapper
-      templateId={invitation.template_id}
-      flowData={flowData}
-      guestName={guestName}
-      guestSlug={guest || null}
-      isReviewMode={isReviewMode}
-      viewsCount={reviewViewsCount}
-      maxViews={reviewMaxViews}
-    />
+    <>
+      {theme?.openingVideoPosterUrl && (
+        <link rel="preload" as="image" href={theme.openingVideoPosterUrl} />
+      )}
+      {invitation.hero_image_url && (
+        <link rel="preload" as="image" href={invitation.hero_image_url} />
+      )}
+      <InvitationViewerWrapper
+        templateId={invitation.template_id}
+        flowData={flowData}
+        guestName={guestName}
+        guestSlug={guest || null}
+        isReviewMode={isReviewMode}
+        viewsCount={reviewViewsCount}
+        maxViews={reviewMaxViews}
+      />
+    </>
   );
 }

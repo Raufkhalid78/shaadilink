@@ -18,6 +18,7 @@ import { CountdownTimer, AddToCalendarDropdown } from '../features/countdown-tim
 import { MusicToggle } from '../ui/music-toggle'
 import { VoiceGreetingPlayer } from '../features/voice-greeting-player'
 import { CrowdPhotoWallSection } from '../features/crowd-photo-wall-section'
+import { DigitalGuestPassModal } from '../digital-guest-pass-modal'
 
 const DoorOverlay = dynamic(() => import('../door/door-overlay').then(m => m.DoorOverlay), { ssr: false })
 const ConfettiDisplay = dynamic(() => import('../effects/confetti').then(m => m.ConfettiDisplay), { ssr: false })
@@ -29,9 +30,10 @@ export interface LayoutViewerProps {
   guestName?: string | null
   guestSlug?: string | null
   customTheme?: TemplateTheme
+  isReviewMode?: boolean
 }
 
-export function SchoolViewerLayout({ templateId, flowData: propFlowData, guestName, guestSlug, customTheme }: LayoutViewerProps) {
+export function SchoolViewerLayout({ templateId, flowData: propFlowData, guestName, guestSlug, customTheme, isReviewMode }: LayoutViewerProps) {
   const s = useInvitationState(templateId, propFlowData, guestName, guestSlug)
   const theme = customTheme || s.theme
   const flowData = s.flowData
@@ -39,6 +41,7 @@ export function SchoolViewerLayout({ templateId, flowData: propFlowData, guestNa
   const [guestSeats, setGuestSeats] = useState('2')
   const [degreeField, setDegreeField] = useState('')
   const [passConfirmed, setPassConfirmed] = useState(false)
+  const [isPassModalOpen, setIsPassModalOpen] = useState(false)
 
   const [tributeName, setTributeName] = useState('')
   const [tributeMsg, setTributeMsg] = useState('')
@@ -162,7 +165,7 @@ export function SchoolViewerLayout({ templateId, flowData: propFlowData, guestNa
       )}
 
       {/* Floating Audio Controls */}
-      <div className="fixed top-5 right-5 z-40">
+      <div className={`fixed ${isReviewMode ? 'top-[calc(max(1rem,env(safe-area-inset-top))+6.25rem)] sm:top-[calc(max(1rem,env(safe-area-inset-top))+3.5rem)]' : 'top-[max(1rem,env(safe-area-inset-top))]'} right-[max(1rem,env(safe-area-inset-right))] z-[200] viewer-floating-controls transition-all duration-300`}>
         <MusicToggle
           isPlaying={s.musicPlaying}
           onToggle={() => s.setMusicPlaying(!s.musicPlaying)}
@@ -510,14 +513,22 @@ export function SchoolViewerLayout({ templateId, flowData: propFlowData, guestNa
                 <p className="text-xs text-muted-foreground">
                   Reserved <span className="font-bold text-foreground">{guestSeats} Guest Seats</span> for <span className="font-bold text-foreground">{s.rsvpName.trim()}</span>.
                 </p>
-                <div className="pt-2">
+                <div className="space-y-2 pt-2">
+                  <Button
+                    onClick={() => setIsPassModalOpen(true)}
+                    size="sm"
+                    className="w-full h-10 font-bold text-xs gap-1.5 shadow-md"
+                    style={{ backgroundColor: theme.accent, color: '#fff' }}
+                  >
+                    <Ticket className="w-3.5 h-3.5" /> View Commencement Entry Pass
+                  </Button>
                   <button
                     type="button"
                     onClick={() => {
                       setPassConfirmed(false)
                       s.setRsvpSubmitted(false)
                     }}
-                    className="text-[11px] underline text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                    className="text-[11px] underline text-muted-foreground hover:text-foreground transition-colors cursor-pointer block mx-auto pt-1"
                   >
                     Edit Reservation or Change Name
                   </button>
@@ -602,6 +613,20 @@ export function SchoolViewerLayout({ templateId, flowData: propFlowData, guestNa
           </a>
         </p>
       </footer>
+
+      <DigitalGuestPassModal
+        isOpen={isPassModalOpen}
+        onClose={() => setIsPassModalOpen(false)}
+        guestName={s.translatedGuestName || s.rsvpName || 'Honored Attendee'}
+        guestSlug={guestSlug || undefined}
+        seats={Number(guestSeats) || (flowData?.guestSeats ?? 1)}
+        allowedEvents={flowData?.guestAllowedEvents || undefined}
+        invitationTitle={`${flowData?.partner1Name || ''} & ${flowData?.partner2Name || ''}`}
+        invitationUrl={typeof window !== 'undefined' ? window.location.href.split('?')[0] : ''}
+        eventDate={flowData?.events?.[0]?.date}
+        venue={flowData?.venue}
+        category={flowData?.category || 'school'}
+      />
     </div>
   )
 }

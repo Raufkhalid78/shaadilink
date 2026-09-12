@@ -2,7 +2,7 @@ import { getAgencyPortalData } from './actions';
 import { redirect } from 'next/navigation';
 import { AgencyDashboardClient } from './agency-dashboard-client';
 import { BrandLogo } from '@/components/brand-logo';
-import { Clock, Phone, ArrowLeft, Building2 } from 'lucide-react';
+import { Clock, Phone, ArrowLeft, Building2, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { getDynamicBankDetails } from '@/lib/bank-details-server';
@@ -121,7 +121,7 @@ export default async function AgencyDashboardPage() {
                         <Phone className="w-3.5 h-3.5" /> Expedite with Admin on WhatsApp
                       </Button>
                     </a>
-                    <Link href="/dashboard" className="w-full sm:w-auto">
+                    <Link href="/dashboard?view=personal" className="w-full sm:w-auto">
                       <Button variant="outline" className="w-full text-xs">
                         Return to Dashboard
                       </Button>
@@ -142,30 +142,108 @@ export default async function AgencyDashboardPage() {
       const rejectAdminWaUrl = `https://wa.me/${rawAdminPhone}?text=${encodeURIComponent(rejectContactMessage)}`;
 
       return (
-        <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-          <div className="p-8 text-center border border-border/60 rounded-3xl bg-card shadow-xl max-w-md mx-auto space-y-4">
-            <h1 className="text-xl font-bold text-foreground">Application Status</h1>
-            <p className="text-xs text-muted-foreground">
-              Your application could not be approved at this time. Please contact our admin support team if you have questions.
-            </p>
-            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
-              <a
-                href={rejectAdminWaUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto"
-              >
-                <Button className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs gap-2 shadow-md">
-                  <Phone className="w-3.5 h-3.5" /> Contact Admin on WhatsApp
-                </Button>
-              </a>
-              <Link href="/dashboard" className="w-full sm:w-auto">
-                <Button variant="outline" className="w-full text-xs">
-                  Back to Dashboard
-                </Button>
-              </Link>
+        <div className="min-h-screen bg-background flex flex-col">
+          <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Link
+                  href="/dashboard?view=personal"
+                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-gold transition-colors"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" /> Back to Personal Dashboard
+                </Link>
+                <div className="w-px h-4 bg-border hidden sm:block" />
+                <BrandLogo size="sm" href="/" />
+              </div>
             </div>
-          </div>
+          </header>
+
+          <main className="flex-1 flex items-center justify-center p-4 py-8">
+            <div className="p-8 sm:p-10 text-center border border-border/70 rounded-3xl bg-card shadow-2xl max-w-xl mx-auto space-y-6">
+              <div className="w-16 h-16 bg-amber-500/10 text-amber-500 rounded-2xl flex items-center justify-center mx-auto border border-amber-500/25 shadow-inner">
+                <Building2 className="w-8 h-8" />
+              </div>
+
+              <div className="space-y-2">
+                <span className="text-[11px] font-bold uppercase tracking-wider bg-amber-500/10 text-amber-500 px-3 py-1 rounded-full border border-amber-500/20">
+                  Application Update Needed
+                </span>
+                <h1 className="text-2xl sm:text-3xl font-bold font-display text-foreground pt-1">
+                  {app.company_name}
+                </h1>
+                <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
+                  Thank you for your interest, <span className="font-semibold text-foreground">{app.contact_name}</span>. Your Agency &amp; Event Planner application could not be approved with the current information submitted.
+                </p>
+              </div>
+
+              {/* Submitted Agency Contact Details Summary */}
+              <div className="p-4 rounded-2xl bg-muted/40 border border-border/60 text-xs text-left space-y-2 text-foreground/80">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground border-b border-border/40 pb-1.5 flex items-center justify-between">
+                  <span>Application Summary</span>
+                  <span className="text-amber-500 font-semibold lowercase tracking-normal">not approved</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Company:</span>
+                  <span className="font-semibold text-foreground">{app.company_name}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Contact:</span>
+                  <span className="font-semibold text-foreground">{app.contact_name}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Email:</span>
+                  <span className="font-semibold text-foreground">{app.email}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Phone / WhatsApp:</span>
+                  <span className="font-semibold text-foreground">{app.phone}</span>
+                </div>
+              </div>
+
+              {/* Personal Dashboard Guarantee */}
+              <div className="p-4 rounded-2xl bg-emerald-950/20 border border-emerald-500/30 text-left space-y-1">
+                <div className="flex items-center gap-2 text-emerald-400 font-semibold text-xs">
+                  <Check className="w-4 h-4 shrink-0" />
+                  <span>Personal Host Dashboard 100% Unrestricted</span>
+                </div>
+                <p className="text-[11px] text-zinc-400 leading-relaxed">
+                  Your regular host account remains fully active. You can create, design, and share wedding and event invitations without any restrictions.
+                </p>
+              </div>
+
+              {/* Action Buttons: Re-Apply, WhatsApp Admin, Personal Dashboard */}
+              <div className="space-y-2.5 pt-1">
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5">
+                  <Link href="/agency?reapply=true" className="w-full sm:flex-1">
+                    <Button className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-zinc-950 font-bold text-xs h-10 shadow-lg shadow-amber-500/20">
+                      Re-Apply with Updated Details
+                    </Button>
+                  </Link>
+
+                  <a
+                    href={rejectAdminWaUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full sm:flex-1"
+                  >
+                    <Button className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs h-10 gap-1.5 shadow-md">
+                      <Phone className="w-3.5 h-3.5" /> Chat on WhatsApp
+                    </Button>
+                  </a>
+                </div>
+
+                <Link href="/dashboard?view=personal" className="w-full block">
+                  <Button variant="outline" className="w-full text-xs h-9 border-border/80 text-muted-foreground hover:text-foreground">
+                    Access Normal Host Dashboard
+                  </Button>
+                </Link>
+
+                <p className="text-[11px] text-muted-foreground pt-1">
+                  Need help or have questions? Contact our verification team directly at {displayAdminPhone}
+                </p>
+              </div>
+            </div>
+          </main>
         </div>
       );
     }
@@ -183,7 +261,7 @@ export default async function AgencyDashboardPage() {
           <div className="flex items-center justify-between h-16 gap-3">
             <div className="flex items-center gap-3">
               <Link
-                href="/dashboard"
+                href="/dashboard?view=personal"
                 className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-gold transition-colors shrink-0"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />

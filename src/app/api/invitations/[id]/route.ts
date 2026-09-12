@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { invalidateInvitationCache } from '@/lib/invitation-cache'
 
 export const dynamic = 'force-dynamic'
 
@@ -261,6 +262,9 @@ export async function PUT(
       }
     }
 
+    invalidateInvitationCache(id)
+    if (updated?.slug) invalidateInvitationCache(updated.slug)
+
     return NextResponse.json({ invitation: updated })
   } catch (error) {
     console.error('PUT /api/invitations/[id] error:', error)
@@ -268,7 +272,7 @@ export async function PUT(
   }
 }
 
-/* DELETE /api/invitations/[id] — delete invitation (owner only) */
+/* DELETE /api/invitations/[id] — permanently delete invitation (owner or admin only) */
 export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -282,21 +286,52 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Verify ownership
-    const { data: existing } = await supabase
-      .from('invitations')
-      .select('user_id')
-      .eq('id', id)
-      .single()
+    const service = createServiceClient()
 
-    if (!existing || existing.user_id !== user.id) {
+    // Verify ownership or admin status
+    const adminEmail = (process.env.ADMIN_EMAIL || 'rauf.khaled78@gmail.com').toLowerCase()
+    const isAdmin = (user.email || '').toLowerCase() === adminEmail
+
+    const { data: existing } = await service
+      .from('invitations')
+      .select('id, user_id, title, slug, partner1_name, partner2_name')
+      .eq('id', id)
+      .maybeSingle()
+
+    if (!existing) {
+      return NextResponse.json({ error: 'Invitation not found' }, { status: 404 })
+    }
+
+    if (!isAdmin && existing.user_id !== user.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const { error } = await supabase.from('invitations').delete().eq('id', id)
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    // 1. Clean up child records to prevent foreign-key constraints
+    await Promise.allSettled([
+      service.from('guest_snaps').delete().eq('invitation_id', id),
+      service.from('guest_links').delete().eq('invitation_id', id),
+      service.from('rsvps').delete().eq('invitation_id', id),
+      service.from('wishes').delete().eq('invitation_id', id),
+      service.from('events').delete().eq('invitation_id', id),
+      service.from('reviews').delete().eq('invitation_id', id),
+      // Safely uncouple orders so financial records remain intact
+      service.from('orders').update({ invitation_id: null }).eq('invitation_id', id),
+    ])
 
-    return NextResponse.json({ success: true })
+    // 2. Permanently delete the invitation record
+    const { error: deleteError } = await service.from('invitations').delete().eq('id', id)
+    if (deleteError) {
+      console.error('Cascade delete error for invitation:', id, deleteError)
+      return NextResponse.json({ error: deleteError.message }, { status: 500 })
+    }
+
+    invalidateInvitationCache(id)
+    if (existing?.slug) invalidateInvitationCache(existing.slug)
+
+    return NextResponse.json({
+      success: true,
+      message: 'Invitation permanently deleted',
+    })
   } catch (error) {
     console.error('DELETE /api/invitations/[id] error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

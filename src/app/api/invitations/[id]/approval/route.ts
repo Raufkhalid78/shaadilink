@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
+import { sendClientReviewNotification } from '@/lib/resend';
 
 /* POST /api/invitations/[id]/approval — record client draft approval or change requests */
 export async function POST(
@@ -20,7 +21,7 @@ export async function POST(
     // Verify invitation exists
     const { data: inv, error: invErr } = await service
       .from('invitations')
-      .select('id, slug, client_approval_status')
+      .select('id, slug, user_id, title, partner1_name, partner2_name, agency_name, agency_phone, client_approval_status')
       .or(`id.eq.${id},slug.eq.${id}`)
       .single();
 
@@ -41,14 +42,64 @@ export async function POST(
       .select()
       .single();
 
+    // Find recipient email for planner notification
+    let recipientEmail = '';
+    let plannerName = inv.agency_name || '';
+
+    if (inv.user_id) {
+      const { data: profile } = await service
+        .from('profiles')
+        .select('email, full_name, agency_name')
+        .eq('id', inv.user_id)
+        .maybeSingle();
+
+      if (profile?.email) {
+        recipientEmail = profile.email;
+        if (profile.agency_name) plannerName = profile.agency_name;
+        else if (profile.full_name) plannerName = profile.full_name;
+      }
+
+      if (!recipientEmail) {
+        const { data: agencyApp } = await service
+          .from('agency_applications')
+          .select('email, company_name, contact_name')
+          .eq('user_id', inv.user_id)
+          .maybeSingle();
+
+        if (agencyApp?.email) {
+          recipientEmail = agencyApp.email;
+          plannerName = agencyApp.company_name || agencyApp.contact_name || plannerName;
+        }
+      }
+    }
+
+    const eventTitle = inv.partner1_name && inv.partner2_name
+      ? `${inv.partner1_name} & ${inv.partner2_name}`
+      : inv.title || inv.partner1_name || 'Event Invitation';
+
+    // Dispatch email notification to agency planner
+    if (recipientEmail && (status === 'approved' || status === 'changes_requested')) {
+      sendClientReviewNotification({
+        toEmail: recipientEmail,
+        plannerName,
+        eventTitle,
+        invitationId: inv.id,
+        slug: inv.slug,
+        status,
+        notes: notes || null,
+        approvedAt: status === 'approved' ? new Date().toISOString() : undefined,
+        agencyName: inv.agency_name || plannerName,
+      }).catch((e) => console.error('Error dispatching client review email:', e));
+    }
+
     if (updateError) {
       console.warn('Approval status update warning (schema column may be pending migration):', updateError.message);
-      // Even if database column isn't migrated yet, return success so client flow doesn't break
       return NextResponse.json({
         success: true,
         status,
         notes: notes || null,
         approvedAt: status === 'approved' ? new Date().toISOString() : null,
+        notifiedEmail: recipientEmail || null,
       });
     }
 
@@ -57,6 +108,7 @@ export async function POST(
       status: updated?.client_approval_status || status,
       notes: updated?.client_approval_notes || notes,
       approvedAt: updated?.client_approved_at,
+      notifiedEmail: recipientEmail || null,
     });
   } catch (err) {
     console.error('Approval route error:', err);

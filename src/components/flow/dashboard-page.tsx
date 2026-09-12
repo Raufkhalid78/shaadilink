@@ -7,7 +7,7 @@ import {
   Send, Heart, Plus, ExternalLink, Trash2, Users, MessageSquare, Calendar,
   Copy, Check, LayoutDashboard, LogOut, Loader2, Crown, Sparkles, X, Lock, Edit,
   ArrowLeft, Share2, Home, Activity, QrCode, Eye, Download, DollarSign, Camera,
-  MoreHorizontal, Shield, Clock, CreditCard, Palette, FileText,
+  MoreHorizontal, Shield, Clock, CreditCard, Palette, FileText, Phone, AlertCircle,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -34,6 +34,7 @@ import { AgencyPortalDrawer } from "@/components/dashboard/agency-portal-drawer"
 import { PhotoWallDrawer } from "@/components/dashboard/photo-wall-drawer";
 import { Briefcase } from "lucide-react";
 import { WhatsAppIcon } from "@/components/icons/whatsapp-icon";
+import { CONTACT_CONFIG } from "@/lib/config";
 import Papa from "papaparse";
 
 interface Invitation {
@@ -1666,6 +1667,20 @@ export function DashboardPage({
                                   <span>Scanner</span>
                                 </Button>
                               )}
+
+                              {/* For Draft Invitations: Direct Delete Draft button */}
+                              {!inv.is_active && (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => setInvitationToDelete({ id: inv.id, partnerNames: `${inv.partner1_name || 'Event'} & ${inv.partner2_name || 'Celebration'}` })}
+                                  className="h-8 px-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 font-medium text-xs gap-1.5 rounded-xl border border-red-500/20 cursor-pointer transition-colors"
+                                  title="Permanently Delete Draft"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                  <span>Delete Draft</span>
+                                </Button>
+                              )}
                             </div>
 
                             {/* Event Tools & Services Dropdown */}
@@ -2463,7 +2478,62 @@ export function DashboardPage({
                 <X className="w-5 h-5" />
               </button>
 
-              {agencyAccess.status === 'pending' ? (
+              {agencyAccess.status === 'rejected' ? (
+                <div className="space-y-5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+                      <AlertCircle className="w-6 h-6 text-amber-400" />
+                    </div>
+                    <div>
+                      <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 text-[10px] font-bold uppercase tracking-wider">
+                        Status Update
+                      </div>
+                      <h3 className="font-display text-xl font-bold text-foreground mt-0.5">
+                        Agency Application Update Needed
+                      </h3>
+                    </div>
+                  </div>
+
+                  <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
+                    Your Agency &amp; Event Planner application could not be approved with the currently submitted details. You can easily update your agency details and re-apply, or speak directly with our verification team on WhatsApp.
+                  </p>
+
+                  <div className="p-3.5 rounded-2xl bg-emerald-950/30 border border-emerald-500/30 text-xs text-emerald-300 space-y-1">
+                    <p className="font-semibold flex items-center gap-1.5 text-emerald-400">
+                      <Check className="w-4 h-4" /> Personal Host Dashboard Unrestricted
+                    </p>
+                    <p className="text-[11px] text-zinc-400 leading-relaxed">
+                      Your personal dashboard is completely active! You have full, unrestricted access to create, customize, and publish your own wedding and celebration invitations.
+                    </p>
+                  </div>
+
+                  <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
+                    <Button
+                      onClick={() => {
+                        setAgencyGateModalOpen(false);
+                        window.location.href = '/agency?reapply=true';
+                      }}
+                      className="flex-1 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-zinc-950 font-bold text-xs h-10 shadow-lg shadow-amber-500/20"
+                    >
+                      Re-Apply with Updated Details
+                    </Button>
+                    <a
+                      href={`https://wa.me/${CONTACT_CONFIG.rawPhoneNumber}?text=${encodeURIComponent(`Hi Smart Invites Support, I am contacting you regarding my Agency Partner application (${flowData.email}).`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="sm:w-auto"
+                    >
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10 text-xs h-10 gap-1.5"
+                      >
+                        <Phone className="w-3.5 h-3.5" /> Chat on WhatsApp
+                      </Button>
+                    </a>
+                  </div>
+                </div>
+              ) : agencyAccess.status === 'pending' ? (
                 <div className="text-center space-y-4 py-2">
                   <div className="w-14 h-14 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 mx-auto">
                     <Clock className="w-7 h-7" />
@@ -2603,8 +2673,8 @@ export function DashboardPage({
                   <Trash2 className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white">Delete Invitation</h3>
-                  <p className="text-xs text-zinc-400">This action cannot be undone</p>
+                  <h3 className="text-base font-bold text-white">Permanently Delete Invitation</h3>
+                  <p className="text-xs text-red-400">This action cannot be undone</p>
                 </div>
               </div>
 
@@ -2639,7 +2709,7 @@ export function DashboardPage({
                   ) : (
                     <>
                       <Trash2 className="w-3.5 h-3.5" />
-                      <span>Delete Invitation</span>
+                      <span>Permanently Delete</span>
                     </>
                   )}
                 </Button>

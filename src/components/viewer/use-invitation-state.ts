@@ -245,8 +245,44 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
   }, [flowData?.backgroundMusic, isDemo])
 
   const playPromiseRef = useRef<Promise<void> | null>(null)
+  const userMutedRef = useRef(false)
 
-  const playMusic = useCallback(() => {
+  // Explicit toggle function for user click on MusicToggle
+  const toggleMusic = useCallback(() => {
+    setMusicPlaying(prev => {
+      const next = !prev
+      userMutedRef.current = !next
+      if (next && audioRef.current) {
+        const p = audioRef.current.play()
+        playPromiseRef.current = p
+        if (p !== undefined) {
+          p.catch((err) => {
+            if (err?.name !== 'AbortError') {
+              console.warn('Audio play prevented:', err)
+              setMusicPlaying(false)
+            }
+          })
+        }
+      }
+      return next
+    })
+  }, [])
+
+  // Wrapped setMusicPlaying so any direct toggle (e.g. s.setMusicPlaying(!s.musicPlaying)) updates userMutedRef
+  const setMusicPlayingWithIntent = useCallback((value: boolean | ((prev: boolean) => boolean)) => {
+    setMusicPlaying(prev => {
+      const next = typeof value === 'function' ? value(prev) : value
+      userMutedRef.current = !next
+      return next
+    })
+  }, [])
+
+  const playMusic = useCallback((force: boolean = false) => {
+    // If the user has intentionally muted, do NOT auto-start music unless explicitly forced
+    if (userMutedRef.current && !force) {
+      return
+    }
+    userMutedRef.current = false
     setMusicPlaying(true)
     const audio = audioRef.current
     if (audio) {
@@ -445,7 +481,7 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
   const handleDoorOpen = useCallback((instant?: boolean) => {
     if (doorsOpened) return
     setDoorsOpened(true)
-    const delayFactor = instant ? 0 : 1;
+    const delayFactor = instant ? 0.8 : 1;
     setTimeout(() => setShowFireworks(true), 1500 * delayFactor)
     setTimeout(() => setShowFireworks(false), 6500 * delayFactor)
     if (theme.id.includes('royal') || theme.id === 'geometric-gold' || theme.id === 'dark-velvet') {
@@ -453,7 +489,7 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
       setTimeout(() => setShowGoldDust(false), 4500 * delayFactor)
     }
     const musicTrack = flowData?.backgroundMusic || (isDemo ? 'shehnai' : null)
-    if (musicTrack && musicTrack !== 'no-music') {
+    if (musicTrack && musicTrack !== 'no-music' && !userMutedRef.current) {
       playMusic()
     }
     setTimeout(() => setDoorOverlayVisible(false), 2800 * delayFactor)
@@ -575,7 +611,7 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
     dietaryNotes, setDietaryNotes, selectedDietaryChip, setSelectedDietaryChip,
     attendingEvents, setAttendingEvents,
     wishName, setWishName, wishMessage, setWishMessage,
-    musicPlaying, setMusicPlaying, showConfetti, rsvpHearts, heroVisible,
+    musicPlaying, setMusicPlaying: setMusicPlayingWithIntent, toggleMusic, userMuted: userMutedRef.current, showConfetti, rsvpHearts, heroVisible,
     copiedField, showGoldDust, faqOpen, setFaqOpen,
     language, setLanguage, translations, isTranslating,
     guestNameFromUrl, wishes,

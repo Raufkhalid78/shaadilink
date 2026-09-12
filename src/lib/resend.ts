@@ -604,3 +604,108 @@ export async function sendManualBankTransferAdminAlert({
   }
 }
 
+/**
+ * Send email alert to event planner/agency and admin when client approves an invitation or requests changes.
+ */
+export async function sendClientReviewNotification(data: {
+  toEmail: string;
+  plannerName?: string;
+  eventTitle: string;
+  invitationId: string;
+  slug?: string;
+  status: 'approved' | 'changes_requested';
+  notes?: string | null;
+  approvedAt?: string;
+  previewUrl?: string;
+  agencyName?: string;
+}) {
+  if (!resend) return null;
+
+  try {
+    const isApproved = data.status === 'approved';
+    const title = data.eventTitle || 'Event Invitation';
+    const planner = data.plannerName || data.agencyName || 'Event Planner';
+    const subject = isApproved
+      ? `🎉 Client Approved: "${title}" Invitation Draft is Ready to Publish!`
+      : `✏️ Revision Requested: Client Left Feedback for "${title}"`;
+    const preheader = isApproved
+      ? `Your client has approved the "${title}" invitation draft.`
+      : `Your client requested revisions on "${title}".`;
+
+    const adminEmail = process.env.ADMIN_EMAIL || 'info@smartinvites.com.pk';
+    const cockpitUrl = 'https://www.smartinvites.com.pk/dashboard/agency';
+    const editUrl = `https://www.smartinvites.com.pk/create?edit=${data.invitationId}&agency=true`;
+
+    return await resend.emails.send({
+      from: 'Smart Invites Client Review <info@smartinvites.com.pk>',
+      to: [data.toEmail],
+      bcc: [adminEmail],
+      replyTo: 'info@smartinvites.com.pk',
+      subject,
+      text: isApproved
+        ? `Client Approved!\n\nHi ${planner},\n\nGreat news! Your client has reviewed and APPROVED the draft invitation for "${title}".\n\nYou can now activate and publish it with 1 wholesale credit from your Agency Cockpit:\n${cockpitUrl}\n\nSmart Invites Team`
+        : `Client Requested Changes!\n\nHi ${planner},\n\nYour client has reviewed the draft invitation for "${title}" and requested the following changes:\n\n"${data.notes || 'Revisions requested.'}"\n\nPlease update the invitation here:\n${editUrl}\n\nSmart Invites Team`,
+      html: getEmailWrapper(
+        isApproved ? 'Client Approved Invitation Draft' : 'Client Requested Changes',
+        preheader,
+        `
+          <h2 style="color: ${isApproved ? '#059669' : '#d97706'}; margin-top: 0;">
+            ${isApproved ? '🎉 Invitation Draft Approved by Client!' : '✏️ Client Requested Revisions'}
+          </h2>
+          <p>Hi ${planner},</p>
+          <p>
+            ${isApproved
+              ? `Great news! Your client has completed their review and <strong>APPROVED</strong> the invitation draft for <strong>${title}</strong>.`
+              : `Your client has reviewed their invitation draft for <strong>${title}</strong> and submitted revision requests.`
+            }
+          </p>
+
+          ${!isApproved && data.notes ? `
+            <div style="background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 18px; border-radius: 8px; margin: 25px 0;">
+              <p style="margin: 0 0 6px 0; font-size: 12px; font-weight: bold; text-transform: uppercase; color: #b45309; letter-spacing: 1px;">Client Revision Notes:</p>
+              <p style="margin: 0; font-size: 15px; color: #78350f; line-height: 1.6; white-space: pre-wrap;">${data.notes}</p>
+            </div>
+          ` : ''}
+
+          <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 25px 0;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+              <tr>
+                <td style="padding: 6px 0; color: #64748b;">Event Title:</td>
+                <td style="padding: 6px 0; text-align: right; font-weight: bold; color: #022c22;">${title}</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 0; color: #64748b;">Review Status:</td>
+                <td style="padding: 6px 0; text-align: right; font-weight: bold; color: ${isApproved ? '#059669' : '#d97706'};">
+                  ${isApproved ? 'APPROVED ✓' : 'CHANGES REQUESTED ✏️'}
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 0; color: #64748b;">Updated At:</td>
+                <td style="padding: 6px 0; text-align: right; color: #334155;">${new Date().toLocaleString('en-US', { timeZone: 'Asia/Karachi' })} PKT</td>
+              </tr>
+            </table>
+          </div>
+
+          <center style="margin: 30px 0;">
+            <a href="${isApproved ? cockpitUrl : editUrl}" style="background-color: ${isApproved ? '#059669' : '#d4af37'}; color: ${isApproved ? '#ffffff' : '#111827'}; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 15px; display: inline-block; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+              ${isApproved ? 'Open Agency Cockpit to Publish' : 'Edit Invitation in Cockpit'}
+            </a>
+          </center>
+
+          <p style="font-size: 13px; color: #64748b; margin-top: 25px;">
+            ${isApproved
+              ? 'You can now publish and unlock the live invitation link for wedding guests with 1 wholesale credit.'
+              : 'Once you have made the updates, you can resend the review link to your client.'
+            }
+          </p>
+          <p>Best regards,<br/><strong>The Smart Invites Team</strong></p>
+        `
+      ),
+    });
+  } catch (error) {
+    console.error('Error sending client review notification email via Resend:', error);
+    return null;
+  }
+}
+
+

@@ -10,6 +10,7 @@ interface RoyalViewerProps {
   flowData?: FlowData
   guestName?: string | null
   guestSlug?: string | null
+  isReviewMode?: boolean
 }
 
 export default function ValedictorianViewer(props: RoyalViewerProps) {
@@ -21,6 +22,7 @@ export default function ValedictorianViewer(props: RoyalViewerProps) {
       guestName={props.guestName}
       guestSlug={props.guestSlug}
       customTheme={theme}
+      isReviewMode={props.isReviewMode}
     />
   )
 }

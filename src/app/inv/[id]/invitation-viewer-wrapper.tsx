@@ -15,7 +15,7 @@ interface Props {
 
 export default function InvitationViewerWrapper({ templateId, flowData, guestName, guestSlug, isReviewMode, viewsCount, maxViews }: Props) {
   return (
-    <div className="min-h-screen">
+    <div className={`min-h-screen ${isReviewMode ? "client-review-active" : ""}`}>
       <InvitationViewer
         templateId={templateId}
         flowData={flowData}

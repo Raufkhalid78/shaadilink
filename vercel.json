@@ -1,6 +1,21 @@
-﻿{
+{
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "git": {
-    "deploymentEnabled": false
-  }
+  "crons": [
+    {
+      "path": "/api/cron/cleanup-expired",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/abandoned-checkout",
+      "schedule": "0 12 * * *"
+    },
+    {
+      "path": "/api/cron/smartinvites_secure_cron_auto_delete",
+      "schedule": "0 12 * * *"
+    },
+    {
+      "path": "/api/cron/abandoned-drafts",
+      "schedule": "0 13 * * *"
+    }
+  ]
 }

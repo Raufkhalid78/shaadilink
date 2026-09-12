@@ -945,3 +945,87 @@ html, body {
   border-color: rgba(212, 168, 83, 0.4);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(212, 168, 83, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
+
+/* ═══════════════════════════════════
+   CLIENT REVIEW MODE FLOATING CONTROLS
+   Positions music toggle, share, and language
+   controls cleanly below the Client Review banner
+   ═══════════════════════════════════ */
+.client-review-active .viewer-floating-controls,
+body.client-review-active .viewer-floating-controls,
+body:has(.client-review-banner-root) .viewer-floating-controls {
+  top: calc(max(1rem, env(safe-area-inset-top)) + 5.25rem) !important;
+}
+
+@media (min-width: 640px) {
+  .client-review-active .viewer-floating-controls,
+  body.client-review-active .viewer-floating-controls,
+  body:has(.client-review-banner-root) .viewer-floating-controls {
+    top: calc(max(1rem, env(safe-area-inset-top)) + 3.75rem) !important;
+  }
+}
+
+/* ═══════════════════════════════════
+   PRINT STYLES - SINGLE-PAGE DIGITAL PASS ISOLATION
+   Hides multi-page background invitation content
+   when printing or saving the Digital Entry Pass
+   ═══════════════════════════════════ */
+@media print {
+  /* Hide background elements and controls */
+  .viewer-floating-controls,
+  .pass-no-print,
+  [data-radix-dialog-overlay] {
+    display: none !important;
+  }
+
+  /* If printing with the guest pass open, collapse background document */
+  body:has(#smartinvites-printable-pass) > *:not([data-radix-portal]) {
+    display: none !important;
+  }
+
+  body:has(#smartinvites-printable-pass) {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    background: #0c1017 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body:has(#smartinvites-printable-pass) [data-radix-portal] {
+    position: static !important;
+    display: block !important;
+  }
+
+  body:has(#smartinvites-printable-pass) [data-radix-portal] > div {
+    position: static !important;
+    transform: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: transparent !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  #smartinvites-printable-pass {
+    position: relative !important;
+    transform: none !important;
+    margin: 15mm auto !important;
+    max-width: 400px !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    page-break-before: avoid !important;
+    page-break-after: avoid !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  @page {
+    size: portrait;
+    margin: 8mm;
+  }
+}
+
+

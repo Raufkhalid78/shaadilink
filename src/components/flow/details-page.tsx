@@ -1053,7 +1053,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             
             {/* Left Column: 4-Step Form Wizard */}
-            <div className="lg:col-span-7 space-y-6">
+            <div className="lg:col-span-7 space-y-6 pb-24 lg:pb-0">
 
               {/* STEP 1: Couple & Host Information */}
               {currentStep === 1 && (
@@ -2748,7 +2748,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
           </div>
         </m.div>
               {/* Mobile Floating Preview Trigger */}
-        <div className="lg:hidden fixed bottom-6 inset-x-0 z-40 flex justify-center pointer-events-none px-4">
+        <div className="lg:hidden fixed bottom-[max(1.5rem,env(safe-area-inset-bottom))] inset-x-0 z-40 flex justify-center pointer-events-none px-4">
           <button
             type="button"
             onClick={() => setIsMobilePreviewOpen(true)}

@@ -63,6 +63,7 @@ export async function getAgencyPortalData(): Promise<
       is_active,
       created_at,
       client_approval_status,
+      client_approval_notes,
       review_token,
       review_views_count
     `)
@@ -95,6 +96,7 @@ export async function getAgencyPortalData(): Promise<
         is_active: inv.is_active,
         created_at: inv.created_at,
         client_approval_status: inv.client_approval_status,
+        client_approval_notes: inv.client_approval_notes,
         review_token: token,
         review_views_count: viewsCount,
       };
@@ -473,4 +475,59 @@ export async function requestAgencyAccountDeletion(reason: string) {
   revalidatePath('/dashboard/agency');
   revalidatePath('/admin/agency');
   return { success: true, retentionDate: ninetyDaysFromNow };
+}
+
+/**
+ * Permanently delete a client invitation from the agency portal with cascade cleanup.
+ */
+export async function deleteAgencyClientInvitation(invitationId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { error: 'Unauthorized' };
+
+  const service = createServiceClient();
+
+  const adminEmail = (process.env.ADMIN_EMAIL || 'rauf.khaled78@gmail.com').toLowerCase();
+  const isAdmin = (user.email || '').toLowerCase() === adminEmail;
+
+  // 1. Verify invitation exists and belongs to this user
+  const { data: inv } = await service
+    .from('invitations')
+    .select('id, user_id, title, partner1_name, partner2_name')
+    .eq('id', invitationId)
+    .maybeSingle();
+
+  if (!inv) {
+    return { error: 'Invitation not found' };
+  }
+
+  if (!isAdmin && inv.user_id !== user.id) {
+    return { error: 'Forbidden: You do not have permission to delete this invitation' };
+  }
+
+  // 2. Cascade cleanup child records
+  await Promise.allSettled([
+    service.from('guest_snaps').delete().eq('invitation_id', invitationId),
+    service.from('guest_links').delete().eq('invitation_id', invitationId),
+    service.from('rsvps').delete().eq('invitation_id', invitationId),
+    service.from('wishes').delete().eq('invitation_id', invitationId),
+    service.from('events').delete().eq('invitation_id', invitationId),
+    service.from('reviews').delete().eq('invitation_id', invitationId),
+    service.from('orders').update({ invitation_id: null }).eq('invitation_id', invitationId),
+  ]);
+
+  // 3. Delete parent invitation
+  const { error: delErr } = await service.from('invitations').delete().eq('id', invitationId);
+
+  if (delErr) {
+    console.error('Failed to permanently delete agency invitation:', invitationId, delErr);
+    return { error: delErr.message };
+  }
+
+  revalidatePath('/dashboard/agency');
+  revalidatePath('/dashboard');
+  return { success: true };
 }

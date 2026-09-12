@@ -27,11 +27,14 @@ export default async function GatekeeperScanPage({
   const { pin: queryPin, gate: queryGate } = await searchParams;
 
   const service = createServiceClient();
-  const { data: inv, error } = await service
+  const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+  const query = service
     .from('invitations')
-    .select('id, slug, title, partner1_name, partner2_name, venue, venue_address, category, is_active')
-    .eq('id', id)
-    .single();
+    .select('id, slug, title, partner1_name, partner2_name, venue, venue_address, category, is_active');
+
+  const { data: inv, error } = isUUID
+    ? await query.or(`id.eq.${id},slug.eq.${id}`).maybeSingle()
+    : await query.eq('slug', id).maybeSingle();
 
   if (error || !inv) {
     notFound();

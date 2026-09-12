@@ -18,22 +18,7 @@ export async function GET() {
 
     const service = createServiceClient();
 
-    // 2. Check profile table for agency_name
-    try {
-      const { data: profile } = await service
-        .from('profiles')
-        .select('agency_name')
-        .eq('id', user.id)
-        .single();
-
-      if (profile?.agency_name) {
-        return NextResponse.json({ isAgency: true, status: 'approved', companyName: profile.agency_name });
-      }
-    } catch {
-      // Ignore if table or column missing
-    }
-
-    // 3. Check agency_applications table
+    // 1. Check agency_applications table FIRST (authoritative source of truth)
     try {
       const { data: application } = await service
         .from('agency_applications')
@@ -53,6 +38,21 @@ export async function GET() {
       }
     } catch {
       // fallback
+    }
+
+    // 2. Check profile table for legacy agency flag only if no application exists
+    try {
+      const { data: profile } = await service
+        .from('profiles')
+        .select('agency_name, is_agency')
+        .eq('id', user.id)
+        .single();
+
+      if (profile?.is_agency && profile?.agency_name) {
+        return NextResponse.json({ isAgency: true, status: 'approved', companyName: profile.agency_name });
+      }
+    } catch {
+      // Ignore if table or column missing
     }
 
     // 4. Check affiliate_applications table fallback

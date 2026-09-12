@@ -41,11 +41,15 @@ export function ClientReviewBanner({ flowData, templateId, viewsCount, maxViews 
   // Set 30-minute session cookie so refreshing on the same device does not burn extra views
   React.useEffect(() => {
     if (typeof window !== "undefined") {
+      document.body.classList.add("client-review-active");
       const urlToken = new URLSearchParams(window.location.search).get("token");
       const invId = flowData?.invitationId;
       if (urlToken && invId) {
         document.cookie = `smartinvites_review_sess_${invId}=${encodeURIComponent(urlToken.trim())}; path=/; max-age=1800; SameSite=Lax`;
       }
+      return () => {
+        document.body.classList.remove("client-review-active");
+      };
     }
   }, [flowData?.invitationId]);
 
@@ -81,7 +85,7 @@ export function ClientReviewBanner({ flowData, templateId, viewsCount, maxViews 
     setIsApprovalModalOpen(false);
     setTimeout(() => setShowConfetti(false), 4500);
 
-    toast.success("🎉 Draft Invitation Approved! Your approval has been saved.");
+    toast.success("🎉 Draft Approved! Your event planner has been notified via email & dashboard.");
 
     // Persist approval to database
     const invKey = getInvKey();
@@ -102,15 +106,14 @@ export function ClientReviewBanner({ flowData, templateId, viewsCount, maxViews 
     }
   };
 
-  const handleSendFeedback = async () => {
+  const handleSendFeedback = (viaWhatsApp: boolean = false) => {
     if (!feedbackText.trim()) {
-      toast.error("Please enter the changes you would like to request.");
+      toast.error("Please enter your changes or feedback before submitting.");
       return;
     }
 
-    const requestedChanges = feedbackText.trim();
     setIsFeedbackModalOpen(false);
-    toast.success("Feedback saved! Opening WhatsApp to send to " + agencyOrHost);
+    toast.success("✏️ Feedback sent! Your event planner has received your revision notes via email.");
 
     // Persist feedback to database
     const invKey = getInvKey();
@@ -118,13 +121,13 @@ export function ClientReviewBanner({ flowData, templateId, viewsCount, maxViews 
       fetch(`/api/invitations/${invKey}/approval`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "changes_requested", notes: requestedChanges }),
+        body: JSON.stringify({ status: "changes_requested", notes: feedbackText.trim() }),
       }).catch(console.error);
     }
 
-    if (typeof window !== "undefined") {
+    if (viaWhatsApp && typeof window !== "undefined") {
       const msg = encodeURIComponent(
-        `Salam! 📝 I reviewed our invitation draft for *${title}* on Smart Invites and would like to request the following changes:\n\n"${requestedChanges}"\n\nPreview Link: ${getUrl()}`
+        `Salam! ✏️ I have reviewed our invitation draft for *${title}* on Smart Invites. Here are the edits/changes we would like to make:\n\n${feedbackText.trim()}\n\nPreview Link: ${getUrl()}`
       );
       const waUrl = waPhone ? `https://wa.me/${waPhone}?text=${msg}` : `https://wa.me/?text=${msg}`;
       window.open(waUrl, "_blank", "noopener,noreferrer");
@@ -137,7 +140,7 @@ export function ClientReviewBanner({ flowData, templateId, viewsCount, maxViews 
       <ConfettiDisplay show={showConfetti} />
 
       {/* Top Sticky Review Banner */}
-      <div className="fixed top-0 left-0 right-0 z-[9999] pointer-events-auto">
+      <div className="fixed top-0 left-0 right-0 z-[9999] pointer-events-auto client-review-banner-root">
         <div className="bg-zinc-950/95 backdrop-blur-xl border-b border-amber-500/30 text-white shadow-2xl transition-all">
           <div className="max-w-7xl mx-auto px-3 sm:px-6 py-2 sm:py-2.5 flex flex-col sm:flex-row items-center justify-between gap-2">
             
@@ -330,7 +333,7 @@ export function ClientReviewBanner({ flowData, templateId, viewsCount, maxViews 
                   Cancel
                 </Button>
                 <Button
-                  onClick={handleSendFeedback}
+                  onClick={() => handleSendFeedback(!!waPhone)}
                   className="flex-1 h-9 bg-amber-500 hover:bg-amber-400 text-black font-semibold text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-lg shadow-amber-950/40"
                 >
                   <Send className="w-3.5 h-3.5" />

@@ -55,10 +55,17 @@ export default function DashboardRoutePage() {
           if (agencyRes?.isAgency && agencyRes?.status === "approved") {
             setIsAgencyUser(true);
             const searchParams = new URLSearchParams(window.location.search);
-            if (searchParams.get("view") !== "personal") {
+            const isPersonalView = searchParams.get("view") === "personal" || (typeof window !== "undefined" && window.sessionStorage?.getItem("smartinvites_preferred_dashboard") === "personal");
+            if (searchParams.get("view") === "personal" && typeof window !== "undefined") {
+              window.sessionStorage?.setItem("smartinvites_preferred_dashboard", "personal");
+            }
+            if (!isPersonalView) {
               router.replace("/dashboard/agency");
               return;
             }
+          } else {
+            // Normal user or rejected/pending application: always stay on personal host dashboard
+            setIsAgencyUser(false);
           }
         } catch (e) {
           console.error("Agency status check error:", e);
@@ -96,7 +103,12 @@ export default function DashboardRoutePage() {
           </div>
           <Button
             size="sm"
-            onClick={() => router.push("/dashboard/agency")}
+            onClick={() => {
+              if (typeof window !== "undefined") {
+                window.sessionStorage?.removeItem("smartinvites_preferred_dashboard");
+              }
+              router.push("/dashboard/agency");
+            }}
             className="bg-primary hover:bg-primary-light text-slate-950 text-xs font-bold gap-1 h-7 px-3"
           >
             Switch to Agency Portal <ArrowRight className="w-3.5 h-3.5 ml-0.5" />

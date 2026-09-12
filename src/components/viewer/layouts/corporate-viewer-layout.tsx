@@ -19,6 +19,7 @@ import { CountdownTimer, AddToCalendarDropdown } from '../features/countdown-tim
 import { MusicToggle } from '../ui/music-toggle'
 import { VoiceGreetingPlayer } from '../features/voice-greeting-player'
 import { CrowdPhotoWallSection } from '../features/crowd-photo-wall-section'
+import { DigitalGuestPassModal } from '../digital-guest-pass-modal'
 
 const DoorOverlay = dynamic(() => import('../door/door-overlay').then(m => m.DoorOverlay), { ssr: false })
 const BackgroundParticles = dynamic(() => import('../effects/particles').then(m => m.BackgroundParticles), { ssr: false })
@@ -29,9 +30,10 @@ export interface LayoutViewerProps {
   guestName?: string | null
   guestSlug?: string | null
   customTheme?: TemplateTheme
+  isReviewMode?: boolean
 }
 
-export function CorporateViewerLayout({ templateId, flowData: propFlowData, guestName, guestSlug, customTheme }: LayoutViewerProps) {
+export function CorporateViewerLayout({ templateId, flowData: propFlowData, guestName, guestSlug, customTheme, isReviewMode }: LayoutViewerProps) {
   const s = useInvitationState(templateId, propFlowData, guestName, guestSlug)
   const theme = customTheme || s.theme
   const flowData = s.flowData
@@ -128,7 +130,7 @@ export function CorporateViewerLayout({ templateId, flowData: propFlowData, gues
       )}
 
       {/* Floating Audio Controls */}
-      <div className="fixed top-5 right-5 z-40">
+      <div className={`fixed ${isReviewMode ? 'top-[calc(max(1rem,env(safe-area-inset-top))+6.25rem)] sm:top-[calc(max(1rem,env(safe-area-inset-top))+3.5rem)]' : 'top-[max(1rem,env(safe-area-inset-top))]'} right-[max(1rem,env(safe-area-inset-right))] z-[200] viewer-floating-controls transition-all duration-300`}>
         <MusicToggle
           isPlaying={s.musicPlaying}
           onToggle={() => s.setMusicPlaying(!s.musicPlaying)}
@@ -589,6 +591,20 @@ export function CorporateViewerLayout({ templateId, flowData: propFlowData, gues
           </a>
         </p>
       </footer>
+
+      <DigitalGuestPassModal
+        isOpen={isPassModalOpen}
+        onClose={() => setIsPassModalOpen(false)}
+        guestName={s.translatedGuestName || s.rsvpName || 'Honored Delegate'}
+        guestSlug={guestSlug || undefined}
+        seats={flowData?.guestSeats ?? 1}
+        allowedEvents={flowData?.guestAllowedEvents || undefined}
+        invitationTitle={`${flowData?.partner1Name || ''} & ${flowData?.partner2Name || ''}`}
+        invitationUrl={typeof window !== 'undefined' ? window.location.href.split('?')[0] : ''}
+        eventDate={flowData?.events?.[0]?.date}
+        venue={flowData?.venue}
+        category={flowData?.category || 'corporate'}
+      />
     </div>
   )
 }

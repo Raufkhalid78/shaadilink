@@ -102,7 +102,7 @@ import { getCategoryForTemplate } from '@/lib/category-utils';
 export { getCategoryForTemplate };
 
 /* ─── Royal Template Router ─── */
-const ROYAL_TEMPLATE_MAP: Record<string, React.ComponentType<{ templateId?: string; flowData?: FlowData; guestName?: string | null; guestSlug?: string | null }>> = {
+const ROYAL_TEMPLATE_MAP: Record<string, React.ComponentType<InvitationViewerProps>> = {
   'royal-imperial': RoyalImperialViewer,
   'royal-elegance': RoyalEleganceViewer,
   'geometric-gold': GeometricGoldViewer,
@@ -386,8 +386,19 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug, isReviewMod
 
   // Play/pause control
   const playPromiseRef = useRef<Promise<void> | null>(null)
+  const userMutedRef = useRef(false)
 
-  const playMusic = useCallback(() => {
+  const setMusicPlayingWithIntent = useCallback((value: boolean | ((prev: boolean) => boolean)) => {
+    setMusicPlaying(prev => {
+      const next = typeof value === 'function' ? value(prev) : value
+      userMutedRef.current = !next
+      return next
+    })
+  }, [])
+
+  const playMusic = useCallback((force: boolean = false) => {
+    if (userMutedRef.current && !force) return
+    userMutedRef.current = false
     setMusicPlaying(true)
     const audio = audioRef.current
     if (audio) {
@@ -495,7 +506,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug, isReviewMod
     if (doorsOpened) return
     setDoorsOpened(true)
     
-    const delayFactor = instant ? 0 : 1;
+    const delayFactor = instant ? 0.8 : 1;
     
     // Delay fireworks until the doors are almost open (1.5s delay)
     // This frees up main thread/GPU cycles for the door swing animation.
@@ -509,7 +520,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug, isReviewMod
       setTimeout(() => setShowGoldDust(false), 4500 * delayFactor)
     }
     const musicTrack = flowData?.backgroundMusic || (isDemo ? 'tabla-beats' : null)
-    if (musicTrack && musicTrack !== 'no-music') {
+    if (musicTrack && musicTrack !== 'no-music' && !userMutedRef.current) {
       playMusic()
     }
     setTimeout(() => setDoorOverlayVisible(false), 2800 * delayFactor)
@@ -991,7 +1002,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug, isReviewMod
       <GoldDustSplash show={showGoldDust} colors={theme.fireworkColors} />
 
       {/* Floating Controls Capsule (Language, Share, Music) */}
-      <div className="fixed top-[max(1rem,env(safe-area-inset-top))] right-[max(1rem,env(safe-area-inset-right))] z-[200] flex items-center gap-1.5 p-1 rounded-full bg-black/40 backdrop-blur-md border border-white/10 shadow-xl">
+      <div className={`fixed ${isReviewMode ? 'top-[calc(max(1rem,env(safe-area-inset-top))+6.25rem)] sm:top-[calc(max(1rem,env(safe-area-inset-top))+3.5rem)]' : 'top-[max(1rem,env(safe-area-inset-top))]'} right-[max(1rem,env(safe-area-inset-right))] z-[200] flex items-center gap-1.5 p-1 rounded-full bg-black/40 backdrop-blur-md border border-white/10 shadow-xl viewer-floating-controls transition-all duration-300`}>
         <button
           onClick={() => {
             const newLang = language === 'en' ? 'ur' : 'en'
@@ -1018,7 +1029,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug, isReviewMod
         >
           <Share2 className="w-4 h-4" style={{ color: theme.accent }} />
         </button>
-        <MusicToggle isPlaying={musicPlaying} onToggle={() => setMusicPlaying(!musicPlaying)} theme={theme} />
+        <MusicToggle isPlaying={musicPlaying} onToggle={() => setMusicPlayingWithIntent(prev => !prev)} theme={theme} />
       </div>
 
       {/* ─── Bismillah Banner (shown only for wedding if enabled) ─── */}

@@ -181,6 +181,7 @@ export function GatekeeperClient({
         sessionStorage.setItem(`gatekeeper_pin_${invitationId}`, candidatePin.trim());
         toast.success("Gatekeeper Scanner Activated!");
       } else {
+        sessionStorage.removeItem(`gatekeeper_pin_${invitationId}`);
         setAuthError(data.error || "Incorrect PIN. Please ask the event host.");
       }
     } catch (err) {
