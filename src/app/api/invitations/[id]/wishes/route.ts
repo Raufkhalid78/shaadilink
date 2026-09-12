@@ -34,7 +34,7 @@ export async function POST(
     // 2. Fetch invitation to check if it exists and to get user_id for sending notifications
     let invQuery = supabase
       .from('invitations')
-      .select('id, is_active, user_id, profiles(email)')
+      .select('id, is_active, user_id')
 
     if (isUUID) {
       invQuery = invQuery.eq('id', id)
@@ -71,7 +71,15 @@ export async function POST(
 
     // 4. Send Notification Email if email exists
     try {
-      const hostEmail = (inv.profiles as any)?.email;
+      let hostEmail: string | undefined = undefined;
+      if (inv.user_id) {
+        const { data: hostProfile } = await supabase
+          .from('profiles')
+          .select('email')
+          .eq('id', inv.user_id)
+          .maybeSingle();
+        hostEmail = hostProfile?.email;
+      }
       if (hostEmail) {
         await sendWishNotification(hostEmail, senderName.trim(), message.trim())
       }

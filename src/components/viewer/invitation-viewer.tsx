@@ -2025,70 +2025,72 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug, isReviewMod
                         />
                       </div>
 
-                      {/* Headcount Steppers: Adults & Children */}
-                      <div className="space-y-2 pt-1">
-                        <div className="flex items-center justify-between">
-                          <label className={`text-xs font-semibold uppercase tracking-wider ${theme.fontDisplay}`} style={{ color: getOpacityStyle('text', 0.8) }}>
-                            {language === 'ur' ? 'حاضرین کی تعداد (Headcount)' : 'Guests Attending (Headcount)'}
-                          </label>
-                          <span className="text-[11px] font-medium" style={{ color: theme.accent }}>
-                            {adultsCount + childrenCount} {language === 'ur' ? 'کل افراد' : (adultsCount + childrenCount === 1 ? 'Guest Total' : 'Guests Total')}
-                          </span>
-                        </div>
-                        <div className="grid grid-cols-2 gap-3">
-                          {/* Adults */}
-                          <div className="p-3 rounded-lg border flex flex-col gap-1.5" style={{ backgroundColor: theme.bgSecondary, borderColor: theme.borderSubtle }}>
-                            <span className="text-[11px] font-medium" style={{ color: getOpacityStyle('text', 0.7) }}>
-                              {language === 'ur' ? 'بڑے افراد (12+ سال)' : 'Adults (12+ yrs)'}
+                      {/* Headcount Steppers: Adults & Children (Conditional on flowData.showHeadcount) */}
+                      {Boolean(flowData?.showHeadcount) && (
+                        <div className="space-y-2 pt-1">
+                          <div className="flex items-center justify-between">
+                            <label className={`text-xs font-semibold uppercase tracking-wider ${theme.fontDisplay}`} style={{ color: getOpacityStyle('text', 0.8) }}>
+                              {language === 'ur' ? 'حاضرین کی تعداد (Headcount)' : 'Guests Attending (Headcount)'}
+                            </label>
+                            <span className="text-[11px] font-medium" style={{ color: theme.accent }}>
+                              {adultsCount + childrenCount} {language === 'ur' ? 'کل افراد' : (adultsCount + childrenCount === 1 ? 'Guest Total' : 'Guests Total')}
                             </span>
-                            <div className="flex items-center justify-between mt-1">
-                              <button
-                                type="button"
-                                onClick={() => setAdultsCount(prev => Math.max(1, prev - 1))}
-                                className="w-8 h-8 rounded-md border flex items-center justify-center font-bold text-base transition-all hover:scale-105 active:scale-95 cursor-pointer"
-                                style={{ borderColor: theme.borderSubtle, backgroundColor: theme.bgPrimary, color: theme.textPrimary }}
-                              >
-                                -
-                              </button>
-                              <span className="font-bold text-base" style={{ color: theme.textPrimary }}>{adultsCount}</span>
-                              <button
-                                type="button"
-                                onClick={() => setAdultsCount(prev => Math.min(20, prev + 1))}
-                                className="w-8 h-8 rounded-md border flex items-center justify-center font-bold text-base transition-all hover:scale-105 active:scale-95 cursor-pointer"
-                                style={{ borderColor: theme.borderSubtle, backgroundColor: theme.bgPrimary, color: theme.textPrimary }}
-                              >
-                                +
-                              </button>
-                            </div>
                           </div>
+                          <div className="grid grid-cols-2 gap-3">
+                            {/* Adults */}
+                            <div className="p-3 rounded-lg border flex flex-col gap-1.5" style={{ backgroundColor: theme.bgSecondary, borderColor: theme.borderSubtle }}>
+                              <span className="text-[11px] font-medium" style={{ color: getOpacityStyle('text', 0.7) }}>
+                                {language === 'ur' ? 'بڑے افراد (12+ سال)' : 'Adults (12+ yrs)'}
+                              </span>
+                              <div className="flex items-center justify-between mt-1">
+                                <button
+                                  type="button"
+                                  onClick={() => setAdultsCount(prev => Math.max(1, prev - 1))}
+                                  className="w-8 h-8 rounded-md border flex items-center justify-center font-bold text-base transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                                  style={{ borderColor: theme.borderSubtle, backgroundColor: theme.bgPrimary, color: theme.textPrimary }}
+                                >
+                                  -
+                                </button>
+                                <span className="font-bold text-base" style={{ color: theme.textPrimary }}>{adultsCount}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => setAdultsCount(prev => Math.min(20, prev + 1))}
+                                  className="w-8 h-8 rounded-md border flex items-center justify-center font-bold text-base transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                                  style={{ borderColor: theme.borderSubtle, backgroundColor: theme.bgPrimary, color: theme.textPrimary }}
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
 
-                          {/* Children */}
-                          <div className="p-3 rounded-lg border flex flex-col gap-1.5" style={{ backgroundColor: theme.bgSecondary, borderColor: theme.borderSubtle }}>
-                            <span className="text-[11px] font-medium" style={{ color: getOpacityStyle('text', 0.7) }}>
-                              {language === 'ur' ? 'بچے (<12 سال)' : 'Children (<12 yrs)'}
-                            </span>
-                            <div className="flex items-center justify-between mt-1">
-                              <button
-                                type="button"
-                                onClick={() => setChildrenCount(prev => Math.max(0, prev - 1))}
-                                className="w-8 h-8 rounded-md border flex items-center justify-center font-bold text-base transition-all hover:scale-105 active:scale-95 cursor-pointer"
-                                style={{ borderColor: theme.borderSubtle, backgroundColor: theme.bgPrimary, color: theme.textPrimary }}
-                              >
-                                -
-                              </button>
-                              <span className="font-bold text-base" style={{ color: theme.textPrimary }}>{childrenCount}</span>
-                              <button
-                                type="button"
-                                onClick={() => setChildrenCount(prev => Math.min(20, prev + 1))}
-                                className="w-8 h-8 rounded-md border flex items-center justify-center font-bold text-base transition-all hover:scale-105 active:scale-95 cursor-pointer"
-                                style={{ borderColor: theme.borderSubtle, backgroundColor: theme.bgPrimary, color: theme.textPrimary }}
-                              >
-                                +
-                              </button>
+                            {/* Children */}
+                            <div className="p-3 rounded-lg border flex flex-col gap-1.5" style={{ backgroundColor: theme.bgSecondary, borderColor: theme.borderSubtle }}>
+                              <span className="text-[11px] font-medium" style={{ color: getOpacityStyle('text', 0.7) }}>
+                                {language === 'ur' ? 'بچے (<12 سال)' : 'Children (<12 yrs)'}
+                              </span>
+                              <div className="flex items-center justify-between mt-1">
+                                <button
+                                  type="button"
+                                  onClick={() => setChildrenCount(prev => Math.max(0, prev - 1))}
+                                  className="w-8 h-8 rounded-md border flex items-center justify-center font-bold text-base transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                                  style={{ borderColor: theme.borderSubtle, backgroundColor: theme.bgPrimary, color: theme.textPrimary }}
+                                >
+                                  -
+                                </button>
+                                <span className="font-bold text-base" style={{ color: theme.textPrimary }}>{childrenCount}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => setChildrenCount(prev => Math.min(20, prev + 1))}
+                                  className="w-8 h-8 rounded-md border flex items-center justify-center font-bold text-base transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                                  style={{ borderColor: theme.borderSubtle, backgroundColor: theme.bgPrimary, color: theme.textPrimary }}
+                                >
+                                  +
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
+                      )}
 
                       {/* Multi-Ceremony Selection (if > 1 ceremony) */}
                       {dynamicEvents.length > 1 && (
@@ -2131,48 +2133,50 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug, isReviewMod
                         </div>
                       )}
 
-                      {/* Dietary Preferences & Notes */}
-                      <div className="space-y-2 pt-1">
-                        <div className="flex items-center justify-between">
-                          <label className={`text-xs font-semibold uppercase tracking-wider ${theme.fontDisplay}`} style={{ color: getOpacityStyle('text', 0.8) }}>
-                            {language === 'ur' ? 'غذائی ترجیحات یا الرجی' : 'Dietary Preferences & Allergies'}
-                          </label>
-                          <span className="text-[10px]" style={{ color: getOpacityStyle('text', 0.4) }}>{t('optional', '(optional)')}</span>
+                      {/* Dietary Preferences & Notes (Conditional on flowData.showDietaryPreferences) */}
+                      {Boolean(flowData?.showDietaryPreferences) && (
+                        <div className="space-y-2 pt-1">
+                          <div className="flex items-center justify-between">
+                            <label className={`text-xs font-semibold uppercase tracking-wider ${theme.fontDisplay}`} style={{ color: getOpacityStyle('text', 0.8) }}>
+                              {language === 'ur' ? 'غذائی ترجیحات یا الرجی' : 'Dietary Preferences & Allergies'}
+                            </label>
+                            <span className="text-[10px]" style={{ color: getOpacityStyle('text', 0.4) }}>{t('optional', '(optional)')}</span>
+                          </div>
+                          <div className="flex flex-wrap gap-1.5">
+                            {[
+                              { id: 'none', label: language === 'ur' ? 'معمول' : 'Standard / None' },
+                              { id: 'Diabetic / Sugar-free', label: language === 'ur' ? 'شوگر فری' : 'Diabetic / Sugar-Free' },
+                              { id: 'Vegetarian', label: language === 'ur' ? 'سبزی خور' : 'Vegetarian' },
+                              { id: 'Nut Allergy', label: language === 'ur' ? 'نٹ الرجی' : 'Nut Allergy' },
+                              { id: 'Kids Meal', label: language === 'ur' ? 'بچوں کا کھانا' : 'Kids Meal' },
+                            ].map((chip) => {
+                              const isSelected = selectedDietaryChip === chip.id;
+                              return (
+                                <button
+                                  key={chip.id}
+                                  type="button"
+                                  onClick={() => setSelectedDietaryChip(chip.id)}
+                                  className="px-2.5 py-1 rounded-full text-[11px] font-medium border transition-all cursor-pointer"
+                                  style={{
+                                    backgroundColor: isSelected ? theme.accent : theme.bgSecondary,
+                                    borderColor: isSelected ? theme.accent : theme.borderSubtle,
+                                    color: isSelected ? '#fff' : getOpacityStyle('text', 0.7),
+                                  }}
+                                >
+                                  {chip.label}
+                                </button>
+                              );
+                            })}
+                          </div>
+                          <Input
+                            value={dietaryNotes}
+                            onChange={(e) => setDietaryNotes(e.target.value)}
+                            placeholder={language === 'ur' ? 'کوئی خاص خوراکی ہدایت، الرجی یا نشست کی ضرورت...' : 'e.g., severe peanut allergy, wheelchair accessible seating'}
+                            className="border text-xs transition-all duration-300 mt-1 h-9"
+                            style={{ backgroundColor: theme.bgSecondary, borderColor: theme.borderSubtle, color: theme.textPrimary }}
+                          />
                         </div>
-                        <div className="flex flex-wrap gap-1.5">
-                          {[
-                            { id: 'none', label: language === 'ur' ? 'معمول' : 'Standard / None' },
-                            { id: 'Diabetic / Sugar-free', label: language === 'ur' ? 'شوگر فری' : 'Diabetic / Sugar-Free' },
-                            { id: 'Vegetarian', label: language === 'ur' ? 'سبزی خور' : 'Vegetarian' },
-                            { id: 'Nut Allergy', label: language === 'ur' ? 'نٹ الرجی' : 'Nut Allergy' },
-                            { id: 'Kids Meal', label: language === 'ur' ? 'بچوں کا کھانا' : 'Kids Meal' },
-                          ].map((chip) => {
-                            const isSelected = selectedDietaryChip === chip.id;
-                            return (
-                              <button
-                                key={chip.id}
-                                type="button"
-                                onClick={() => setSelectedDietaryChip(chip.id)}
-                                className="px-2.5 py-1 rounded-full text-[11px] font-medium border transition-all cursor-pointer"
-                                style={{
-                                  backgroundColor: isSelected ? theme.accent : theme.bgSecondary,
-                                  borderColor: isSelected ? theme.accent : theme.borderSubtle,
-                                  color: isSelected ? '#fff' : getOpacityStyle('text', 0.7),
-                                }}
-                              >
-                                {chip.label}
-                              </button>
-                            );
-                          })}
-                        </div>
-                        <Input
-                          value={dietaryNotes}
-                          onChange={(e) => setDietaryNotes(e.target.value)}
-                          placeholder={language === 'ur' ? 'کوئی خاص خوراکی ہدایت، الرجی یا نشست کی ضرورت...' : 'e.g., severe peanut allergy, wheelchair accessible seating'}
-                          className="border text-xs transition-all duration-300 mt-1 h-9"
-                          style={{ backgroundColor: theme.bgSecondary, borderColor: theme.borderSubtle, color: theme.textPrimary }}
-                        />
-                      </div>
+                      )}
 
                       <div className="flex flex-col sm:flex-row gap-3 pt-2">
                         <Button 
@@ -2203,20 +2207,28 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug, isReviewMod
                             const guest = translatedGuestName || rsvpName || 'Guest';
                             const eventTitle = `${flowData?.partner1Name || ''} & ${flowData?.partner2Name || ''}`;
 
+                            const isHeadcount = Boolean(flowData?.showHeadcount);
+                            const isDietary = Boolean(flowData?.showDietaryPreferences);
+
                             const parts: string[] = [];
-                            if (adultsCount > 0) parts.push(`${adultsCount} Adult${adultsCount > 1 ? 's' : ''}`);
-                            if (childrenCount > 0) parts.push(`${childrenCount} Child${childrenCount > 1 ? 'ren' : ''}`);
-                            const headcountStr = parts.join(', ') || '1 Guest';
+                            if (isHeadcount) {
+                              if (adultsCount > 0) parts.push(`${adultsCount} Adult${adultsCount > 1 ? 's' : ''}`);
+                              if (childrenCount > 0) parts.push(`${childrenCount} Child${childrenCount > 1 ? 'ren' : ''}`);
+                            }
+                            const headcountStr = parts.join(', ');
                             const eventsStr = attendingEvents.length > 0 ? attendingEvents.join(', ') : 'All events';
-                            const computedDietary = selectedDietaryChip !== 'none'
+                            const computedDietary = isDietary && selectedDietaryChip !== 'none'
                               ? (dietaryNotes.trim() ? `${selectedDietaryChip} (${dietaryNotes.trim()})` : selectedDietaryChip)
-                              : dietaryNotes.trim();
+                              : (isDietary ? dietaryNotes.trim() : '');
                             const dietStr = computedDietary ? ` | Dietary: ${computedDietary}` : '';
+
+                            const partySizeLine = headcountStr ? (language === 'ur' ? `\nتعداد: ${headcountStr}۔` : `\nParty Size: ${headcountStr}`) : '';
+                            const dietLine = computedDietary ? (language === 'ur' ? `\nغذائی ہدایت: ${computedDietary}۔` : `\nDietary: ${computedDietary}`) : '';
 
                             const msg = encodeURIComponent(
                               language === 'ur'
-                                ? `السلام علیکم! مجھے ${eventTitle} کا دعوت نامہ موصول ہوا۔ برائے مہربانی (${guest}) کو حاضر (قبول RSVP) درج فرمائیں۔\nتعداد: ${headcountStr}۔\nتقاریب: ${eventsStr}${computedDietary ? `\nغذائی ہدایت: ${computedDietary}` : ''}۔\nشرکت کی خوشی ہوگی! 🎉`
-                                : `Assalam-o-Alaikum! I received the invitation for ${eventTitle}.\n\nPlease mark me (${guest}) as ATTENDING.\nParty Size: ${headcountStr}\nAttending: ${eventsStr}${dietStr}\n\nLooking forward to celebrating together! 🎉`
+                                ? `السلام علیکم! مجھے ${eventTitle} کا دعوت نامہ موصول ہوا۔ برائے مہربانی (${guest}) کو حاضر (قبول RSVP) درج فرمائیں۔${partySizeLine}\nتقاریب: ${eventsStr}۔${dietLine}\nشرکت کی خوشی ہوگی! 🎉`
+                                : `Assalam-o-Alaikum! I received the invitation for ${eventTitle}.\n\nPlease mark me (${guest}) as ATTENDING.${partySizeLine}\nAttending: ${eventsStr}${dietLine}\n\nLooking forward to celebrating together! 🎉`
                             );
                             const waUrl = hostPhone ? `https://wa.me/${hostPhone}?text=${msg}` : `https://wa.me/?text=${msg}`;
                             window.open(waUrl, '_blank', 'noopener,noreferrer');
@@ -2225,7 +2237,11 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug, isReviewMod
                           style={{ borderColor: 'rgba(37, 211, 102, 0.4)', color: '#25D366' }}
                         >
                           <WhatsAppIcon className="w-4 h-4 text-[#25D366]" />
-                          <span>{language === 'ur' ? 'واٹس ایپ پر تعداد کے ساتھ تصدیق کریں' : 'Confirm Breakdown via WhatsApp'}</span>
+                          <span>
+                            {language === 'ur'
+                              ? (Boolean(flowData?.showHeadcount) ? 'واٹس ایپ پر تعداد کے ساتھ تصدیق کریں' : 'واٹس ایپ پر RSVP تصدیق کریں')
+                              : (Boolean(flowData?.showHeadcount) ? 'Confirm Breakdown via WhatsApp' : 'Confirm RSVP via WhatsApp')}
+                          </span>
                         </button>
                       </div>
                       <p className="text-[10px] text-center mt-3" style={{ color: getOpacityStyle('text', 0.4) }}>

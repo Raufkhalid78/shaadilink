@@ -46,10 +46,10 @@ export async function POST(
     const supabase = createServiceClient()
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
 
-    // Fetch invitation to get user_id for sending notifications, including profile email
+    // Fetch invitation to get user_id for sending notifications
     let invQuery = supabase
       .from('invitations')
-      .select('id, is_active, user_id, profiles(email)')
+      .select('id, is_active, user_id')
 
     if (isUUID) {
       invQuery = invQuery.eq('id', id)
@@ -144,7 +144,15 @@ export async function POST(
 
     // Send Notification Email if host email exists
     try {
-      const hostEmail = (inv.profiles as any)?.email;
+      let hostEmail: string | undefined = undefined;
+      if (inv.user_id) {
+        const { data: hostProfile } = await supabase
+          .from('profiles')
+          .select('email')
+          .eq('id', inv.user_id)
+          .maybeSingle();
+        hostEmail = hostProfile?.email;
+      }
       if (hostEmail) {
         await sendRsvpNotification(hostEmail, cleanName, status, {
           adultsCount: normalizedAdults,

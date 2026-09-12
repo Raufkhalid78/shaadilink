@@ -110,7 +110,7 @@ export default async function InvitationPage({ params, searchParams }: Props) {
       if (isOwner || isAdmin) {
         // Owner or Admin previewing their draft
         invitation = draftInv;
-        isReviewMode = review === "true" || review === "1" || !!token;
+        isReviewMode = true;
       } else if (token) {
         // Client reviewing via secure short token (7-9 characters) with 7-view limit
         const cookieStore = await cookies();
@@ -291,11 +291,17 @@ export default async function InvitationPage({ params, searchParams }: Props) {
     isSegregated: (invitation as { is_segregated?: boolean }).is_segregated ?? false,
     venueDetailsSegregated: (invitation as { venue_details_segregated?: string }).venue_details_segregated ?? "",
     showNikahRegistration: (invitation as { show_nikah_registration?: boolean }).show_nikah_registration ?? false,
+    showHeadcount: typeof (invitation as { show_headcount?: boolean }).show_headcount === 'boolean'
+      ? Boolean((invitation as { show_headcount?: boolean }).show_headcount)
+      : ((invitation as { client_approval_notes?: string }).client_approval_notes || '').includes('[HEADCOUNT:enabled=true]'),
+    showDietaryPreferences: typeof (invitation as { show_dietary_preferences?: boolean }).show_dietary_preferences === 'boolean'
+      ? Boolean((invitation as { show_dietary_preferences?: boolean }).show_dietary_preferences)
+      : ((invitation as { client_approval_notes?: string }).client_approval_notes || '').includes('[DIETARY:enabled=true]'),
     hideDigitalShagun: Boolean((invitation as { hide_digital_shagun?: boolean }).hide_digital_shagun),
     showCrowdPhotoWall: typeof (invitation as { show_crowd_photo_wall?: boolean }).show_crowd_photo_wall === 'boolean'
       ? (invitation as { show_crowd_photo_wall?: boolean }).show_crowd_photo_wall
       : !((invitation as { client_approval_notes?: string }).client_approval_notes || '').includes('[PHOTO_WALL:enabled=false]'),
-    paymentDone: true,
+    paymentDone: Boolean(invitation.is_active),
     guestLinksQuota: (invitation as { guest_links_quota?: number }).guest_links_quota ?? 0,
     slug: invitation.slug ?? "",
     guestAllowedEvents: guestAllowedEvents,
@@ -310,6 +316,22 @@ export default async function InvitationPage({ params, searchParams }: Props) {
 
   return (
     <>
+      {!invitation.is_active && !token && (
+        <div className="sticky top-0 z-[99999] bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 text-black px-4 py-2.5 shadow-2xl flex flex-wrap items-center justify-between gap-3 text-xs sm:text-sm font-medium">
+          <div className="flex items-center gap-2">
+            <span className="font-bold uppercase tracking-wider text-[10px] bg-black text-amber-300 px-2 py-0.5 rounded">
+              🔒 Host Draft Preview
+            </span>
+            <span>This invitation is in private draft mode and cannot be viewed by guests until published.</span>
+          </div>
+          <Link
+            href={`/payment?id=${invitation.id}`}
+            className="px-3.5 py-1.5 bg-black hover:bg-neutral-900 text-amber-300 font-bold text-xs rounded-xl shadow transition-all shrink-0"
+          >
+            Pay &amp; Publish →
+          </Link>
+        </div>
+      )}
       {theme?.openingVideoPosterUrl && (
         <link rel="preload" as="image" href={theme.openingVideoPosterUrl} />
       )}

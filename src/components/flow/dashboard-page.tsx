@@ -1436,7 +1436,7 @@ export function DashboardPage({
                                 className="text-[9px] bg-primary/20 hover:bg-primary/30 text-primary border border-gold/40 px-2 py-0.5 rounded-full transition-all flex items-center gap-1 font-semibold shadow-md backdrop-blur-md"
                               >
                                 <Sparkles className="w-2.5 h-2.5 text-primary shrink-0 animate-pulse" />
-                                Upgrade
+                                {!inv.is_active ? "Pay & Publish" : "Upgrade"}
                               </button>
                             )}
                           </div>
@@ -1599,7 +1599,7 @@ export function DashboardPage({
                                   onClick={() => {
                                     const previewLink = `${window.location.origin}/inv/${inv.slug || inv.id}`;
                                     navigator.clipboard.writeText(previewLink);
-                                    toast.success("📋 Draft preview link copied to clipboard!");
+                                    toast.info("📋 Draft preview link copied! (Private: only viewable in your logged-in browser until published)");
                                   }}
                                   className="h-9 px-3 border-gold/40 text-primary hover:bg-primary/10 font-semibold text-xs gap-1.5 cursor-pointer"
                                   title="Copy Draft Preview Link"

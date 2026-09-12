@@ -1,4 +1,4 @@
-﻿import { createServiceClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/server";
 
 interface CacheEntry<T> {
   data: T;
@@ -21,6 +21,10 @@ export async function getCachedPublicInvitation(cleanId: string, isUuid: boolean
   const cached = invitationCache.get(normalizedKey);
 
   if (cached && Date.now() < cached.expiresAt) {
+    if (!cached.data?.is_active) {
+      invitationCache.delete(normalizedKey);
+      return null;
+    }
     return cached.data;
   }
 
@@ -32,14 +36,15 @@ export async function getCachedPublicInvitation(cleanId: string, isUuid: boolean
       events (
         id, name, date, time, venue, order_index
       )
-    `);
+    `)
+    .eq("is_active", true);
 
   const { data, error } = await (isUuid
     ? query.eq("id", cleanId)
     : query.eq("slug", cleanId)
   ).single();
 
-  if (error || !data) {
+  if (error || !data || !data.is_active) {
     return null;
   }
 

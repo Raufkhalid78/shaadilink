@@ -38,9 +38,15 @@ export async function GET(
     }
 
     if (invitation) {
+      const notes = (invitation as any).client_approval_notes || '';
       if (typeof (invitation as any).show_crowd_photo_wall !== 'boolean') {
-        const notes = (invitation as any).client_approval_notes || '';
         ;(invitation as any).show_crowd_photo_wall = !notes.includes('[PHOTO_WALL:enabled=false]');
+      }
+      if (typeof (invitation as any).show_headcount !== 'boolean') {
+        ;(invitation as any).show_headcount = notes.includes('[HEADCOUNT:enabled=true]');
+      }
+      if (typeof (invitation as any).show_dietary_preferences !== 'boolean') {
+        ;(invitation as any).show_dietary_preferences = notes.includes('[DIETARY:enabled=true]');
       }
     }
 
@@ -114,6 +120,8 @@ export async function PUT(
       isSegregated: 'is_segregated',
       venueDetailsSegregated: 'venue_details_segregated',
       showNikahRegistration: 'show_nikah_registration',
+      showHeadcount: 'show_headcount',
+      showDietaryPreferences: 'show_dietary_preferences',
       showCrowdPhotoWall: 'show_crowd_photo_wall',
       title: 'title',
       category: 'category',
@@ -167,9 +175,11 @@ export async function PUT(
       .select()
       .single()
 
-    if (error && error.code === '42703') {
-      // Graceful fallback if new schema columns (like show_crowd_photo_wall) are not yet applied in DB
+    if (error && (error.code === '42703' || error.code === 'PGRST204' || error.message?.includes('column') || error.message?.includes('show_'))) {
+      // Graceful fallback if new schema columns (like show_headcount, show_dietary_preferences, show_crowd_photo_wall) are not yet applied in DB
       const fallbackData = { ...updateData }
+      delete fallbackData.show_headcount
+      delete fallbackData.show_dietary_preferences
       delete fallbackData.show_crowd_photo_wall
       delete fallbackData.voice_note_url
       delete fallbackData.voice_note_title
@@ -178,12 +188,24 @@ export async function PUT(
       delete fallbackData.client_approval_status
       delete fallbackData.client_approved_at
 
-      // Persist showCrowdPhotoWall in client_approval_notes metadata tag if column is not yet in DB
+      // Persist showCrowdPhotoWall, showHeadcount, showDietaryPreferences in client_approval_notes metadata tag if column is not yet in DB
+      let existingNotes = (existing?.client_approval_notes || '')
       if (body.showCrowdPhotoWall !== undefined) {
-        const existingNotes = (existing?.client_approval_notes || '').replace(/\[PHOTO_WALL:enabled=[^\]]+\]/g, '').trim()
+        existingNotes = existingNotes.replace(/\[PHOTO_WALL:enabled=[^\]]+\]/g, '').trim()
         const metaTag = `[PHOTO_WALL:enabled=${body.showCrowdPhotoWall !== false}]`
-        fallbackData.client_approval_notes = existingNotes ? `${existingNotes}\n\n${metaTag}` : metaTag
+        existingNotes = existingNotes ? `${existingNotes}\n\n${metaTag}` : metaTag
       }
+      if (body.showHeadcount !== undefined) {
+        existingNotes = existingNotes.replace(/\[HEADCOUNT:enabled=[^\]]+\]/g, '').trim()
+        const metaTag = `[HEADCOUNT:enabled=${body.showHeadcount === true}]`
+        existingNotes = existingNotes ? `${existingNotes}\n\n${metaTag}` : metaTag
+      }
+      if (body.showDietaryPreferences !== undefined) {
+        existingNotes = existingNotes.replace(/\[DIETARY:enabled=[^\]]+\]/g, '').trim()
+        const metaTag = `[DIETARY:enabled=${body.showDietaryPreferences === true}]`
+        existingNotes = existingNotes ? `${existingNotes}\n\n${metaTag}` : metaTag
+      }
+      fallbackData.client_approval_notes = existingNotes
 
       const retry = await supabase
         .from('invitations')
@@ -194,7 +216,7 @@ export async function PUT(
       updated = retry.data
       error = retry.error
 
-      if (error && error.code === '42703') {
+      if (error && (error.code === '42703' || error.code === 'PGRST204')) {
         // If client_approval_notes itself or another column failed, do a clean retry with just core columns
         const coreFallback = { ...fallbackData }
         delete coreFallback.client_approval_notes
@@ -210,9 +232,15 @@ export async function PUT(
     }
 
     if (updated) {
+      const notes = (updated as any).client_approval_notes || '';
       if (typeof (updated as any).show_crowd_photo_wall !== 'boolean') {
-        const notes = (updated as any).client_approval_notes || '';
         ;(updated as any).show_crowd_photo_wall = !notes.includes('[PHOTO_WALL:enabled=false]');
+      }
+      if (typeof (updated as any).show_headcount !== 'boolean') {
+        ;(updated as any).show_headcount = notes.includes('[HEADCOUNT:enabled=true]');
+      }
+      if (typeof (updated as any).show_dietary_preferences !== 'boolean') {
+        ;(updated as any).show_dietary_preferences = notes.includes('[DIETARY:enabled=true]');
       }
     }
 

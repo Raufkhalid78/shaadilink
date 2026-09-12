@@ -7,7 +7,7 @@ import {
   ArrowLeft, ArrowRight, Calendar, Heart, MapPin, Music, MessageSquare,
   Check, Plus, Trash2, User, Shirt, Car, Hotel, Gift, ImagePlus, X, Globe, Loader2, Video, Sparkles, Crown, Lock,
   Cake, GraduationCap, Briefcase, Upload, Play, Square, AlertCircle,
-  Mic, MicOff, Volume2, Pause, RotateCcw, Camera
+  Mic, MicOff, Volume2, Pause, RotateCcw, Camera, Users
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -414,6 +414,8 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
           isSegregated: mergedData.isSegregated ?? false,
           venueDetailsSegregated: mergedData.venueDetailsSegregated,
           showNikahRegistration: mergedData.showNikahRegistration ?? false,
+          showHeadcount: mergedData.showHeadcount ?? false,
+          showDietaryPreferences: mergedData.showDietaryPreferences ?? false,
           showCrowdPhotoWall: mergedData.showCrowdPhotoWall ?? true,
           hideDigitalShagun: mergedData.hideDigitalShagun ?? false,
           voiceNoteUrl: mergedData.voiceNoteUrl || null,
@@ -786,6 +788,8 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
           isSegregated: flowData.isSegregated ?? false,
           venueDetailsSegregated: flowData.venueDetailsSegregated,
           showNikahRegistration: flowData.showNikahRegistration ?? false,
+          showHeadcount: flowData.showHeadcount ?? false,
+          showDietaryPreferences: flowData.showDietaryPreferences ?? false,
           showCrowdPhotoWall: flowData.showCrowdPhotoWall ?? true,
           hideDigitalShagun: flowData.hideDigitalShagun ?? false,
           voiceNoteUrl: flowData.voiceNoteUrl || null,
@@ -1498,6 +1502,67 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                       </div>
                     </details>
                   )}
+
+                  {/* RSVP & Guest Attendance Settings */}
+                  <section className="p-6 rounded-3xl bg-card/70 border border-border/60 shadow-xl backdrop-blur-xl space-y-4">
+                    <div className="flex items-center gap-2.5 mb-1">
+                      <div className="w-8 h-8 rounded-xl bg-primary/15 border border-gold/30 flex items-center justify-center text-primary">
+                        <Users className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h2 className="font-display text-lg font-bold text-foreground">RSVP &amp; Guest Preferences</h2>
+                        <p className="text-xs text-muted-foreground">Control what details your guests provide when responding to your invitation.</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      {/* Headcount Toggle */}
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={Boolean(flowData.showHeadcount)}
+                        className="w-full flex items-center justify-between rounded-2xl border border-border/60 p-4 cursor-pointer hover:bg-muted/30 transition-colors text-left"
+                        onClick={() => {
+                          const newShow = !flowData.showHeadcount;
+                          onUpdateData({ showHeadcount: newShow });
+                          autoSaveDraft(currentStep, false, { showHeadcount: newShow });
+                        }}
+                      >
+                        <div className="flex-1 pr-4">
+                          <p className="text-sm font-semibold text-foreground">Guests Attending (Headcount Stepper)</p>
+                          <p className="text-xs text-slate-300 mt-0.5">
+                            Ask guests for adult &amp; child counts. Kept off by default for simple attendance confirmation.
+                          </p>
+                        </div>
+                        <div className={`relative w-12 h-6 rounded-full transition-colors ${flowData.showHeadcount ? "bg-primary" : "bg-muted"}`}>
+                          <div className={`absolute top-1 w-4 h-4 rounded-full ${flowData.showHeadcount ? "bg-slate-950" : "bg-slate-300"} transition-transform ${flowData.showHeadcount ? "translate-x-7" : "translate-x-1"}`} />
+                        </div>
+                      </button>
+
+                      {/* Dietary Preferences Toggle */}
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={Boolean(flowData.showDietaryPreferences)}
+                        className="w-full flex items-center justify-between rounded-2xl border border-border/60 p-4 cursor-pointer hover:bg-muted/30 transition-colors text-left"
+                        onClick={() => {
+                          const newShow = !flowData.showDietaryPreferences;
+                          onUpdateData({ showDietaryPreferences: newShow });
+                          autoSaveDraft(currentStep, false, { showDietaryPreferences: newShow });
+                        }}
+                      >
+                        <div className="flex-1 pr-4">
+                          <p className="text-sm font-semibold text-foreground">Dietary Preferences &amp; Allergies</p>
+                          <p className="text-xs text-slate-300 mt-0.5">
+                            Ask guests for custom diet options. Kept off by default for standard fixed-menu catering in Pakistan.
+                          </p>
+                        </div>
+                        <div className={`relative w-12 h-6 rounded-full transition-colors ${flowData.showDietaryPreferences ? "bg-primary" : "bg-muted"}`}>
+                          <div className={`absolute top-1 w-4 h-4 rounded-full ${flowData.showDietaryPreferences ? "bg-slate-950" : "bg-slate-300"} transition-transform ${flowData.showDietaryPreferences ? "translate-x-7" : "translate-x-1"}`} />
+                        </div>
+                      </button>
+                    </div>
+                  </section>
 
                   <div className="flex justify-end pt-2 pb-4">
                     <Button

@@ -44,6 +44,8 @@ export const invitationInputSchema = z.object({
   isSegregated: z.boolean().optional().default(false),
   venueDetailsSegregated: z.string().trim().max(500).optional().default(''),
   showNikahRegistration: z.boolean().optional().default(false),
+  showHeadcount: z.boolean().optional().default(false),
+  showDietaryPreferences: z.boolean().optional().default(false),
   showCrowdPhotoWall: z.boolean().optional().default(true),
   guestLinksQuota: z.number().int().min(0).max(5000).optional().default(10),
   slug: z.string().trim().max(100).optional().nullable(),
@@ -58,6 +60,7 @@ export const invitationInputSchema = z.object({
   agencyName: z.string().trim().max(200).optional().nullable(),
   agencyPhone: z.string().trim().max(50).optional().nullable(),
   whiteLabelFooter: z.string().trim().max(200).optional().nullable(),
+  clientApprovalNotes: z.string().trim().max(5000).optional().nullable(),
   events: z.array(eventItemSchema).max(15).optional().default([]),
 })
 

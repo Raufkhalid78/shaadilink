@@ -62,6 +62,8 @@ export interface FlowData {
   isSegregated?: boolean;
   venueDetailsSegregated?: string;
   showNikahRegistration?: boolean;
+  showHeadcount?: boolean;
+  showDietaryPreferences?: boolean;
   // Multi-step builder progress persistence
   currentStep?: number;
   lastSavedStep?: number;
@@ -175,6 +177,8 @@ export const initialFlowData: FlowData = {
   isSegregated: false,
   venueDetailsSegregated: "",
   showNikahRegistration: false,
+  showHeadcount: false,
+  showDietaryPreferences: false,
   showCrowdPhotoWall: true,
 };
 

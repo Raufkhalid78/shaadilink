@@ -122,6 +122,12 @@ export default function CreateRoute() {
               transportation: invitation.transportation ?? "",
               accommodation: invitation.accommodation ?? "",
               hideDigitalShagun: Boolean((invitation as any).hide_digital_shagun),
+              showHeadcount: typeof (invitation as any).show_headcount === "boolean"
+                ? Boolean((invitation as any).show_headcount)
+                : ((invitation as any).client_approval_notes || "").includes("[HEADCOUNT:enabled=true]"),
+              showDietaryPreferences: typeof (invitation as any).show_dietary_preferences === "boolean"
+                ? Boolean((invitation as any).show_dietary_preferences)
+                : ((invitation as any).client_approval_notes || "").includes("[DIETARY:enabled=true]"),
               showCrowdPhotoWall: typeof (invitation as any).show_crowd_photo_wall === "boolean"
                 ? (invitation as any).show_crowd_photo_wall
                 : !((invitation as any).client_approval_notes || "").includes("[PHOTO_WALL:enabled=false]"),

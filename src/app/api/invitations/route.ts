@@ -77,6 +77,8 @@ export async function POST(request: NextRequest) {
         is_segregated: validData.isSegregated ?? false,
         venue_details_segregated: validData.venueDetailsSegregated || null,
         show_nikah_registration: validData.showNikahRegistration || false,
+        show_headcount: validData.showHeadcount ?? false,
+        show_dietary_preferences: validData.showDietaryPreferences ?? false,
         show_crowd_photo_wall: validData.showCrowdPhotoWall ?? true,
         slug: finalSlug,
         title: validData.title || (partner1Name && partner2Name ? `${partner1Name} & ${partner2Name}` : partner1Name || 'Event Invitation'),
@@ -100,8 +102,19 @@ export async function POST(request: NextRequest) {
     let finalInvitation = invitation
     let finalError = invErr
 
-    if (invErr && invErr.code === '42703') {
+    if (invErr && (invErr.code === '42703' || invErr.code === 'PGRST204' || invErr.message?.includes('column'))) {
       // Fallback if columns are not yet applied in DB
+      let fallbackNotes = validData.clientApprovalNotes || '';
+      if (validData.showCrowdPhotoWall !== undefined) {
+        fallbackNotes = `${fallbackNotes}\n[PHOTO_WALL:enabled=${validData.showCrowdPhotoWall !== false}]`.trim();
+      }
+      if (validData.showHeadcount !== undefined) {
+        fallbackNotes = `${fallbackNotes}\n[HEADCOUNT:enabled=${validData.showHeadcount === true}]`.trim();
+      }
+      if (validData.showDietaryPreferences !== undefined) {
+        fallbackNotes = `${fallbackNotes}\n[DIETARY:enabled=${validData.showDietaryPreferences === true}]`.trim();
+      }
+
       const { data: retryInv, error: retryErr } = await supabase
         .from('invitations')
         .insert({
@@ -135,6 +148,7 @@ export async function POST(request: NextRequest) {
           is_segregated: validData.isSegregated ?? false,
           venue_details_segregated: validData.venueDetailsSegregated || null,
           show_nikah_registration: validData.showNikahRegistration || false,
+          client_approval_notes: fallbackNotes || null,
           slug: finalSlug,
           title: validData.title || (partner1Name && partner2Name ? `${partner1Name} & ${partner2Name}` : partner1Name || 'Event Invitation'),
           category: validData.category || 'wedding',
@@ -148,6 +162,19 @@ export async function POST(request: NextRequest) {
         .single()
       finalInvitation = retryInv
       finalError = retryErr
+    }
+
+    if (finalInvitation) {
+      const notes = (finalInvitation as any).client_approval_notes || '';
+      if (typeof (finalInvitation as any).show_crowd_photo_wall !== 'boolean') {
+        ;(finalInvitation as any).show_crowd_photo_wall = !notes.includes('[PHOTO_WALL:enabled=false]');
+      }
+      if (typeof (finalInvitation as any).show_headcount !== 'boolean') {
+        ;(finalInvitation as any).show_headcount = notes.includes('[HEADCOUNT:enabled=true]');
+      }
+      if (typeof (finalInvitation as any).show_dietary_preferences !== 'boolean') {
+        ;(finalInvitation as any).show_dietary_preferences = notes.includes('[DIETARY:enabled=true]');
+      }
     }
 
     if (finalError || !finalInvitation) {
