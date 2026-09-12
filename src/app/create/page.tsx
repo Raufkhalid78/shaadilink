@@ -99,8 +99,9 @@ export default function CreateRoute() {
               primaryHostCity: invitation.host_bride_city ?? "",
               secondaryHostCity: invitation.host_groom_city ?? "",
               contactPhone: invitation.contact_phone ?? "",
+              isSegregated: Boolean((invitation as any).is_segregated),
               venueDetailsSegregated: invitation.venue_details_segregated ?? "",
-              showNikahRegistration: invitation.show_nikah_registration ?? false,
+              showNikahRegistration: Boolean((invitation as any).show_nikah_registration),
               youtubeVideoId: invitation.youtube_video_id ?? "",
               customMusicUrl: invitation.custom_music_url ?? "",
               customMusicName: invitation.custom_music_name ?? "",
@@ -113,6 +114,17 @@ export default function CreateRoute() {
               clientApprovalStatus: invitation.client_approval_status || "pending",
               clientApprovalNotes: invitation.client_approval_notes ?? "",
               clientApprovedAt: invitation.client_approved_at ?? "",
+              heroImage: invitation.hero_image_url ?? "",
+              slideshowImages: invitation.slideshow_image_urls ?? [],
+              gifts: invitation.gifts ?? "",
+              dressCodeWomen: invitation.dress_code_women ?? "",
+              dressCodeMen: invitation.dress_code_men ?? "",
+              transportation: invitation.transportation ?? "",
+              accommodation: invitation.accommodation ?? "",
+              hideDigitalShagun: Boolean((invitation as any).hide_digital_shagun),
+              showCrowdPhotoWall: typeof (invitation as any).show_crowd_photo_wall === "boolean"
+                ? (invitation as any).show_crowd_photo_wall
+                : !((invitation as any).client_approval_notes || "").includes("[PHOTO_WALL:enabled=false]"),
               currentStep: resumeStep,
               lastSavedStep: resumeStep,
             });

@@ -26,15 +26,15 @@ export async function middleware(request: NextRequest) {
     default-src 'self';
     script-src 'self' ${isDev ? "'unsafe-eval'" : ""} 'unsafe-inline' https://unpkg.com https://www.youtube.com blob:;
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-    img-src 'self' blob: data: https://*.supabase.co https://images.unsplash.com https://lh3.googleusercontent.com https://smartinvites.com.pk https://*.smartinvites.com.pk;
+    img-src 'self' blob: data: https://*.supabase.co https://images.unsplash.com https://lh3.googleusercontent.com https://smartinvites.com.pk https://*.smartinvites.com.pk https://*.r2.dev;
     font-src 'self' data: https://fonts.gstatic.com;
     object-src 'none';
     base-uri 'self';
     form-action 'self';
     frame-src 'self' https://www.youtube.com https://*.getsafepay.com https://getsafepay.com https://*.getsafepay.pk https://getsafepay.pk https://maps.google.com https://www.google.com;
     frame-ancestors 'none';
-    connect-src 'self' https://*.supabase.co https://smartinvites.com.pk https://*.smartinvites.com.pk https://*.getsafepay.com https://getsafepay.com https://*.getsafepay.pk https://getsafepay.pk https://api.getsafepay.com https://sandbox.api.getsafepay.com https://unpkg.com *.sentry.io https://*.sentry.io https://*.ingest.sentry.io;
-    media-src 'self' blob: https://*.supabase.co;
+    connect-src 'self' https://*.supabase.co https://smartinvites.com.pk https://*.smartinvites.com.pk https://*.getsafepay.com https://getsafepay.com https://*.getsafepay.pk https://getsafepay.pk https://api.getsafepay.com https://sandbox.api.getsafepay.com https://unpkg.com *.sentry.io https://*.sentry.io https://*.ingest.sentry.io https://*.r2.dev https://*.r2.cloudflarestorage.com;
+    media-src 'self' blob: https://*.supabase.co https://media.smartinvites.com.pk https://*.smartinvites.com.pk https://*.r2.dev;
     worker-src 'self' blob:;
     upgrade-insecure-requests;
   `.replace(/\s{2,}/g, ' ').trim()
@@ -44,7 +44,7 @@ export async function middleware(request: NextRequest) {
   response.headers.set('X-Frame-Options', 'DENY')
   response.headers.set('X-Content-Type-Options', 'nosniff')
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
-  response.headers.set('Permissions-Policy', 'camera=(self), microphone=(), geolocation=()')
+  response.headers.set('Permissions-Policy', 'camera=(self), microphone=(self), geolocation=()')
   response.headers.set('X-DNS-Prefetch-Control', 'on')
   
   return response

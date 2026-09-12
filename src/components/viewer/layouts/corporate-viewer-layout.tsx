@@ -17,6 +17,8 @@ import { TemplateTheme } from '../themes'
 import { useInvitationState } from '../use-invitation-state'
 import { CountdownTimer, AddToCalendarDropdown } from '../features/countdown-timer'
 import { MusicToggle } from '../ui/music-toggle'
+import { VoiceGreetingPlayer } from '../features/voice-greeting-player'
+import { CrowdPhotoWallSection } from '../features/crowd-photo-wall-section'
 
 const DoorOverlay = dynamic(() => import('../door/door-overlay').then(m => m.DoorOverlay), { ssr: false })
 const BackgroundParticles = dynamic(() => import('../effects/particles').then(m => m.BackgroundParticles), { ssr: false })
@@ -191,6 +193,20 @@ export function CorporateViewerLayout({ templateId, flowData: propFlowData, gues
           >
             {flowData?.welcomeMessage || 'Gathering visionaries, founders, and industry leaders to evaluate market frontiers, breakthrough architecture, and next-generation capital allocation.'}
           </m.p>
+
+          {/* Keynote Audio Introduction */}
+          {flowData?.voiceNoteUrl && (
+            <VoiceGreetingPlayer
+              voiceNoteUrl={flowData.voiceNoteUrl}
+              voiceNoteTitle={flowData.voiceNoteTitle || "Executive Audio Address"}
+              voiceNoteSender={flowData.voiceNoteSender || "From Summit Leadership"}
+              onPlayStart={() => {
+                if (s.setMusicPlaying) {
+                  s.setMusicPlaying(false)
+                }
+              }}
+            />
+          )}
 
           {/* Date, Location & Calendar Bar */}
           <m.div
@@ -392,6 +408,37 @@ export function CorporateViewerLayout({ templateId, flowData: propFlowData, gues
             ))}
           </div>
         </section>
+
+        {/* LIVE CROWD / SUMMIT PHOTO WALL */}
+        {flowData?.invitationId && flowData?.showCrowdPhotoWall !== false && (
+          <section className="space-y-6">
+            <CrowdPhotoWallSection
+              invitationId={flowData.invitationId}
+              slug={flowData.slug}
+              guestName={guestName || summitTitle}
+              guestSeats={flowData.guestSeats}
+              accentColor={theme.accent}
+            />
+          </section>
+        )}
+
+        {/* ORGANIZATION / HONORARIUM DETAILS */}
+        {flowData?.gifts && !flowData?.hideDigitalShagun && (
+          <section className="space-y-6 max-w-xl mx-auto">
+            <div className="p-6 sm:p-8 rounded-3xl border border-white/10 bg-card/40 backdrop-blur-xl text-center space-y-4">
+              <div
+                className="w-12 h-12 rounded-2xl mx-auto flex items-center justify-center border"
+                style={{ borderColor: `${theme.accent}30`, backgroundColor: `${theme.accent}15`, color: theme.accent }}
+              >
+                <Award className="w-6 h-6" />
+              </div>
+              <h2 className="text-2xl font-bold font-serif">Organization / Honorarium Details</h2>
+              <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line font-mono">
+                {flowData.gifts}
+              </p>
+            </div>
+          </section>
+        )}
 
         {/* DELEGATE REGISTRATION PASS (RSVP) */}
         <section id="rsvp-section" className="scroll-mt-20">

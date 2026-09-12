@@ -13,15 +13,15 @@ import dynamic from "next/dynamic";
 import { Shield } from "lucide-react";
 import { m, AnimatePresence } from "framer-motion";
 
-// Lazy load below-the-fold components
-const HowItWorks = dynamic(() => import("@/components/landing/how-it-works").then(m => m.HowItWorks), { ssr: false });
-const Comparison = dynamic(() => import("@/components/landing/comparison").then(m => m.Comparison), { ssr: false });
-const TemplateShowcase = dynamic(() => import("@/components/landing/template-showcase").then(m => m.TemplateShowcase), { ssr: false });
-const Testimonials = dynamic(() => import("@/components/landing/testimonials").then(m => m.Testimonials), { ssr: false });
-const Pricing = dynamic(() => import("@/components/landing/pricing").then(m => m.Pricing), { ssr: false });
-const FAQ = dynamic(() => import("@/components/landing/faq").then(m => m.FAQ), { ssr: false });
-const CTASection = dynamic(() => import("@/components/landing/cta-section").then(m => m.CTASection), { ssr: false });
-const Footer = dynamic(() => import("@/components/landing/footer").then(m => m.Footer), { ssr: false });
+// Lazy load below-the-fold components with SSR enabled for SEO indexation
+const HowItWorks = dynamic(() => import("@/components/landing/how-it-works").then(m => m.HowItWorks));
+const Comparison = dynamic(() => import("@/components/landing/comparison").then(m => m.Comparison));
+const TemplateShowcase = dynamic(() => import("@/components/landing/template-showcase").then(m => m.TemplateShowcase));
+const Testimonials = dynamic(() => import("@/components/landing/testimonials").then(m => m.Testimonials));
+const Pricing = dynamic(() => import("@/components/landing/pricing").then(m => m.Pricing));
+const FAQ = dynamic(() => import("@/components/landing/faq").then(m => m.FAQ));
+const CTASection = dynamic(() => import("@/components/landing/cta-section").then(m => m.CTASection));
+const Footer = dynamic(() => import("@/components/landing/footer").then(m => m.Footer));
 
 function AppPurposeSection() {
   const { t } = useLanguage();
@@ -118,28 +118,18 @@ export default function Home() {
     document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  if (!mounted) {
-    return <div className="min-h-screen bg-background" />;
-  }
-
   return (
-    <m.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.5 }}
-      className="flex flex-col min-h-screen"
-    >
+    <div className="flex flex-col min-h-screen">
       <Navbar
         onTemplatesClick={() => router.push("/templates")}
         onGetStarted={scrollToPricing}
         onLoginClick={() => router.push("/login")}
         onAboutClick={() => router.push("/about")}
         onContactClick={() => router.push("/contact")}
-        isLoggedIn={!!flowData.userId}
+        isLoggedIn={mounted ? !!flowData.userId : false}
         onDashboardClick={() => router.push("/dashboard")}
-        userEmail={flowData.email}
-        userFullName={flowData.fullName}
+        userEmail={mounted ? flowData.email : undefined}
+        userFullName={mounted ? flowData.fullName : undefined}
         onSignOut={handleSignOut}
       />
       
@@ -188,6 +178,6 @@ export default function Home() {
         onLegalClick={(type) => router.push(`/${type}`)}
         onAffiliateClick={() => router.push("/affiliate")}
       />
-    </m.div>
+    </div>
   );
 }

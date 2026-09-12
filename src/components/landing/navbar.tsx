@@ -82,10 +82,10 @@ export function Navbar({
   const navLinks: NavLink[] = [
     { label: t('nav.features'), href: "#features", action: undefined, sectionId: "features" },
     { label: t('nav.howItWorks'), href: "#how-it-works", action: undefined, sectionId: "how-it-works" },
-    { label: t('nav.templates'), href: undefined, action: onTemplatesClick, sectionId: undefined },
+    { label: t('nav.templates'), href: "/templates", action: onTemplatesClick, sectionId: undefined },
     { label: t('nav.blog'), href: "/blog", action: undefined, sectionId: undefined },
-    { label: t('nav.about'), href: undefined, action: onAboutClick, sectionId: undefined },
-    { label: t('nav.contact'), href: undefined, action: onContactClick, sectionId: undefined },
+    { label: t('nav.about'), href: "/about", action: onAboutClick, sectionId: undefined },
+    { label: t('nav.contact'), href: "/contact", action: onContactClick, sectionId: undefined },
     { label: t('nav.pricing'), href: "#pricing", action: undefined, sectionId: "pricing" },
   ];
 
@@ -140,6 +140,19 @@ export function Navbar({
               </span>
             );
 
+            if (link.href && link.href.startsWith("/")) {
+              return (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  onClick={() => link.action && handleNavClick(link)}
+                  className="relative"
+                  aria-current={isActive ? "page" : undefined}
+                >
+                  {linkContent}
+                </Link>
+              );
+            }
             if (link.action) {
               return (
                 <button

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { uploadLimiter, getClientIp } from '@/lib/rate-limit'
+import { uploadToR2 } from '@/lib/r2'
 
 function isValidImageBytes(buffer: ArrayBuffer): boolean {
   if (buffer.byteLength < 4) return false
@@ -97,21 +98,17 @@ export async function POST(request: NextRequest) {
       const fileName = `users/${user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${cleanExt}`
       const contentType = file.type && file.type.startsWith('image/') ? file.type : `image/${cleanExt === 'jpg' ? 'jpeg' : cleanExt}`
 
-      const { error: uploadError } = await service.storage
-        .from('invitation-images')
-        .upload(fileName, buffer, {
+      let publicUrl: string
+      try {
+        publicUrl = await uploadToR2({
+          key: fileName,
+          body: Buffer.from(buffer),
           contentType,
-          upsert: true,
         })
-
-      if (uploadError) {
-        console.error('Storage upload error:', uploadError)
-        return NextResponse.json({ error: 'Failed to upload image. Please try again.' }, { status: 500 })
+      } catch (uploadError) {
+        console.error('R2 upload error:', uploadError)
+        return NextResponse.json({ error: 'Failed to upload image to storage. Please try again.' }, { status: 500 })
       }
-
-      const { data: { publicUrl } } = service.storage
-        .from('invitation-images')
-        .getPublicUrl(fileName)
 
       uploadedUrls.push(publicUrl)
     }

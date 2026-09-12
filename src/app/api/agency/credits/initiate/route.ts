@@ -94,10 +94,6 @@ export async function POST(req: Request) {
       amount: Math.round(pack.pricePKR * 100), // In lowest denomination (Paisa)
       metadata: {
         order_id: String(order.id),
-        agency_credit_order_id: String(order.id),
-        pack_id: String(pack.id),
-        credits: String(pack.credits),
-        agency_id: String(app.id),
       },
     });
 

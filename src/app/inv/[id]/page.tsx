@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
@@ -13,17 +14,32 @@ interface Props {
   searchParams: Promise<{ guest?: string; events?: string; seats?: string; review?: string; token?: string }>;
 }
 
+const getCachedPublicInvitation = cache(async (cleanId: string, isUuid: boolean) => {
+  const supabase = await createClient();
+  const query = supabase
+    .from("invitations")
+    .select(`
+      *,
+      events (
+        id, name, date, time, venue, order_index
+      )
+    `);
+
+  const { data } = await (isUuid
+    ? query.eq("id", cleanId)
+    : query.eq("slug", cleanId)
+  ).single();
+
+  return data;
+});
+
 export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { id } = await params;
   const { guest } = (await searchParams) || {};
   const cleanId = id.replace(/%20| /g, "-");
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanId);
-  const supabase = await createClient();
 
-  const { data } = await (isUuid
-    ? supabase.from("invitations").select("partner1_name, partner2_name, venue, hero_image_url, template_id, category").eq("id", cleanId)
-    : supabase.from("invitations").select("partner1_name, partner2_name, venue, hero_image_url, template_id, category").eq("slug", cleanId)
-  ).single();
+  const data = await getCachedPublicInvitation(cleanId, isUuid);
 
   if (!data) {
     return { title: "Invitation | Smart Invites" };
@@ -84,21 +100,7 @@ export default async function InvitationPage({ params, searchParams }: Props) {
   const { guest, events, seats, review, token } = await searchParams;
   const cleanId = id.replace(/%20| /g, "-");
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanId);
-  const supabase = await createClient();
-
-  const query = supabase
-    .from("invitations")
-    .select(`
-      *,
-      events (
-        id, name, date, time, venue, order_index
-      )
-    `);
-
-  const { data: publicInv } = await (isUuid
-    ? query.eq("id", cleanId)
-    : query.eq("slug", cleanId)
-  ).single();
+  const publicInv = await getCachedPublicInvitation(cleanId, isUuid);
 
   let invitation = publicInv;
   let isReviewMode = false;
@@ -114,6 +116,7 @@ export default async function InvitationPage({ params, searchParams }: Props) {
     ).single();
 
     if (draftInv && !draftInv.is_active) {
+      const supabase = await createClient();
       const { data: { user } } = await supabase.auth.getUser();
       const isOwner = !!(user && user.id === draftInv.user_id);
       let isAdmin = false;
@@ -286,7 +289,7 @@ export default async function InvitationPage({ params, searchParams }: Props) {
     dressCodeMen: invitation.dress_code_men ?? "",
     transportation: invitation.transportation ?? "",
     accommodation: invitation.accommodation ?? "",
-    gifts: invitation.gifts ?? "",
+    gifts: Boolean((invitation as { hide_digital_shagun?: boolean }).hide_digital_shagun) ? "" : (invitation.gifts ?? ""),
     heroImage: invitation.hero_image_url ?? "",
     slideshowImages: invitation.slideshow_image_urls ?? [],
     youtubeVideoId: (invitation as { youtube_video_id?: string }).youtube_video_id ?? "",
@@ -298,8 +301,8 @@ export default async function InvitationPage({ params, searchParams }: Props) {
     fullName: "",
     showBismillah: (invitation as { show_bismillah?: boolean }).show_bismillah ?? true,
     showQuranVerse: (invitation as { show_quran_verse?: boolean }).show_quran_verse ?? true,
-    customVerseText: (invitation as { custom_verse_text?: string }).custom_verse_text ?? "",
-    customVerseSource: (invitation as { custom_verse_source?: string }).custom_verse_source ?? "",
+    customVerseText: (invitation as { show_quran_verse?: boolean }).show_quran_verse === false ? "" : ((invitation as { custom_verse_text?: string }).custom_verse_text ?? ""),
+    customVerseSource: (invitation as { show_quran_verse?: boolean }).show_quran_verse === false ? "" : ((invitation as { custom_verse_source?: string }).custom_verse_source ?? ""),
     primaryHostFamily: (invitation as { host_bride_family?: string }).host_bride_family ?? "",
     secondaryHostFamily: (invitation as { host_groom_family?: string }).host_groom_family ?? "",
     primaryHostCity: (invitation as { host_bride_city?: string }).host_bride_city ?? "",
@@ -310,6 +313,10 @@ export default async function InvitationPage({ params, searchParams }: Props) {
     isSegregated: (invitation as { is_segregated?: boolean }).is_segregated ?? false,
     venueDetailsSegregated: (invitation as { venue_details_segregated?: string }).venue_details_segregated ?? "",
     showNikahRegistration: (invitation as { show_nikah_registration?: boolean }).show_nikah_registration ?? false,
+    hideDigitalShagun: Boolean((invitation as { hide_digital_shagun?: boolean }).hide_digital_shagun),
+    showCrowdPhotoWall: typeof (invitation as { show_crowd_photo_wall?: boolean }).show_crowd_photo_wall === 'boolean'
+      ? (invitation as { show_crowd_photo_wall?: boolean }).show_crowd_photo_wall
+      : !((invitation as { client_approval_notes?: string }).client_approval_notes || '').includes('[PHOTO_WALL:enabled=false]'),
     paymentDone: true,
     guestLinksQuota: (invitation as { guest_links_quota?: number }).guest_links_quota ?? 0,
     slug: invitation.slug ?? "",

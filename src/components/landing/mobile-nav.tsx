@@ -102,7 +102,17 @@ export function MobileNav({
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.05, duration: 0.3 }}
               >
-                {link.action ? (
+                {link.href && link.href.startsWith("/") ? (
+                  <SheetClose asChild>
+                    <Link
+                      href={link.href}
+                      onClick={() => handleNavClick(link)}
+                      className="w-full text-left block"
+                    >
+                      {linkEl}
+                    </Link>
+                  </SheetClose>
+                ) : link.action ? (
                   <SheetClose asChild>
                     <button
                       onClick={() => handleNavClick(link)}

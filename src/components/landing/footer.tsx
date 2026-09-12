@@ -31,11 +31,11 @@ export function Footer({
   const quickLinks = [
     { label: t('nav.features'), href: "#features", action: undefined },
     { label: t('nav.howItWorks'), href: "#how-it-works", action: undefined },
-    { label: t('nav.templates'), href: undefined, action: "templates" },
+    { label: t('nav.templates'), href: "/templates", action: "templates" },
     { label: t('nav.blog'), href: "/blog", action: undefined },
     { label: t('nav.pricing'), href: "#pricing", action: undefined },
-    { label: t('nav.about'), href: undefined, action: "about" },
-    { label: t('nav.contact'), href: undefined, action: "contact" },
+    { label: t('nav.about'), href: "/about", action: "about" },
+    { label: t('nav.contact'), href: "/contact", action: "contact" },
   ];
 
   const legalLinks = [
@@ -148,13 +148,14 @@ export function Footer({
               <ul className="space-y-3">
                 {quickLinks.map((link) => (
                   <li key={link.label}>
-                    {link.action ? (
-                      <button
-                        onClick={() => handleQuickLink(link)}
-                        className="text-sm text-white/50 hover:text-gold transition-colors duration-200 text-left"
+                    {link.href?.startsWith("/") ? (
+                      <Link
+                        href={link.href}
+                        onClick={() => link.action && handleQuickLink(link)}
+                        className="text-sm text-white/50 hover:text-gold transition-colors duration-200 text-left block"
                       >
                         {link.label}
-                      </button>
+                      </Link>
                     ) : (
                       <a
                         href={link.href}

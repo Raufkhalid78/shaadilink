@@ -15,14 +15,14 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent } from '@/components/ui/card'
 import { toast } from 'sonner'
-import { MapPin, Calendar, Clock, ChevronDown, Heart, Sparkles, Send, Check, X, Star, Music, Music2, User, MessageCircle, Loader2, Copy, Hotel, Car, Gift, HelpCircle, Info, ChevronLeft, ChevronRight, Maximize, Share2 } from 'lucide-react'
+import { MapPin, Calendar, Clock, ChevronDown, Heart, Sparkles, Send, Check, X, Star, Music, Music2, User, MessageCircle, Loader2, Copy, Hotel, Car, Gift, HelpCircle, Info, ChevronLeft, ChevronRight, Maximize, Share2, FastForward } from 'lucide-react'
 import type { FlowData } from '@/lib/flow-types'
 import { TemplateTheme, TEMPLATE_THEMES, DEFAULT_THEME } from '../themes';
 import { InvitationViewerProps, hexToRgb, getTheme, extractColors, parseGiftDetails, getCalendarDates, getGoogleCalendarLink, generateICSContent, getOutlookWebLink, formatScratchDate, formatScratchTime } from '../utils';
 
 
 /* ─── Door Overlay Component ─── */
-export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateTheme; doorsOpened: boolean; onOpen: (instant?: boolean) => void }) {
+export function DoorOverlay({ theme, doorsOpened, onOpen, language = 'en' }: { theme: TemplateTheme; doorsOpened: boolean; onOpen: (instant?: boolean) => void; language?: string }) {
   const ds = theme.doorStyle
   const a = theme.accentRgb
 
@@ -782,13 +782,21 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
       {/* Tap anywhere on doors to open with pulse hint */}
       {!doorsOpened && (
         <div
+          role="button"
+          tabIndex={0}
           onClick={() => onOpen()}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onOpen();
+            }
+          }}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => {
             setIsHovered(false)
             setIsPressed(false)
           }}
-          className="absolute inset-0 cursor-pointer z-40 pointer-events-auto flex flex-col items-center justify-center"
+          className="absolute inset-0 cursor-pointer z-40 pointer-events-auto flex flex-col items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
           aria-label="Open invitation"
         >
           {/* Pulsating prompt below wax seal */}
@@ -810,10 +818,11 @@ export function DoorOverlay({ theme, doorsOpened, onOpen }: { theme: TemplateThe
               e.stopPropagation()
               onOpen(true)
             }}
-            className="px-4 py-2 rounded-full border bg-black/60 backdrop-blur-md text-white/80 hover:text-white hover:bg-black/80 transition-all text-xs tracking-wider flex items-center gap-2 pointer-events-auto cursor-pointer shadow-lg"
+            className="px-5 py-2.5 rounded-full border bg-black/70 hover:bg-black/90 backdrop-blur-md text-white/90 hover:text-white transition-all text-xs font-semibold tracking-wider flex items-center gap-2 pointer-events-auto cursor-pointer shadow-2xl active:scale-95"
             style={{ borderColor: theme.getOpacityStyle('border', 0.25) }}
           >
-            Skip Animation
+            <span>{language === 'ur' ? 'دعوت نامہ دیکھیں' : 'Skip to Invitation'}</span>
+            <FastForward className="w-3.5 h-3.5 text-amber-400" />
           </button>
         </div>
       )}

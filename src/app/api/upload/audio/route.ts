@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import { uploadLimiter, getClientIp } from '@/lib/rate-limit'
+import { uploadToR2 } from '@/lib/r2'
 
-/* POST /api/upload/audio — upload authenticated user audio (MP3/M4A/WAV) up to 5MB */
+/* POST /api/upload/audio — upload authenticated user audio (MP3/M4A/WAV) up to 5MB to Cloudflare R2 */
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
@@ -37,8 +38,7 @@ export async function POST(request: NextRequest) {
     }
 
     const buffer = await file.arrayBuffer()
-    const service = createServiceClient()
-    const fileName = `audio/${user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${rawExt}`
+    const fileName = `users/${user.id}/audio/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${rawExt}`
     const mimeMap: Record<string, string> = {
       mp3: 'audio/mpeg',
       m4a: 'audio/mp4',
@@ -51,21 +51,17 @@ export async function POST(request: NextRequest) {
     }
     const contentType = file.type || mimeMap[rawExt] || `audio/${rawExt}`
 
-    const { error: uploadError } = await service.storage
-      .from('invitation-images')
-      .upload(fileName, buffer, {
+    let publicUrl: string
+    try {
+      publicUrl = await uploadToR2({
+        key: fileName,
+        body: Buffer.from(buffer),
         contentType,
-        upsert: true,
       })
-
-    if (uploadError) {
-      console.error('Storage audio upload error:', uploadError)
-      return NextResponse.json({ error: 'Failed to upload audio file. Please try again.' }, { status: 500 })
+    } catch (uploadError) {
+      console.error('R2 audio upload error:', uploadError)
+      return NextResponse.json({ error: 'Failed to upload audio file to storage. Please try again.' }, { status: 500 })
     }
-
-    const { data: { publicUrl } } = service.storage
-      .from('invitation-images')
-      .getPublicUrl(fileName)
 
     return NextResponse.json({ url: publicUrl, filename: file.name }, { status: 200 })
   } catch (err: unknown) {

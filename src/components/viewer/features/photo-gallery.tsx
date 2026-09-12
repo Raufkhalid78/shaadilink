@@ -72,19 +72,49 @@ export function PhotoGallery({ theme, images: propImages }: { theme: TemplateThe
           </AnimatePresence>
           <div className="absolute inset-x-0 bottom-0 h-1/4" style={{ background: `linear-gradient(to top, ${theme.bgPrimary}cc, transparent)` }} />
           <div className="absolute inset-0 rounded-xl transition-all duration-500 group-hover:bg-black/20" style={{ boxShadow: `inset 0 0 0 1px ${theme.getOpacityStyle('border', 0.1)}` }} />
-          
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <div className="w-12 h-12 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white">
               <Maximize className="w-5 h-5" />
             </div>
           </div>
         </div>
-        <div className="flex justify-center gap-2 mt-4">
+
+        {/* Thumbnail Preview Strip */}
+        {images.length > 1 && (
+          <div className="flex justify-center items-center gap-2.5 mt-3.5 px-2 overflow-x-auto py-1">
+            {images.map((img, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => setActiveIndex(idx)}
+                className={`relative w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden border-2 transition-all flex-shrink-0 cursor-pointer ${
+                  idx === activeIndex
+                    ? 'scale-105 shadow-md ring-1 ring-offset-1 ring-amber-400/50'
+                    : 'opacity-50 hover:opacity-100'
+                }`}
+                style={{
+                  borderColor: idx === activeIndex ? theme.accent : theme.getOpacityStyle('border', 0.2),
+                }}
+                aria-label={`View photo ${idx + 1}`}
+              >
+                <Image
+                  src={img.src}
+                  alt={img.alt}
+                  fill
+                  sizes="64px"
+                  className="object-cover"
+                />
+              </button>
+            ))}
+          </div>
+        )}
+
+        <div className="flex justify-center gap-2 mt-3">
           {images.map((_, idx) => (
             <button
               key={idx}
               onClick={() => setActiveIndex(idx)}
-              className={`rounded-full transition-all duration-500 ${idx === activeIndex ? 'w-7 h-2.5' : 'w-2.5 h-2.5'}`}
+              className={`rounded-full transition-all duration-500 ${idx === activeIndex ? 'w-7 h-2' : 'w-2 h-2'}`}
               style={idx === activeIndex 
                 ? { backgroundColor: theme.accent, boxShadow: `0 0 8px ${theme.getOpacityStyle('border', 0.4)}` } 
                 : { backgroundColor: theme.getOpacityStyle('bg', 0.25) }

@@ -14,8 +14,13 @@ export default async function AdminUsers() {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
   
-  const { data, error } = await supabaseAdmin.auth.admin.listUsers();
-  const users = data?.users || [];
+  const { data } = await supabaseAdmin.auth.admin.listUsers();
+  const users = (data?.users || []).map((u) => ({
+    id: u.id,
+    email: u.email || 'No email',
+    app_metadata: { provider: u.app_metadata?.provider || 'Email' },
+    created_at: u.created_at,
+  }));
 
   return (
     <div className="space-y-6">

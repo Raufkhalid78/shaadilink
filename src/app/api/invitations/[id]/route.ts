@@ -36,6 +36,13 @@ export async function GET(
       return NextResponse.json({ error: 'Invitation not found' }, { status: 404 })
     }
 
+    if (invitation) {
+      if (typeof (invitation as any).show_crowd_photo_wall !== 'boolean') {
+        const notes = (invitation as any).client_approval_notes || '';
+        ;(invitation as any).show_crowd_photo_wall = !notes.includes('[PHOTO_WALL:enabled=false]');
+      }
+    }
+
     return NextResponse.json({ invitation })
   } catch (error) {
     console.error('GET /api/invitations/[id] error:', error)
@@ -61,7 +68,7 @@ export async function PUT(
     // Verify ownership
     const { data: existing } = await supabase
       .from('invitations')
-      .select('user_id, partner1_name, partner2_name, is_active, events(*)')
+      .select('user_id, partner1_name, partner2_name, is_active, client_approval_notes, events(*)')
       .eq('id', id)
       .single()
 
@@ -106,6 +113,7 @@ export async function PUT(
       isSegregated: 'is_segregated',
       venueDetailsSegregated: 'venue_details_segregated',
       showNikahRegistration: 'show_nikah_registration',
+      showCrowdPhotoWall: 'show_crowd_photo_wall',
       title: 'title',
       category: 'category',
       hideDigitalShagun: 'hide_digital_shagun',
@@ -159,15 +167,23 @@ export async function PUT(
       .single()
 
     if (error && error.code === '42703') {
-      // Graceful fallback if new schema columns are not yet applied in DB
+      // Graceful fallback if new schema columns (like show_crowd_photo_wall) are not yet applied in DB
       const fallbackData = { ...updateData }
+      delete fallbackData.show_crowd_photo_wall
       delete fallbackData.voice_note_url
       delete fallbackData.voice_note_title
       delete fallbackData.voice_note_sender
       delete fallbackData.agency_phone
       delete fallbackData.client_approval_status
-      delete fallbackData.client_approval_notes
       delete fallbackData.client_approved_at
+
+      // Persist showCrowdPhotoWall in client_approval_notes metadata tag if column is not yet in DB
+      if (body.showCrowdPhotoWall !== undefined) {
+        const existingNotes = (existing?.client_approval_notes || '').replace(/\[PHOTO_WALL:enabled=[^\]]+\]/g, '').trim()
+        const metaTag = `[PHOTO_WALL:enabled=${body.showCrowdPhotoWall !== false}]`
+        fallbackData.client_approval_notes = existingNotes ? `${existingNotes}\n\n${metaTag}` : metaTag
+      }
+
       const retry = await supabase
         .from('invitations')
         .update(fallbackData)
@@ -176,6 +192,27 @@ export async function PUT(
         .single()
       updated = retry.data
       error = retry.error
+
+      if (error && error.code === '42703') {
+        // If client_approval_notes itself or another column failed, do a clean retry with just core columns
+        const coreFallback = { ...fallbackData }
+        delete coreFallback.client_approval_notes
+        const finalRetry = await supabase
+          .from('invitations')
+          .update(coreFallback)
+          .eq('id', id)
+          .select()
+          .single()
+        updated = finalRetry.data
+        error = finalRetry.error
+      }
+    }
+
+    if (updated) {
+      if (typeof (updated as any).show_crowd_photo_wall !== 'boolean') {
+        const notes = (updated as any).client_approval_notes || '';
+        ;(updated as any).show_crowd_photo_wall = !notes.includes('[PHOTO_WALL:enabled=false]');
+      }
     }
 
     if (error) {

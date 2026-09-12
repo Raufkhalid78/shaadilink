@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { invitationInputSchema } from '@/lib/validation-schemas'
+import { generateShortReviewToken } from '@/lib/review-token'
 
 /* POST /api/invitations — create new invitation */
 export async function POST(request: NextRequest) {
@@ -73,9 +74,10 @@ export async function POST(request: NextRequest) {
         host_bride_city: validData.primaryHostCity || null,
         host_groom_city: validData.secondaryHostCity || null,
         contact_phone: validData.contactPhone || null,
-        is_segregated: (body as any).isSegregated || false,
+        is_segregated: validData.isSegregated ?? false,
         venue_details_segregated: validData.venueDetailsSegregated || null,
         show_nikah_registration: validData.showNikahRegistration || false,
+        show_crowd_photo_wall: validData.showCrowdPhotoWall ?? true,
         slug: finalSlug,
         title: validData.title || (partner1Name && partner2Name ? `${partner1Name} & ${partner2Name}` : partner1Name || 'Event Invitation'),
         category: validData.category || 'wedding',
@@ -88,6 +90,9 @@ export async function POST(request: NextRequest) {
         voice_note_url: validData.voiceNoteUrl || null,
         voice_note_title: validData.voiceNoteTitle || null,
         voice_note_sender: validData.voiceNoteSender || null,
+        review_token: generateShortReviewToken(),
+        review_views_count: 0,
+        review_max_views: 7,
       })
       .select()
       .single()
@@ -127,7 +132,7 @@ export async function POST(request: NextRequest) {
           host_bride_city: validData.primaryHostCity || null,
           host_groom_city: validData.secondaryHostCity || null,
           contact_phone: validData.contactPhone || null,
-          is_segregated: (body as any).isSegregated || false,
+          is_segregated: validData.isSegregated ?? false,
           venue_details_segregated: validData.venueDetailsSegregated || null,
           show_nikah_registration: validData.showNikahRegistration || false,
           slug: finalSlug,

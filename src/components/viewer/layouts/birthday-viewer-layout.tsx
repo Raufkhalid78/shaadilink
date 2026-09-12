@@ -16,6 +16,8 @@ import { TemplateTheme } from '../themes'
 import { useInvitationState } from '../use-invitation-state'
 import { CountdownTimer, AddToCalendarDropdown } from '../features/countdown-timer'
 import { MusicToggle } from '../ui/music-toggle'
+import { VoiceGreetingPlayer } from '../features/voice-greeting-player'
+import { CrowdPhotoWallSection } from '../features/crowd-photo-wall-section'
 
 const DoorOverlay = dynamic(() => import('../door/door-overlay').then(m => m.DoorOverlay), { ssr: false })
 const FireworksDisplay = dynamic(() => import('../effects/fireworks').then(m => m.FireworksDisplay), { ssr: false })
@@ -223,6 +225,20 @@ export function BirthdayViewerLayout({ templateId, flowData: propFlowData, guest
             {flowData?.welcomeMessage || 'We are so excited to invite you to celebrate this special milestone! Get ready for a night of incredible beats, great food, and unforgettable memories.'}
           </p>
 
+          {/* Personal Voice Greeting */}
+          {flowData?.voiceNoteUrl && (
+            <VoiceGreetingPlayer
+              voiceNoteUrl={flowData.voiceNoteUrl}
+              voiceNoteTitle={flowData.voiceNoteTitle || 'Birthday Audio Greeting'}
+              voiceNoteSender={flowData.voiceNoteSender || `From ${celebrantName}`}
+              onPlayStart={() => {
+                if (s.setMusicPlaying) {
+                  s.setMusicPlaying(false)
+                }
+              }}
+            />
+          )}
+
           {/* Date, Venue Card */}
           <div className="p-4 sm:p-5 rounded-3xl border border-white/10 bg-card/60 backdrop-blur-xl max-w-xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3 text-left">
@@ -382,6 +398,37 @@ export function BirthdayViewerLayout({ templateId, flowData: propFlowData, guest
             </div>
           </div>
         </section>
+
+        {/* LIVE CROWD PHOTO WALL */}
+        {flowData?.invitationId && flowData?.showCrowdPhotoWall !== false && (
+          <section className="space-y-6">
+            <CrowdPhotoWallSection
+              invitationId={flowData.invitationId}
+              slug={flowData.slug}
+              guestName={guestName || celebrantName}
+              guestSeats={flowData.guestSeats}
+              accentColor={theme.accent}
+            />
+          </section>
+        )}
+
+        {/* BIRTHDAY GIFT REGISTRY */}
+        {flowData?.gifts && !flowData?.hideDigitalShagun && (
+          <section className="space-y-6 max-w-xl mx-auto">
+            <div className="p-6 sm:p-8 rounded-3xl border border-white/10 bg-card/40 backdrop-blur-xl text-center space-y-4">
+              <div
+                className="w-12 h-12 rounded-2xl mx-auto flex items-center justify-center border"
+                style={{ borderColor: `${theme.accent}30`, backgroundColor: `${theme.accent}15`, color: theme.accent }}
+              >
+                <Gift className="w-6 h-6" />
+              </div>
+              <h2 className="text-2xl font-bold">Birthday Gift &amp; Registry Details</h2>
+              <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line">
+                {flowData.gifts}
+              </p>
+            </div>
+          </section>
+        )}
 
         {/* BIRTHDAY WISHES WALL */}
         <section className="space-y-6">

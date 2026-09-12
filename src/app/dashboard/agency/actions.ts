@@ -69,20 +69,37 @@ export async function getAgencyPortalData(): Promise<
     .eq('user_id', user.id)
     .order('created_at', { ascending: false });
 
-  const invitations: AgencyInvitationSummary[] = (rawInvitations || []).map((inv: any) => ({
-    id: inv.id,
-    slug: inv.slug,
-    template_id: inv.template_id,
-    partner1_name: inv.partner1_name,
-    partner2_name: inv.partner2_name,
-    title: inv.title,
-    plan: inv.plan || 'agency',
-    is_active: inv.is_active,
-    created_at: inv.created_at,
-    client_approval_status: inv.client_approval_status,
-    review_token: inv.review_token,
-    review_views_count: inv.review_views_count,
-  }));
+  const { generateShortReviewToken } = await import('@/lib/review-token');
+  const invitations: AgencyInvitationSummary[] = await Promise.all(
+    (rawInvitations || []).map(async (inv: any) => {
+      let token = inv.review_token;
+      let viewsCount = inv.review_views_count ?? 0;
+
+      if (!token) {
+        token = generateShortReviewToken();
+        viewsCount = 0;
+        await service
+          .from('invitations')
+          .update({ review_token: token, review_views_count: 0, review_max_views: 7 })
+          .eq('id', inv.id);
+      }
+
+      return {
+        id: inv.id,
+        slug: inv.slug,
+        template_id: inv.template_id,
+        partner1_name: inv.partner1_name,
+        partner2_name: inv.partner2_name,
+        title: inv.title,
+        plan: inv.plan || 'agency',
+        is_active: inv.is_active,
+        created_at: inv.created_at,
+        client_approval_status: inv.client_approval_status,
+        review_token: token,
+        review_views_count: viewsCount,
+      };
+    })
+  );
 
   return {
     success: true,

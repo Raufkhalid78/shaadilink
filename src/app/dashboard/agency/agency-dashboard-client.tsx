@@ -130,6 +130,7 @@ export function AgencyDashboardClient({ initialData }: Props) {
 
   // Credit Activation State
   const [activatingId, setActivatingId] = useState<string | null>(null);
+  const [loadingReviewId, setLoadingReviewId] = useState<string | null>(null);
 
   // Deletion State
   const [isInstantDeleteOpen, setIsInstantDeleteOpen] = useState(false);
@@ -432,16 +433,83 @@ export function AgencyDashboardClient({ initialData }: Props) {
     toast.success('Client roster exported to CSV successfully!');
   };
 
-  // Copy Review Link with 8-char Token
-  const handleCopyReviewLink = (inv: AgencyInvitationSummary) => {
-    if (!inv.review_token) {
-      toast.info('No review token active for this event yet.');
-      return;
+  // Copy Review Link with 8-char Token (auto-generates if not present)
+  const handleCopyReviewLink = async (inv: AgencyInvitationSummary) => {
+    let token = inv.review_token;
+    let views = inv.review_views_count ?? 0;
+
+    if (!token) {
+      setLoadingReviewId(inv.id);
+      try {
+        const res = await fetch(`/api/invitations/${inv.id}/review-token`);
+        const tokenData = await res.json();
+        if (tokenData.token) {
+          token = tokenData.token;
+          views = tokenData.viewsCount ?? 0;
+          setData((prev) => ({
+            ...prev,
+            invitations: prev.invitations.map((i) =>
+              i.id === inv.id
+                ? { ...i, review_token: tokenData.token, review_views_count: tokenData.viewsCount ?? 0 }
+                : i
+            ),
+          }));
+        } else {
+          toast.error(tokenData.error || 'Could not generate review link');
+          return;
+        }
+      } catch {
+        toast.error('Network error generating review link');
+        return;
+      } finally {
+        setLoadingReviewId(null);
+      }
     }
+
     const origin = typeof window !== 'undefined' ? window.location.origin : '';
-    const reviewUrl = `${origin}/inv/${inv.slug || inv.id}?token=${inv.review_token}`;
-    navigator.clipboard.writeText(reviewUrl);
-    toast.success(`Copied 7-View Review Link! (${inv.review_views_count ?? 0}/7 views used)`);
+    const reviewUrl = `${origin}/inv/${inv.slug || inv.id}?token=${token}`;
+    try {
+      await navigator.clipboard.writeText(reviewUrl);
+      if (views >= 7) {
+        toast.warning(
+          `Review Link copied, but note 7/7 views have been used! Click the reset icon to issue a fresh link.`,
+          { duration: 4500 }
+        );
+      } else {
+        toast.success(`Copied 7-View Review Link! (${views}/7 views used)`);
+      }
+    } catch {
+      toast.info(`Review URL: ${reviewUrl}`);
+    }
+  };
+
+  // Reset Review Link (creates fresh token with 7 new views)
+  const handleResetReviewLink = async (inv: AgencyInvitationSummary) => {
+    setLoadingReviewId(inv.id);
+    try {
+      const res = await fetch(`/api/invitations/${inv.id}/review-token`, { method: 'POST' });
+      const data = await res.json();
+      if (data.token) {
+        setData((prev) => ({
+          ...prev,
+          invitations: prev.invitations.map((i) =>
+            i.id === inv.id
+              ? { ...i, review_token: data.token, review_views_count: 0 }
+              : i
+          ),
+        }));
+        const origin = typeof window !== 'undefined' ? window.location.origin : '';
+        const reviewUrl = `${origin}/inv/${inv.slug || inv.id}?token=${data.token}`;
+        await navigator.clipboard.writeText(reviewUrl);
+        toast.success('Fresh 7-View Review Link generated & copied to clipboard!');
+      } else {
+        toast.error(data.error || 'Failed to reset review link');
+      }
+    } catch {
+      toast.error('Network error resetting review link');
+    } finally {
+      setLoadingReviewId(null);
+    }
   };
 
   // Generate Branded PDF Invoice
@@ -863,11 +931,30 @@ export function AgencyDashboardClient({ initialData }: Props) {
                           size="sm"
                           variant="outline"
                           onClick={() => handleCopyReviewLink(inv)}
+                          disabled={loadingReviewId === inv.id}
                           className="flex-1 text-xs gap-1 border-gold/40 hover:bg-gold/10 text-foreground"
                           title="Copy secure review token link (7-view limit)"
                         >
-                          <Eye className="w-3.5 h-3.5 text-gold" /> Review Link
+                          {loadingReviewId === inv.id ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin text-gold" />
+                          ) : (
+                            <Eye className="w-3.5 h-3.5 text-gold" />
+                          )}
+                          Review Link
                         </Button>
+
+                        {(inv.review_views_count ?? 0) >= 7 && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleResetReviewLink(inv)}
+                            disabled={loadingReviewId === inv.id}
+                            className="h-9 px-2 text-amber-500 hover:text-amber-400 hover:bg-amber-500/10"
+                            title="Reset review token (gives 7 fresh views)"
+                          >
+                            <RotateCcw className="w-3.5 h-3.5" />
+                          </Button>
+                        )}
 
                         <Link href={`/create?edit=${inv.id}&agency=true`} className="flex-1">
                           <Button size="sm" variant="secondary" className="w-full text-xs gap-1">

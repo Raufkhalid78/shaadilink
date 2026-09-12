@@ -7,7 +7,7 @@ import {
   ArrowLeft, ArrowRight, Calendar, Heart, MapPin, Music, MessageSquare,
   Check, Plus, Trash2, User, Shirt, Car, Hotel, Gift, ImagePlus, X, Globe, Loader2, Video, Sparkles, Crown, Lock,
   Cake, GraduationCap, Briefcase, Upload, Play, Square, AlertCircle,
-  Mic, MicOff, Volume2, Pause, RotateCcw
+  Mic, MicOff, Volume2, Pause, RotateCcw, Camera
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -367,55 +367,59 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
   };
 
   // Auto-save draft function to sync with Supabase and local store
-  const autoSaveDraft = async (stepToSave?: number, showToast = true) => {
+  const autoSaveDraft = async (stepToSave?: number, showToast = true, overrideData?: Partial<FlowData>) => {
+    const mergedData = { ...flowData, ...overrideData };
     const nextStep = stepToSave || currentStep;
-    onUpdateData({ currentStep: nextStep, lastSavedStep: Math.max(flowData.lastSavedStep || 1, nextStep) });
+    onUpdateData({ currentStep: nextStep, lastSavedStep: Math.max(mergedData.lastSavedStep || 1, nextStep), ...overrideData });
 
     try {
       setIsAutoSaving(true);
-      const url = isEdit ? `/api/invitations/${flowData.invitationId}` : "/api/invitations";
-      const method = isEdit ? "PUT" : "POST";
+      const targetId = mergedData.invitationId;
+      const url = targetId ? `/api/invitations/${targetId}` : "/api/invitations";
+      const method = targetId ? "PUT" : "POST";
 
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          templateId: flowData.selectedTemplateId || "emerald-noir",
-          plan: flowData.selectedPlan || "classic",
-          category: flowData.category || category,
-          partner1Name: flowData.partner1Name,
-          partner2Name: flowData.partner2Name.trim() || (isBirthday ? "Birthday Celebration" : isSchool ? "Class Celebration" : isMeeting ? "Executive Event" : ""),
-          venue: flowData.venue,
-          venueAddress: flowData.venueAddress,
-          welcomeMessage: flowData.welcomeMessage,
-          backgroundMusic: flowData.backgroundMusic,
-          dressCodeWomen: flowData.dressCodeWomen,
-          dressCodeMen: flowData.dressCodeMen,
-          transportation: flowData.transportation,
-          accommodation: flowData.accommodation,
-          gifts: flowData.gifts,
-          heroImageUrl: flowData.heroImage,
-          slideshowImageUrls: flowData.slideshowImages,
-          events: flowData.events,
-          isActive: flowData.paymentDone ?? false,
-          showBismillah: flowData.showBismillah,
-          showQuranVerse: flowData.showQuranVerse,
-          customVerseText: flowData.customVerseText || undefined,
-          customVerseSource: flowData.customVerseSource || undefined,
-          youtubeVideoId: flowData.youtubeVideoId,
-          slug: flowData.slug || undefined,
-          primaryHostFamily: flowData.primaryHostFamily,
-          secondaryHostFamily: flowData.secondaryHostFamily,
-          primaryHostCity: flowData.primaryHostCity,
-          secondaryHostCity: flowData.secondaryHostCity,
-          contactPhone: flowData.contactPhone,
-          isSegregated: flowData.isSegregated,
-          venueDetailsSegregated: flowData.venueDetailsSegregated,
-          showNikahRegistration: flowData.showNikahRegistration,
-          voiceNoteUrl: flowData.voiceNoteUrl || null,
-          voiceNoteTitle: flowData.voiceNoteTitle || null,
-          voiceNoteSender: flowData.voiceNoteSender || null,
-          agencyPhone: flowData.agencyPhone || null,
+          templateId: mergedData.selectedTemplateId || "emerald-noir",
+          plan: mergedData.selectedPlan || "classic",
+          category: mergedData.category || category,
+          partner1Name: mergedData.partner1Name,
+          partner2Name: mergedData.partner2Name.trim() || (isBirthday ? "Birthday Celebration" : isSchool ? "Class Celebration" : isMeeting ? "Executive Event" : ""),
+          venue: mergedData.venue,
+          venueAddress: mergedData.venueAddress,
+          welcomeMessage: mergedData.welcomeMessage,
+          backgroundMusic: mergedData.backgroundMusic,
+          dressCodeWomen: mergedData.dressCodeWomen,
+          dressCodeMen: mergedData.dressCodeMen,
+          transportation: mergedData.transportation,
+          accommodation: mergedData.accommodation,
+          gifts: mergedData.gifts,
+          heroImageUrl: mergedData.heroImage,
+          slideshowImageUrls: mergedData.slideshowImages,
+          events: mergedData.events,
+          isActive: mergedData.paymentDone ?? false,
+          showBismillah: mergedData.showBismillah,
+          showQuranVerse: mergedData.showQuranVerse,
+          customVerseText: mergedData.customVerseText || undefined,
+          customVerseSource: mergedData.customVerseSource || undefined,
+          youtubeVideoId: mergedData.youtubeVideoId,
+          slug: mergedData.slug || undefined,
+          primaryHostFamily: mergedData.primaryHostFamily,
+          secondaryHostFamily: mergedData.secondaryHostFamily,
+          primaryHostCity: mergedData.primaryHostCity,
+          secondaryHostCity: mergedData.secondaryHostCity,
+          contactPhone: mergedData.contactPhone,
+          isSegregated: mergedData.isSegregated ?? false,
+          venueDetailsSegregated: mergedData.venueDetailsSegregated,
+          showNikahRegistration: mergedData.showNikahRegistration ?? false,
+          showCrowdPhotoWall: mergedData.showCrowdPhotoWall ?? true,
+          hideDigitalShagun: mergedData.hideDigitalShagun ?? false,
+          voiceNoteUrl: mergedData.voiceNoteUrl || null,
+          voiceNoteTitle: mergedData.voiceNoteTitle || null,
+          voiceNoteSender: mergedData.voiceNoteSender || null,
+          agencyPhone: mergedData.agencyPhone || null,
         }),
       });
 
@@ -423,7 +427,7 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
         const data = await res.json();
         // POST returns { invitationId: ... }, PUT returns { invitation: { id: ... } }
         const newId = data.invitationId || data.invitation?.id;
-        if (!isEdit && newId) {
+        if (!targetId && newId) {
           onUpdateData({ invitationId: newId });
         }
         if (showToast) {
@@ -779,9 +783,11 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
           primaryHostCity: flowData.primaryHostCity,
           secondaryHostCity: flowData.secondaryHostCity,
           contactPhone: flowData.contactPhone,
-          isSegregated: flowData.isSegregated,
+          isSegregated: flowData.isSegregated ?? false,
           venueDetailsSegregated: flowData.venueDetailsSegregated,
-          showNikahRegistration: flowData.showNikahRegistration,
+          showNikahRegistration: flowData.showNikahRegistration ?? false,
+          showCrowdPhotoWall: flowData.showCrowdPhotoWall ?? true,
+          hideDigitalShagun: flowData.hideDigitalShagun ?? false,
           voiceNoteUrl: flowData.voiceNoteUrl || null,
           voiceNoteTitle: flowData.voiceNoteTitle || null,
           voiceNoteSender: flowData.voiceNoteSender || null,
@@ -1256,9 +1262,13 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                       <button
                         type="button"
                         role="switch"
-                        aria-checked={flowData.showBismillah}
+                        aria-checked={Boolean(flowData.showBismillah)}
                         className="w-full flex items-center justify-between rounded-2xl border border-border/60 p-4 cursor-pointer hover:bg-muted/30 transition-colors text-left"
-                        onClick={() => onUpdateData({ showBismillah: !flowData.showBismillah })}
+                        onClick={() => {
+                          const newShow = !flowData.showBismillah;
+                          onUpdateData({ showBismillah: newShow });
+                          autoSaveDraft(currentStep, false, { showBismillah: newShow });
+                        }}
                       >
                         <div className="flex-1 pr-4">
                           <p className="text-sm font-semibold text-foreground">Show Bismillah Header</p>
@@ -1272,9 +1282,13 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                       <button
                         type="button"
                         role="switch"
-                        aria-checked={flowData.showQuranVerse}
+                        aria-checked={Boolean(flowData.showQuranVerse)}
                         className="w-full flex items-center justify-between rounded-2xl border border-border/60 p-4 cursor-pointer hover:bg-muted/30 transition-colors text-left"
-                        onClick={() => onUpdateData({ showQuranVerse: !flowData.showQuranVerse })}
+                        onClick={() => {
+                          const newShow = !flowData.showQuranVerse;
+                          onUpdateData({ showQuranVerse: newShow });
+                          autoSaveDraft(currentStep, false, { showQuranVerse: newShow });
+                        }}
                       >
                         <div className="flex-1 pr-4">
                           <p className="text-sm font-semibold text-foreground">Show Quranic Verse (Surah Ar-Rum 30:21)</p>
@@ -1379,9 +1393,13 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                       <button
                         type="button"
                         role="switch"
-                        aria-checked={flowData.showNikahRegistration}
+                        aria-checked={Boolean(flowData.showNikahRegistration)}
                         className="w-full flex items-center justify-between rounded-2xl border border-border/60 p-4 cursor-pointer hover:bg-muted/30 transition-colors text-left"
-                        onClick={() => onUpdateData({ showNikahRegistration: !flowData.showNikahRegistration })}
+                        onClick={() => {
+                          const newShow = !flowData.showNikahRegistration;
+                          onUpdateData({ showNikahRegistration: newShow });
+                          autoSaveDraft(currentStep, false, { showNikahRegistration: newShow });
+                        }}
                       >
                         <div className="flex-1 pr-4">
                           <p className="text-sm font-semibold text-foreground">Show Nikah Registration Note</p>
@@ -1396,9 +1414,13 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                         <button
                           type="button"
                           role="switch"
-                          aria-checked={flowData.isSegregated}
+                          aria-checked={Boolean(flowData.isSegregated)}
                           className="w-full flex items-center justify-between p-4 cursor-pointer hover:bg-muted/30 text-left"
-                          onClick={() => onUpdateData({ isSegregated: !flowData.isSegregated })}
+                          onClick={() => {
+                            const newSeg = !flowData.isSegregated;
+                            onUpdateData({ isSegregated: newSeg });
+                            autoSaveDraft(currentStep, false, { isSegregated: newSeg });
+                          }}
                         >
                           <div className="flex-1 pr-4">
                             <p className="text-sm font-semibold text-foreground">Separate Ladies/Gents Setup</p>
@@ -1437,9 +1459,13 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                         <button
                           type="button"
                           role="switch"
-                          aria-checked={flowData.showBismillah}
+                          aria-checked={Boolean(flowData.showBismillah)}
                           className="w-full flex items-center justify-between rounded-2xl border border-border/60 p-4 cursor-pointer hover:bg-muted/30 transition-colors text-left"
-                          onClick={() => onUpdateData({ showBismillah: !flowData.showBismillah })}
+                          onClick={() => {
+                            const newShow = !flowData.showBismillah;
+                            onUpdateData({ showBismillah: newShow });
+                            autoSaveDraft(currentStep, false, { showBismillah: newShow });
+                          }}
                         >
                           <div className="flex-1 pr-4">
                             <p className="text-sm font-semibold text-foreground">Show Calligraphy Header</p>
@@ -1453,9 +1479,13 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                         <button
                           type="button"
                           role="switch"
-                          aria-checked={flowData.showQuranVerse}
+                          aria-checked={Boolean(flowData.showQuranVerse)}
                           className="w-full flex items-center justify-between rounded-2xl border border-border/60 p-4 cursor-pointer hover:bg-muted/30 transition-colors text-left"
-                          onClick={() => onUpdateData({ showQuranVerse: !flowData.showQuranVerse })}
+                          onClick={() => {
+                            const newShow = !flowData.showQuranVerse;
+                            onUpdateData({ showQuranVerse: newShow });
+                            autoSaveDraft(currentStep, false, { showQuranVerse: newShow });
+                          }}
                         >
                           <div className="flex-1 pr-4">
                             <p className="text-sm font-semibold text-foreground">Include Inspirational / Sacred Verse</p>
@@ -2287,23 +2317,43 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                           : "Add your bank and mobile wallet details so guests can send shagun digitally."}
                       </p>
 
-                      <button
-                        type="button"
-                        role="switch"
-                        aria-checked={!flowData.hideDigitalShagun}
-                        className="w-full flex items-center justify-between rounded-2xl border border-border/60 p-4 cursor-pointer hover:bg-muted/30 transition-colors text-left mb-4"
-                        onClick={() => onUpdateData({ hideDigitalShagun: !flowData.hideDigitalShagun })}
-                      >
-                        <div>
-                          <p className="font-bold text-sm text-foreground flex items-center gap-2">
-                            Show on Invitation
-                          </p>
-                          <p className="text-[10px] text-slate-300 mt-0.5">Toggle visibility of these details for guests</p>
-                        </div>
-                        <div className={`w-10 h-6 rounded-full transition-colors relative flex items-center ${!flowData.hideDigitalShagun ? 'bg-primary' : 'bg-muted-foreground/30'}`}>
-                          <div className={`w-4 h-4 rounded-full transition-all duration-300 shadow-sm ${!flowData.hideDigitalShagun ? 'right-1 bg-slate-950' : 'left-1 bg-slate-300'}`} />
-                        </div>
-                      </button>
+                      {(() => {
+                        const isShagunVisible = flowData.hideDigitalShagun !== true;
+                        return (
+                          <button
+                            type="button"
+                            role="switch"
+                            aria-checked={isShagunVisible}
+                            className="w-full flex items-center justify-between rounded-2xl border border-border/60 p-4 cursor-pointer hover:bg-muted/30 transition-colors text-left mb-4"
+                            onClick={() => {
+                              const newHide = isShagunVisible ? true : false;
+                              onUpdateData({ hideDigitalShagun: newHide });
+                              autoSaveDraft(currentStep, false, { hideDigitalShagun: newHide });
+                            }}
+                          >
+                            <div className="flex-1 pr-4">
+                              <p className="font-bold text-sm text-foreground flex items-center gap-2">
+                                <span>Show on Invitation</span>
+                                <Badge className={`text-[10px] px-2 py-0.5 border ${
+                                  isShagunVisible 
+                                    ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" 
+                                    : "bg-muted text-slate-400 border-border"
+                                }`}>
+                                  {isShagunVisible ? "Visible" : "Hidden"}
+                                </Badge>
+                              </p>
+                              <p className="text-xs text-slate-400 mt-0.5">
+                                {isShagunVisible 
+                                  ? "Account & digital payment details will be visible to guests" 
+                                  : "These account details will be hidden from guests"}
+                              </p>
+                            </div>
+                            <div className={`relative w-12 h-6 rounded-full transition-colors shrink-0 ${isShagunVisible ? 'bg-primary' : 'bg-muted'}`}>
+                              <div className={`absolute top-1 w-4 h-4 rounded-full ${isShagunVisible ? 'bg-slate-950' : 'bg-slate-300'} transition-transform ${isShagunVisible ? 'translate-x-7' : 'translate-x-1'}`} />
+                            </div>
+                          </button>
+                        );
+                      })()}
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <Input
@@ -2369,6 +2419,102 @@ export function DetailsPage({ flowData, onUpdateData, onBack, onContinue, onRequ
                       <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 bg-gradient-to-r from-gold/10 via-amber-500/10 to-transparent p-4 rounded-2xl border border-gold/30">
                         <p className="text-xs text-slate-300 font-medium">
                           Upgrade to the <strong className="text-primary">Royal Plan</strong> to allow guests to transfer Digital Shagun via Bank, EasyPaisa, JazzCash &amp; Raast.
+                        </p>
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            onUpdateData({ selectedPlan: 'royal' });
+                            toast.success("Switched to Royal Plan! Feature unlocked.");
+                          }}
+                          className="bg-primary hover:bg-primary-light text-slate-950 font-black text-xs gap-1.5 shrink-0 shadow-md px-4"
+                        >
+                          <Sparkles className="w-3.5 h-3.5 text-slate-950 stroke-[2.5]" /> Upgrade to Royal
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Live Crowd Photo Wall (Royal Feature - Guest Uploads & Live Stream) */}
+                  {flowData.selectedPlan === "royal" ? (
+                    <section className="p-6 rounded-3xl bg-card/70 border border-border/60 shadow-xl backdrop-blur-xl space-y-4">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-xl bg-primary/15 border border-gold/30 flex items-center justify-center text-primary">
+                            <Camera className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <h2 className="font-display text-lg font-bold text-foreground">
+                              Live Crowd Photo Wall
+                            </h2>
+                            <p className="text-[11px] text-slate-300">
+                              Guest selfies &amp; live event photo uploads
+                            </p>
+                          </div>
+                        </div>
+
+                        <Badge className={`text-[10px] px-2.5 py-0.5 border ${
+                          flowData.showCrowdPhotoWall !== false 
+                            ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" 
+                            : "bg-muted text-slate-400 border-border"
+                        }`}>
+                          {flowData.showCrowdPhotoWall !== false ? "Enabled" : "Disabled"}
+                        </Badge>
+                      </div>
+
+                      <p className="text-xs text-slate-300 font-medium leading-relaxed">
+                        Allow guests to take live photos with their phones and upload them directly onto your invitation’s interactive photo wall. You can turn this off if you prefer a strictly private event without guest photo sharing.
+                      </p>
+
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={flowData.showCrowdPhotoWall !== false}
+                        className="w-full flex items-center justify-between rounded-2xl border border-border/60 p-4 cursor-pointer hover:bg-muted/30 transition-colors text-left"
+                        onClick={() => {
+                          const newShow = flowData.showCrowdPhotoWall === false ? true : false;
+                          onUpdateData({ showCrowdPhotoWall: newShow });
+                          autoSaveDraft(currentStep, false, { showCrowdPhotoWall: newShow });
+                        }}
+                      >
+                        <div className="flex-1 pr-4">
+                          <p className="text-sm font-semibold text-foreground">
+                            {flowData.showCrowdPhotoWall !== false ? "Live Photo Wall Active" : "Live Photo Wall Disabled"}
+                          </p>
+                          <p className="text-xs text-slate-400 mt-0.5">
+                            {flowData.showCrowdPhotoWall !== false 
+                              ? "Guests can upload photos and view the crowd gallery" 
+                              : "Photo wall and upload buttons are hidden from guests"}
+                          </p>
+                        </div>
+                        <div className={`relative w-12 h-6 rounded-full transition-colors ${flowData.showCrowdPhotoWall !== false ? "bg-primary" : "bg-muted"}`}>
+                          <div className={`absolute top-1 w-4 h-4 rounded-full ${flowData.showCrowdPhotoWall !== false ? "bg-slate-950" : "bg-slate-300"} transition-transform ${flowData.showCrowdPhotoWall !== false ? "translate-x-7" : "translate-x-1"}`} />
+                        </div>
+                      </button>
+                    </section>
+                  ) : (
+                    /* Classic Teaser */
+                    <div className="p-6 rounded-3xl bg-card/40 border border-border/60 shadow-lg backdrop-blur-sm space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-xl bg-muted/60 border border-border flex items-center justify-center text-muted-foreground">
+                            <Camera className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <h2 className="font-display text-lg font-bold text-slate-400 flex items-center gap-2">
+                              Live Crowd Photo Wall
+                              <Badge className="bg-primary/20 text-primary border-primary/30 text-[10px]">Royal</Badge>
+                            </h2>
+                            <p className="text-[11px] text-slate-300">
+                              Guest selfies &amp; live event photo uploads
+                            </p>
+                          </div>
+                        </div>
+                        <Lock className="w-4 h-4 text-muted-foreground" />
+                      </div>
+
+                      <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 bg-gradient-to-r from-gold/10 via-amber-500/10 to-transparent p-4 rounded-2xl border border-gold/30">
+                        <p className="text-xs text-slate-300 font-medium">
+                          Upgrade to the <strong className="text-primary">Royal Plan</strong> to enable the Live Crowd Photo Wall so guests can capture &amp; share live memories during your event.
                         </p>
                         <Button
                           size="sm"

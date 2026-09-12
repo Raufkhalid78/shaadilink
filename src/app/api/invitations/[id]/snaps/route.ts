@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { uploadLimiter, getClientIp } from '@/lib/rate-limit';
+import { uploadToR2 } from '@/lib/r2';
 
 function isValidImageBytes(buffer: ArrayBuffer): boolean {
   if (buffer.byteLength < 4) return false;
@@ -128,23 +129,19 @@ export async function POST(
 
     const rawExt = file.name?.split('.').pop()?.toLowerCase() ?? 'jpg';
     const cleanExt = ['jpg', 'jpeg', 'png', 'webp', 'heic'].includes(rawExt) ? rawExt : 'jpg';
-    const filePath = `snaps/${inv.id}/${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${cleanExt}`;
+    const filePath = `users/snaps/${inv.id}/${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${cleanExt}`;
 
-    const { error: uploadErr } = await service.storage
-      .from('invitation-images')
-      .upload(filePath, buffer, {
+    let publicUrl: string;
+    try {
+      publicUrl = await uploadToR2({
+        key: filePath,
+        body: Buffer.from(buffer),
         contentType: file.type || `image/${cleanExt === 'jpg' ? 'jpeg' : cleanExt}`,
-        upsert: false,
       });
-
-    if (uploadErr) {
-      console.error('Storage snap upload error:', uploadErr);
-      return NextResponse.json({ error: 'Failed to store image. Please try again.' }, { status: 500 });
+    } catch (uploadErr) {
+      console.error('R2 snap upload error:', uploadErr);
+      return NextResponse.json({ error: 'Failed to store image in storage. Please try again.' }, { status: 500 });
     }
-
-    const { data: { publicUrl } } = service.storage
-      .from('invitation-images')
-      .getPublicUrl(filePath);
 
     // Save record in guest_snaps table
     const { data: snapRecord, error: insertErr } = await service

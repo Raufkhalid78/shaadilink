@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react'
 import { Cinzel_Decorative, Great_Vibes } from 'next/font/google'
 import { m, AnimatePresence } from 'framer-motion'
-import { MapPin, Calendar, Clock, ChevronDown, Heart, Sparkles, Send, Check, X, User, Hotel, Car, Gift, Copy, Loader2, Share2 } from 'lucide-react'
+import { MapPin, Calendar, Clock, ChevronDown, Heart, Sparkles, Send, Check, X, User, Hotel, Car, Gift, Copy, Loader2, Share2, FastForward } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -20,6 +20,8 @@ import { RevealSection, getMapEmbedQuery } from '../ui/reveal-section'
 const ScratchCard = dynamic(() => import('../features/scratch-card').then(m => m.ScratchCard), { ssr: false })
 import { CountdownTimer, AddToCalendarDropdown } from '../features/countdown-timer'
 import { PhotoGallery } from '../features/photo-gallery'
+import { CrowdPhotoWallSection } from '../features/crowd-photo-wall-section'
+import { VoiceGreetingPlayer } from '../features/voice-greeting-player'
 import { getHeartSvgPath } from '../ui/shapes'
 import type { FlowData } from '@/lib/flow-types'
 
@@ -159,6 +161,8 @@ export default function RoyalImperialViewer({ templateId, flowData, guestName, g
   const handleScreenTap = () => {
     if (isVideoEnvelope && !envelopeStarted) {
       setEnvelopeStarted(true)
+      // Synchronously play background song on direct user tap
+      s.playMusic()
       const v = document.getElementById('hero-door-video') as HTMLVideoElement
       if (v) {
         const p = v.play()
@@ -174,7 +178,7 @@ export default function RoyalImperialViewer({ templateId, flowData, guestName, g
   const handleDoorVideoEnd = () => {
     // Crossfade: door video at z-20 dissolves directly into hero media at z-0
     setDoorVideoEnding(true)
-    setTimeout(() => s.handleDoorOpen(true), 1200)
+    s.handleDoorOpen(true)
   }
 
   // Timing: Bismillah at 2s for 3s (ends at 5s), names appear at 5.5s and stay continuously
@@ -217,24 +221,11 @@ export default function RoyalImperialViewer({ templateId, flowData, guestName, g
               className="w-full h-full object-cover"
               muted
               playsInline
-              preload="auto"
+              preload="metadata"
               onEnded={handleDoorVideoEnd}
               onError={handleDoorVideoEnd}
             />
           </m.div>
-                    {/* Skip entrance button */}
-          <div className="absolute top-4 right-4 z-30">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDoorVideoEnd();
-              }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md border border-white/20 text-xs text-white/80 hover:text-white transition-all active:scale-95"
-            >
-              <span>Skip</span>
-            </button>
-          </div>
 
           {/* Tap hint */}
           <AnimatePresence>
@@ -245,14 +236,30 @@ export default function RoyalImperialViewer({ templateId, flowData, guestName, g
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ delay: 0.5, duration: 0.8 }}
-                className="absolute inset-0 flex items-end justify-center pb-16 pointer-events-none"
+                className="absolute inset-0 flex items-end justify-center pb-24 pointer-events-none"
               >
                 <div className="px-8 py-3 rounded-full bg-black/50 backdrop-blur-md border border-white/20 text-white/90 text-sm uppercase tracking-widest animate-pulse">
-                  Tap anywhere to open
+                  {s.language === 'ur' ? 'کھولنے کے لیے کہیں بھی ٹچ کریں' : 'Tap anywhere to open'}
                 </div>
               </m.div>
             )}
           </AnimatePresence>
+
+          {/* Universal Skip to Invitation button (always accessible before doors open) */}
+          <div className="absolute bottom-7 left-0 right-0 z-40 flex justify-center pointer-events-none">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                s.playMusic();
+                handleDoorVideoEnd();
+              }}
+              className="pointer-events-auto flex items-center gap-2 px-5 py-2.5 rounded-full bg-black/70 hover:bg-black/90 backdrop-blur-md border border-white/25 text-xs font-semibold tracking-wider text-white/90 hover:text-white shadow-2xl transition-all active:scale-95 cursor-pointer"
+            >
+              <span>{s.language === 'ur' ? 'دعوت نامہ دیکھیں' : 'Skip to Invitation'}</span>
+              <FastForward className="w-3.5 h-3.5 text-amber-400" />
+            </button>
+          </div>
         </div>
       )}
 
@@ -265,7 +272,7 @@ export default function RoyalImperialViewer({ templateId, flowData, guestName, g
           className="fixed inset-0 z-50 pointer-events-none"
           style={{ perspective: ['classic-doors', 'archway', 'lantern', 'dome'].includes(theme.doorStyle.type) ? '1200px' : undefined }}
         >
-          <DoorOverlay theme={theme} doorsOpened={s.doorsOpened} onOpen={s.handleDoorOpen} />
+          <DoorOverlay theme={theme} doorsOpened={s.doorsOpened} onOpen={s.handleDoorOpen} language={s.language} />
         </div>
       )}
 
@@ -360,9 +367,11 @@ export default function RoyalImperialViewer({ templateId, flowData, guestName, g
       {/* ─── HERO (always rendered — seamless transition directly into hero video) ─── */}
       <section className="relative min-h-screen flex flex-col items-center justify-center px-6 py-20 overflow-hidden">
         {/* Hero media background — always active in hero section behind the video door */}
-        {theme.heroMediaUrl ? (
+        {(flowData?.heroImage || theme.heroMediaUrl) ? (
           <div className="absolute inset-0 pointer-events-none z-0">
-            {/\.(mp4|webm|mov)$/i.test(theme.heroMediaUrl) ? (
+            {flowData?.heroImage ? (
+              <img src={flowData.heroImage} alt="Hero background" className="w-full h-full object-cover" />
+            ) : /\.(mp4|webm|mov)$/i.test(theme.heroMediaUrl || '') ? (
               <video src={theme.heroMediaUrl} autoPlay loop muted playsInline className="w-full h-full object-cover" />
             ) : (
               <img src={theme.heroMediaUrl} alt="Hero background" className="w-full h-full object-cover" />
@@ -508,6 +517,19 @@ export default function RoyalImperialViewer({ templateId, flowData, guestName, g
                 style={{ color: theme.accentLight, textShadow: `0 0 15px ${getOpacityStyle('text', 0.2)}` }}>
                 {s.translatedWelcomeMsg}
               </p>
+
+              {/* Personal Host Voice Greeting Memo */}
+              {flowData?.voiceNoteUrl && (
+                <VoiceGreetingPlayer
+                  voiceNoteUrl={flowData.voiceNoteUrl}
+                  voiceNoteTitle={flowData.voiceNoteTitle}
+                  voiceNoteSender={flowData.voiceNoteSender}
+                  onPlayStart={() => {
+                    s.setMusicPlaying(false);
+                  }}
+                />
+              )}
+
               <ImperialDivider accent={theme.accent} />
             </div>
           </section>
@@ -589,6 +611,19 @@ export default function RoyalImperialViewer({ templateId, flowData, guestName, g
             </div>
           </section>
         </RevealSection>
+
+        {/* ─── CROWD PHOTO WALL (Live Guest Snaps) ─── */}
+        {flowData?.invitationId && flowData?.showCrowdPhotoWall !== false && (
+          <RevealSection>
+            <CrowdPhotoWallSection
+              invitationId={flowData.invitationId}
+              slug={flowData.slug}
+              guestName={s.translatedGuestName || s.rsvpName || guestName}
+              guestSeats={flowData.guestSeats}
+              accentColor={theme.accent}
+            />
+          </RevealSection>
+        )}
 
         {/* ─── VIDEO ─── */}
         {s.youtubeVideoId && (

@@ -16,6 +16,8 @@ import { TemplateTheme } from '../themes'
 import { useInvitationState } from '../use-invitation-state'
 import { CountdownTimer, AddToCalendarDropdown } from '../features/countdown-timer'
 import { MusicToggle } from '../ui/music-toggle'
+import { VoiceGreetingPlayer } from '../features/voice-greeting-player'
+import { CrowdPhotoWallSection } from '../features/crowd-photo-wall-section'
 
 const DoorOverlay = dynamic(() => import('../door/door-overlay').then(m => m.DoorOverlay), { ssr: false })
 const ConfettiDisplay = dynamic(() => import('../effects/confetti').then(m => m.ConfettiDisplay), { ssr: false })
@@ -217,6 +219,20 @@ export function SchoolViewerLayout({ templateId, flowData: propFlowData, guestNa
             {flowData?.welcomeMessage || 'The Chancellor, Board of Trustees, and Faculty cordially invite you to celebrate the distinguished academic achievements and graduation of our class.'}
           </p>
 
+          {/* Personal Voice Greeting / Dean's Message */}
+          {flowData?.voiceNoteUrl && (
+            <VoiceGreetingPlayer
+              voiceNoteUrl={flowData.voiceNoteUrl}
+              voiceNoteTitle={flowData.voiceNoteTitle || "Convocation Audio Address"}
+              voiceNoteSender={flowData.voiceNoteSender || `Message from ${schoolName}`}
+              onPlayStart={() => {
+                if (s.setMusicPlaying) {
+                  s.setMusicPlaying(false)
+                }
+              }}
+            />
+          )}
+
           {/* Date, Location & Calendar Card */}
           <div className="p-4 sm:p-5 rounded-3xl border border-white/10 bg-card/60 backdrop-blur-xl max-w-xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 font-sans">
             <div className="flex items-center gap-3 text-left">
@@ -384,6 +400,37 @@ export function SchoolViewerLayout({ templateId, flowData: propFlowData, guestNa
             </div>
           </div>
         </section>
+
+        {/* LIVE CROWD PHOTO WALL */}
+        {flowData?.invitationId && flowData?.showCrowdPhotoWall !== false && (
+          <section className="space-y-6">
+            <CrowdPhotoWallSection
+              invitationId={flowData.invitationId}
+              slug={flowData.slug}
+              guestName={guestName || schoolName}
+              guestSeats={flowData.guestSeats}
+              accentColor={theme.accent}
+            />
+          </section>
+        )}
+
+        {/* SCHOLARSHIP & ENDOWMENT DETAILS */}
+        {flowData?.gifts && !flowData?.hideDigitalShagun && (
+          <section className="space-y-6 max-w-xl mx-auto">
+            <div className="p-6 sm:p-8 rounded-3xl border border-white/10 bg-card/40 backdrop-blur-xl text-center space-y-4">
+              <div
+                className="w-12 h-12 rounded-2xl mx-auto flex items-center justify-center border"
+                style={{ borderColor: `${theme.accent}30`, backgroundColor: `${theme.accent}15`, color: theme.accent }}
+              >
+                <Award className="w-6 h-6" />
+              </div>
+              <h2 className="text-2xl font-bold font-serif">Scholarship Fund &amp; Endowment Details</h2>
+              <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line font-sans">
+                {flowData.gifts}
+              </p>
+            </div>
+          </section>
+        )}
 
         {/* TRIBUTES & GUESTBOOK */}
         <section className="space-y-6 font-sans">

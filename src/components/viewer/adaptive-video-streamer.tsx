@@ -149,19 +149,19 @@ export function AdaptiveVideoStreamer({
         </div>
       )}
 
-      {/* Skip / Fast Entrance Button */}
-      <div className="absolute top-4 right-4 z-20">
+      {/* Universal Skip / Fast Entrance Button */}
+      <div className="absolute bottom-7 left-0 right-0 z-30 flex justify-center pointer-events-none">
         <button
           type="button"
           onClick={(e) => {
             e.stopPropagation();
             onOpen(true);
           }}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md border border-white/20 text-xs text-white/80 hover:text-white transition-all active:scale-95"
+          className="pointer-events-auto flex items-center gap-2 px-5 py-2.5 rounded-full bg-black/70 hover:bg-black/90 backdrop-blur-md border border-white/25 text-xs font-semibold tracking-wider text-white/90 hover:text-white shadow-2xl transition-all active:scale-95 cursor-pointer"
           title="Skip animation and enter"
         >
-          <span>Skip</span>
-          <FastForward className="w-3 h-3 text-amber-400" />
+          <span>Skip to Invitation</span>
+          <FastForward className="w-3.5 h-3.5 text-amber-400" />
         </button>
       </div>
 

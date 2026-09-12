@@ -239,18 +239,18 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
     const absoluteSrc = trackSrc.startsWith('http') ? trackSrc : (window.location.origin + trackSrc)
     if (!audioRef.current || audioRef.current.src !== absoluteSrc) {
       if (audioRef.current) audioRef.current.pause()
-      const audio = new Audio(trackSrc); audio.loop = true; audio.preload = 'none'; audioRef.current = audio
+      const audio = new Audio(trackSrc); audio.loop = true; audio.preload = 'auto'; audioRef.current = audio
     }
     return () => { if (audioRef.current) { audioRef.current.pause(); audioRef.current = null } }
   }, [flowData?.backgroundMusic, isDemo])
 
   const playPromiseRef = useRef<Promise<void> | null>(null)
 
-  useEffect(() => {
-    if (!audioRef.current) return
-
-    if (doorsOpened && musicPlaying) {
-      const p = audioRef.current.play()
+  const playMusic = useCallback(() => {
+    setMusicPlaying(true)
+    const audio = audioRef.current
+    if (audio) {
+      const p = audio.play()
       playPromiseRef.current = p
       if (p !== undefined) {
         p.catch((err) => {
@@ -259,6 +259,25 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
             setMusicPlaying(false)
           }
         })
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!audioRef.current) return
+
+    if (doorsOpened && musicPlaying) {
+      if (audioRef.current.paused) {
+        const p = audioRef.current.play()
+        playPromiseRef.current = p
+        if (p !== undefined) {
+          p.catch((err) => {
+            if (err?.name !== 'AbortError') {
+              console.warn('Audio play prevented:', err)
+              setMusicPlaying(false)
+            }
+          })
+        }
       }
     } else {
       if (playPromiseRef.current) {
@@ -274,6 +293,32 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
       }
     }
   }, [doorsOpened, musicPlaying])
+
+  // Audio ducking: pause background music when host voice greeting is played, resume when it ends
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    let wasPlayingBeforeVoice = false
+    const handleVoiceStart = () => {
+      if (audioRef.current && !audioRef.current.paused) {
+        audioRef.current.pause()
+        setMusicPlaying(false)
+        wasPlayingBeforeVoice = true
+      }
+    }
+    const handleVoiceEnd = () => {
+      if (wasPlayingBeforeVoice && doorsOpened) {
+        setMusicPlaying(true)
+        audioRef.current?.play().catch(() => {})
+        wasPlayingBeforeVoice = false
+      }
+    }
+    window.addEventListener('shaadi_voice_started', handleVoiceStart)
+    window.addEventListener('shaadi_voice_ended', handleVoiceEnd)
+    return () => {
+      window.removeEventListener('shaadi_voice_started', handleVoiceStart)
+      window.removeEventListener('shaadi_voice_ended', handleVoiceEnd)
+    }
+  }, [doorsOpened])
 
   // Phase 2: Passive engagement metrics tracking
   const doorMetricSent = useRef(false)
@@ -408,10 +453,12 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
       setTimeout(() => setShowGoldDust(false), 4500 * delayFactor)
     }
     const musicTrack = flowData?.backgroundMusic || (isDemo ? 'shehnai' : null)
-    if (musicTrack && musicTrack !== 'no-music') setMusicPlaying(true)
+    if (musicTrack && musicTrack !== 'no-music') {
+      playMusic()
+    }
     setTimeout(() => setDoorOverlayVisible(false), 2800 * delayFactor)
     setTimeout(() => setHeroVisible(true), 2400 * delayFactor)
-  }, [doorsOpened, theme.id, flowData?.backgroundMusic, isDemo])
+  }, [doorsOpened, theme.id, flowData?.backgroundMusic, isDemo, playMusic])
 
   useEffect(() => {
     if (dynamicEvents.length > 0) {
@@ -533,7 +580,7 @@ export function useInvitationState(templateId: string | undefined, flowData: Flo
     language, setLanguage, translations, isTranslating,
     guestNameFromUrl, wishes,
     // Handlers
-    handleDoorOpen, handleRSVP, handleSendWish, handleScratchReveal, handleCopy, handleShare, getTranslatedEvent, t,
+    handleDoorOpen, playMusic, handleRSVP, handleSendWish, handleScratchReveal, handleCopy, handleShare, getTranslatedEvent, t,
     // Translated content
     translatedPartner1, translatedPartner2, translatedVenueName, translatedVenueAddress,
     translatedWelcomeMsg, translatedDressCodeWomen, translatedDressCodeMen,

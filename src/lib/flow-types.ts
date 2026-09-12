@@ -79,6 +79,8 @@ export interface FlowData {
   clientApprovalStatus?: "pending" | "approved" | "changes_requested";
   clientApprovalNotes?: string;
   clientApprovedAt?: string;
+  // Live Crowd Photo Wall (Royal Feature - Guest Uploads)
+  showCrowdPhotoWall?: boolean;
 }
 
 export function getDefaultEventsForCategory(category?: string | null): { name: string; date: string; time: string }[] {
@@ -173,6 +175,7 @@ export const initialFlowData: FlowData = {
   isSegregated: false,
   venueDetailsSegregated: "",
   showNikahRegistration: false,
+  showCrowdPhotoWall: true,
 };
 
 export type FlowStep =

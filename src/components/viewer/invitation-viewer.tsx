@@ -82,10 +82,10 @@ const ScratchCard = dynamic(() => import('./features/scratch-card').then(mod => 
 /* ─── Door SVG Pattern Component ─── */
 /* ─── Door Overlay Component ─── */
 
-const RoyalImperialViewer = dynamic(() => import('./royal-viewers/royal-imperial-viewer'), { ssr: false })
-const RoyalEleganceViewer = dynamic(() => import('./royal-viewers/royal-elegance-viewer'), { ssr: false })
-const GeometricGoldViewer = dynamic(() => import('./royal-viewers/geometric-gold-viewer'), { ssr: false })
-const DarkVelvetViewer = dynamic(() => import('./royal-viewers/dark-velvet-viewer'), { ssr: false })
+const RoyalImperialViewer = dynamic(() => import('./royal-viewers/royal-imperial-viewer'))
+const RoyalEleganceViewer = dynamic(() => import('./royal-viewers/royal-elegance-viewer'))
+const GeometricGoldViewer = dynamic(() => import('./royal-viewers/geometric-gold-viewer'))
+const DarkVelvetViewer = dynamic(() => import('./royal-viewers/dark-velvet-viewer'))
 const LuminaCelebrationViewer = dynamic(() => import('./royal-viewers/lumina-celebration-viewer'))
 const GoldenJubileeViewer = dynamic(() => import('./royal-viewers/golden-jubilee-viewer'))
 const GrandGalaViewer = dynamic(() => import('./royal-viewers/grand-gala-viewer'))
@@ -364,8 +364,8 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug, isReviewMod
       return
     }
 
-    const trackSrc = `/music/${musicTrack}.mp3`
-    const absoluteSrc = window.location.origin + trackSrc
+    const trackSrc = musicTrack.startsWith('http') || musicTrack.startsWith('/') ? musicTrack : `/music/${musicTrack}.mp3`
+    const absoluteSrc = trackSrc.startsWith('http') ? trackSrc : (window.location.origin + trackSrc)
     if (!audioRef.current || audioRef.current.src !== absoluteSrc) {
       if (audioRef.current) {
         audioRef.current.pause()
@@ -387,11 +387,11 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug, isReviewMod
   // Play/pause control
   const playPromiseRef = useRef<Promise<void> | null>(null)
 
-  useEffect(() => {
-    if (!audioRef.current) return
-
-    if (doorsOpened && musicPlaying) {
-      const p = audioRef.current.play()
+  const playMusic = useCallback(() => {
+    setMusicPlaying(true)
+    const audio = audioRef.current
+    if (audio) {
+      const p = audio.play()
       playPromiseRef.current = p
       if (p !== undefined) {
         p.catch(err => {
@@ -400,6 +400,25 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug, isReviewMod
             setMusicPlaying(false)
           }
         })
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!audioRef.current) return
+
+    if (doorsOpened && musicPlaying) {
+      if (audioRef.current.paused) {
+        const p = audioRef.current.play()
+        playPromiseRef.current = p
+        if (p !== undefined) {
+          p.catch(err => {
+            if (err?.name !== 'AbortError') {
+              console.warn('Audio play failed (waiting for user interaction):', err)
+              setMusicPlaying(false)
+            }
+          })
+        }
       }
     } else {
       if (playPromiseRef.current) {
@@ -416,17 +435,30 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug, isReviewMod
     }
   }, [doorsOpened, musicPlaying])
 
-  // Audio ducking: pause background sitar when host voice note is played
+  // Audio ducking: pause background sitar when host voice note is played, resume when it ends
   useEffect(() => {
+    let wasPlayingBeforeVoice = false;
     const handleVoiceStart = () => {
       if (audioRef.current && !audioRef.current.paused) {
         audioRef.current.pause();
         setMusicPlaying(false);
+        wasPlayingBeforeVoice = true;
+      }
+    };
+    const handleVoiceEnd = () => {
+      if (wasPlayingBeforeVoice && doorsOpened) {
+        setMusicPlaying(true);
+        audioRef.current?.play().catch(() => {});
+        wasPlayingBeforeVoice = false;
       }
     };
     window.addEventListener('shaadi_voice_started', handleVoiceStart);
-    return () => window.removeEventListener('shaadi_voice_started', handleVoiceStart);
-  }, []);
+    window.addEventListener('shaadi_voice_ended', handleVoiceEnd);
+    return () => {
+      window.removeEventListener('shaadi_voice_started', handleVoiceStart);
+      window.removeEventListener('shaadi_voice_ended', handleVoiceEnd);
+    };
+  }, [doorsOpened]);
 
 
   const [showConfetti, setShowConfetti] = useState(false)
@@ -478,11 +510,11 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug, isReviewMod
     }
     const musicTrack = flowData?.backgroundMusic || (isDemo ? 'tabla-beats' : null)
     if (musicTrack && musicTrack !== 'no-music') {
-      setMusicPlaying(true)
+      playMusic()
     }
     setTimeout(() => setDoorOverlayVisible(false), 2800 * delayFactor)
     setTimeout(() => setHeroVisible(true), 2400 * delayFactor)
-  }, [doorsOpened, theme.id, flowData?.backgroundMusic, isDemo])
+  }, [doorsOpened, theme.id, flowData?.backgroundMusic, isDemo, playMusic])
 
   const handleRSVP = useCallback(async (status: 'accept' | 'decline') => {
     if (!rsvpName.trim()) { toast.error('Please enter your name'); return }
@@ -947,7 +979,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug, isReviewMod
           className="fixed inset-0 z-50 pointer-events-none"
           style={{ perspective: ['classic-doors', 'archway', 'lantern', 'dome'].includes(theme.doorStyle.type) ? '1200px' : undefined }}
         >
-          <DoorOverlay theme={theme} doorsOpened={doorsOpened} onOpen={handleDoorOpen} />
+          <DoorOverlay theme={theme} doorsOpened={doorsOpened} onOpen={handleDoorOpen} language={language} />
         </div>
       )}
 
@@ -1371,7 +1403,7 @@ function ClassicViewer({ templateId, flowData, guestName, guestSlug, isReviewMod
         </RevealSection>
 
         {/* ─── Crowd Photo Wall (Live Guest Snaps) ─── */}
-        {flowData?.invitationId && (
+        {flowData?.invitationId && flowData?.showCrowdPhotoWall !== false && (
           <RevealSection>
             <CrowdPhotoWallSection
               invitationId={flowData.invitationId}
